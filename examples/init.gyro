@@ -1,5 +1,5 @@
 plugin
-    artifact: 'gyro.provider:azure:0.14-SNAPSHOT'
+    artifact: 'gyro:gyro-azure-provider:0.14-SNAPSHOT'
     repositories: [
         'http://repo1.maven.org/maven2/',
         'https://repo.gradle.org/gradle/libs-releases/',

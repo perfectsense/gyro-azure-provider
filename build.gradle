@@ -40,7 +40,7 @@ dependencies {
     compile "com.microsoft.azure:azure-storage:8.0.0"
     compile "com.microsoft.azure:adal4j:1.6.3"
 
-    compile "gyro:core:0.14-SNAPSHOT"
+    compile "gyro:gyro-core:0.14-SNAPSHOT"
 
     checkstyle 'com.puppycrawl.tools:checkstyle:8.15'
 }
@@ -49,8 +49,8 @@ dependencies {
 publishing {
     publications {
         maven(MavenPublication) {
-            groupId = 'gyro.provider'
-            artifactId = 'azure'
+            groupId = 'gyro'
+            artifactId = 'gyro-azure-provider'
             version = version
 
             from components.java
