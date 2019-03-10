@@ -1,26 +1,72 @@
 package gyro.azure.network;
 
 import gyro.core.diff.Diffable;
+import gyro.core.diff.ResourceDiffProperty;
 
+import com.microsoft.azure.management.network.LoadBalancingRule;
+import com.microsoft.azure.management.network.TransportProtocol;
+
+/**
+ * Creates a load balancer rule.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *         load-balancer-rule
+ *             load-balancer-rule-name: "test-rule-sat"
+ *             backend-port: 80
+ *             floating-ip: false
+ *             frontend-name: "test-frontend"
+ *             frontend-port: 443
+ *             idle-timeout-in-minutes: 8
+ *             protocol: "TCP"
+ *             backend-pool-name: "backendpoolname"
+ *             health-check-probe-name: "healthcheck-http"
+ *         end
+ */
 public class LoadBalancerRule extends Diffable {
 
-    private BackendPool backendPool;
+    private String backendPoolName;
     private Integer backendPort;
-    private FrontendIpConfiguration frontendIpConfiguration;
+    private Boolean floatingIp;
+    private String frontendName;
     private Integer frontendPort;
     private Integer idleTimeoutInMinutes;
     private String loadBalancerRuleName;
-    private HealthCheckProbe healthCheckProbe;
+    private String healthCheckProbeName;
     private String protocol;
 
-    public BackendPool getBackendPool() {
-        return backendPool;
+    public LoadBalancerRule() {}
+
+    public LoadBalancerRule(LoadBalancingRule rule) {
+        setBackendPoolName(rule.backend().name());
+        setBackendPort(rule.backendPort());
+        setFloatingIp(rule.floatingIPEnabled());
+        setFrontendName(rule.frontend().name());
+        setFrontendPort(rule.frontendPort());
+        setIdleTimeoutInMinutes(rule.idleTimeoutInMinutes());
+        setLoadBalancerRuleName(rule.name());
+        setHealthCheckProbeName(rule.probe().name());
+        setProtocol(rule.protocol() == TransportProtocol.TCP ? "TCP" : "UDP");
     }
 
-    public void setBackendPool(BackendPool backendPool) {
-        this.backendPool = backendPool;
+    /**
+     * The backend pool associated with the load balancer rule. (Required)
+     */
+    public String getBackendPoolName() {
+        return backendPoolName;
     }
 
+    public void setBackendPoolName(String backendPoolName) {
+        this.backendPoolName = backendPoolName;
+    }
+
+    /**
+     * The backend port that receives network traffic. (Required)
+     */
+    @ResourceDiffProperty(updatable = true)
     public Integer getBackendPort() {
         return backendPort;
     }
@@ -29,14 +75,38 @@ public class LoadBalancerRule extends Diffable {
         this.backendPort = backendPort;
     }
 
-    public FrontendIpConfiguration getFrontendIpConfiguration() {
-        return frontendIpConfiguration;
+    /**
+     * Determines whether floating ip support is enabled. Defaults to false (Required)
+     */
+    @ResourceDiffProperty(updatable = true)
+    public Boolean getFloatingIp() {
+        if (floatingIp == null) {
+            floatingIp = false;
+        }
+
+        return floatingIp;
     }
 
-    public void setFrontendIpConfiguration(FrontendIpConfiguration frontendIpConfiguration) {
-        this.frontendIpConfiguration = frontendIpConfiguration;
+    public void setFloatingIp(Boolean floatingIp) {
+        this.floatingIp = floatingIp;
     }
 
+    /**
+     * The name of the frontend associated with the load balancer rule (Required)
+     */
+    @ResourceDiffProperty(updatable = true)
+    public String getFrontendName() {
+        return frontendName;
+    }
+
+    public void setFrontendName(String frontendName) {
+        this.frontendName = frontendName;
+    }
+
+    /**
+     * The frontend port that receives network traffic. (Required)
+     */
+    @ResourceDiffProperty(updatable = true)
     public Integer getFrontendPort() {
         return frontendPort;
     }
@@ -45,6 +115,10 @@ public class LoadBalancerRule extends Diffable {
         this.frontendPort = frontendPort;
     }
 
+    /**
+     * The number of minutes before an unresponsive connection is closed. (Required)
+     */
+    @ResourceDiffProperty(updatable = true)
     public Integer getIdleTimeoutInMinutes() {
         return idleTimeoutInMinutes;
     }
@@ -53,6 +127,9 @@ public class LoadBalancerRule extends Diffable {
         this.idleTimeoutInMinutes = idleTimeoutInMinutes;
     }
 
+    /**
+     * The name of the load balancer rule. (Required)
+     */
     public String getLoadBalancerRuleName() {
         return loadBalancerRuleName;
     }
@@ -61,14 +138,21 @@ public class LoadBalancerRule extends Diffable {
         this.loadBalancerRuleName = loadBalancerRuleName;
     }
 
-    public HealthCheckProbe getHealthCheckProbe() {
-        return healthCheckProbe;
+    /**
+     * The health check probe associated with the load balancer rule. (Required)
+     */
+    public String getHealthCheckProbeName() {
+        return healthCheckProbeName;
     }
 
-    public void setHealthCheckProbe(HealthCheckProbe healthCheckProbe) {
-        this.healthCheckProbe = healthCheckProbe;
+    public void setHealthCheckProbeName(String healthCheckProbeName) {
+        this.healthCheckProbeName = healthCheckProbeName;
     }
 
+    /**
+     * The protocol used by the load balancer rule. (Required)
+     */
+    @ResourceDiffProperty(updatable = true)
     public String getProtocol() {
         return protocol;
     }
