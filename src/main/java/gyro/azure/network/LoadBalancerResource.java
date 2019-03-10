@@ -373,13 +373,18 @@ public class LoadBalancerResource extends AzureResource {
         // include frontend
         // backend
         // and probe
+        WithLBRuleOrNatOrCreate buildLoadBalancer = null;
         for (LoadBalancerRule rule : getLoadBalancerRule()) {
             chain = lb.defineLoadBalancingRule(rule.getLoadBalancerRuleName())
+            lb.defineLoadBalancingRule(rule.getLoadBalancerRuleName())
                     .withProtocol(TransportProtocol.fromString(rule.getProtocol()))
+                    .fromFrontend(rule.getFrontendName())
                     .fromFrontendPort(rule.getFrontendPort())
                     .toBackend(rule.getBackendPool().getBackendPoolName())
+                    .toBackend(rule.getBackendPoolName())
                     .toBackendPort(rule.getBackendPort())
                     .withProbe(rule.getHealthCheckProbe().getHealthProbeName())
+                    .withProbe(rule.getHealthCheckProbeName())
                     .withIdleTimeoutInMinutes(rule.getIdleTimeoutInMinutes())
             //use frontend configuration to set inbound nat pools
             for (InboundNatPool natPool : ipConfiguration.getInboundNatPool()) {
@@ -390,18 +395,29 @@ public class LoadBalancerResource extends AzureResource {
                         .toBackendPort(natPool.getBackendPort())
                         .attach();
             }
+                    .withFloatingIP(rule.getFloatingIp());
+        }
 
+        for (BackendPool backendPool : getBackendPool()) {
             //backend pool
             LoadBalancerBackend.DefinitionStages.Blank<LoadBalancer.DefinitionStages.WithCreate> backendCreate = chain.defineBackend(rule.getBackendPool().getBackendPoolName());
             if (!rule.getBackendPool().getVirtualMachineIds().isEmpty()) {
                 backendCreate.withExistingVirtualMachines(toBackend(rule.getBackendPool().getVirtualMachineIds()));
+            LoadBalancerBackend.DefinitionStages.Blank<WithCreate> backendCreate;
+            backendCreate = buildLoadBalancer.defineBackend(backendPool.getBackendPoolName());
+            if (!backendPool.getVirtualMachineIds().isEmpty()) {
+                backendCreate.withExistingVirtualMachines(toBackend(backendPool.getVirtualMachineIds()));
             }
             backendCreate.attach();
+        }
 
+        for (HealthCheckProbeHttp probe : getHealthCheckProbeHttp()) {
             //health check probe
             HealthCheckProbe probe = rule.getHealthCheckProbe();
             if (probe.getProtocol().equals("TCP")) {
                 chain.defineTcpProbe(probe.getHealthProbeName())
+            buildLoadBalancer.defineHttpProbe(probe.getHealthCheckProbeName())
+                        .withRequestPath(probe.getRequestPath())
                         .withPort(probe.getPort())
                         .withIntervalInSeconds(probe.getInterval())
                         .withNumberOfProbes(probe.getProbes())
@@ -412,13 +428,66 @@ public class LoadBalancerResource extends AzureResource {
                         .withPort(probe.getPort())
                         .withIntervalInSeconds(probe.getInterval())
                         .withNumberOfProbes(probe.getProbes())
+        }
+
+        for (HealthCheckProbeTcp probe : getHealthCheckProbeTcp()) {
+            //health check probe
+            buildLoadBalancer.defineTcpProbe(probe.getHealthCheckProbeName())
+                    .withPort(probe.getPort())
+                    .withIntervalInSeconds(probe.getInterval())
+                    .withNumberOfProbes(probe.getProbes())
+                    .attach();
+        }
+
+        //use frontend configuration to set inbound nat rules
+        LoadBalancerInboundNatPool.DefinitionStages.WithFrontend<WithCreateAndInboundNatPool> natPoolComponent = null;
+
+        //use frontend configuration to set inbound nat pools
+
+        for (InboundNatPool natPool : getInboundNatPool()) {
+            lb.defineInboundNatPool(natPool.getInboundNatPoolName())
+                    .withProtocol(TransportProtocol.fromString(natPool.getProtocol()))
+                    .fromFrontend(natPool.getFrontendName())
+                    .fromFrontendPortRange(natPool.getFrontendPortRangeStart(), natPool.getFrontendPortRangeEnd())
+                    .toBackendPort(natPool.getBackendPort())
+                    .attach();
+        }
+
+        if (getInboundNatPool().isEmpty()) {
+            LoadBalancerInboundNatRule.DefinitionStages.WithFrontend<WithCreateAndInboundNatRule> natRuleComponent = null;
+
+            for (InboundNatRule natRule : getInboundNatRule()) {
+
+                lb.defineInboundNatRule(natRule.getInboundNatRuleName())
+                        .withProtocol(TransportProtocol.fromString(natRule.getProtocol()))
+                        .fromFrontend(natRule.getFrontendName())
+                        .fromFrontendPort(natRule.getFrontendPort())
+                        .withFloatingIP(natRule.getFloatingIp())
+                        .toBackendPort(natRule.getBackendPort())
                         .attach();
             }
         }
 
+        for (PublicFrontend publicFrontend : getPublicFrontend()) {
             LoadBalancerPublicFrontend.DefinitionStages.WithAttach withAttach = null;
 
+            PublicIPAddress ip = client.publicIPAddresses()
+                    .getByResourceGroup(getResourceGroupName(), publicFrontend.getPublicIpAddressName());
 
+            buildLoadBalancer.definePublicFrontend(publicFrontend.getPublicFrontendName())
+                    .withExistingPublicIPAddress(ip)
+                    .attach();
+        }
+
+        for (PrivateFrontend privateFrontend : getPrivateFrontend()) {
+            LoadBalancerPrivateFrontend.DefinitionStages.WithAttach withAttachPrivate;
+
+            Network network = client.networks().getById(privateFrontend.getNetworkId());
+            withAttachPrivate = buildLoadBalancer.definePrivateFrontend(privateFrontend.getPrivateFrontendName())
+                    .withExistingSubnet(network, privateFrontend.getSubnetName());
+
+            if (privateFrontend.getPrivateIpAddress() != null) {
+                withAttachPrivate.withPrivateIPAddressStatic(privateFrontend.getPrivateIpAddress());
             } else {
                 withAttachPrivate.withPrivateIPAddressDynamic();
             }
@@ -427,6 +496,11 @@ public class LoadBalancerResource extends AzureResource {
 
         //add tags
         chain.withTags(getTags()).create();
+        LoadBalancer loadBalancer = buildLoadBalancer
+                .withSku(getSkuBasic() ? LoadBalancerSkuType.BASIC : LoadBalancerSkuType.STANDARD)
+                .withTags(getTags()).create();
+
+        setLoadBalancerId(loadBalancer.id());
     }
 
     @Override
