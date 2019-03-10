@@ -361,48 +361,27 @@ public class LoadBalancerResource extends AzureResource {
     public void create() {
         Azure client = createClient();
 
-        //get necessary load balancer
         LoadBalancer.DefinitionStages.WithLBRuleOrNat lb = client.loadBalancers()
                 .define(getLoadBalancerName())
                 .withRegion(Region.fromName(getRegion()))
                 .withExistingResourceGroup(getResourceGroupName());
 
-        LoadBalancer.DefinitionStages.WithLBRuleOrNatOrCreate chain = null;
 
-        // loop over load balancer rules
-        // include frontend
-        // backend
-        // and probe
         WithLBRuleOrNatOrCreate buildLoadBalancer = null;
         for (LoadBalancerRule rule : getLoadBalancerRule()) {
-            chain = lb.defineLoadBalancingRule(rule.getLoadBalancerRuleName())
             lb.defineLoadBalancingRule(rule.getLoadBalancerRuleName())
                     .withProtocol(TransportProtocol.fromString(rule.getProtocol()))
                     .fromFrontend(rule.getFrontendName())
                     .fromFrontendPort(rule.getFrontendPort())
-                    .toBackend(rule.getBackendPool().getBackendPoolName())
                     .toBackend(rule.getBackendPoolName())
                     .toBackendPort(rule.getBackendPort())
-                    .withProbe(rule.getHealthCheckProbe().getHealthProbeName())
                     .withProbe(rule.getHealthCheckProbeName())
                     .withIdleTimeoutInMinutes(rule.getIdleTimeoutInMinutes())
-            //use frontend configuration to set inbound nat pools
-            for (InboundNatPool natPool : ipConfiguration.getInboundNatPool()) {
-                chain.defineInboundNatPool(natPool.getInboundNatPoolName())
-                        .withProtocol(TransportProtocol.fromString(natPool.getProtocol()))
-                        .fromExistingSubnet("load-balancer-network-example", "subnet1")
-                        .fromFrontendPortRange(natPool.getFrontendPortRangeStart(), natPool.getFrontendPortRangeEnd())
-                        .toBackendPort(natPool.getBackendPort())
-                        .attach();
-            }
                     .withFloatingIP(rule.getFloatingIp());
         }
 
         for (BackendPool backendPool : getBackendPool()) {
             //backend pool
-            LoadBalancerBackend.DefinitionStages.Blank<LoadBalancer.DefinitionStages.WithCreate> backendCreate = chain.defineBackend(rule.getBackendPool().getBackendPoolName());
-            if (!rule.getBackendPool().getVirtualMachineIds().isEmpty()) {
-                backendCreate.withExistingVirtualMachines(toBackend(rule.getBackendPool().getVirtualMachineIds()));
             LoadBalancerBackend.DefinitionStages.Blank<WithCreate> backendCreate;
             backendCreate = buildLoadBalancer.defineBackend(backendPool.getBackendPoolName());
             if (!backendPool.getVirtualMachineIds().isEmpty()) {
@@ -413,21 +392,12 @@ public class LoadBalancerResource extends AzureResource {
 
         for (HealthCheckProbeHttp probe : getHealthCheckProbeHttp()) {
             //health check probe
-            HealthCheckProbe probe = rule.getHealthCheckProbe();
-            if (probe.getProtocol().equals("TCP")) {
-                chain.defineTcpProbe(probe.getHealthProbeName())
             buildLoadBalancer.defineHttpProbe(probe.getHealthCheckProbeName())
                         .withRequestPath(probe.getRequestPath())
                         .withPort(probe.getPort())
                         .withIntervalInSeconds(probe.getInterval())
                         .withNumberOfProbes(probe.getProbes())
                         .attach();
-            } else {
-                chain.defineHttpProbe(probe.getHealthProbeName())
-                        .withRequestPath(probe.getPath())
-                        .withPort(probe.getPort())
-                        .withIntervalInSeconds(probe.getInterval())
-                        .withNumberOfProbes(probe.getProbes())
         }
 
         for (HealthCheckProbeTcp probe : getHealthCheckProbeTcp()) {
@@ -494,8 +464,6 @@ public class LoadBalancerResource extends AzureResource {
             withAttachPrivate.attach();
         }
 
-        //add tags
-        chain.withTags(getTags()).create();
         LoadBalancer loadBalancer = buildLoadBalancer
                 .withSku(getSkuBasic() ? LoadBalancerSkuType.BASIC : LoadBalancerSkuType.STANDARD)
                 .withTags(getTags()).create();
