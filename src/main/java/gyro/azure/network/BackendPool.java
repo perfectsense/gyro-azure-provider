@@ -1,11 +1,6 @@
 package gyro.azure.network;
 
-import com.microsoft.azure.management.Azure;
-import gyro.azure.AzureResource;
-
-
 import gyro.core.diff.Diffable;
-import com.microsoft.azure.management.network.model.HasNetworkInterfaces;
 
 import com.microsoft.azure.management.network.LoadBalancerBackend;
 
@@ -69,14 +64,4 @@ public class BackendPool extends Diffable {
     public String toDisplayString() {
         return "backend pool " + getBackendPoolName();
     }
-
-    /*
-    public List<HasNetworkInterfaces> toBackend() {
-        Azure client = createClient();
-
-        List<HasNetworkInterfaces> virtualMachines = new ArrayList<>();
-        getVirtualMachineIds().stream().forEach(vm -> virtualMachines.add(client.virtualMachines().getById(vm)));
-
-        return virtualMachines;
-    }*/
 }
