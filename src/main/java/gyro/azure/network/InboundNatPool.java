@@ -1,17 +1,13 @@
 package gyro.azure.network;
 
 import gyro.core.diff.Diffable;
-
 public class InboundNatPool extends Diffable {
 
     private Integer backendPort;
-    private String frontendPort;
     private Integer frontendPortRangeStart;
     private Integer frontendPortRangeEnd;
     private String inboundNatPoolName;
     private String protocol;
-    private String staticPublicIpAddress;
-    private String subnet;
 
     public Integer getBackendPort() {
         return backendPort;
@@ -21,12 +17,8 @@ public class InboundNatPool extends Diffable {
         this.backendPort = backendPort;
     }
 
-    public String getFrontendPort() {
-        return frontendPort;
     }
 
-    public void setFrontendPort(String frontendPort) {
-        this.frontendPort = frontendPort;
     }
 
     public Integer getFrontendPortRangeStart() {
@@ -59,22 +51,6 @@ public class InboundNatPool extends Diffable {
 
     public void setProtocol(String protocol) {
         this.protocol = protocol;
-    }
-
-    public String getStaticPublicIpAddress() {
-        return staticPublicIpAddress;
-    }
-
-    public void setStaticPublicIpAddress(String staticPublicIpAddress) {
-        this.staticPublicIpAddress = staticPublicIpAddress;
-    }
-
-    public String getSubnet() {
-        return subnet;
-    }
-
-    public void setSubnet(String subnet) {
-        this.subnet = subnet;
     }
 
     public String primaryKey() {
