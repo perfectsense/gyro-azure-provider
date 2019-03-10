@@ -33,23 +33,184 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Creates a load balancer.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *         azure::load-balancer load-balancer-example
+ *             load-balancer-name: "load-balancer-example"
+ *             resource-group-name: $(azure::resource-group resource-group-lb-example | resource-group-name)
+ *             sku-basic: true
+ *
+ *
+ *             public-frontend
+ *                 public-frontend-name: "public-frontend"
+ *                 public-ip-address-name: $(azure::public-ip-address public-ip-address | public-ip-address-name)
+ *
+ *                 inbound-nat-rule
+ *                     inbound-nat-rule-name: "test-nat-rule"
+ *                     frontend-name: "public-frontend"
+ *                     frontend-port: 80
+ *                     protocol: "TCP"
+ *                 end
+ *             end
+ *
+ *             backend-pool
+ *                 backend-pool-name: "backend-pool-name"
+ *                 virtual-machine-ids: [$(azure::virtual-machine virtual-machine-example-lb | virtual-machine-id)]
+ *             end
+ *
+ *             load-balancer-rule
+ *                 load-balancer-rule-name: "test-rule"
+ *                 backend-port: 80
+ *                 floating-ip: false
+ *                 frontend-name: "public-frontend"
+ *                 frontend-port: 443
+ *                 idle-timeout-in-minutes: 8
+ *                 protocol: "TCP"
+ *                 backend-pool-name: "backend-pool-name"
+ *                 health-check-probe-name: "healthcheck-tcp"
+ *             end
+ *
+ *             health-check-probe-tcp
+ *                 health-probe-name: "healthcheck-tcp"
+ *                 interval: 5
+ *                 port: 80
+ *                 probes: 2
+ *                 protocol: "TCP"
+ *             end
+ *
+ *             tags: {
+ *                     Name: "load-balancer-example"
+ *             }
+ *         end
+ */
 @ResourceName("load-balancer")
 public class LoadBalancerResource extends AzureResource {
 
     private Frontend frontend;
+    private List<BackendPool> backendPool;
+    private Map<String, Frontend> frontends;
+    private List<HealthCheckProbeHttp> healthCheckProbeHttp;
+    private List<HealthCheckProbeTcp> healthCheckProbeTcp;
+    private List<InboundNatPool> inboundNatPool;
+    private List<InboundNatRule> inboundNatRule;
+    private String loadBalancerId;
     private String loadBalancerName;
     private List<LoadBalancerRule> loadBalancerRule;
+    private List<PrivateFrontend> privateFrontend;
+    private List<PublicFrontend> publicFrontend;
     private String resourceGroupName;
+    private Boolean skuBasic;
     private Map<String, String> tags;
 
     public Frontend getFrontend() {
         return frontend;
+    /**
+     * The backend pools associated with the load balancer. (Required)
+     */
+    public List<BackendPool> getBackendPool() {
+        return backendPool;
     }
 
     public void setFrontend(Frontend frontend) {
         this.frontend = frontend;
+    public void setBackendPool(List<BackendPool> backendPool) {
+        this.backendPool = backendPool;
     }
 
+    @ResourceDiffProperty(updatable = true)
+    public Map<String, Frontend> getFrontends() {
+        if (frontends == null) {
+            frontends = new HashMap<>();
+        }
+
+        getPrivateFrontend()
+                .stream()
+                .forEach(frontend -> frontends.put(frontend.getPrivateFrontendName(), frontend));
+
+        getPublicFrontend().stream()
+                .forEach(frontend -> frontends.put(frontend.getPublicFrontendName(), frontend));
+
+        return frontends;
+    }
+
+    public void setFrontends(Map<String, Frontend> frontends) {
+        this.frontends = frontends;
+    }
+
+    /**
+     * The http probes associated with the load balancer. (Optional)
+     */
+    @ResourceDiffProperty(updatable = true)
+    public List<HealthCheckProbeHttp> getHealthCheckProbeHttp() {
+        return healthCheckProbeHttp;
+    }
+
+    public void setHealthCheckProbeHttp(List<HealthCheckProbeHttp> healthCheckProbeHttp) {
+        this.healthCheckProbeHttp = healthCheckProbeHttp;
+    }
+
+    /**
+     * The tcp probes associated with the load balancer. (Optional)
+     */
+    @ResourceDiffProperty(updatable = true)
+    public List<HealthCheckProbeTcp> getHealthCheckProbeTcp() {
+        return healthCheckProbeTcp;
+    }
+
+    public void setHealthCheckProbeTcp(List<HealthCheckProbeTcp> healthCheckProbeTcp) {
+        this.healthCheckProbeTcp = healthCheckProbeTcp;
+    }
+
+    /**
+     * The inbound nat pools associated with the load balancer. (Optional)
+     */
+    @ResourceDiffProperty(updatable = true)
+    public List<InboundNatPool> getInboundNatPool() {
+        if (inboundNatPool == null) {
+            inboundNatPool = new ArrayList<>();
+        }
+
+        return inboundNatPool;
+    }
+
+    public void setInboundNatPool(List<InboundNatPool> inboundNatPool) {
+        this.inboundNatPool = inboundNatPool;
+    }
+
+    /**
+     * The inbound nat rules associated with the load balancer. (Optional)
+     */
+    @ResourceDiffProperty(updatable = true)
+    public List<InboundNatRule> getInboundNatRule() {
+        if (inboundNatRule == null) {
+            inboundNatRule = new ArrayList<>();
+        }
+
+        return inboundNatRule;
+    }
+
+    public void setInboundNatRule(List<InboundNatRule> inboundNatRule) {
+        this.inboundNatRule = inboundNatRule;
+    }
+
+    @ResourceOutput
+    public String getLoadBalancerId() {
+        return loadBalancerId;
+    }
+
+    public void setLoadBalancerId(String loadBalancerId) {
+        this.loadBalancerId = loadBalancerId;
+    }
+
+    /**
+     * The name of the load balancer. (Required)
+     */
     public String getLoadBalancerName() {
         return loadBalancerName;
     }
@@ -58,12 +219,46 @@ public class LoadBalancerResource extends AzureResource {
         this.loadBalancerName = loadBalancerName;
     }
 
+    /**
+     * The load balancer rules associated with the load balancer. (Required)
+     */
+    @ResourceDiffProperty(updatable = true)
     public List<LoadBalancerRule> getLoadBalancerRule() {
         return loadBalancerRule;
     }
 
     public void setLoadBalancerRule(List<LoadBalancerRule> loadBalancerRule) {
         this.loadBalancerRule = loadBalancerRule;
+    }
+
+    /**
+     * The private frontends associated with the load balancer. (Optional)
+     */
+    public List<PrivateFrontend> getPrivateFrontend() {
+        if (privateFrontend == null) {
+            privateFrontend = new ArrayList<>();
+        }
+
+        return privateFrontend;
+    }
+
+    public void setPrivateFrontend(List<PrivateFrontend> privateFrontend) {
+        this.privateFrontend = privateFrontend;
+    }
+
+    /**
+     * The public frontends associated with the load balancer. (Optional)
+     */
+    public List<PublicFrontend> getPublicFrontend() {
+        if (publicFrontend == null) {
+            publicFrontend = new ArrayList<>();
+        }
+
+        return publicFrontend;
+    }
+
+    public void setPublicFrontend(List<PublicFrontend> publicFrontend) {
+        this.publicFrontend = publicFrontend;
     }
 
     public String getResourceGroupName() {
@@ -74,6 +269,25 @@ public class LoadBalancerResource extends AzureResource {
         this.resourceGroupName = resourceGroupName;
     }
 
+    /**
+     * Specifies if the sku type is basic or standard. Defaults to true. (Required)
+     */
+    @ResourceDiffProperty(updatable = true)
+    public Boolean getSkuBasic() {
+        if (skuBasic == null) {
+            skuBasic = true;
+        }
+
+        return skuBasic;
+    }
+
+    public void setSkuBasic(Boolean skuBasic) {
+        this.skuBasic = skuBasic;
+    }
+
+    /**
+     * The tags associated with the load baalancer. (Optional)
+     */
     @ResourceDiffProperty(updatable = true)
     public Map<String, String> getTags() {
         if (tags == null) {
