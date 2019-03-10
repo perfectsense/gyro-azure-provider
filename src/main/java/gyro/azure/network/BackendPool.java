@@ -7,14 +7,41 @@ import gyro.azure.AzureResource;
 import gyro.core.diff.Diffable;
 import com.microsoft.azure.management.network.model.HasNetworkInterfaces;
 
+import com.microsoft.azure.management.network.LoadBalancerBackend;
+
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Creates a backend pool.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *         backend-pool
+ *             backend-pool-name: "backendpoolname"
+ *             virtual-machine-ids: [$(azure::virtual-machine virtual-machine-example-lb | virtual-machine-id)]
+ *         end
+ */
 public class BackendPool extends Diffable {
 
     private String backendPoolName;
     private List<String> virtualMachineIds;
 
+    public BackendPool(){
+
+    }
+
+    public BackendPool(LoadBalancerBackend backend) {
+        setBackendPoolName(backendPoolName);
+        setVirtualMachineIds(new ArrayList<>(backend.getVirtualMachineIds()));
+    }
+
+    /**
+     * The name of the backend pool. (Required)
+     */
     public String getBackendPoolName() {
         return backendPoolName;
     }
@@ -23,6 +50,9 @@ public class BackendPool extends Diffable {
         this.backendPoolName = backendPoolName;
     }
 
+    /**
+     * The virtual machine ids associated with backend pool. (Required)
+     */
     public List<String> getVirtualMachineIds() {
         return virtualMachineIds;
     }
