@@ -2,7 +2,6 @@ package gyro.azure.network;
 
 import gyro.core.diff.Diffable;
 
-public class Frontend extends Diffable {
 
     private Boolean staticPublicIp;
     private String frontendName;
@@ -10,6 +9,7 @@ public class Frontend extends Diffable {
     private String networkName;
     private Boolean publicFrontEnd;
     private String subnet;
+public abstract class Frontend extends Diffable {
 
     public Boolean getStaticPublicIp() {
         return staticPublicIp;
@@ -59,19 +59,7 @@ public class Frontend extends Diffable {
         this.subnet = subnet;
     }
 
-    public String primaryKey() {
-        return String.format("%s/%s", getFrontendName(), getStaticPublicIpAddress());
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-        if (getPublicFrontEnd() == true) {
-            sb.append("public " );
-        } else {
-            sb.append("private ");
-        }
-        sb.append("frontend " + getFrontendName());
-        return sb.toString();
     }
 }
