@@ -92,7 +92,6 @@ import java.util.Set;
 @ResourceName("load-balancer")
 public class LoadBalancerResource extends AzureResource {
 
-    private Frontend frontend;
     private List<BackendPool> backendPool;
     private Map<String, Frontend> frontends;
     private List<HealthCheckProbeHttp> healthCheckProbeHttp;
@@ -108,8 +107,6 @@ public class LoadBalancerResource extends AzureResource {
     private Boolean skuBasic;
     private Map<String, String> tags;
 
-    public Frontend getFrontend() {
-        return frontend;
     /**
      * The backend pools associated with the load balancer. (Required)
      */
@@ -117,8 +114,6 @@ public class LoadBalancerResource extends AzureResource {
         return backendPool;
     }
 
-    public void setFrontend(Frontend frontend) {
-        this.frontend = frontend;
     public void setBackendPool(List<BackendPool> backendPool) {
         this.backendPool = backendPool;
     }
@@ -381,23 +376,11 @@ public class LoadBalancerResource extends AzureResource {
         for (LoadBalancerRule rule : getLoadBalancerRule()) {
             chain = lb.defineLoadBalancingRule(rule.getLoadBalancerRuleName())
                     .withProtocol(TransportProtocol.fromString(rule.getProtocol()))
-                    .fromFrontend(rule.getFrontendIpConfiguration().getFrontendIpConfigurationName())
                     .fromFrontendPort(rule.getFrontendPort())
                     .toBackend(rule.getBackendPool().getBackendPoolName())
                     .toBackendPort(rule.getBackendPort())
                     .withProbe(rule.getHealthCheckProbe().getHealthProbeName())
                     .withIdleTimeoutInMinutes(rule.getIdleTimeoutInMinutes())
-                    .attach();
-
-            //use frontend configuration to set inbound nat rules
-            FrontendIpConfiguration ipConfiguration = rule.getFrontendIpConfiguration();
-            for (InboundNatRule natRule : ipConfiguration.getInboundNatRule()) {
-                chain.defineInboundNatRule(natRule.getInboundNatRuleName())
-                    .withProtocol(TransportProtocol.fromString(natRule.getProtocol()))
-                        .fromExistingSubnet("load-balancer-network-example", "subnet1")
-                        .fromFrontendPort(rule.getFrontendPort())
-                    .attach();
-            }
             //use frontend configuration to set inbound nat pools
             for (InboundNatPool natPool : ipConfiguration.getInboundNatPool()) {
                 chain.defineInboundNatPool(natPool.getInboundNatPoolName())
@@ -433,21 +416,9 @@ public class LoadBalancerResource extends AzureResource {
             }
         }
 
-        //define public or private frontend and attach
-        Frontend frontend = getFrontend();
-        if (getFrontend().getPublicFrontEnd() == true) {
             LoadBalancerPublicFrontend.DefinitionStages.WithAttach withAttach = null;
-            withAttach = chain.definePublicFrontend(frontend.getFrontendName())
-                    .withExistingPublicIPAddress(frontend.getStaticPublicIpAddress());
 
-            withAttach.attach();
 
-        } else {
-            LoadBalancerPrivateFrontend.DefinitionStages.WithAttach withAttachPrivate = null;
-            withAttachPrivate  = chain.definePrivateFrontend(frontend.getFrontendName())
-                    .withExistingSubnet(frontend.getNetworkName(), frontend.getSubnet());;
-            if (frontend.getStaticPublicIp() == true) {
-                withAttachPrivate.withPrivateIPAddressStatic(frontend.getStaticPublicIpAddress());
             } else {
                 withAttachPrivate.withPrivateIPAddressDynamic();
             }
