@@ -739,7 +739,7 @@ public class LoadBalancerResource extends AzureResource {
         return "load balancer " + getLoadBalancerName();
     }
 
-    public List<HasNetworkInterfaces> toBackend(List<String> vmIds) {
+    private List<HasNetworkInterfaces> toBackend(List<String> vmIds) {
         Azure client = createClient();
 
         List<HasNetworkInterfaces> virtualMachines = new ArrayList<>();
