@@ -369,7 +369,7 @@ public class LoadBalancerResource extends AzureResource {
 
         WithLBRuleOrNatOrCreate buildLoadBalancer = null;
         for (LoadBalancerRule rule : getLoadBalancerRule()) {
-            lb.defineLoadBalancingRule(rule.getLoadBalancerRuleName())
+            buildLoadBalancer = lb.defineLoadBalancingRule(rule.getLoadBalancerRuleName())
                     .withProtocol(TransportProtocol.fromString(rule.getProtocol()))
                     .fromFrontend(rule.getFrontendName())
                     .fromFrontendPort(rule.getFrontendPort())
@@ -377,7 +377,8 @@ public class LoadBalancerResource extends AzureResource {
                     .toBackendPort(rule.getBackendPort())
                     .withProbe(rule.getHealthCheckProbeName())
                     .withIdleTimeoutInMinutes(rule.getIdleTimeoutInMinutes())
-                    .withFloatingIP(rule.getFloatingIp());
+                    .withFloatingIP(rule.getFloatingIp())
+                    .attach();
         }
 
         for (BackendPool backendPool : getBackendPool()) {
