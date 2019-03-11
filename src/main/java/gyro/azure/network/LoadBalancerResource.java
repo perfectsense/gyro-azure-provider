@@ -414,28 +414,29 @@ public class LoadBalancerResource extends AzureResource {
         LoadBalancerInboundNatPool.DefinitionStages.WithFrontend<WithCreateAndInboundNatPool> natPoolComponent = null;
 
         //use frontend configuration to set inbound nat pools
+        for (Map.Entry<String, Frontend> frontends : getFrontends().entrySet()) {
+            Frontend front = frontends.getValue();
+            if (front.getInboundNatPool() != null) {
+                for (InboundNatPool natPool: front.getInboundNatPool()) {
+                    lb.defineInboundNatPool(natPool.getInboundNatPoolName())
+                            .withProtocol(TransportProtocol.fromString(natPool.getProtocol()))
+                            .fromFrontend(natPool.getFrontendName())
+                            .fromFrontendPortRange(natPool.getFrontendPortRangeStart(), natPool.getFrontendPortRangeEnd())
+                            .toBackendPort(natPool.getBackendPort())
+                            .attach();
+                }
+            }
 
-        for (InboundNatPool natPool : getInboundNatPool()) {
-            lb.defineInboundNatPool(natPool.getInboundNatPoolName())
-                    .withProtocol(TransportProtocol.fromString(natPool.getProtocol()))
-                    .fromFrontend(natPool.getFrontendName())
-                    .fromFrontendPortRange(natPool.getFrontendPortRangeStart(), natPool.getFrontendPortRangeEnd())
-                    .toBackendPort(natPool.getBackendPort())
-                    .attach();
-        }
-
-        if (getInboundNatPool().isEmpty()) {
-            LoadBalancerInboundNatRule.DefinitionStages.WithFrontend<WithCreateAndInboundNatRule> natRuleComponent = null;
-
-            for (InboundNatRule natRule : getInboundNatRule()) {
-
-                lb.defineInboundNatRule(natRule.getInboundNatRuleName())
-                        .withProtocol(TransportProtocol.fromString(natRule.getProtocol()))
-                        .fromFrontend(natRule.getFrontendName())
-                        .fromFrontendPort(natRule.getFrontendPort())
-                        .withFloatingIP(natRule.getFloatingIp())
-                        .toBackendPort(natRule.getBackendPort())
-                        .attach();
+            if (front.getInboundNatRule() != null) {
+                for (InboundNatRule natRule : front.getInboundNatRule()) {
+                    lb.defineInboundNatRule(natRule.getInboundNatRuleName())
+                            .withProtocol(TransportProtocol.fromString(natRule.getProtocol()))
+                            .fromFrontend(natRule.getFrontendName())
+                            .fromFrontendPort(natRule.getFrontendPort())
+                            .withFloatingIP(natRule.getFloatingIp())
+                            .toBackendPort(natRule.getBackendPort())
+                            .attach();
+                }
             }
         }
 
