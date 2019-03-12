@@ -11,7 +11,6 @@ import com.microsoft.azure.management.network.LoadBalancer;
 import com.microsoft.azure.management.network.LoadBalancerBackend;
 import com.microsoft.azure.management.network.LoadBalancerHttpProbe;
 import com.microsoft.azure.management.network.LoadBalancerInboundNatPool;
-import com.microsoft.azure.management.network.LoadBalancerInboundNatRule;
 import com.microsoft.azure.management.network.LoadBalancerPublicFrontend;
 import com.microsoft.azure.management.network.LoadBalancerPrivateFrontend;
 import com.microsoft.azure.management.network.LoadBalancerSkuType;
@@ -21,10 +20,7 @@ import com.microsoft.azure.management.network.PublicIPAddress;
 import com.microsoft.azure.management.network.Network;
 import com.microsoft.azure.management.network.TransportProtocol;
 import com.microsoft.azure.management.network.model.HasNetworkInterfaces;
-import com.microsoft.azure.management.network.LoadBalancer.DefinitionStages.WithLBRuleOrNatOrCreate;
 import com.microsoft.azure.management.network.LoadBalancer.DefinitionStages.WithCreate;
-import com.microsoft.azure.management.network.LoadBalancer.DefinitionStages.WithCreateAndInboundNatPool;
-import com.microsoft.azure.management.network.LoadBalancer.DefinitionStages.WithCreateAndInboundNatRule;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 
 import java.util.ArrayList;
@@ -96,9 +92,6 @@ public class LoadBalancerResource extends AzureResource {
     private Map<String, Frontend> frontends;
     private List<HealthCheckProbeHttp> healthCheckProbeHttp;
     private List<HealthCheckProbeTcp> healthCheckProbeTcp;
-    private List<InboundNatPool> inboundNatPool;
-    private List<InboundNatRule> inboundNatRule;
-    private String loadBalancerId;
     private String name;
     private List<LoadBalancerRule> loadBalancerRule;
     private List<PrivateFrontend> privateFrontend;
@@ -160,38 +153,6 @@ public class LoadBalancerResource extends AzureResource {
 
     public void setHealthCheckProbeTcp(List<HealthCheckProbeTcp> healthCheckProbeTcp) {
         this.healthCheckProbeTcp = healthCheckProbeTcp;
-    }
-
-    /**
-     * The inbound nat pools associated with the load balancer. (Optional)
-     */
-    @ResourceDiffProperty(updatable = true)
-    public List<InboundNatPool> getInboundNatPool() {
-        if (inboundNatPool == null) {
-            inboundNatPool = new ArrayList<>();
-        }
-
-        return inboundNatPool;
-    }
-
-    public void setInboundNatPool(List<InboundNatPool> inboundNatPool) {
-        this.inboundNatPool = inboundNatPool;
-    }
-
-    /**
-     * The inbound nat rules associated with the load balancer. (Optional)
-     */
-    @ResourceDiffProperty(updatable = true)
-    public List<InboundNatRule> getInboundNatRule() {
-        if (inboundNatRule == null) {
-            inboundNatRule = new ArrayList<>();
-        }
-
-        return inboundNatRule;
-    }
-
-    public void setInboundNatRule(List<InboundNatRule> inboundNatRule) {
-        this.inboundNatRule = inboundNatRule;
     }
 
     @ResourceOutput
