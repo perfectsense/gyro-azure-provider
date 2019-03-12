@@ -332,18 +332,6 @@ public class LoadBalancerResource extends AzureResource {
                 .withExistingResourceGroup(getResourceGroupName());
 
 
-        WithLBRuleOrNatOrCreate buildLoadBalancer = null;
-        for (LoadBalancerRule rule : getLoadBalancerRule()) {
-            buildLoadBalancer = lb.defineLoadBalancingRule(rule.getLoadBalancerRuleName())
-                    .withProtocol(TransportProtocol.fromString(rule.getProtocol()))
-                    .fromFrontend(rule.getFrontendName())
-                    .fromFrontendPort(rule.getFrontendPort())
-                    .toBackend(rule.getBackendPoolName())
-                    .toBackendPort(rule.getBackendPort())
-                    .withProbe(rule.getHealthCheckProbeName())
-                    .withIdleTimeoutInMinutes(rule.getIdleTimeoutInMinutes())
-                    .withFloatingIP(rule.getFloatingIp())
-                    .attach();
         }
 
         for (BackendPool backendPool : getBackendPool()) {
@@ -376,21 +364,17 @@ public class LoadBalancerResource extends AzureResource {
         }
 
         for (PublicFrontend publicFrontend : getPublicFrontend()) {
-            LoadBalancerPublicFrontend.DefinitionStages.WithAttach withAttach = null;
 
             PublicIPAddress ip = client.publicIPAddresses()
                     .getByResourceGroup(getResourceGroupName(), publicFrontend.getPublicIpAddressName());
 
-            buildLoadBalancer.definePublicFrontend(publicFrontend.getPublicFrontendName())
                     .withExistingPublicIPAddress(ip)
                     .attach();
         }
 
         for (PrivateFrontend privateFrontend : getPrivateFrontend()) {
-            LoadBalancerPrivateFrontend.DefinitionStages.WithAttach withAttachPrivate;
 
             Network network = client.networks().getById(privateFrontend.getNetworkId());
-            withAttachPrivate = buildLoadBalancer.definePrivateFrontend(privateFrontend.getPrivateFrontendName())
                     .withExistingSubnet(network, privateFrontend.getSubnetName());
 
             if (privateFrontend.getPrivateIpAddress() != null) {
@@ -400,13 +384,6 @@ public class LoadBalancerResource extends AzureResource {
             }
             withAttachPrivate.attach();
         }
-
-        LoadBalancer loadBalancer = buildLoadBalancer
-                .withSku(getSkuBasic() ? LoadBalancerSkuType.BASIC : LoadBalancerSkuType.STANDARD)
-                .withTags(getTags()).create();
-
-        setLoadBalancerId(loadBalancer.id());
-    }
 
         //define load balancer rules
         for (LoadBalancerRule rule : getLoadBalancerRule()) {
