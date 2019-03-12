@@ -3,6 +3,7 @@ package gyro.azure.network;
 import gyro.core.diff.Diffable;
 import gyro.core.diff.ResourceDiffProperty;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Frontend extends Diffable {
@@ -15,6 +16,10 @@ public abstract class Frontend extends Diffable {
      */
     @ResourceDiffProperty(updatable = true)
     public List<InboundNatPool> getInboundNatPool() {
+        if (inboundNatPool == null) {
+            inboundNatPool = new ArrayList<>();
+        }
+
         return inboundNatPool;
     }
 
@@ -28,6 +33,10 @@ public abstract class Frontend extends Diffable {
      */
     @ResourceDiffProperty(updatable = true)
     public List<InboundNatRule> getInboundNatRule() {
+        if (inboundNatRule == null) {
+            inboundNatRule = new ArrayList<>();
+        }
+
         return inboundNatRule;
     }
 
