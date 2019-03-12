@@ -37,6 +37,7 @@ public class InboundNatRule extends Diffable {
         setFloatingIp(natRule.floatingIPEnabled());
         setFrontendName(natRule.frontend() != null ? natRule.frontend().name() : null);
         setFrontendPort(natRule.frontendPort());
+        setName(natRule.name());
         setProtocol(natRule.protocol() == TransportProtocol.TCP ? "TCP" : "UDP");
     }
 
