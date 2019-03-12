@@ -260,7 +260,7 @@ public class LoadBalancerResource extends AzureResource {
     }
 
     /**
-     * The tags associated with the load baalancer. (Optional)
+     * The tags associated with the load balancer. (Optional)
      */
     @ResourceDiffProperty(updatable = true)
     public Map<String, String> getTags() {
@@ -279,19 +279,20 @@ public class LoadBalancerResource extends AzureResource {
     public boolean refresh() {
         Azure client = createClient();
 
-        //backend pool
+        //backend pools
         getBackendPool().clear();
         for (Map.Entry<String, LoadBalancerBackend> backend : loadBalancer.backends().entrySet()) {
             getBackendPool().add(new BackendPool(backend.getValue()));
         }
 
+        //http probes
         getHealthCheckProbeHttp().clear();
         for (Map.Entry<String, LoadBalancerHttpProbe> httpProbe : loadBalancer.httpProbes().entrySet()) {
             getHealthCheckProbeHttp()
                     .add(new HealthCheckProbeHttp(httpProbe.getValue()));
         }
 
-        //tcp
+        //tcp probes
         getHealthCheckProbeTcp().clear();
         for (Map.Entry<String, LoadBalancerTcpProbe> tcpProbe : loadBalancer.tcpProbes().entrySet()) {
             getHealthCheckProbeTcp()
@@ -299,11 +300,13 @@ public class LoadBalancerResource extends AzureResource {
         }
 
         getPrivateFrontend().clear();
+        //public frontends
         for (Map.Entry<String, LoadBalancerPublicFrontend> publicFrontend : loadBalancer.publicFrontends().entrySet()) {
             getPublicFrontend().add(new PublicFrontend(publicFrontend.getValue()));
         }
 
         getPrivateFrontend();
+        //private frontends
         for (Map.Entry<String, LoadBalancerPrivateFrontend> privateFrontend : loadBalancer.privateFrontends().entrySet()) {
             getPrivateFrontend().add(new PrivateFrontend(privateFrontend.getValue()));
         }
@@ -330,11 +333,12 @@ public class LoadBalancerResource extends AzureResource {
                 .withRegion(Region.fromName(getRegion()))
                 .withExistingResourceGroup(getResourceGroupName());
 
+        //define the nat pools and rules
 
         }
 
+        //define the backend pools
         for (BackendPool backendPool : getBackendPool()) {
-            //backend pool
             LoadBalancerBackend.DefinitionStages.Blank<WithCreate> backendCreate;
 
             backendCreate = buildLoadBalancer.defineBackend(backendPool.getName());
@@ -345,6 +349,7 @@ public class LoadBalancerResource extends AzureResource {
             backendCreate.attach();
         }
 
+        //define the health check probes
         for (HealthCheckProbeHttp probe : getHealthCheckProbeHttp()) {
             //http
             buildLoadBalancer.defineHttpProbe(probe.getName())
@@ -364,6 +369,7 @@ public class LoadBalancerResource extends AzureResource {
                     .attach();
         }
 
+        //define the public frontends
         for (PublicFrontend publicFrontend : getPublicFrontend()) {
 
             PublicIPAddress ip = client.publicIPAddresses()
@@ -374,6 +380,7 @@ public class LoadBalancerResource extends AzureResource {
                     .attach();
         }
 
+        //define the private frontends
         for (PrivateFrontend privateFrontend : getPrivateFrontend()) {
 
             Network network = client.networks().getById(privateFrontend.getNetworkId());
