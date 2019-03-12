@@ -63,7 +63,7 @@ public class PublicFrontend extends Frontend {
     }
 
     public String primaryKey() {
-        return String.format("%s/%s", getPublicFrontendName(), getPublicIpAddressName());
+        return String.format("%s/%s", getName());
     }
 
     @Override

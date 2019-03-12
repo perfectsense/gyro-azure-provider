@@ -162,7 +162,7 @@ public class LoadBalancerRule extends Diffable {
     }
 
     public String primaryKey() {
-        return String.format("%s", getLoadBalancerRuleName());
+        return String.format("%s", getName());
     }
 
     @Override

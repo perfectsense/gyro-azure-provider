@@ -92,7 +92,7 @@ public class PrivateFrontend extends Frontend {
     }
 
     public String primaryKey() {
-        return String.format("%s/%s/%s", getPrivateFrontendName(), getNetworkId(), getSubnetName());
+        return String.format("%s", getName());
     }
 
     @Override

@@ -115,7 +115,7 @@ public class InboundNatPool extends Diffable {
     }
 
     public String primaryKey() {
-        return String.format("%s/%d", getInboundNatPoolName(), getBackendPort());
+        return String.format("%s", getName());
     }
 
     @Override
