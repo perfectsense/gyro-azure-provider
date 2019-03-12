@@ -294,14 +294,14 @@ public class LoadBalancerResource extends AzureResource {
                     .add(new HealthCheckProbeTcp(tcpProbe.getValue()));
         }
 
-        getPrivateFrontend().clear();
         //public frontends
+        getPublicFrontend().clear();
         for (Map.Entry<String, LoadBalancerPublicFrontend> publicFrontend : loadBalancer.publicFrontends().entrySet()) {
             getPublicFrontend().add(new PublicFrontend(publicFrontend.getValue()));
         }
 
-        getPrivateFrontend();
         //private frontends
+        getPrivateFrontend().clear();
         for (Map.Entry<String, LoadBalancerPrivateFrontend> privateFrontend : loadBalancer.privateFrontends().entrySet()) {
             getPrivateFrontend().add(new PrivateFrontend(privateFrontend.getValue()));
         }
@@ -314,6 +314,8 @@ public class LoadBalancerResource extends AzureResource {
 
         setId(loadBalancer.id());
         setSkuBasic(loadBalancer.sku() == LoadBalancerSkuType.BASIC ? true : false);
+
+        getTags().clear();
         setTags(loadBalancer.tags());
 
         return true;
