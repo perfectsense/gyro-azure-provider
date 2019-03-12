@@ -281,7 +281,6 @@ public class LoadBalancerResource extends AzureResource {
 
         //backend pool
         getBackendPool().clear();
-        LoadBalancer loadBalancer = client.loadBalancers().getById(getLoadBalancerId());
         for (Map.Entry<String, LoadBalancerBackend> backend : loadBalancer.backends().entrySet()) {
             getBackendPool().add(new BackendPool(backend.getValue()));
         }
@@ -315,7 +314,7 @@ public class LoadBalancerResource extends AzureResource {
             getLoadBalancerRule().add(new LoadBalancerRule(rule.getValue()));
         }
 
-        setLoadBalancerId(loadBalancer.id());
+        setId(loadBalancer.id());
         setSkuBasic(loadBalancer.sku() == LoadBalancerSkuType.BASIC ? true : false);
         setTags(loadBalancer.tags());
 
@@ -337,7 +336,9 @@ public class LoadBalancerResource extends AzureResource {
         for (BackendPool backendPool : getBackendPool()) {
             //backend pool
             LoadBalancerBackend.DefinitionStages.Blank<WithCreate> backendCreate;
-            backendCreate = buildLoadBalancer.defineBackend(backendPool.getBackendPoolName());
+
+            backendCreate = buildLoadBalancer.defineBackend(backendPool.getName());
+
             if (!backendPool.getVirtualMachineIds().isEmpty()) {
                 backendCreate.withExistingVirtualMachines(toBackend(backendPool.getVirtualMachineIds()));
             }
@@ -345,8 +346,8 @@ public class LoadBalancerResource extends AzureResource {
         }
 
         for (HealthCheckProbeHttp probe : getHealthCheckProbeHttp()) {
-            //health check probe
-            buildLoadBalancer.defineHttpProbe(probe.getHealthCheckProbeName())
+            //http
+            buildLoadBalancer.defineHttpProbe(probe.getName())
                         .withRequestPath(probe.getRequestPath())
                         .withPort(probe.getPort())
                         .withIntervalInSeconds(probe.getInterval())
@@ -355,8 +356,8 @@ public class LoadBalancerResource extends AzureResource {
         }
 
         for (HealthCheckProbeTcp probe : getHealthCheckProbeTcp()) {
-            //health check probe
-            buildLoadBalancer.defineTcpProbe(probe.getHealthCheckProbeName())
+            //tcp
+            buildLoadBalancer.defineTcpProbe(probe.getName())
                     .withPort(probe.getPort())
                     .withIntervalInSeconds(probe.getInterval())
                     .withNumberOfProbes(probe.getProbes())
@@ -368,6 +369,7 @@ public class LoadBalancerResource extends AzureResource {
             PublicIPAddress ip = client.publicIPAddresses()
                     .getByResourceGroup(getResourceGroupName(), publicFrontend.getPublicIpAddressName());
 
+            buildLoadBalancer.definePublicFrontend(publicFrontend.getName())
                     .withExistingPublicIPAddress(ip)
                     .attach();
         }
@@ -375,6 +377,8 @@ public class LoadBalancerResource extends AzureResource {
         for (PrivateFrontend privateFrontend : getPrivateFrontend()) {
 
             Network network = client.networks().getById(privateFrontend.getNetworkId());
+
+            withAttachPrivate = buildLoadBalancer.definePrivateFrontend(privateFrontend.getName())
                     .withExistingSubnet(network, privateFrontend.getSubnetName());
 
             if (privateFrontend.getPrivateIpAddress() != null) {
