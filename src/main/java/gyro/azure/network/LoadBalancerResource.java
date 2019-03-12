@@ -274,6 +274,8 @@ public class LoadBalancerResource extends AzureResource {
     public boolean refresh() {
         Azure client = createClient();
 
+        LoadBalancer loadBalancer = client.loadBalancers().getById(getId());
+
         //backend pools
         getBackendPool().clear();
         for (Map.Entry<String, LoadBalancerBackend> backend : loadBalancer.backends().entrySet()) {
