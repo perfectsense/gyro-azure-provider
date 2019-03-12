@@ -105,6 +105,10 @@ public class LoadBalancerResource extends AzureResource {
      * The backend pools associated with the load balancer. (Required)
      */
     public List<BackendPool> getBackendPool() {
+        if (backendPool == null) {
+            backendPool = new ArrayList<>();
+        }
+
         return backendPool;
     }
 
@@ -114,6 +118,7 @@ public class LoadBalancerResource extends AzureResource {
 
     @ResourceDiffProperty(updatable = true)
     public Map<String, Frontend> getFrontends() {
+    public Map<String, Frontend> frontends() {
         if (frontends == null) {
             frontends = new HashMap<>();
         }
@@ -137,6 +142,10 @@ public class LoadBalancerResource extends AzureResource {
      */
     @ResourceDiffProperty(updatable = true)
     public List<HealthCheckProbeHttp> getHealthCheckProbeHttp() {
+        if (healthCheckProbeHttp == null) {
+            healthCheckProbeHttp = new ArrayList<>();
+        }
+
         return healthCheckProbeHttp;
     }
 
@@ -149,6 +158,10 @@ public class LoadBalancerResource extends AzureResource {
      */
     @ResourceDiffProperty(updatable = true)
     public List<HealthCheckProbeTcp> getHealthCheckProbeTcp() {
+        if (healthCheckProbeTcp == null) {
+            healthCheckProbeTcp = new ArrayList<>();
+        }
+
         return healthCheckProbeTcp;
     }
 
@@ -181,6 +194,10 @@ public class LoadBalancerResource extends AzureResource {
      */
     @ResourceDiffProperty(updatable = true)
     public List<LoadBalancerRule> getLoadBalancerRule() {
+        if (loadBalancerRule == null) {
+            loadBalancerRule = new ArrayList<>();
+        }
+
         return loadBalancerRule;
     }
 
