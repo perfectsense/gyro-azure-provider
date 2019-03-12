@@ -168,7 +168,9 @@ public class LoadBalancerRule extends Diffable {
 
     @Override
     public String toDisplayString() {
-        return "load balancer rule" + getLoadBalancerRuleName();
+        return "load balancer rule " + getName();
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
