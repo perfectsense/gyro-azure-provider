@@ -749,4 +749,121 @@ public class LoadBalancerResource extends AzureResource {
 
         return virtualMachines;
     }
+
+    private void updateNatPoolsAndRules(Frontend frontend, Frontend currentResource, LoadBalancer.Update updateLoadBalancer) {
+        List<InboundNatRule> ruleAdditions = new ArrayList<>(frontend.getInboundNatRule());
+        ruleAdditions.removeAll(currentResource.getInboundNatRule());
+
+        List<InboundNatRule> ruleSubtractions = new ArrayList<>(currentResource.getInboundNatRule());
+        ruleSubtractions.removeAll(frontend.getInboundNatRule());
+
+        List<InboundNatPool> poolAdditions = new ArrayList<>(frontend.getInboundNatPool());
+        poolAdditions.removeAll(currentResource.getInboundNatPool());
+
+        List<InboundNatPool> poolSubtractions = new ArrayList<>(currentResource.getInboundNatPool());
+        poolSubtractions.removeAll(frontend.getInboundNatPool());
+
+        removeNatPools(poolSubtractions, updateLoadBalancer);
+        removeNatRules(ruleSubtractions, updateLoadBalancer);
+
+        addNatPools(poolAdditions, updateLoadBalancer);
+        addNatRules(ruleAdditions, updateLoadBalancer);
+
+        for (InboundNatPool pool : frontend.getInboundNatPool()) {
+            if (!poolAdditions.contains(pool) && !poolSubtractions.contains(pool)) {
+                updateNatPool(pool, updateLoadBalancer);
+            }
+        }
+
+        for (InboundNatRule rule : frontend.getInboundNatRule()) {
+            if (!ruleAdditions.contains(rule) && !ruleSubtractions.contains(rule)) {
+                updateNatRule(rule, updateLoadBalancer);
+            }
+        }
+    }
+
+    private void addNatRulesAndPools(Frontend frontend, LoadBalancer.Update updateLoadBalancer) {
+        addNatPools(frontend.getInboundNatPool(), updateLoadBalancer);
+        addNatRules(frontend.getInboundNatRule(), updateLoadBalancer);
+    }
+
+    private void removeNatRulesAndPools(Frontend frontend, LoadBalancer.Update updateLoadBalancer) {
+        removeNatPools(frontend.getInboundNatPool(), updateLoadBalancer);
+        removeNatRules(frontend.getInboundNatRule(), updateLoadBalancer);
+    }
+
+    private void addNatPools(List<InboundNatPool> pools, LoadBalancer.Update updateLoadBalancer) {
+        LoadBalancerInboundNatPool.UpdateDefinitionStages.WithProtocol withName;
+        LoadBalancerInboundNatPool.UpdateDefinitionStages.WithFrontend withProtocol;
+        LoadBalancerInboundNatPool.UpdateDefinitionStages.WithFrontendPortRange withFrontend;
+        LoadBalancerInboundNatPool.UpdateDefinitionStages.WithBackendPort withPortRange;
+        LoadBalancerInboundNatPool.UpdateDefinitionStages.WithAttach withBackendPort;
+
+        for (InboundNatPool pool : pools) {
+
+            withName = updateLoadBalancer.defineInboundNatPool(pool.getName());
+
+            withProtocol =
+                    (LoadBalancerInboundNatPool.UpdateDefinitionStages.WithFrontend) withName.withProtocol(TransportProtocol.fromString(pool.getProtocol()));
+
+            withFrontend = (LoadBalancerInboundNatPool.UpdateDefinitionStages.WithFrontendPortRange) withProtocol.fromFrontend(pool.getFrontendName());
+
+            withPortRange = (LoadBalancerInboundNatPool.UpdateDefinitionStages.WithBackendPort) withFrontend.fromFrontendPortRange(pool.getFrontendPortRangeStart(), pool.getFrontendPortRangeEnd());
+
+            withBackendPort = (LoadBalancerInboundNatPool.UpdateDefinitionStages.WithAttach) withPortRange.toBackendPort(pool.getBackendPort());
+
+            withBackendPort.attach();
+        }
+    }
+
+    private void addNatRules(List<InboundNatRule> rules, LoadBalancer.Update updateLoadBalancer) {
+        for (InboundNatRule rule : rules) {
+
+            updateLoadBalancer
+                    .defineInboundNatRule(rule.getName())
+                    .withProtocol(TransportProtocol.fromString(rule.getProtocol()))
+                    .fromFrontend(rule.getFrontendName())
+                    .fromFrontendPort(rule.getFrontendPort())
+                    .toBackendPort(rule.getBackendPort())
+                    .withFloatingIP(rule.getFloatingIp())
+                    .attach();
+        }
+    }
+
+    private void removeNatPools(List<InboundNatPool> pools, LoadBalancer.Update updateLoadBalancer) {
+        for (InboundNatPool pool : pools) {
+
+            updateLoadBalancer
+                    .withoutInboundNatPool(pool.getName());
+        }
+    }
+
+    private void removeNatRules(List<InboundNatRule> rules, LoadBalancer.Update updateLoadBalancer) {
+        for (InboundNatRule rule : rules) {
+
+            updateLoadBalancer
+                    .withoutInboundNatPool(rule.getName());
+        }
+    }
+
+    private void updateNatPool(InboundNatPool pool, LoadBalancer.Update updateLoadBalancer) {
+
+            updateLoadBalancer
+                    .updateInboundNatPool(pool.getName())
+                    .withProtocol(TransportProtocol.fromString(pool.getProtocol()))
+                    .fromFrontend(pool.getFrontendName())
+                    .fromFrontendPortRange(pool.getFrontendPortRangeStart(), pool.getFrontendPortRangeEnd())
+                    .toBackendPort(pool.getBackendPort());
+    }
+
+    private void updateNatRule(InboundNatRule rule, LoadBalancer.Update updateLoadBalancer) {
+
+            updateLoadBalancer
+                    .updateInboundNatRule(rule.getName())
+                    .withProtocol(TransportProtocol.fromString(rule.getProtocol()))
+                    .fromFrontend(rule.getFrontendName())
+                    .fromFrontendPort(rule.getFrontendPort())
+                    .toBackendPort(rule.getBackendPort())
+                    .withFloatingIP(rule.getFloatingIp());
+    }
 }
