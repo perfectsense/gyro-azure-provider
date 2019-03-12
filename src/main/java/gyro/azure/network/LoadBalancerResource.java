@@ -268,20 +268,6 @@ public class LoadBalancerResource extends AzureResource {
             getBackendPool().add(new BackendPool(backend.getValue()));
         }
 
-        //nat pools
-        getInboundNatPool();
-        for (Map.Entry<String, LoadBalancerInboundNatPool> natPool : loadBalancer.inboundNatPools().entrySet()) {
-            getInboundNatPool().add(new InboundNatPool(natPool.getValue()));
-        }
-
-        //nat rules
-        getInboundNatRule().clear();
-        for (Map.Entry<String, LoadBalancerInboundNatRule> natRule : loadBalancer.inboundNatRules().entrySet()) {
-            getInboundNatRule().add(new InboundNatRule(natRule.getValue()));
-        }
-
-        //health check probes
-        //http
         getHealthCheckProbeHttp().clear();
         for (Map.Entry<String, LoadBalancerHttpProbe> httpProbe : loadBalancer.httpProbes().entrySet()) {
             getHealthCheckProbeHttp()
