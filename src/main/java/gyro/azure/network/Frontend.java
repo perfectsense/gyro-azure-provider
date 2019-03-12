@@ -1,6 +1,7 @@
 package gyro.azure.network;
 
 import gyro.core.diff.Diffable;
+import gyro.core.diff.ResourceDiffProperty;
 
 import java.util.List;
 
@@ -12,6 +13,7 @@ public abstract class Frontend extends Diffable {
     /**
      * The inbound nat pools associated with the frontend. (Optional)
      */
+    @ResourceDiffProperty(updatable = true)
     public List<InboundNatPool> getInboundNatPool() {
         return inboundNatPool;
     }
@@ -24,6 +26,7 @@ public abstract class Frontend extends Diffable {
      * The inbound nat rules associated with the frontend. Nat rules may not be
      * associated with a frontend if a nat pool is associated. (Optional)
      */
+    @ResourceDiffProperty(updatable = true)
     public List<InboundNatRule> getInboundNatRule() {
         return inboundNatRule;
     }

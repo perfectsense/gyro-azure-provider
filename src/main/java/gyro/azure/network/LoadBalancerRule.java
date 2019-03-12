@@ -141,6 +141,7 @@ public class LoadBalancerRule extends Diffable {
     /**
      * The health check probe associated with the load balancer rule. (Required)
      */
+    @ResourceDiffProperty(updatable = true)
     public String getHealthCheckProbeName() {
         return healthCheckProbeName;
     }

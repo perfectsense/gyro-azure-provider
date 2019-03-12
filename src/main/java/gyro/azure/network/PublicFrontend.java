@@ -1,5 +1,6 @@
 package gyro.azure.network;
 
+import gyro.core.diff.ResourceDiffProperty;
 import com.microsoft.azure.management.network.LoadBalancerPublicFrontend;
 
 /**
@@ -54,6 +55,7 @@ public class PublicFrontend extends Frontend {
     /**
      * The name of the public ip address associated with the frontend. (Required)
      */
+    @ResourceDiffProperty(updatable = true)
     public String getPublicIpAddressName() {
         return publicIpAddressName;
     }
