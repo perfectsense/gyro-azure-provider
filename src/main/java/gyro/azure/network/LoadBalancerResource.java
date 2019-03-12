@@ -124,10 +124,10 @@ public class LoadBalancerResource extends AzureResource {
 
         getPrivateFrontend()
                 .stream()
-                .forEach(frontend -> frontends.put(frontend.getPrivateFrontendName(), frontend));
+                .forEach(frontend -> frontends.put(frontend.getName(), frontend));
 
         getPublicFrontend().stream()
-                .forEach(frontend -> frontends.put(frontend.getPublicFrontendName(), frontend));
+                .forEach(frontend -> frontends.put(frontend.getName(), frontend));
 
         return frontends;
     }
