@@ -733,12 +733,12 @@ public class LoadBalancerResource extends AzureResource {
         Azure client = createClient();
 
         client.loadBalancers()
-                .deleteByResourceGroup(getResourceGroupName(), getLoadBalancerName());
+                .deleteByResourceGroup(getResourceGroupName(), getName());
     }
 
     @Override
     public String toDisplayString() {
-        return "load balancer " + getLoadBalancerName();
+        return "load balancer " + getName();
     }
 
     private List<HasNetworkInterfaces> toBackend(List<String> vmIds) {
