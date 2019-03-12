@@ -333,8 +333,35 @@ public class LoadBalancerResource extends AzureResource {
                 .withRegion(Region.fromName(getRegion()))
                 .withExistingResourceGroup(getResourceGroupName());
 
-        //define the nat pools and rules
+        WithCreate buildLoadBalancer = null;
 
+        //define the nat pools and rules
+        for (Map.Entry<String, Frontend> frontends : frontends().entrySet()) {
+            Frontend front = frontends.getValue();
+            if (front.getInboundNatPool() != null) {
+                for (InboundNatPool natPool: front.getInboundNatPool()) {
+
+                    buildLoadBalancer = lb.defineInboundNatPool(natPool.getName())
+                            .withProtocol(TransportProtocol.fromString(natPool.getProtocol()))
+                            .fromFrontend(natPool.getFrontendName())
+                            .fromFrontendPortRange(natPool.getFrontendPortRangeStart(), natPool.getFrontendPortRangeEnd())
+                            .toBackendPort(natPool.getBackendPort())
+                            .attach();
+                }
+            }
+
+            if (front.getInboundNatRule() != null) {
+                for (InboundNatRule natRule : front.getInboundNatRule()) {
+
+                    buildLoadBalancer = lb.defineInboundNatRule(natRule.getName())
+                            .withProtocol(TransportProtocol.fromString(natRule.getProtocol()))
+                            .fromFrontend(natRule.getFrontendName())
+                            .fromFrontendPort(natRule.getFrontendPort())
+                            .withFloatingIP(natRule.getFloatingIp())
+                            .toBackendPort(natRule.getBackendPort())
+                            .attach();
+                }
+            }
         }
 
         //define the backend pools
