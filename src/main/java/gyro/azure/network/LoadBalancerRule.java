@@ -41,14 +41,14 @@ public class LoadBalancerRule extends Diffable {
     public LoadBalancerRule() {}
 
     public LoadBalancerRule(LoadBalancingRule rule) {
-        setBackendPoolName(rule.backend().name());
+        setBackendPoolName(rule.backend() != null ? rule.backend().name() : null);
         setBackendPort(rule.backendPort());
         setFloatingIp(rule.floatingIPEnabled());
-        setFrontendName(rule.frontend().name());
+        setFrontendName(rule.frontend() != null ? rule.frontend().name() : null);
         setFrontendPort(rule.frontendPort());
         setIdleTimeoutInMinutes(rule.idleTimeoutInMinutes());
-        setHealthCheckProbeName(rule.probe().name());
         setName(rule.name());
+        setHealthCheckProbeName(rule.probe() != null ? rule.probe().name() : null);
         setProtocol(rule.protocol() == TransportProtocol.TCP ? "TCP" : "UDP");
     }
 
