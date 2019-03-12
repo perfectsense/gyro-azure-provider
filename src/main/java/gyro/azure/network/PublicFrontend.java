@@ -69,5 +69,20 @@ public class PublicFrontend extends Frontend {
     @Override
     public String toDisplayString() {
         return "public frontend " + getPublicFrontendName();
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+
+        PublicFrontend publicFrontend = (PublicFrontend) obj;
+
+        return (publicFrontend.getName()).equals(this.getName());
     }
 }

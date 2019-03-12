@@ -123,5 +123,20 @@ public class InboundNatRule extends Diffable {
     @Override
     public String toDisplayString() {
         return "inbound nat rule " + getInboundNatRuleName();
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+
+        InboundNatRule rule = (InboundNatRule) obj;
+
+        return (rule.getName()).equals(this.getName());
     }
 }

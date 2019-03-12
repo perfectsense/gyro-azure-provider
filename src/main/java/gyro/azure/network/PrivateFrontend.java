@@ -98,5 +98,20 @@ public class PrivateFrontend extends Frontend {
     @Override
     public String toDisplayString() {
         return "private frontend " + getPrivateFrontendName();
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+
+        PrivateFrontend privateFrontend = (PrivateFrontend) obj;
+
+        return (privateFrontend.getName()).equals(this.getName());
     }
 }

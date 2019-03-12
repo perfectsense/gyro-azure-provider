@@ -55,5 +55,20 @@ public class HealthCheckProbeHttp extends HealthCheckProbeTcp {
     @Override
     public String toDisplayString() {
         return "health check probe http" + getHealthCheckProbeName();
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+
+        HealthCheckProbeHttp probe = (HealthCheckProbeHttp) obj;
+
+        return (probe.getName()).equals(this.getName());
     }
 }

@@ -63,5 +63,20 @@ public class BackendPool extends Diffable {
     @Override
     public String toDisplayString() {
         return "backend pool " + getBackendPoolName();
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+
+        BackendPool pool = (BackendPool) obj;
+
+        return (pool.getName()).equals(this.getName());
     }
 }

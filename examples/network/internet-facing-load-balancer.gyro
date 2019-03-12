@@ -1,0 +1,166 @@
+import ../init as _
+
+azure::resource-group resource-group-lb-example
+    resource-group-name: "resource-group-lb-example"
+
+    tags: {
+        Name: "resource-group-lb-example"
+    }
+end
+
+azure::network load-balancer-network-example
+    network-name: "load-balancer-network-example"
+    resource-group-name: $(azure::resource-group resource-group-lb-example | resource-group-name)
+    address-spaces:  [
+         "10.0.0.0/27",
+         "10.1.0.0/27"
+    ]
+    subnets: {
+        subnet1: "10.0.0.0/28",
+        subnet2: "10.0.0.16/28"
+    }
+
+    tags: {
+        Name: "load-balancer-network-example"
+    }
+end
+
+azure::public-ip-address public-ip-address-example-lb
+    public-ip-address-name: "public-ip-address-example-lb"
+    resource-group-name: $(azure::resource-group resource-group-lb-example | resource-group-name)
+    idle-timeout-in-minute: 4
+    sku-basic: false
+
+    tags: {
+        Name: "public-ip-address-example-lb"
+    }
+end
+
+azure::disk disk-example-lb
+    disk-name: "disk-example-lb"
+    disk-type: "Standard_LRS"
+    os-type: "LINUX"
+    size: 10
+    resource-group-name: $(azure::resource-group resource-group-lb-example | resource-group-name)
+    tags: {
+        Name: "disk-example-lb"
+    }
+end
+
+azure::network-interface network-interface-example-lb
+    network-interface-name: "network-interface-example-lb"
+    resource-group-name: $(azure::resource-group resource-group-lb-example | resource-group-name)
+    network-id: $(azure::network load-balancer-network-example | network-id)
+    subnet: "subnet1"
+    tags: {
+        Name: "network-interface-example-lb"
+    }
+
+    primary-ip-configuration
+        ip-allocation-static: false
+        ip-configuration-name: 'primary'
+        primary: true
+    end
+end
+
+azure::virtual-machine virtual-machine-example-lb
+    virtual-machine-name: "virtual-machine-example-lb"
+    resource-group-name: $(azure::resource-group resource-group-lb-example | resource-group-name)
+    network-id: $(azure::network load-balancer-network-example | network-id)
+    subnet: "subnet1"
+    os-type: "linux"
+    disk-id: $(azure::disk disk-example-lb | disk-id)
+    network-interface-name: $(azure::network-interface network-interface-example-lb | network-interface-name)
+    #private-ip-address: "10.0.0.10"
+    #public-ip-address-name: $(azure::public-ip-address public-ip-address-example-lb | public-ip-address-name)
+    vm-image-type: "popular"
+    known-virtual-image: "UBUNTU_SERVER_14_04_LTS"
+    admin-user-name: "qwerty@123"
+    admin-password: "qwerty@123"
+    caching-type: "NONE"
+    vm-size-type: "STANDARD_G1"
+    storage-account-type-data-disk: "STANDARD_LRS"
+    storage-account-type-os-disk: "STANDARD_LRS"
+    tags: {
+            Name: "virtual-machine-example-lb"
+    }
+end
+
+azure::public-ip-address public-ip-address-example-public-frontend
+    public-ip-address-name: "public-ip-address-example-public-frontend"
+    resource-group-name: $(azure::resource-group resource-group-lb-example | resource-group-name)
+    idle-timeout-in-minute: 4
+    sku-basic: true
+
+    tags: {
+        Name: "public-ip-address-example-lb"
+    }
+end
+
+azure::load-balancer load-balancer-example
+    name: "load-balancer-example"
+    resource-group-name: $(azure::resource-group resource-group-lb-example | resource-group-name)
+    sku-basic: true
+
+    public-frontend
+        name: "public-frontend"
+        public-ip-address-name: $(azure::public-ip-address public-ip-address-example-public-frontend | public-ip-address-name)
+
+        inbound-nat-rule
+            name: "test-nat-rule"
+            floating-ip: false
+            frontend-port: 447
+            frontend-name: "public-frontend"
+            backend-port: 85
+            protocol: "TCP"
+        end
+    end
+
+    backend-pool
+        name: "backend-pool-name"
+        virtual-machine-ids: [$(azure::virtual-machine virtual-machine-example-lb | virtual-machine-id)]
+    end
+
+    load-balancer-rule
+        name: "test-rule"
+        backend-port: 81
+        floating-ip: false
+        frontend-name: "public-frontend"
+        frontend-port: 443
+        idle-timeout-in-minutes: 9
+        protocol: "TCP"
+        backend-pool-name: "backend-pool-name"
+        health-check-probe-name: "health-check-http"
+    end
+
+    load-balancer-rule
+        name: "test-rule-more-rules"
+        backend-port: 82
+        floating-ip: false
+        frontend-name: "public-frontend"
+        frontend-port: 445
+        idle-timeout-in-minutes: 9
+        protocol: "UDP"
+        backend-pool-name: "backend-pool-name"
+        health-check-probe-name: "health-check-tcp"
+    end
+
+    health-check-probe-tcp
+        name: "health-check-tcp"
+        interval: 7
+        port: 80
+        probes: 2
+    end
+
+    health-check-probe-http
+        name: "health-check-http"
+        interval: 13
+        request-path: "/"
+        port: 80
+        probes: 3
+    end
+
+    tags: {
+            Name: "load-balancer-example"
+    }
+end
