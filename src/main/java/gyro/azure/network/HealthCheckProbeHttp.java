@@ -18,7 +18,6 @@ import com.microsoft.azure.management.network.LoadBalancerHttpProbe;
  *             request-path: "/"
  *             port: 80
  *             probes: 3
- *             protocol: "TCP"
  *         end
  */
 public class HealthCheckProbeHttp extends HealthCheckProbeTcp {
@@ -33,7 +32,6 @@ public class HealthCheckProbeHttp extends HealthCheckProbeTcp {
         setRequestPath(httpProbe.requestPath());
         setPort(httpProbe.port());
         setProbes(httpProbe.numberOfProbes());
-        setProtocol("HTTP");
     }
 
     /**

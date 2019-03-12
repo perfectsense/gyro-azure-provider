@@ -18,7 +18,6 @@ import com.microsoft.azure.management.network.LoadBalancerTcpProbe;
  *             interval: 5
  *             port: 80
  *             probes: 2
- *             protocol: "TCP"
  *         end
  */
 public class HealthCheckProbeTcp extends Diffable {
@@ -27,7 +26,6 @@ public class HealthCheckProbeTcp extends Diffable {
     private Integer interval;
     private Integer port;
     private Integer probes;
-    private String protocol;
 
     public HealthCheckProbeTcp() {
 
@@ -38,7 +36,6 @@ public class HealthCheckProbeTcp extends Diffable {
         setInterval(tcpProbe.intervalInSeconds());
         setPort(tcpProbe.port());
         setProbes(tcpProbe.numberOfProbes());
-        setProtocol("TCP");
     }
 
     /**
@@ -86,18 +83,6 @@ public class HealthCheckProbeTcp extends Diffable {
 
     public void setProbes(Integer probes) {
         this.probes = probes;
-    }
-
-    /**
-     * The protocol used for the probe (Required)
-     */
-    @ResourceDiffProperty(updatable = true)
-    public String getProtocol() {
-        return protocol;
-    }
-
-    public void setProtocol(String protocol) {
-        this.protocol = protocol;
     }
 
     public String primaryKey() {
