@@ -407,6 +407,7 @@ public class LoadBalancerResource extends AzureResource {
         }
 
         //define the private frontends
+        LoadBalancerPrivateFrontend.DefinitionStages.WithAttach withAttachPrivate;
         for (PrivateFrontend privateFrontend : getPrivateFrontend()) {
 
             Network network = client.networks().getById(privateFrontend.getNetworkId());
