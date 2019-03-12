@@ -117,7 +117,6 @@ public class LoadBalancerResource extends AzureResource {
     }
 
     @ResourceDiffProperty(updatable = true)
-    public Map<String, Frontend> getFrontends() {
     public Map<String, Frontend> frontends() {
         if (frontends == null) {
             frontends = new HashMap<>();
@@ -131,10 +130,6 @@ public class LoadBalancerResource extends AzureResource {
                 .forEach(frontend -> frontends.put(frontend.getPublicFrontendName(), frontend));
 
         return frontends;
-    }
-
-    public void setFrontends(Map<String, Frontend> frontends) {
-        this.frontends = frontends;
     }
 
     /**
