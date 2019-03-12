@@ -92,6 +92,7 @@ public class LoadBalancerResource extends AzureResource {
     private Map<String, Frontend> frontends;
     private List<HealthCheckProbeHttp> healthCheckProbeHttp;
     private List<HealthCheckProbeTcp> healthCheckProbeTcp;
+    private String id;
     private String name;
     private List<LoadBalancerRule> loadBalancerRule;
     private List<PrivateFrontend> privateFrontend;
@@ -156,12 +157,12 @@ public class LoadBalancerResource extends AzureResource {
     }
 
     @ResourceOutput
-    public String getLoadBalancerId() {
-        return loadBalancerId;
+    public String getId() {
+        return id;
     }
 
-    public void setLoadBalancerId(String loadBalancerId) {
-        this.loadBalancerId = loadBalancerId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     /**
