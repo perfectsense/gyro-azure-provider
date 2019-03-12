@@ -358,36 +358,6 @@ public class LoadBalancerResource extends AzureResource {
                     .attach();
         }
 
-        //use frontend configuration to set inbound nat rules
-        LoadBalancerInboundNatPool.DefinitionStages.WithFrontend<WithCreateAndInboundNatPool> natPoolComponent = null;
-
-        //use frontend configuration to set inbound nat pools
-        for (Map.Entry<String, Frontend> frontends : getFrontends().entrySet()) {
-            Frontend front = frontends.getValue();
-            if (front.getInboundNatPool() != null) {
-                for (InboundNatPool natPool: front.getInboundNatPool()) {
-                    lb.defineInboundNatPool(natPool.getInboundNatPoolName())
-                            .withProtocol(TransportProtocol.fromString(natPool.getProtocol()))
-                            .fromFrontend(natPool.getFrontendName())
-                            .fromFrontendPortRange(natPool.getFrontendPortRangeStart(), natPool.getFrontendPortRangeEnd())
-                            .toBackendPort(natPool.getBackendPort())
-                            .attach();
-                }
-            }
-
-            if (front.getInboundNatRule() != null) {
-                for (InboundNatRule natRule : front.getInboundNatRule()) {
-                    lb.defineInboundNatRule(natRule.getInboundNatRuleName())
-                            .withProtocol(TransportProtocol.fromString(natRule.getProtocol()))
-                            .fromFrontend(natRule.getFrontendName())
-                            .fromFrontendPort(natRule.getFrontendPort())
-                            .withFloatingIP(natRule.getFloatingIp())
-                            .toBackendPort(natRule.getBackendPort())
-                            .attach();
-                }
-            }
-        }
-
         for (PublicFrontend publicFrontend : getPublicFrontend()) {
             LoadBalancerPublicFrontend.DefinitionStages.WithAttach withAttach = null;
 
@@ -448,25 +418,6 @@ public class LoadBalancerResource extends AzureResource {
                     .withIntervalInSeconds(tcpProbe.getInterval())
                     .withNumberOfProbes(tcpProbe.getProbes())
                     .withPort(tcpProbe.getPort());
-        }
-
-        for (InboundNatPool pool : getInboundNatPool()) {
-            loadBalancer.update()
-                    .updateInboundNatPool(pool.getInboundNatPoolName())
-                    .withProtocol(TransportProtocol.fromString(pool.getProtocol()))
-                    .fromFrontend(pool.getFrontendName())
-                    .fromFrontendPortRange(pool.getFrontendPortRangeStart(), pool.getFrontendPortRangeEnd())
-                    .toBackendPort(pool.getBackendPort());
-        }
-
-        for (InboundNatRule rule : getInboundNatRule()) {
-            loadBalancer.update()
-                    .updateInboundNatRule(rule.getInboundNatRuleName())
-                    .withProtocol(TransportProtocol.fromString(rule.getProtocol()))
-                    .fromFrontend(rule.getFrontendName())
-                    .fromFrontendPort(rule.getFrontendPort())
-                    .withFloatingIP(rule.getFloatingIp())
-                    .toBackendPort(rule.getBackendPort());
         }
 
         for (LoadBalancerRule rule : getLoadBalancerRule()) {
@@ -554,49 +505,15 @@ public class LoadBalancerResource extends AzureResource {
                     .apply();
         }
 
-        //update nat rule
-        List<InboundNatRule> ruleAdditions = new ArrayList<>(getInboundNatRule());
-        ruleAdditions.removeAll(currentResource.getInboundNatRule());
 
-        List<InboundNatRule> ruleSubtractions = new ArrayList<>(currentResource.getInboundNatRule());
-        ruleSubtractions.removeAll(getInboundNatRule());
+        }
 
-        for (InboundNatRule rule : ruleAdditions) {
-            loadBalancer.update()
-                    .defineInboundNatRule(rule.getInboundNatRuleName())
-                    .withProtocol(TransportProtocol.fromString(rule.getProtocol()))
-                    .fromFrontend(rule.getFrontendName())
-                    .fromFrontendPort(rule.getFrontendPort())
-                    .toBackendPort(rule.getBackendPort())
-                    .withFloatingIP(rule.getFloatingIp())
+
+
+
                     .attach();
         }
 
-        for (InboundNatRule rule : ruleSubtractions) {
-            loadBalancer.update()
-                    .withoutInboundNatRule(rule.getInboundNatRuleName())
-                    .apply();
-        }
-
-        //update nat pool
-        List<InboundNatPool> poolAdditions = new ArrayList<>(getInboundNatPool());
-        poolAdditions.removeAll(currentResource.getInboundNatPool());
-
-        List<InboundNatPool> poolSubtractions = new ArrayList<>(currentResource.getInboundNatPool());
-        poolSubtractions.removeAll(getInboundNatPool());
-
-        for (InboundNatPool pool : poolAdditions) {
-            loadBalancer.update()
-                    .defineInboundNatPool(pool.getInboundNatPoolName())
-                    .withProtocol(TransportProtocol.fromString(pool.getProtocol()))
-                    .attach();
-        }
-
-        for (InboundNatPool pool : poolSubtractions) {
-            loadBalancer.update()
-                    .withoutInboundNatPool(pool.getInboundNatPoolName())
-                    .apply();
-        }
 
         //load balancing rules
         List<LoadBalancerRule> ruleAddition = new ArrayList<>(getLoadBalancerRule());
