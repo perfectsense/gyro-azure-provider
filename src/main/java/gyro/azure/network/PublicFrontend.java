@@ -11,11 +11,11 @@ import com.microsoft.azure.management.network.LoadBalancerPublicFrontend;
  * .. code-block:: gyro
  *
  *         public-frontend
- *             public-frontend-name: "public-frontend-name"
+ *             name: "public-frontend-name"
  *             public-ip-address-name: $(azure::public-ip-address public-ip-address| public-ip-address-name)
  *
  *             inbound-nat-rule
- *                 inbound-nat-rule-name: "test-nat-rule"
+ *                 name: "test-nat-rule"
  *                 frontend-name: "public-frontend-name"
  *                 frontend-port: 80
  *                 protocol: "TCP"
@@ -24,7 +24,7 @@ import com.microsoft.azure.management.network.LoadBalancerPublicFrontend;
  */
 public class PublicFrontend extends Frontend {
 
-    private String publicFrontendName;
+    private String name;
     private String publicIpAddressName;
 
     public PublicFrontend(){
@@ -32,7 +32,7 @@ public class PublicFrontend extends Frontend {
     }
 
     public PublicFrontend(LoadBalancerPublicFrontend publicFrontend) {
-        setPublicFrontendName(publicFrontend.name());
+        setName(publicFrontend.name());
         setPublicIpAddressName(publicFrontend.getPublicIPAddress().name());
         publicFrontend.inboundNatPools().entrySet().stream()
                 .forEach(pool -> getInboundNatPool().add(new InboundNatPool(pool.getValue())));
@@ -43,12 +43,12 @@ public class PublicFrontend extends Frontend {
     /**
      * The name of the public frontend. (Required)
      */
-    public String getPublicFrontendName() {
-        return publicFrontendName;
+    public String getName() {
+        return name;
     }
 
-    public void setPublicFrontendName(String publicFrontendName) {
-        this.publicFrontendName = publicFrontendName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -68,7 +68,9 @@ public class PublicFrontend extends Frontend {
 
     @Override
     public String toDisplayString() {
-        return "public frontend " + getPublicFrontendName();
+        return "public frontend " + getName();
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {

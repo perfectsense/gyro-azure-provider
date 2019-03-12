@@ -16,13 +16,13 @@ import java.util.List;
  * .. code-block:: gyro
  *
  *         backend-pool
- *             backend-pool-name: "backendpoolname"
+ *             name: "backendpoolname"
  *             virtual-machine-ids: [$(azure::virtual-machine virtual-machine-example-lb | virtual-machine-id)]
  *         end
  */
 public class BackendPool extends Diffable {
 
-    private String backendPoolName;
+    private String name;
     private List<String> virtualMachineIds;
 
     public BackendPool(){
@@ -30,19 +30,19 @@ public class BackendPool extends Diffable {
     }
 
     public BackendPool(LoadBalancerBackend backend) {
-        setBackendPoolName(backendPoolName);
+        setName(backend.name());
         setVirtualMachineIds(new ArrayList<>(backend.getVirtualMachineIds()));
     }
 
     /**
      * The name of the backend pool. (Required)
      */
-    public String getBackendPoolName() {
-        return backendPoolName;
+    public String getName() {
+        return name;
     }
 
-    public void setBackendPoolName(String backendPoolName) {
-        this.backendPoolName = backendPoolName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -57,12 +57,14 @@ public class BackendPool extends Diffable {
     }
 
     public String primaryKey() {
-        return String.format("%s", getBackendPoolName());
+        return String.format("%s", getName());
     }
 
     @Override
     public String toDisplayString() {
-        return "backend pool " + getBackendPoolName();
+        return "backend pool " + getName();
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {

@@ -12,8 +12,8 @@ import com.microsoft.azure.management.network.LoadBalancerHttpProbe;
  *
  * .. code-block:: gyro
  *
- *         health-check-probe-http
- *             health-check-probe-name: "healthcheck"
+ *         health-check-probe-http"
+ *             name: "healthcheck"
  *             interval: 8
  *             request-path: "/"
  *             port: 80
@@ -28,7 +28,7 @@ public class HealthCheckProbeHttp extends HealthCheckProbeTcp {
     public HealthCheckProbeHttp() {}
 
     public HealthCheckProbeHttp(LoadBalancerHttpProbe httpProbe) {
-        setHealthCheckProbeName(httpProbe.name());
+        setName(httpProbe.name());
         setInterval(httpProbe.intervalInSeconds());
         setRequestPath(httpProbe.requestPath());
         setPort(httpProbe.port());
@@ -49,12 +49,14 @@ public class HealthCheckProbeHttp extends HealthCheckProbeTcp {
     }
 
     public String primaryKey() {
-        return String.format("%s", getHealthCheckProbeName());
+        return String.format("%s", getName());
     }
 
     @Override
     public String toDisplayString() {
-        return "health check probe http" + getHealthCheckProbeName();
+        return "health check probe http " + getName();
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {

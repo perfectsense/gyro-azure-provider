@@ -11,12 +11,12 @@ import com.microsoft.azure.management.network.LoadBalancerPrivateFrontend;
  * .. code-block:: gyro
  *
  *         private-frontend
- *             private-frontend-name: "private-frontend"
+ *             name: "private-frontend"
  *             network-id: $(azure::network load-balancer-network-example | network-id)
  *             subnet-name: "subnet2"
  *
  *             inbound-nat-pool
- *                 inbound-nat-pool-name: "test-nat-pool"
+ *                 name: "test-nat-pool"
  *                 frontend-name: "test-frontend"
  *                 backend-port: 80
  *                 protocol: "TCP"
@@ -27,7 +27,7 @@ import com.microsoft.azure.management.network.LoadBalancerPrivateFrontend;
  */
 public class PrivateFrontend extends Frontend {
 
-    private String privateFrontendName;
+    private String name;
     private String privateIpAddress;
     private String subnetName;
     private String networkId;
@@ -37,7 +37,7 @@ public class PrivateFrontend extends Frontend {
     }
 
     public PrivateFrontend(LoadBalancerPrivateFrontend privateFrontend) {
-        setPrivateFrontendName(privateFrontend.name());
+        setName(privateFrontend.name());
         setPrivateIpAddress(privateFrontend.privateIPAddress());
         setSubnetName(privateFrontend.subnetName());
         setNetworkId(privateFrontend.networkId());
@@ -50,12 +50,12 @@ public class PrivateFrontend extends Frontend {
     /**
      * The name of the private frontend. (Required)
      */
-    public String getPrivateFrontendName() {
-        return privateFrontendName;
+    public String getName() {
+        return name;
     }
 
-    public void setPrivateFrontendName(String privateFrontendName) {
-        this.privateFrontendName = privateFrontendName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -97,7 +97,9 @@ public class PrivateFrontend extends Frontend {
 
     @Override
     public String toDisplayString() {
-        return "private frontend " + getPrivateFrontendName();
+        return "private frontend " + getName();
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {

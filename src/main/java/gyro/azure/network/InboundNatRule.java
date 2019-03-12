@@ -15,7 +15,7 @@ import com.microsoft.azure.management.network.TransportProtocol;
  * .. code-block:: gyro
  *
  *         inbound-nat-rule
- *             inbound-nat-rule-name: "test-nat-rule"
+ *             name: "test-nat-rule"
  *             frontend-name: "test-frontend"
  *             frontend-port: 80
  *             protocol: "TCP"
@@ -27,7 +27,7 @@ public class InboundNatRule extends Diffable {
     private Boolean floatingIp;
     private String frontendName;
     private Integer frontendPort;
-    private String inboundNatRuleName;
+    private String name;
     private String protocol;
 
     public InboundNatRule() {}
@@ -35,9 +35,8 @@ public class InboundNatRule extends Diffable {
     public InboundNatRule(LoadBalancerInboundNatRule natRule) {
         setBackendPort(natRule.backendPort());
         setFloatingIp(natRule.floatingIPEnabled());
-        setFrontendName(natRule.frontend().name());
+        setFrontendName(natRule.frontend() != null ? natRule.frontend().name() : null);
         setFrontendPort(natRule.frontendPort());
-        setInboundNatRuleName(natRule.name());
         setProtocol(natRule.protocol() == TransportProtocol.TCP ? "TCP" : "UDP");
     }
 
@@ -84,12 +83,12 @@ public class InboundNatRule extends Diffable {
     /**
      * The name of the inbound nat rule. (Required)
      */
-    public String getInboundNatRuleName() {
-        return inboundNatRuleName;
+    public String getName() {
+        return name;
     }
 
-    public void setInboundNatRuleName(String inboundNatRuleName) {
-        this.inboundNatRuleName = inboundNatRuleName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -117,12 +116,14 @@ public class InboundNatRule extends Diffable {
     }
 
     public String primaryKey() {
-        return String.format("%s", getInboundNatRuleName());
+        return String.format("%s", getName());
     }
 
     @Override
     public String toDisplayString() {
-        return "inbound nat rule " + getInboundNatRuleName();
+        return "inbound nat rule " + getName();
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {

@@ -42,17 +42,17 @@ import java.util.Set;
  * .. code-block:: gyro
  *
  *         azure::load-balancer load-balancer-example
- *             load-balancer-name: "load-balancer-example"
+ *             name: "load-balancer-example"
  *             resource-group-name: $(azure::resource-group resource-group-lb-example | resource-group-name)
  *             sku-basic: true
  *
  *
  *             public-frontend
- *                 public-frontend-name: "public-frontend"
+ *                 name: "public-frontend"
  *                 public-ip-address-name: $(azure::public-ip-address public-ip-address | public-ip-address-name)
  *
  *                 inbound-nat-rule
- *                     inbound-nat-rule-name: "test-nat-rule"
+ *                     name: "test-nat-rule"
  *                     frontend-name: "public-frontend"
  *                     frontend-port: 80
  *                     protocol: "TCP"
@@ -60,12 +60,12 @@ import java.util.Set;
  *             end
  *
  *             backend-pool
- *                 backend-pool-name: "backend-pool-name"
+ *                 name: "backend-pool-name"
  *                 virtual-machine-ids: [$(azure::virtual-machine virtual-machine-example-lb | virtual-machine-id)]
  *             end
  *
  *             load-balancer-rule
- *                 load-balancer-rule-name: "test-rule"
+ *                 name: "test-rule"
  *                 backend-port: 80
  *                 floating-ip: false
  *                 frontend-name: "public-frontend"
@@ -77,7 +77,7 @@ import java.util.Set;
  *             end
  *
  *             health-check-probe-tcp
- *                 health-probe-name: "healthcheck-tcp"
+ *                 name: "healthcheck-tcp"
  *                 interval: 5
  *                 port: 80
  *                 probes: 2
@@ -99,7 +99,7 @@ public class LoadBalancerResource extends AzureResource {
     private List<InboundNatPool> inboundNatPool;
     private List<InboundNatRule> inboundNatRule;
     private String loadBalancerId;
-    private String loadBalancerName;
+    private String name;
     private List<LoadBalancerRule> loadBalancerRule;
     private List<PrivateFrontend> privateFrontend;
     private List<PublicFrontend> publicFrontend;
@@ -206,12 +206,12 @@ public class LoadBalancerResource extends AzureResource {
     /**
      * The name of the load balancer. (Required)
      */
-    public String getLoadBalancerName() {
-        return loadBalancerName;
+    public String getName() {
+        return name;
     }
 
-    public void setLoadBalancerName(String loadBalancerName) {
-        this.loadBalancerName = loadBalancerName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -362,7 +362,7 @@ public class LoadBalancerResource extends AzureResource {
         Azure client = createClient();
 
         LoadBalancer.DefinitionStages.WithLBRuleOrNat lb = client.loadBalancers()
-                .define(getLoadBalancerName())
+                .define(getName())
                 .withRegion(Region.fromName(getRegion()))
                 .withExistingResourceGroup(getResourceGroupName());
 

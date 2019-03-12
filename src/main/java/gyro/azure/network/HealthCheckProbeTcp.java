@@ -14,7 +14,7 @@ import com.microsoft.azure.management.network.LoadBalancerTcpProbe;
  * .. code-block:: gyro
  *
  *         health-check-probe-tcp
- *             health-check-probe-name: "healthcheck-tcp-test-sat"
+ *             name: "healthcheck-tcp-test-sat"
  *             interval: 5
  *             port: 80
  *             probes: 2
@@ -23,7 +23,7 @@ import com.microsoft.azure.management.network.LoadBalancerTcpProbe;
  */
 public class HealthCheckProbeTcp extends Diffable {
 
-    private String healthCheckProbeName;
+    private String name;
     private Integer interval;
     private Integer port;
     private Integer probes;
@@ -34,7 +34,7 @@ public class HealthCheckProbeTcp extends Diffable {
     }
 
     public HealthCheckProbeTcp(LoadBalancerTcpProbe tcpProbe) {
-        setHealthCheckProbeName(tcpProbe.name());
+        setName(tcpProbe.name());
         setInterval(tcpProbe.intervalInSeconds());
         setPort(tcpProbe.port());
         setProbes(tcpProbe.numberOfProbes());
@@ -44,13 +44,12 @@ public class HealthCheckProbeTcp extends Diffable {
     /**
      * The name of the health probe. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
-    public String getHealthCheckProbeName() {
-        return healthCheckProbeName;
+    public String getName() {
+        return name;
     }
 
-    public void setHealthCheckProbeName(String healthCheckProbeName) {
-        this.healthCheckProbeName = healthCheckProbeName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -102,12 +101,14 @@ public class HealthCheckProbeTcp extends Diffable {
     }
 
     public String primaryKey() {
-        return String.format("%s", getHealthCheckProbeName());
+        return String.format("%s", getName());
     }
 
     @Override
     public String toDisplayString() {
-        return "health check probe tcp " + getHealthCheckProbeName();
+        return "health check probe tcp " + getName();
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {

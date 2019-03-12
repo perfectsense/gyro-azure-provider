@@ -15,7 +15,7 @@ import com.microsoft.azure.management.network.TransportProtocol;
  * .. code-block:: gyro
  *
  *         load-balancer-rule
- *             load-balancer-rule-name: "test-rule-sat"
+ *             name: "test-rule"
  *             backend-port: 80
  *             floating-ip: false
  *             frontend-name: "test-frontend"
@@ -34,7 +34,7 @@ public class LoadBalancerRule extends Diffable {
     private String frontendName;
     private Integer frontendPort;
     private Integer idleTimeoutInMinutes;
-    private String loadBalancerRuleName;
+    private String name;
     private String healthCheckProbeName;
     private String protocol;
 
@@ -47,8 +47,8 @@ public class LoadBalancerRule extends Diffable {
         setFrontendName(rule.frontend().name());
         setFrontendPort(rule.frontendPort());
         setIdleTimeoutInMinutes(rule.idleTimeoutInMinutes());
-        setLoadBalancerRuleName(rule.name());
         setHealthCheckProbeName(rule.probe().name());
+        setName(rule.name());
         setProtocol(rule.protocol() == TransportProtocol.TCP ? "TCP" : "UDP");
     }
 
@@ -130,12 +130,12 @@ public class LoadBalancerRule extends Diffable {
     /**
      * The name of the load balancer rule. (Required)
      */
-    public String getLoadBalancerRuleName() {
-        return loadBalancerRuleName;
+    public String getName() {
+        return name;
     }
 
-    public void setLoadBalancerRuleName(String loadBalancerRuleName) {
-        this.loadBalancerRuleName = loadBalancerRuleName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**

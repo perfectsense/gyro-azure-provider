@@ -15,7 +15,7 @@ import com.microsoft.azure.management.network.TransportProtocol;
  * .. code-block:: gyro
  *
  *         inbound-nat-pool
- *             inbound-nat-pool-name: "testnatpool"
+ *             name: "testnatpool"
  *             frontend-name: "test-frontend"
  *             backend-port: 80
  *             protocol: "TCP"
@@ -29,17 +29,17 @@ public class InboundNatPool extends Diffable {
     private String frontendName;
     private Integer frontendPortRangeStart;
     private Integer frontendPortRangeEnd;
-    private String inboundNatPoolName;
+    private String name;
     private String protocol;
 
     public InboundNatPool() {}
 
     public InboundNatPool(LoadBalancerInboundNatPool natPool) {
         setBackendPort(natPool.backendPort());
-        setFrontendName(natPool.frontend().name());
-        setFrontendPortRangeEnd(natPool.frontendPortRangeStart());
+        setFrontendName(natPool.frontend() != null ? natPool.frontend().name() : null);
+        setFrontendPortRangeStart(natPool.frontendPortRangeStart());
         setFrontendPortRangeEnd(natPool.frontendPortRangeEnd());
-        setInboundNatPoolName(natPool.name());
+        setName(natPool.name());
         setProtocol(natPool.protocol() == TransportProtocol.TCP ? "TCP" : "UDP");
     }
 
@@ -94,12 +94,12 @@ public class InboundNatPool extends Diffable {
     /**
      * The name of the inbound nat pool. (Required)
      */
-    public String getInboundNatPoolName() {
-        return inboundNatPoolName;
+    public String getName() {
+        return name;
     }
 
-    public void setInboundNatPoolName(String inboundNatPoolName) {
-        this.inboundNatPoolName = inboundNatPoolName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -120,7 +120,9 @@ public class InboundNatPool extends Diffable {
 
     @Override
     public String toDisplayString() {
-        return "inbound nat pool " + getInboundNatPoolName();
+        return "inbound nat pool " + getName();
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
