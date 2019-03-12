@@ -86,64 +86,71 @@ azure::virtual-machine virtual-machine-example-lb
     }
 end
 
-azure::load-balancer load-balancer-example
-    load-balancer-name: "load-balancer-example"
+azure::load-balancer load-balancer-example-sat
+    name: "load-balancer-example-sat"
     resource-group-name: $(azure::resource-group resource-group-lb-example | resource-group-name)
+    sku-basic: true
 
-    frontend
-        frontend-name: "frontendname"
-        network-name: $(azure::network load-balancer-network-example | network-name)
-        public-front-end: false
-        static-public-ip: false
-        #static-public-ip-address: $(azure::public-ip-address public-ip-address-example-lb | public-ip-address-id)
-        subnet: "subnet2"
+    private-frontend
+        name: "private-frontend"
+        network-id: $(azure::network load-balancer-network-example | network-id)
+        subnet-name: "subnet2"
+
+        inbound-nat-pool
+            name: "test-nat-pool"
+            frontend-name: "private-frontend"
+            backend-port: 81
+            protocol: "TCP"
+            frontend-port-range-start: 81
+            frontend-port-range-end: 90
+        end
+    end
+
+    backend-pool
+        name: "backend-pool-name"
+        virtual-machine-ids: [$(azure::virtual-machine virtual-machine-example-lb | virtual-machine-id)]
     end
 
     load-balancer-rule
-        load-balancer-rule-name: "loadbalancerrule"
+        name: "test-rule-1"
         backend-port: 80
+        floating-ip: false
+        frontend-name: "private-frontend"
         frontend-port: 443
-        idle-timeout-in-minutes: 8
+        idle-timeout-in-minutes: 9
         protocol: "TCP"
+        backend-pool-name: "backend-pool-name"
+        health-check-probe-name: "health-check-http"
+    end
 
-        backend-pool
-            backend-pool-name: "backendpoolname"
-            virtual-machine-ids: [$(azure::virtual-machine virtual-machine-example-lb | virtual-machine-id)]
-        end
+    load-balancer-rule
+        name: "test-rule-2"
+        backend-port: 81
+        floating-ip: false
+        frontend-name: "private-frontend"
+        frontend-port: 445
+        idle-timeout-in-minutes: 9
+        protocol: "UDP"
+        backend-pool-name: "backend-pool-name"
+        health-check-probe-name: "health-check-tcp"
+    end
 
-        frontend-ip-configuration
-            frontend-ip-configuration-name: "frontendipconfigname"
+    health-check-probe-http
+        name: "health-check-http"
+        interval: 13
+        request-path: "/"
+        port: 81
+        probes: 3
+    end
 
-            inbound-nat-pool
-                inbound-nat-pool-name: "testnatpool"
-                backend-port: 80
-                frontend: "frontendipconfigname"
-                frontend-port: 443
-                protocol: "TCP"
-                static-public-ip-address: "13.64.29.63"
-                frontend-port-range-start: 80
-                frontend-port-range-end: 89
-            end
-
-            inbound-nat-rule
-                inbound-nat-rule-name: "testnatrule"
-                frontend: "frontendipconfigname"
-                port: 80
-                protocol: "TCP"
-            end
-        end
-
-        health-check-probe
-            health-probe-name: "healthchecktest"
-            interval: 5
-            port: 80
-            probes: 2
-            protocol: "TCP"
-        end
+    health-check-probe-tcp
+        name: "health-check-tcp"
+        interval: 7
+        port: 80
+        probes: 2
     end
 
     tags: {
             Name: "load-balancer-example"
     }
 end
-
