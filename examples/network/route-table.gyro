@@ -1,0 +1,23 @@
+import ../init as _
+
+azure::resource-group resource-group-network-example
+    resource-group-name: "resource-group-route-table-example"
+
+    tags: {
+        Name: "resource-group-network-example"
+    }
+end
+
+azure::route-table route-table-example
+    bgp-route-propagation-disabled: true
+    name: "route-table-example"
+    resource-group-name: "resource-group-route-table-example"
+    routes
+        destination-address-prefix: "0.0.0.0/0"
+        name: "test-route"
+        next-hop-type: "VIRTUAL_NETWORK_GATEWAY"
+    end
+    tags: {
+        Name: "route-table-example"
+    }
+end
