@@ -1,5 +1,6 @@
 package gyro.azure.network;
 
+import gyro.core.diff.ResourceDiffProperty;
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.network.Route;
 import com.microsoft.azure.management.network.RouteNextHopType;
@@ -16,6 +17,32 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Creates a route table.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: beam
+ *
+ *     azure::route-table route-table-example
+ *          bgp-route-propagation-disabled: true
+ *          name: "route-table-example"
+ *          resource-group-name: $(azure::resource-group resource-group-network-example | resource-group-name)
+ *          routes
+ *              destination-address-prefix: "10.0.1.0/24"
+ *              name: "test-route"
+ *              next-hop-type: "VirtualAppliance"
+ *              next-hop-ip-address: "10.0.2.4"
+ *          end
+ *          subnet-ids: {
+ *              network-example: "subnet2"
+ *          }
+ *          tags: {
+ *              Name: "route-table-example"
+ *          }
+ *     end
+ */
 @ResourceName("route-table")
 public class RouteTableResource extends AzureResource {
 
@@ -27,6 +54,10 @@ public class RouteTableResource extends AzureResource {
     private List<String> subnetIds;
     private Map<String, String> tags;
 
+    /**
+     * Determines whether to disable the routes learned by border gateway protocol on the route table. Defaults to true. (Required)
+     */
+    @ResourceDiffProperty(updatable = true)
     public Boolean getBgpRoutePropagationDisabled() {
         return bgpRoutePropagationDisabled;
     }
@@ -63,6 +94,10 @@ public class RouteTableResource extends AzureResource {
         this.resourceGroupName = resourceGroupName;
     }
 
+    /**
+     * The routes of the route table. (Optional)
+     */
+    @ResourceDiffProperty(updatable = true)
     public List<Routes> getRoutes() {
         return routes;
     }
@@ -72,6 +107,10 @@ public class RouteTableResource extends AzureResource {
     }
 
     public List<String> getSubnetIds() {
+    /**
+     * The subnets associated with the route table. (Optional)
+     */
+    @ResourceDiffProperty(updatable = true)
         return subnetIds;
     }
 
@@ -79,6 +118,10 @@ public class RouteTableResource extends AzureResource {
         this.subnetIds = subnetIds;
     }
 
+    /**
+     * The tags associated with the route table. (Optional)
+     */
+    @ResourceDiffProperty(updatable = true)
     public Map<String, String> getTags() {
         return tags;
     }
