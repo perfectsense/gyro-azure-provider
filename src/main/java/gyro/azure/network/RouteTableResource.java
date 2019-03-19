@@ -227,6 +227,24 @@ public class RouteTableResource extends AzureResource {
             }
         }
 
+        Map<String, String> subnetAdditions = new HashMap<>(getSubnets());
+        currentResource.getSubnets().forEach((key, value) -> subnetAdditions.remove(key, value));
+
+        Map<String, String> subnetSubtractions = new HashMap<>(currentResource.getSubnets());
+        getSubnets().forEach((key, value) -> subnetSubtractions.remove(key, value));
+
+        for (Map.Entry<String, String> entry : subnetAdditions.entrySet()) {
+            Network.Update subnetUpdate = client.networks().getById(entry.getValue()).update();
+            subnetUpdate.updateSubnet(entry.getKey()).withExistingRouteTable(getId());
+            subnetUpdate.apply();
+        }
+
+        for (Map.Entry<String, String> entry : subnetSubtractions.entrySet()) {
+            Network.Update subnetUpdate = client.networks().getById(entry.getValue()).update();
+            subnetUpdate.updateSubnet(entry.getKey()).withoutRouteTable();
+            subnetUpdate.apply();
+        }
+
         update.withTags(getTags()).apply();
     }
 
