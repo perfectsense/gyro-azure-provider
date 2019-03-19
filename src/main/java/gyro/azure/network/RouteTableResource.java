@@ -1,18 +1,21 @@
 package gyro.azure.network;
 
-import gyro.core.diff.ResourceDiffProperty;
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.network.Route;
-import com.microsoft.azure.management.network.RouteNextHopType;
-import com.microsoft.azure.management.network.RouteTable;
-import com.microsoft.azure.management.resources.fluentcore.arm.Region;
-import com.microsoft.azure.management.network.Route.DefinitionStages.WithNextHopType;
 import gyro.azure.AzureResource;
+import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.core.diff.ResourceOutput;
 import gyro.lang.Resource;
 
+import com.microsoft.azure.management.Azure;
+import com.microsoft.azure.management.network.Network;
+import com.microsoft.azure.management.network.Route;
+import com.microsoft.azure.management.network.RouteNextHopType;
+import com.microsoft.azure.management.network.RouteTable;
+import com.microsoft.azure.management.network.Route.DefinitionStages.WithNextHopType;
+import com.microsoft.azure.management.resources.fluentcore.arm.Region;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
