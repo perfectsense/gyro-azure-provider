@@ -213,6 +213,12 @@ public class RouteTableResource extends AzureResource {
                 .getById(getId())
                 .update();
 
+        if (getBgpRoutePropagationDisabled() == true) {
+            update.withDisableBgpRoutePropagation();
+        } else {
+            update.withEnableBgpRoutePropagation();
+        }
+
         Route.UpdateDefinitionStages.WithNextHopType<RouteTable.Update> updateWithNextHopType;
         for (Routes route : additions) {
             updateWithNextHopType =
