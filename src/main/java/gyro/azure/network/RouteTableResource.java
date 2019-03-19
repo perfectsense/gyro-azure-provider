@@ -170,6 +170,11 @@ public class RouteTableResource extends AzureResource {
                 .withRegion(Region.fromName(getRegion()))
                 .withExistingResourceGroup(getResourceGroupName());
 
+
+        if (getBgpRoutePropagationDisabled() == true) {
+            withCreate.withDisableBgpRoutePropagation();
+        }
+
         for (Routes route : getRoutes()) {
             WithNextHopType<RouteTable.DefinitionStages.WithCreate> withCreateWithNextHopType;
             withCreateWithNextHopType = withCreate.defineRoute(route.getName())
@@ -183,6 +188,12 @@ public class RouteTableResource extends AzureResource {
 
         RouteTable routeTable = withCreate.withTags(getTags()).create();
         setId(routeTable.id());
+
+        for (Map.Entry<String, String> entry : getSubnets().entrySet()) {
+            Network.Update update = client.networks().getById(entry.getValue()).update();
+            update.updateSubnet(entry.getKey()).withExistingRouteTable(getId());
+            update.apply();
+        }
     }
 
     @Override
