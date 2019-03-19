@@ -174,7 +174,7 @@ public class RouteTableResource extends AzureResource {
             WithNextHopType<RouteTable.DefinitionStages.WithCreate> withCreateWithNextHopType;
             withCreateWithNextHopType = withCreate.defineRoute(route.getName())
                     .withDestinationAddressPrefix(route.getDestinationAddressPrefix());
-            if (route.getNextHopType().equals("VIRTUAL_APPLIANCE")) {
+            if (route.getNextHopType().equals("VirtualAppliance")) {
                 withCreateWithNextHopType.withNextHopToVirtualAppliance(route.getNextHopIpAddress()).attach();
             } else {
                 withCreateWithNextHopType.withNextHop(RouteNextHopType.fromString(route.getNextHopType())).attach();
@@ -207,7 +207,7 @@ public class RouteTableResource extends AzureResource {
             updateWithNextHopType =
                     update.defineRoute(route.getName())
                     .withDestinationAddressPrefix(route.getDestinationAddressPrefix());
-            if (route.getNextHopType().equals("VIRTUAL_APPLIANCE")) {
+            if (route.getNextHopType().equals("VirtualAppliance")) {
                 updateWithNextHopType.withNextHopToVirtualAppliance(route.getNextHopIpAddress()).attach();
             } else {
                 updateWithNextHopType.withNextHop(RouteNextHopType.fromString(route.getNextHopType())).attach();
