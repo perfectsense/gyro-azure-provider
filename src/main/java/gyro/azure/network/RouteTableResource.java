@@ -242,9 +242,9 @@ public class RouteTableResource extends AzureResource {
         for (Routes route : getRoutes()) {
             if (!additions.contains(route) && !subtractions.contains(route)) {
                 update.updateRoute(route.getName())
-                        .withDestinationAddressPrefix(route.getDestinationAddressPrefix())
-                .withNextHop(RouteNextHopType.fromString(route.getNextHopType()))
-                .withNextHopToVirtualAppliance(route.getNextHopIpAddress());
+                        .withNextHopToVirtualAppliance(route.getNextHopIpAddress())
+                        .withNextHop(RouteNextHopType.fromString(route.getNextHopType()))
+                        .withDestinationAddressPrefix(route.getDestinationAddressPrefix());
             }
         }
 
