@@ -51,7 +51,7 @@ public class RouteTableResource extends AzureResource {
     private String name;
     private String resourceGroupName;
     private List<Routes> routes;
-    private List<String> subnetIds;
+    private Map<String, String> subnetIds;
     private Map<String, String> tags;
 
     /**
@@ -106,15 +106,19 @@ public class RouteTableResource extends AzureResource {
         this.routes = routes;
     }
 
-    public List<String> getSubnetIds() {
     /**
      * The subnets associated with the route table. (Optional)
      */
     @ResourceDiffProperty(updatable = true)
+    public Map<String, String> getSubnetIds() {
+        if (subnetIds == null) {
+            subnetIds = new HashMap<>();
+        }
+
         return subnetIds;
     }
 
-    public void setSubnetIds(List<String> subnetIds) {
+    public void setSubnetIds(Map<String, String> subnetIds) {
         this.subnetIds = subnetIds;
     }
 
