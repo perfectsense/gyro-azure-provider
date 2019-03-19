@@ -234,6 +234,12 @@ public class RouteTableResource extends AzureResource {
     public void delete() {
         Azure client = createClient();
 
+        for (Map.Entry<String, String> entry : getSubnets().entrySet()) {
+            Network.Update subnetUpdate = client.networks().getById(entry.getValue()).update();
+            subnetUpdate.updateSubnet(entry.getKey()).withoutRouteTable();
+            subnetUpdate.apply();
+        }
+
         client.routeTables().deleteById(getId());
     }
 
