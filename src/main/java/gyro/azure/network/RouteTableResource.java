@@ -36,7 +36,7 @@ import java.util.Set;
  *              next-hop-ip-address: "10.0.2.4"
  *          end
  *          subnet-ids: {
- *              network-example: "subnet2"
+ *              subnet2: $(azure::network network-example | network-id)
  *          }
  *          tags: {
  *              Name: "route-table-example"
