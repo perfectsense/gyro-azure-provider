@@ -115,7 +115,8 @@ public class RouteTableResource extends AzureResource {
     }
 
     /**
-     * The subnets associated with the route table. (Optional)
+     * The subnets and their network ids associated with the route table.
+     * The subnet name is the key and the associated network id is the value for each entry (Optional)
      */
     @ResourceDiffProperty(updatable = true)
     public Map<String, String> getSubnets() {
