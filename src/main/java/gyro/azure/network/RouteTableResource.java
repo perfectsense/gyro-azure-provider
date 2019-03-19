@@ -59,6 +59,10 @@ public class RouteTableResource extends AzureResource {
      */
     @ResourceDiffProperty(updatable = true)
     public Boolean getBgpRoutePropagationDisabled() {
+        if (bgpRoutePropagationDisabled == null) {
+            bgpRoutePropagationDisabled = true;
+        }
+
         return bgpRoutePropagationDisabled;
     }
 
@@ -99,6 +103,10 @@ public class RouteTableResource extends AzureResource {
      */
     @ResourceDiffProperty(updatable = true)
     public List<Routes> getRoutes() {
+        if (routes == null) {
+            routes = new ArrayList<>();
+        }
+
         return routes;
     }
 
@@ -127,6 +135,10 @@ public class RouteTableResource extends AzureResource {
      */
     @ResourceDiffProperty(updatable = true)
     public Map<String, String> getTags() {
+        if (tags == null) {
+            tags = new HashMap<>();
+        }
+
         return tags;
     }
 
