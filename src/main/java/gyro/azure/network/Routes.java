@@ -1,9 +1,25 @@
 package gyro.azure.network;
 
 import gyro.core.diff.Diffable;
+import gyro.core.diff.ResourceDiffProperty;
 
 import com.microsoft.azure.management.network.Route;
 
+/**
+ * Creates a route in a route table.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: beam
+ *
+ *     routes
+ *         destination-address-prefix: "10.0.1.0/24"
+ *         name: "test-route"
+ *         next-hop-type: "VirtualAppliance"
+ *         next-hop-ip-address: "10.0.2.4"
+ *     end
+ */
 public class Routes extends Diffable {
 
     private String destinationAddressPrefix;
@@ -22,6 +38,10 @@ public class Routes extends Diffable {
         setNextHopType(route.nextHopType().toString());
     }
 
+    /**
+     * The destination address prefix to which the route applies. Expressed in CIDR notation. (Required)
+     */
+    @ResourceDiffProperty(updatable = true)
     public String getDestinationAddressPrefix() {
         return destinationAddressPrefix;
     }
@@ -30,6 +50,9 @@ public class Routes extends Diffable {
         this.destinationAddressPrefix = destinationAddressPrefix;
     }
 
+    /**
+     * The name of the route. (Required)
+     */
     public String getName() {
         return name;
     }
@@ -38,6 +61,10 @@ public class Routes extends Diffable {
         this.name = name;
     }
 
+    /**
+     * The IP address of the next hop. (Required)
+     */
+    @ResourceDiffProperty(updatable = true)
     public String getNextHopIpAddress() {
         return nextHopIpAddress;
     }
@@ -46,6 +73,10 @@ public class Routes extends Diffable {
         this.nextHopIpAddress = nextHopIpAddress;
     }
 
+    /**
+     * The type of the next hop. (Required)
+     */
+    @ResourceDiffProperty(updatable = true)
     public String getNextHopType() {
         return nextHopType;
     }
