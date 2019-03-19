@@ -74,7 +74,7 @@ public class Routes extends Diffable {
     }
 
     /**
-     * The type of the next hop. (Required)
+     * The type of the next hop. Options are: Internet, VirtualAppliance, VnetLocal, VirtualNetworkGateway, None (Required)
      */
     @ResourceDiffProperty(updatable = true)
     public String getNextHopType() {
