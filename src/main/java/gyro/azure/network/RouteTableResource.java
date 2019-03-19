@@ -212,7 +212,6 @@ public class RouteTableResource extends AzureResource {
         List<Routes> subtractions = new ArrayList<>(currentResource.getRoutes());
         subtractions.removeAll(getRoutes());
 
-        //add and delete routes
         RouteTable.Update update = client.routeTables()
                 .getById(getId())
                 .update();
