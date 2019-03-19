@@ -62,4 +62,20 @@ public class Routes extends Diffable {
     public String toDisplayString() {
         return "route " + getName();
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+             return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        Routes route = (Routes) obj;
+
+        return route.getName().equals(this.getName());
+    }
 }
