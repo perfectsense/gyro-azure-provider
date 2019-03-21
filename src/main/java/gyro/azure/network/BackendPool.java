@@ -17,20 +17,26 @@ import java.util.List;
  *
  *         backend-pool
  *             name: "backendpoolname"
+ *             target-network-ip-configuration
+ *                 ip-configuration-name: "primary"
+ *                 network-id: $(azure::network-interface network-interface-example-lb | network-interface-id)
+ *             end
  *             virtual-machine-ids: [$(azure::virtual-machine virtual-machine-example-lb | virtual-machine-id)]
  *         end
  */
 public class BackendPool extends Diffable {
 
     private String name;
+    private List<TargetNetworkIpConfiguration> targetNetworkIpConfiguration;
     private List<String> virtualMachineIds;
 
     public BackendPool(){
 
     }
 
-    public BackendPool(LoadBalancerBackend backend) {
+    public BackendPool(LoadBalancerBackend backend, List<TargetNetworkIpConfiguration> configurations) {
         setName(backend.name());
+        configurations.forEach((config) -> getTargetNetworkIpConfiguration().add(new TargetNetworkIpConfiguration(config.getIpConfigurationName(), config.getNetworkInterfaceId())));
         setVirtualMachineIds(new ArrayList<>(backend.getVirtualMachineIds()));
     }
 
@@ -43,6 +49,20 @@ public class BackendPool extends Diffable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * The target network ip configurations associated with the backend pool. (Required)
+     */
+    public List<TargetNetworkIpConfiguration> getTargetNetworkIpConfiguration() {
+        if (targetNetworkIpConfiguration == null) {
+            targetNetworkIpConfiguration = new ArrayList<>();
+        }
+        return targetNetworkIpConfiguration;
+    }
+
+    public void setTargetNetworkIpConfiguration(List<TargetNetworkIpConfiguration> targetNetworkIpConfiguration) {
+        this.targetNetworkIpConfiguration = targetNetworkIpConfiguration;
     }
 
     /**
