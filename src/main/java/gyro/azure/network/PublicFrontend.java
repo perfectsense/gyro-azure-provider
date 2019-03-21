@@ -1,6 +1,7 @@
 package gyro.azure.network;
 
 import gyro.core.diff.ResourceDiffProperty;
+
 import com.microsoft.azure.management.network.LoadBalancerPublicFrontend;
 
 /**
