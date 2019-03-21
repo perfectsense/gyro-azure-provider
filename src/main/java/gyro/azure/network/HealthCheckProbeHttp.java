@@ -12,7 +12,7 @@ import com.microsoft.azure.management.network.LoadBalancerHttpProbe;
  *
  * .. code-block:: gyro
  *
- *         health-check-probe-http"
+ *         health-check-probe-http
  *             name: "healthcheck"
  *             interval: 8
  *             request-path: "/"
