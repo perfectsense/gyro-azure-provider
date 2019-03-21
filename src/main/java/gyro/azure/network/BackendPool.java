@@ -6,6 +6,7 @@ import gyro.core.diff.ResourceDiffProperty;
 import com.microsoft.azure.management.network.LoadBalancerBackend;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -39,6 +40,7 @@ public class BackendPool extends Diffable {
         setName(backend.name());
         configurations.forEach((config) -> getTargetNetworkIpConfiguration().add(new TargetNetworkIpConfiguration(config.getIpConfigurationName(), config.getNetworkInterfaceId())));
         setVirtualMachineIds(new ArrayList<>(backend.getVirtualMachineIds()));
+        getVirtualMachineIds().sort(Comparator.naturalOrder());
     }
 
     /**
