@@ -1,0 +1,20 @@
+import ../init as _
+
+azure::resource-group resource-group-availability-set-example
+    resource-group-name: "resource-group-availability-set-example"
+
+    tags: {
+        Name: "resource-group-availability-set-example"
+    }
+end
+
+azure::availability-set availability-set-example
+    fault-domain-count: 2
+    name: "availability-set-example"
+    resource-group-name: $(azure::resource-group resource-group-availability-set-example | resource-group-name)
+    sku: "Aligned"
+    tags: {
+            Name: "availability-set-example"
+    }
+    update-domain-count: 20
+end
