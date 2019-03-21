@@ -1,6 +1,7 @@
 package gyro.azure.network;
 
 import gyro.core.diff.Diffable;
+import gyro.core.diff.ResourceDiffProperty;
 
 import com.microsoft.azure.management.network.LoadBalancerBackend;
 
@@ -54,6 +55,7 @@ public class BackendPool extends Diffable {
     /**
      * The target network ip configurations associated with the backend pool. (Required)
      */
+    @ResourceDiffProperty(updatable = true)
     public List<TargetNetworkIpConfiguration> getTargetNetworkIpConfiguration() {
         if (targetNetworkIpConfiguration == null) {
             targetNetworkIpConfiguration = new ArrayList<>();
