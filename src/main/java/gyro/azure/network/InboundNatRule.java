@@ -6,11 +6,6 @@ import gyro.core.diff.ResourceDiffProperty;
 import com.microsoft.azure.management.network.LoadBalancerInboundNatRule;
 import com.microsoft.azure.management.network.TransportProtocol;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
  * Creates a nat rule.
  *
