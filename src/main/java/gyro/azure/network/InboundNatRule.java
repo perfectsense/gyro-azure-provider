@@ -6,6 +6,11 @@ import gyro.core.diff.ResourceDiffProperty;
 import com.microsoft.azure.management.network.LoadBalancerInboundNatRule;
 import com.microsoft.azure.management.network.TransportProtocol;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * Creates a nat rule.
  *
@@ -19,6 +24,10 @@ import com.microsoft.azure.management.network.TransportProtocol;
  *             frontend-name: "test-frontend"
  *             frontend-port: 80
  *             protocol: "TCP"
+ *             target-network-ip-configuration
+ *                 ip-configuration-name: "primary"
+ *                 network-id: $(azure::network-interface network-interface-example-lb | network-interface-id)
+ *             end
  *         end
  */
 public class InboundNatRule extends Diffable {
@@ -29,6 +38,7 @@ public class InboundNatRule extends Diffable {
     private Integer frontendPort;
     private String name;
     private String protocol;
+    private TargetNetworkIpConfiguration targetNetworkIpConfiguration;
 
     public InboundNatRule() {}
 
@@ -39,6 +49,7 @@ public class InboundNatRule extends Diffable {
         setFrontendPort(natRule.frontendPort());
         setName(natRule.name());
         setProtocol(natRule.protocol() == TransportProtocol.TCP ? "TCP" : "UDP");
+        setTargetNetworkIpConfiguration(new TargetNetworkIpConfiguration(natRule.backendNicIPConfigurationName(), natRule.backendNetworkInterfaceId()));
     }
 
     /**
@@ -114,6 +125,17 @@ public class InboundNatRule extends Diffable {
 
     public void setProtocol(String protocol) {
         this.protocol = protocol;
+    }
+
+    /**
+     * The target network ip configuration associated with the inbound nat rule. (Optional)
+     */
+    public TargetNetworkIpConfiguration getTargetNetworkIpConfiguration() {
+        return targetNetworkIpConfiguration;
+    }
+
+    public void setTargetNetworkIpConfiguration(TargetNetworkIpConfiguration targetNetworkIpConfiguration) {
+        this.targetNetworkIpConfiguration = targetNetworkIpConfiguration;
     }
 
     public String primaryKey() {
