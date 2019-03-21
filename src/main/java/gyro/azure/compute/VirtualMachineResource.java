@@ -677,7 +677,9 @@ public class VirtualMachineResource extends AzureResource {
             }
         }
 
-        create.withExistingAvailabilitySet(client.availabilitySets().getByResourceGroup(getResourceGroupName(), getAvailabilitySet()));
+        if (getAvailabilitySet() != null) {
+            create.withExistingAvailabilitySet(client.availabilitySets().getByResourceGroup(getResourceGroupName(), getAvailabilitySet()));
+        }
 
         VirtualMachine virtualMachine = create.withTags(getTags()).create();
 
