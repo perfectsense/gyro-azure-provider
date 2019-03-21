@@ -69,6 +69,10 @@ public class BackendPool extends Diffable {
      * The virtual machine ids associated with backend pool. (Required)
      */
     public List<String> getVirtualMachineIds() {
+        if (virtualMachineIds == null) {
+            virtualMachineIds = new ArrayList<>();
+        }
+
         return virtualMachineIds;
     }
 
