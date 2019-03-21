@@ -4,12 +4,15 @@ import gyro.core.diff.Diffable;
 import gyro.core.diff.ResourceDiffProperty;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public abstract class Frontend extends Diffable {
 
     public List<InboundNatPool> inboundNatPool;
     public List<InboundNatRule> inboundNatRule;
+    private Map<String, InboundNatRule> rules;
 
     /**
      * The inbound nat pools associated with the frontend. (Optional)
@@ -42,5 +45,18 @@ public abstract class Frontend extends Diffable {
 
     public void setInboundNatRule(List<InboundNatRule> inboundNatRule) {
         this.inboundNatRule = inboundNatRule;
+    }
+
+    @ResourceDiffProperty(updatable = true)
+    public Map<String, InboundNatRule> rules() {
+        if (rules == null) {
+            rules = new HashMap<>();
+        }
+
+        getInboundNatRule()
+                .stream()
+                .forEach(rule -> rules.put(rule.getName(), rule));
+
+        return rules;
     }
 }
