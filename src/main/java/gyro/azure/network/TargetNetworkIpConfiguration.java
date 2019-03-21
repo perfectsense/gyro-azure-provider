@@ -57,7 +57,7 @@ public class TargetNetworkIpConfiguration extends Diffable {
 
     @Override
     public String toDisplayString() {
-        return "target network ip configuration " + getIpConfigurationName() + " from network interface" + getNetworkInterfaceId();
+        return "target network ip configuration " + getIpConfigurationName() + " from network interface " + getNetworkInterfaceId();
     }
 
     @Override
