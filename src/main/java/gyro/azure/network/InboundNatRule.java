@@ -26,7 +26,7 @@ import java.util.Map;
  *             protocol: "TCP"
  *             target-network-ip-configuration
  *                 ip-configuration-name: "primary"
- *                 network-id: $(azure::network-interface network-interface-example-lb | network-interface-id)
+ *                 network-interface-id: $(azure::network-interface network-interface-example-lb | network-interface-id)
  *             end
  *         end
  */
