@@ -65,7 +65,7 @@ public class PublicFrontend extends Frontend {
     }
 
     public String primaryKey() {
-        return String.format("%s/%s", getName());
+        return String.format("%s", getName());
     }
 
     @Override
