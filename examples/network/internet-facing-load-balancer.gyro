@@ -1,16 +1,16 @@
 import ../init as _
 
-azure::resource-group resource-group-lb-example
-    resource-group-name: "resource-group-lb-example"
+azure::resource-group load-balancer-rg-example
+    resource-group-name: "load-balancer-rg-example"
 
     tags: {
-        Name: "resource-group-lb-example"
+        Name: "load-balancer-rg-example"
     }
 end
 
 azure::network load-balancer-network-example
     network-name: "load-balancer-network-example"
-    resource-group-name: $(azure::resource-group resource-group-lb-example | resource-group-name)
+    resource-group-name: $(azure::resource-group load-balancer-rg-example | resource-group-name)
     address-spaces:  [
          "10.0.0.0/27",
          "10.1.0.0/27"
@@ -25,35 +25,35 @@ azure::network load-balancer-network-example
     }
 end
 
-azure::public-ip-address public-ip-address-example-lb
-    public-ip-address-name: "public-ip-address-example-lb"
-    resource-group-name: $(azure::resource-group resource-group-lb-example | resource-group-name)
+azure::public-ip-address load-balancer-public-ip-address-example
+    public-ip-address-name: "load-balancer-public-ip-address-example"
+    resource-group-name: $(azure::resource-group load-balancer-rg-example | resource-group-name)
     idle-timeout-in-minute: 4
     sku-basic: false
 
     tags: {
-        Name: "public-ip-address-example-lb"
+        Name: "load-balancer-public-ip-address-example"
     }
 end
 
-azure::disk disk-example-lb
-    disk-name: "disk-example-lb"
+azure::disk load-balancer-disk-example
+    disk-name: "load-balancer-disk-example"
     disk-type: "Standard_LRS"
     os-type: "LINUX"
     size: 10
-    resource-group-name: $(azure::resource-group resource-group-lb-example | resource-group-name)
+    resource-group-name: $(azure::resource-group load-balancer-rg-example | resource-group-name)
     tags: {
-        Name: "disk-example-lb"
+        Name: "load-balancer-disk-example"
     }
 end
 
-azure::network-interface network-interface-example-lb
-    network-interface-name: "network-interface-example-lb"
-    resource-group-name: $(azure::resource-group resource-group-lb-example | resource-group-name)
+azure::network-interface load-balancer-network-interface-example
+    network-interface-name: "load-balancer-network-interface-example"
+    resource-group-name: $(azure::resource-group load-balancer-rg-example | resource-group-name)
     network-id: $(azure::network load-balancer-network-example | network-id)
     subnet: "subnet1"
     tags: {
-        Name: "network-interface-example-lb"
+        Name: "load-balancer-network-interface-example"
     }
 
     primary-ip-configuration
@@ -61,18 +61,24 @@ azure::network-interface network-interface-example-lb
         ip-configuration-name: 'primary'
         primary: true
     end
+
+    nic-ip-configuration
+        ip-configuration-name: "nic-ip-configuration-two"
+        private-ip-address-static: "10.0.0.8"
+        ip-allocation-static: true
+    end
 end
 
-azure::virtual-machine virtual-machine-example-lb
-    virtual-machine-name: "virtual-machine-example-lb"
-    resource-group-name: $(azure::resource-group resource-group-lb-example | resource-group-name)
+azure::virtual-machine load-balancer-virtual-machine-example
+    virtual-machine-name: "load-balancer-virtual-machine-example"
+    resource-group-name: $(azure::resource-group load-balancer-rg-example | resource-group-name)
     network-id: $(azure::network load-balancer-network-example | network-id)
     subnet: "subnet1"
     os-type: "linux"
-    disk-id: $(azure::disk disk-example-lb | disk-id)
-    network-interface-name: $(azure::network-interface network-interface-example-lb | network-interface-name)
+    disk-id: $(azure::disk load-balancer-disk-example | disk-id)
+    network-interface-name: $(azure::network-interface load-balancer-network-interface-example | network-interface-name)
     #private-ip-address: "10.0.0.10"
-    #public-ip-address-name: $(azure::public-ip-address public-ip-address-example-lb | public-ip-address-name)
+    #public-ip-address-name: $(azure::public-ip-address load-balancer-public-ip-address-example | public-ip-address-name)
     vm-image-type: "popular"
     known-virtual-image: "UBUNTU_SERVER_14_04_LTS"
     admin-user-name: "qwerty@123"
@@ -82,29 +88,29 @@ azure::virtual-machine virtual-machine-example-lb
     storage-account-type-data-disk: "STANDARD_LRS"
     storage-account-type-os-disk: "STANDARD_LRS"
     tags: {
-            Name: "virtual-machine-example-lb"
+            Name: "load-balancer-virtual-machine-example"
     }
 end
 
-azure::public-ip-address public-ip-address-example-public-frontend
-    public-ip-address-name: "public-ip-address-example-public-frontend"
-    resource-group-name: $(azure::resource-group resource-group-lb-example | resource-group-name)
+azure::public-ip-address load-balancer-public-frontend-public-ip-address-example
+    public-ip-address-name: "load-balancer-public-frontend-public-ip-address-example"
+    resource-group-name: $(azure::resource-group load-balancer-rg-example | resource-group-name)
     idle-timeout-in-minute: 4
     sku-basic: true
 
     tags: {
-        Name: "public-ip-address-example-lb"
+        Name: "load-balancer-public-frontend-public-ip-address-example"
     }
 end
 
 azure::load-balancer load-balancer-example
     name: "load-balancer-example"
-    resource-group-name: $(azure::resource-group resource-group-lb-example | resource-group-name)
+    resource-group-name: $(azure::resource-group load-balancer-rg-example | resource-group-name)
     sku-basic: true
 
     public-frontend
         name: "public-frontend"
-        public-ip-address-name: $(azure::public-ip-address public-ip-address-example-public-frontend | public-ip-address-name)
+        public-ip-address-name: $(azure::public-ip-address load-balancer-public-frontend-public-ip-address-example | public-ip-address-name)
 
         inbound-nat-rule
             name: "test-nat-rule"
@@ -113,12 +119,20 @@ azure::load-balancer load-balancer-example
             frontend-name: "public-frontend"
             backend-port: 85
             protocol: "TCP"
+            target-network-ip-configuration
+                ip-configuration-name: "primary"
+                network-interface-id: $(azure::network-interface load-balancer-network-interface-example | network-interface-id)
+            end
         end
     end
 
     backend-pool
         name: "backend-pool-name"
-        virtual-machine-ids: [$(azure::virtual-machine virtual-machine-example-lb | virtual-machine-id)]
+        target-network-ip-configuration
+            ip-configuration-name: "primary"
+            network-interface-id: $(azure::network-interface load-balancer-network-interface-example | network-interface-id)
+        end
+        virtual-machine-ids: [$(azure::virtual-machine load-balancer-virtual-machine-example | virtual-machine-id)]
     end
 
     load-balancer-rule
