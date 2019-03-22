@@ -11,13 +11,15 @@ import com.microsoft.azure.management.network.LoadBalancer;
 import com.microsoft.azure.management.network.LoadBalancerBackend;
 import com.microsoft.azure.management.network.LoadBalancerHttpProbe;
 import com.microsoft.azure.management.network.LoadBalancerInboundNatPool;
-import com.microsoft.azure.management.network.LoadBalancerPublicFrontend;
 import com.microsoft.azure.management.network.LoadBalancerPrivateFrontend;
+import com.microsoft.azure.management.network.LoadBalancerPublicFrontend;
+import com.microsoft.azure.management.network.LoadBalancingRule;
 import com.microsoft.azure.management.network.LoadBalancerSkuType;
 import com.microsoft.azure.management.network.LoadBalancerTcpProbe;
-import com.microsoft.azure.management.network.LoadBalancingRule;
-import com.microsoft.azure.management.network.PublicIPAddress;
 import com.microsoft.azure.management.network.Network;
+import com.microsoft.azure.management.network.NetworkInterface;
+import com.microsoft.azure.management.network.NicIPConfiguration;
+import com.microsoft.azure.management.network.PublicIPAddress;
 import com.microsoft.azure.management.network.TransportProtocol;
 import com.microsoft.azure.management.network.model.HasNetworkInterfaces;
 import com.microsoft.azure.management.network.LoadBalancer.DefinitionStages.WithCreate;
@@ -41,7 +43,6 @@ import java.util.Set;
  *             name: "load-balancer-example"
  *             resource-group-name: $(azure::resource-group resource-group-lb-example | resource-group-name)
  *             sku-basic: true
- *
  *
  *             public-frontend
  *                 name: "public-frontend"
