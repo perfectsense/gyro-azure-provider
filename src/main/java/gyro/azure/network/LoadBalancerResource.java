@@ -439,8 +439,8 @@ public class LoadBalancerResource extends AzureResource {
         }
 
         LoadBalancer loadBalancer = buildLoadBalancer
-                .withSku(getSkuBasic() ? LoadBalancerSkuType.BASIC : LoadBalancerSkuType.STANDARD)
-                .withTags(getTags()).create();
+                    .withSku(getSkuBasic() ? LoadBalancerSkuType.BASIC : LoadBalancerSkuType.STANDARD)
+                    .withTags(getTags()).create();
 
         setId(loadBalancer.id());
     }
