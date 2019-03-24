@@ -254,6 +254,10 @@ public class NetworkResource extends AzureResource {
         return sb.toString();
     }
 
+    Network getNetwork(Azure client) {
+        return client.networks().getByResourceGroup(getResourceGroupName(), getNetworkName());
+    }
+
     private Map<String, String> subnetMap() {
         Map<String, String> subnets = new HashMap<>();
         for (SubnetResource subnet : getSubnet()) {
