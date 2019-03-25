@@ -1,5 +1,6 @@
 package gyro.azure.storage;
 
+import com.microsoft.azure.storage.CorsRule;
 import gyro.azure.AzureResource;
 import gyro.core.BeamException;
 import gyro.core.diff.ResourceDiffProperty;
@@ -102,6 +103,11 @@ public class CloudFileShareResource extends AzureResource {
             if (share.exists()) {
                 setCloudFileShareName(share.getName());
                 setShareQuota(share.getProperties().getShareQuota());
+
+                for (CorsRule rule : share.getServiceClient().downloadServiceProperties().getCors().getCorsRules()) {
+                    getCors().add(new Cors(rule));
+                }
+
                 return true;
             }
             return false;
