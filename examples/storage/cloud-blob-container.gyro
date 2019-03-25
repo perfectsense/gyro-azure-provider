@@ -19,6 +19,13 @@ end
 
 azure::cloud-blob-container blob-container-example
     container-name: "blobcontainerexample"
+    cors
+        allowed-headers: ["*"]
+        allowed-methods: ["PUT"]
+        allowed-origins: ["*"]
+        exposed-headers: ["*"]
+        max-age: 6
+    end
     public-access: "CONTAINER"
     storage-connection: $(azure::storage-account blob-storage-account-example | storage-connection)
 end

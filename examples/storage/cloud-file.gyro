@@ -19,6 +19,13 @@ end
 
 azure::cloud-file-share cloud-file-share-example
     cloud-file-share-name: "cloudfileshare"
+    cors
+        allowed-headers: ["*"]
+        allowed-origins: ["GET"]
+        allowed-methods: ["*"]
+        exposed-headers: ["*"]
+        max-age: 6
+    end
     storage-connection: $(azure::storage-account file-storage-account-example | storage-connection)
 end
 
