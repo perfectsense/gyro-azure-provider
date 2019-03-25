@@ -40,6 +40,7 @@ public class StorageAccountResource extends AzureResource {
     private String resourceGroupName;
     private String storageAccountId;
     private String storageAccountName;
+    private String storageConnection;
     private Map<String, String> tags;
 
     @ResourceOutput
@@ -83,10 +84,12 @@ public class StorageAccountResource extends AzureResource {
         this.storageAccountName = storageAccountName;
     }
 
-    public String storageConnection() {
-        return "DefaultEndpointsProtocol=https;"
-                + "AccountName=" + getStorageAccountName() + ";"
-                + "AccountKey=" + getKeys().get("key1");
+    public String getStorageConnection() {
+        return storageConnection;
+    }
+
+    public void setStorageConnection(String storageConnection) {
+        this.storageConnection = storageConnection;
     }
 
     /**
@@ -141,6 +144,10 @@ public class StorageAccountResource extends AzureResource {
         for (StorageAccountKey key : storageAccountKeys) {
             getKeys().put(key.keyName(), key.value());
         }
+
+        setStorageConnection("DefaultEndpointsProtocol=https;"
+                + "AccountName=" + getStorageAccountName() + ";"
+                + "AccountKey=" + getKeys().get("key1"));
     }
 
     @Override
