@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
  *               "10.0.0.0/27",
  *               "10.1.0.0/27"
  *          ]
+ *
  *          subnet
  *              address-prefix: "10.0.0.0/28"
  *              name: "subnet1"
@@ -147,7 +148,9 @@ public class NetworkResource extends AzureResource {
         getSubnet().clear();
         if (!network.subnets().isEmpty()) {
             for (Subnet key : network.subnets().values()) {
-                getSubnet().add(new SubnetResource(key));
+                SubnetResource subnetResource = new SubnetResource(key);
+                subnetResource.parent(this);
+                getSubnet().add(subnetResource);
             }
         }
 
