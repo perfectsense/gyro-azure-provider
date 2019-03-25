@@ -2,16 +2,21 @@ package gyro.azure.storage;
 
 import gyro.azure.AzureResource;
 import gyro.core.BeamException;
+import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.lang.Resource;
-import com.microsoft.azure.storage.CloudStorageAccount;
-import com.microsoft.azure.storage.StorageException;
 
+import com.microsoft.azure.storage.CloudStorageAccount;
+import com.microsoft.azure.storage.CorsRule;
+import com.microsoft.azure.storage.StorageException;
+import com.microsoft.azure.storage.ServiceProperties;
 import com.microsoft.azure.storage.table.CloudTable;
 import com.microsoft.azure.storage.table.CloudTableClient;
 
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -24,6 +29,13 @@ import java.util.Set;
  *
  *     azure::cloud-table cloud-table-example
  *         cloud-table-name: "cloudtablename"
+ *         cors
+ *             allowed-headers: ["*"]
+ *             allowed-methods: ["GET"]
+ *             allowed-origins: ["*"]
+ *             exposed-headers: ["*"]
+ *             max-age: 6
+ *         end
  *         storage-connection: $(azure::storage-account queue-storage-account-example | storage-connection)
  *     end
  */
@@ -31,6 +43,7 @@ import java.util.Set;
 public class CloudTableResource extends AzureResource {
 
     private String cloudTableName;
+    private List<Cors> cors;
     private String storageConnection;
 
     /**
@@ -42,6 +55,22 @@ public class CloudTableResource extends AzureResource {
 
     public void setCloudTableName(String cloudTableName) {
         this.cloudTableName = cloudTableName;
+    }
+
+    /**
+     * The cors rules associated with the table. (Optional)
+     */
+    @ResourceDiffProperty(updatable = true)
+    public List<Cors> getCors() {
+        if (cors == null) {
+            cors = new ArrayList<>();
+        }
+
+        return cors;
+    }
+
+    public void setCors(List<Cors> cors) {
+        this.cors = cors;
     }
 
     public String getStorageConnection() {
@@ -59,6 +88,11 @@ public class CloudTableResource extends AzureResource {
             CloudTable cloudTable = cloudTable();
             if (cloudTable.exists()) {
                 setCloudTableName(cloudTable.getName());
+
+                for (CorsRule rule :  cloudTable.getServiceClient().downloadServiceProperties().getCors().getCorsRules()) {
+                    getCors().add(new Cors(rule));
+                }
+
                 return true;
             }
             return false;
@@ -98,8 +132,11 @@ public class CloudTableResource extends AzureResource {
     private CloudTable cloudTable() {
         try {
             CloudStorageAccount account = CloudStorageAccount.parse(getStorageConnection());
-            CloudTableClient client = account.createCloudTableClient();
-            return client.getTableReference(getCloudTableName());
+            CloudTableClient tableClient = account.createCloudTableClient();
+            ServiceProperties props = new ServiceProperties();
+            getCors().forEach(rule -> props.getCors().getCorsRules().add(rule.toCors()));
+            tableClient.uploadServiceProperties(props);
+            return tableClient.getTableReference(getCloudTableName());
         } catch (StorageException | URISyntaxException | InvalidKeyException ex) {
             throw new BeamException(ex.getMessage());
         }

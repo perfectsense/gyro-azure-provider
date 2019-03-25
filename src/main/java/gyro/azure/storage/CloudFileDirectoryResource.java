@@ -1,5 +1,7 @@
 package gyro.azure.storage;
 
+import com.microsoft.azure.storage.CorsProperties;
+import com.microsoft.azure.storage.ServiceProperties;
 import gyro.azure.AzureResource;
 import gyro.core.BeamException;
 import gyro.core.diff.ResourceName;
@@ -16,7 +18,9 @@ import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 
@@ -40,6 +44,7 @@ public class CloudFileDirectoryResource extends AzureResource {
     private String cloudFileDirectoryPath;
     private String cloudFileDirectoryName;
     private String cloudFileShareName;
+    private List<Cors> corsRule;
     private String storageConnection;
 
     public CloudFileDirectoryResource() {}
@@ -78,6 +83,21 @@ public class CloudFileDirectoryResource extends AzureResource {
 
     public void setCloudFileShareName(String cloudFileShareName) {
         this.cloudFileShareName = cloudFileShareName;
+    }
+
+    /**
+     * The cors rules associated with the cloud file directory. (Required)
+     */
+    public List<Cors> getCorsRule() {
+        if (corsRule == null) {
+            corsRule = new ArrayList<>();
+        }
+
+        return corsRule;
+    }
+
+    public void setCorsRule(List<Cors> corsRule) {
+        this.corsRule = corsRule;
     }
 
     public String getStorageConnection() {
