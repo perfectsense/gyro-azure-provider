@@ -118,23 +118,6 @@ public class RouteTableResource extends AzureResource {
     }
 
     /**
-     * The subnets and their network ids associated with the route table.
-     * The subnet name is the key and the associated network id is the value for each entry (Optional)
-     */
-    @ResourceDiffProperty(updatable = true)
-    public Map<String, String> getSubnets() {
-        if (subnets == null) {
-            subnets = new HashMap<>();
-        }
-
-        return subnets;
-    }
-
-    public void setSubnets(Map<String, String> subnets) {
-        this.subnets = subnets;
-    }
-
-    /**
      * The tags associated with the route table. (Optional)
      */
     @ResourceDiffProperty(updatable = true)
@@ -193,11 +176,6 @@ public class RouteTableResource extends AzureResource {
         RouteTable routeTable = withCreate.withTags(getTags()).create();
         setId(routeTable.id());
 
-        for (Map.Entry<String, String> entry : getSubnets().entrySet()) {
-            Network.Update update = client.networks().getById(entry.getValue()).update();
-            update.updateSubnet(entry.getKey()).withExistingRouteTable(getId());
-            update.apply();
-        }
     }
 
     @Override
@@ -247,36 +225,12 @@ public class RouteTableResource extends AzureResource {
             }
         }
 
-        Map<String, String> subnetAdditions = new HashMap<>(getSubnets());
-        currentResource.getSubnets().forEach((key, value) -> subnetAdditions.remove(key, value));
-
-        Map<String, String> subnetSubtractions = new HashMap<>(currentResource.getSubnets());
-        getSubnets().forEach((key, value) -> subnetSubtractions.remove(key, value));
-
-        for (Map.Entry<String, String> entry : subnetAdditions.entrySet()) {
-            Network.Update subnetUpdate = client.networks().getById(entry.getValue()).update();
-            subnetUpdate.updateSubnet(entry.getKey()).withExistingRouteTable(getId());
-            subnetUpdate.apply();
-        }
-
-        for (Map.Entry<String, String> entry : subnetSubtractions.entrySet()) {
-            Network.Update subnetUpdate = client.networks().getById(entry.getValue()).update();
-            subnetUpdate.updateSubnet(entry.getKey()).withoutRouteTable();
-            subnetUpdate.apply();
-        }
-
         update.withTags(getTags()).apply();
     }
 
     @Override
     public void delete() {
         Azure client = createClient();
-
-        for (Map.Entry<String, String> entry : getSubnets().entrySet()) {
-            Network.Update subnetUpdate = client.networks().getById(entry.getValue()).update();
-            subnetUpdate.updateSubnet(entry.getKey()).withoutRouteTable();
-            subnetUpdate.apply();
-        }
 
         client.routeTables().deleteById(getId());
     }
