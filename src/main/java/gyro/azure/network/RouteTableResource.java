@@ -148,6 +148,8 @@ public class RouteTableResource extends AzureResource {
             getRoutes().add(new Routes(routes.getValue()));
         }
 
+        setTags(routeTable.tags());
+
         return true;
     }
 
