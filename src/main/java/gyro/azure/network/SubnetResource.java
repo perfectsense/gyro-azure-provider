@@ -123,15 +123,15 @@ public class SubnetResource extends AzureResource {
         updateWithAttach = network.update().defineSubnet(getName())
                 .withAddressPrefix(getAddressPrefix());
 
-        if (!ObjectUtils.isBlank(getNetworkSecurityGroupId())) {
+        if (getNetworkSecurityGroupId() != null) {
             updateWithAttach.withExistingNetworkSecurityGroup(getNetworkSecurityGroupId());
         }
 
-        if (!ObjectUtils.isBlank(getRouteTableId())) {
+        if (getRouteTableId() != null) {
             updateWithAttach.withExistingRouteTable(getRouteTableId());
         }
 
-        if (!ObjectUtils.isBlank(getServiceEndpoints())) {
+        if (getServiceEndpoints() != null) {
             for (String endpoint : getServiceEndpoints().keySet()) {
                 updateWithAttach.withAccessFromService(ServiceEndpointType.fromString(endpoint));
             }
@@ -151,13 +151,13 @@ public class SubnetResource extends AzureResource {
         Subnet.Update update = network.update().updateSubnet(getName())
                 .withAddressPrefix(getAddressPrefix());
 
-        if (!ObjectUtils.isBlank(getNetworkSecurityGroupId())) {
+        if (getNetworkSecurityGroupId() != null) {
             update.withExistingNetworkSecurityGroup(getNetworkSecurityGroupId());
         } else {
             update.withoutNetworkSecurityGroup();
         }
 
-        if (!ObjectUtils.isBlank(getRouteTableId())) {
+        if (getRouteTableId() != null) {
             update.withExistingRouteTable(getRouteTableId());
         } else {
             update.withoutRouteTable();
@@ -165,7 +165,7 @@ public class SubnetResource extends AzureResource {
 
         SubnetResource oldResource = (SubnetResource) current;
 
-        if (!ObjectUtils.isBlank(getServiceEndpoints()) || changedProperties.contains("service-endpoints")) {
+        if (getServiceEndpoints() != null || changedProperties.contains("service-endpoints")) {
 
             List<String> addServiceEndpoints = getServiceEndpoints().keySet().stream()
                     .filter(((Predicate<String>) new HashSet<>(oldResource.getServiceEndpoints().keySet())::contains).negate())
