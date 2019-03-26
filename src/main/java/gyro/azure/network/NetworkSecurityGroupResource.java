@@ -31,7 +31,7 @@ import java.util.Set;
  *          rule
  *              security-group-rule-name: "Port_8080"
  *              inbound-rule: true
- *              allowRule: true
+ *              allow-rule: true
  *              from-addresses: [
  *                  "8080"
  *              ]
