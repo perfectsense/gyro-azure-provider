@@ -163,7 +163,7 @@ public class RouteTableResource extends AzureResource {
                 .withExistingResourceGroup(getResourceGroupName());
 
 
-        if (getBgpRoutePropagationDisabled() == true) {
+        if (getBgpRoutePropagationDisabled()) {
             withCreate.withDisableBgpRoutePropagation();
         }
 
@@ -199,7 +199,7 @@ public class RouteTableResource extends AzureResource {
                 .getById(getId())
                 .update();
 
-        if (getBgpRoutePropagationDisabled() == true) {
+        if (getBgpRoutePropagationDisabled()) {
             update.withDisableBgpRoutePropagation();
         } else {
             update.withEnableBgpRoutePropagation();
