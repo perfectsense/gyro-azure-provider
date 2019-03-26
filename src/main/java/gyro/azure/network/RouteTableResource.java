@@ -73,6 +73,9 @@ public class RouteTableResource extends AzureResource {
         this.bgpRoutePropagationDisabled = bgpRoutePropagationDisabled;
     }
 
+    /**
+     * The id of the route table. (Required)
+     */
     @ResourceOutput
     public String getId() {
         return id;
