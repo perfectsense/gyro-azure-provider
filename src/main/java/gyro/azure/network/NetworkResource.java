@@ -174,7 +174,7 @@ public class NetworkResource extends AzureResource {
 
         //other options
 
-        Network network = withAddressSpace.withSubnets(subnetMap())
+        Network network = withAddressSpace
             .withTags(getTags())
             .create();
 
@@ -215,12 +215,6 @@ public class NetworkResource extends AzureResource {
             for (String addressSpace : addAddressSpaces) {
                 update = update.withAddressSpace(addressSpace);
             }
-
-            update.withSubnets(subnetMap());
-        }
-
-        if (changedProperties.contains("subnets")) {
-            update = update.withSubnets(subnetMap());
         }
 
         if (changedProperties.contains("tags")) {
