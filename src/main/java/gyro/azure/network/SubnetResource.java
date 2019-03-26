@@ -117,10 +117,10 @@ public class SubnetResource extends AzureResource {
 
         NetworkResource parent = (NetworkResource) parent();
 
-        Network networkInterface = parent.getNetwork(client);
+        Network network = parent.getNetwork(client);
 
         Subnet.UpdateDefinitionStages.WithAttach<Network.Update> updateWithAttach;
-        updateWithAttach = networkInterface.update().defineSubnet(getName())
+        updateWithAttach = network.update().defineSubnet(getName())
                 .withAddressPrefix(getAddressPrefix());
 
         if (!ObjectUtils.isBlank(getNetworkSecurityGroupId())) {
@@ -146,9 +146,9 @@ public class SubnetResource extends AzureResource {
 
         NetworkResource parent = (NetworkResource) parent();
 
-        Network networkInterface = parent.getNetwork(client);
+        Network network = parent.getNetwork(client);
 
-        Subnet.Update update = networkInterface.update().updateSubnet(getName())
+        Subnet.Update update = network.update().updateSubnet(getName())
                 .withAddressPrefix(getAddressPrefix());
 
         if (!ObjectUtils.isBlank(getNetworkSecurityGroupId())) {
@@ -193,9 +193,9 @@ public class SubnetResource extends AzureResource {
 
         NetworkResource parent = (NetworkResource) parent();
 
-        Network networkInterface = parent.getNetwork(client);
+        Network network = parent.getNetwork(client);
 
-        networkInterface.update().withoutSubnet(getName()).apply();
+        network.update().withoutSubnet(getName()).apply();
     }
 
     @Override
