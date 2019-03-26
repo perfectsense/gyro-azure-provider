@@ -179,8 +179,8 @@ public class RouteTableResource extends AzureResource {
         }
 
         RouteTable routeTable = withCreate.withTags(getTags()).create();
-        setId(routeTable.id());
 
+        setId(routeTable.id());
     }
 
     @Override
