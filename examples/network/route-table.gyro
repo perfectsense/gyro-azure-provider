@@ -8,6 +8,47 @@ azure::resource-group resource-group-network-example
     }
 end
 
+azure::route-table route-table-example
+    bgp-route-propagation-disabled: true
+    name: "route-table-example"
+    resource-group-name: $(azure::resource-group resource-group-network-example | resource-group-name)
+
+    routes
+        destination-address-prefix: "10.0.1.0/24"
+        name: "test-route-1"
+        next-hop-type: "VirtualAppliance"
+        next-hop-ip-address: "10.0.2.4"
+    end
+
+    routes
+        destination-address-prefix: "10.0.0.0/16"
+       name: "test-route-2"
+        next-hop-type: "VirtualNetworkGateway"
+    end
+
+    routes
+        destination-address-prefix: "10.1.0.0/16"
+        name: "test-route-3"
+        next-hop-type: "None"
+    end
+
+    routes
+        destination-address-prefix: "10.10.0.0/24"
+        name: "test-route-4"
+        next-hop-type: "VnetLocal"
+    end
+
+    routes
+        destination-address-prefix: "0.0.0.0/0"
+        name: "test-route-5"
+        next-hop-type: "Internet"
+    end
+
+    tags: {
+        Name: "route-table-example"
+    }
+end
+
 azure::network network-example
     network-name: "network-example"
     resource-group-name: $(azure::resource-group resource-group-network-example | resource-group-name)
@@ -15,52 +56,20 @@ azure::network network-example
          "10.0.0.0/27",
          "10.1.0.0/27"
     ]
-    subnets: {
-        subnet1: "10.0.0.0/28",
-        subnet2: "10.0.0.16/28"
-    }
+
+    subnet
+        address-prefix: "10.0.0.0/28"
+        name: "subnet1"
+        route-table-id: $(azure::route-table route-table-example | id)
+    end
+
+    subnet
+        address-prefix: "10.0.0.16/28"
+        name: "subnet2"
+        route-table-id: $(azure::route-table route-table-example | id)
+    end
 
     tags: {
         Name: "network-example"
-    }
-end
-
-azure::route-table route-table-example
-    bgp-route-propagation-disabled: true
-    name: "route-table-example"
-    resource-group-name: $(azure::resource-group resource-group-network-example | resource-group-name)
-    routes
-        destination-address-prefix: "10.0.1.0/24"
-        name: "test-route-1"
-        next-hop-type: "VirtualAppliance"
-        next-hop-ip-address: "10.0.2.4"
-    end
-    routes
-        destination-address-prefix: "10.0.0.0/16"
-       name: "test-route-2"
-        next-hop-type: "VirtualNetworkGateway"
-    end
-    routes
-        destination-address-prefix: "10.1.0.0/16"
-        name: "test-route-3"
-        next-hop-type: "None"
-    end
-    routes
-        destination-address-prefix: "10.10.0.0/24"
-        name: "test-route-4"
-        next-hop-type: "VnetLocal"
-    end
-    routes
-        destination-address-prefix: "0.0.0.0/0"
-        name: "test-route-5"
-        next-hop-type: "Internet"
-    end
-
-    subnet-ids: {
-        subnet1: $(azure::network network-example | network-id),
-        subnet2: $(azure::network network-example | network-id)
-    }
-    tags: {
-        Name: "route-table-example"
     }
 end
