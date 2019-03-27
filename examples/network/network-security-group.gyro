@@ -19,7 +19,7 @@ azure::network-security-group network-security-group-example
     rule
         security-group-rule-name: "Port_8080"
         inbound-rule: true
-        allowRule: true
+        allow-rule: true
         from-addresses: [
             "8080"
         ]
@@ -40,7 +40,7 @@ azure::network-security-group network-security-group-example
     rule
         security-group-rule-name: "Port_8081"
         inbound-rule: false
-        allowRule: true
+        allow-rule: true
         from-addresses: [
             "8081"
         ]
