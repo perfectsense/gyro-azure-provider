@@ -100,6 +100,8 @@ public class NetworkResource extends AzureResource {
 
     /**
      * Subnets for the network.
+     *
+     * @subresource beam.azure.network.SubnetResource
      */
     public List<SubnetResource> getSubnet() {
         if (subnet == null) {
@@ -253,13 +255,5 @@ public class NetworkResource extends AzureResource {
 
     Network getNetwork(Azure client) {
         return client.networks().getByResourceGroup(getResourceGroupName(), getNetworkName());
-    }
-
-    private Map<String, String> subnetMap() {
-        Map<String, String> subnets = new HashMap<>();
-        for (SubnetResource subnet : getSubnet()) {
-            subnets.put(subnet.getName(), subnet.getAddressPrefix());
-        }
-        return subnets;
     }
 }
