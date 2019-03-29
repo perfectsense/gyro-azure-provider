@@ -131,12 +131,12 @@ azure::network-interface load-balancer-network-interface-example
         ip-configuration-name: 'primary'
         primary: true
         nic-backend
-            load-balancer-name: "load-balancer-example"
             backend-pool-name: "backend-pool-one"
+            load-balancer-name: "load-balancer-example"
         end
         nic-backend
-            load-balancer-name: $(azure::load-balancer load-balancer-example | name)
             backend-pool-name: "backend-pool-two"
+            load-balancer-name: $(azure::load-balancer load-balancer-example | name)
         end
     end
 
@@ -145,8 +145,8 @@ azure::network-interface load-balancer-network-interface-example
         private-ip-address-static: "10.0.0.8"
         ip-allocation-static: true
         nic-backend
-            load-balancer-name: $(azure::load-balancer load-balancer-example | name)
             backend-pool-name: "backend-pool-one"
+            load-balancer-name: $(azure::load-balancer load-balancer-example | name)
         end
         nic-backend
             load-balancer-name: $(azure::load-balancer load-balancer-example | name)
