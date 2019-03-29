@@ -2,14 +2,20 @@ package gyro.azure.network;
 
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.network.IPAllocationMethod;
+import com.microsoft.azure.management.network.LoadBalancer;
+import com.microsoft.azure.management.network.LoadBalancerBackend;
 import com.microsoft.azure.management.network.NetworkInterface;
 import com.microsoft.azure.management.network.NicIPConfiguration;
+import com.microsoft.azure.management.network.LoadBalancerInboundNatRule;
+
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.lang.Resource;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 @ResourceName(parent = "network-interface", value = "nic-ip-configuration")
@@ -21,6 +27,7 @@ public class NicIpConfigurationResource extends AzureResource {
     private String privateIpAddressStatic;
     private Boolean ipAllocationStatic;
     private Boolean primary;
+    private List<NicBackend> nicBackend;
 
     /**
      * Name of the ip configuration. (Required)
@@ -96,6 +103,22 @@ public class NicIpConfigurationResource extends AzureResource {
         this.primary = primary;
     }
 
+    /**
+     * The load balancer backends associated with the configuration.
+     */
+    @ResourceDiffProperty(updatable = true)
+    public List<NicBackend> getNicBackend() {
+        if (nicBackend == null) {
+            nicBackend = new ArrayList<>();
+        }
+
+        return nicBackend;
+    }
+
+    public void setNicBackend(List<NicBackend> nicBackend) {
+        this.nicBackend = nicBackend;
+    }
+
     public NicIpConfigurationResource() {
 
     }
@@ -150,6 +173,13 @@ public class NicIpConfigurationResource extends AzureResource {
             );
         }
 
+        if (getNicBackend() != null) {
+            for (NicBackend backend : getNicBackend()) {
+                LoadBalancer loadBalancer = client.loadBalancers().getByResourceGroup(parent.getResourceGroupName(), backend.getLoadBalancerName());
+                updateWithAttach.withExistingLoadBalancerBackend(loadBalancer, backend.getBackendPoolName());
+            }
+        }
+
         updateWithAttach.attach().apply();
     }
 
@@ -179,6 +209,14 @@ public class NicIpConfigurationResource extends AzureResource {
             update = update.withPrivateIPAddressStatic(getPrivateIpAddressStatic());
         } else {
             update = update.withPrivateIPAddressDynamic();
+        }
+
+        if (getNicBackend() != null) {
+            update.withoutLoadBalancerBackends();
+            for (NicBackend backend : getNicBackend()) {
+                LoadBalancer loadBalancer = client.loadBalancers().getByResourceGroup(parent.getResourceGroupName(), backend.getLoadBalancerName());
+                update.withExistingLoadBalancerBackend(loadBalancer, backend.getBackendPoolName());
+            }
         }
 
         update.parent().apply();

@@ -233,6 +233,13 @@ public class NetworkInterfaceResource extends AzureResource {
             withCreate = withCreate.withExistingNetworkSecurityGroup(client.networkSecurityGroups().getById(getSecurityGroupId()));
         }
 
+        if (getPrimaryIpConfiguration().getNicBackend() != null) {
+            for (NicBackend backend : getPrimaryIpConfiguration().getNicBackend()) {
+                withCreate.withExistingLoadBalancerBackend(client.loadBalancers().getByResourceGroup(getResourceGroupName(),
+                        backend.getLoadBalancerName()), backend.getBackendPoolName());
+            }
+        }
+
         NetworkInterface networkInterface = withCreate.withTags(getTags()).create();
 
         setNetworkInterfaceId(networkInterface.id());
