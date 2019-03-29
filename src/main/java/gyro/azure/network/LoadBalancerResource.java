@@ -481,19 +481,6 @@ public class LoadBalancerResource extends AzureResource {
             setupBackendIpConfigurations(pool, loadBalancer);
         }
 
-        for (Map.Entry<String, Frontend> frontends : frontends().entrySet()) {
-            Frontend front = frontends.getValue();
-            if (front.getInboundNatRule() != null) {
-                for (InboundNatRule natRule : front.getInboundNatRule()) {
-                    TargetNetworkIpConfiguration ipConfig = natRule.getTargetNetworkIpConfiguration();
-                    client.networkInterfaces().getById(ipConfig.getNetworkInterfaceId())
-                            .update()
-                            .updateIPConfiguration(ipConfig.getIpConfigurationName())
-                            .withExistingLoadBalancerInboundNatRule(loadBalancer, natRule.getName())
-                            .parent().apply();
-                }
-            }
-        }
     }
 
     @Override
@@ -782,75 +769,6 @@ public class LoadBalancerResource extends AzureResource {
         return virtualMachines;
     }
 
-    private void setupBackendIpConfigurations(BackendPool pool, LoadBalancer loadBalancer) {
-        Azure client = createClient();
-
-        //remove ip's that are automatically added
-        for (String id : pool.getVirtualMachineIds()) {
-            NetworkInterface primaryNetworkInterface = client.virtualMachines().getById(id).getPrimaryNetworkInterface();
-            NicIPConfiguration nicIPConfiguration = primaryNetworkInterface.primaryIPConfiguration();
-            String networkInterfaceId = primaryNetworkInterface.id();
-            client.networkInterfaces().getById(networkInterfaceId)
-                    .update()
-                    .updateIPConfiguration(nicIPConfiguration.name())
-                    .withoutLoadBalancerBackends()
-                    .parent().apply();
-        }
-
-        // add the ip's that are in the configuration file
-        for (TargetNetworkIpConfiguration ip : pool.getTargetNetworkIpConfiguration()) {
-            client.networkInterfaces().getById(ip.getNetworkInterfaceId())
-                    .update()
-                    .updateIPConfiguration(ip.getIpConfigurationName())
-                    .withExistingLoadBalancerBackend(loadBalancer, pool.getName())
-                    .parent().apply();
-        }
-    }
-
-    private void updateBackendIpConfigurations(BackendPool pool, BackendPool currentResource, LoadBalancer loadBalancer) {
-        Azure client = createClient();
-
-        List<TargetNetworkIpConfiguration> ipAdditions = new ArrayList<>(pool.getTargetNetworkIpConfiguration());
-        ipAdditions.removeAll(currentResource.getTargetNetworkIpConfiguration());
-
-        List<TargetNetworkIpConfiguration> ipSubtractions = new ArrayList<>(currentResource.getTargetNetworkIpConfiguration());
-        ipSubtractions.removeAll(pool.getTargetNetworkIpConfiguration());
-
-        for (TargetNetworkIpConfiguration target : ipAdditions) {
-            client.networkInterfaces().getById(target.getNetworkInterfaceId())
-                    .update()
-                    .updateIPConfiguration(target.getIpConfigurationName())
-                    .withExistingLoadBalancerBackend(loadBalancer, pool.getName())
-                    .parent().apply();
-        }
-
-        for (TargetNetworkIpConfiguration target : ipSubtractions) {
-            client.networkInterfaces().getById(target.getNetworkInterfaceId())
-                    .update()
-                    .updateIPConfiguration(target.getIpConfigurationName())
-                    .withoutLoadBalancerBackends()
-                    .parent().apply();
-        }
-    }
-
-    private void updateNatRuleIpConfiguration(InboundNatRule rule, InboundNatRule currentResource, LoadBalancer loadBalancer) {
-        Azure client = createClient();
-
-        TargetNetworkIpConfiguration targetNetworkIpConfiguration = currentResource.getTargetNetworkIpConfiguration();
-        client.networkInterfaces().getById(targetNetworkIpConfiguration.getNetworkInterfaceId())
-                    .update()
-                    .updateIPConfiguration(targetNetworkIpConfiguration.getIpConfigurationName())
-                    .withoutLoadBalancerInboundNatRules()
-                    .parent().apply();
-
-        TargetNetworkIpConfiguration targetNetworkIpConfig = rule.getTargetNetworkIpConfiguration();
-            client.networkInterfaces().getById(targetNetworkIpConfig.getNetworkInterfaceId())
-                    .update()
-                    .updateIPConfiguration(targetNetworkIpConfig.getIpConfigurationName())
-                    .withExistingLoadBalancerInboundNatRule(loadBalancer, rule.getName())
-                    .parent().apply();
-    }
-
     private void updateNatPoolsAndRules(Frontend frontend, Frontend currentResource, LoadBalancer.Update updateLoadBalancer, LoadBalancer loadBalancer) {
         List<InboundNatRule> ruleAdditions = new ArrayList<>(frontend.getInboundNatRule());
         ruleAdditions.removeAll(currentResource.getInboundNatRule());
@@ -879,7 +797,6 @@ public class LoadBalancerResource extends AzureResource {
         for (InboundNatRule rule : frontend.getInboundNatRule()) {
             if (!ruleAdditions.contains(rule) && !ruleSubtractions.contains(rule)) {
                 updateNatRule(rule, updateLoadBalancer);
-                updateNatRuleIpConfiguration(rule, currentResource.rules().get(rule.getName()), loadBalancer);
             }
         }
     }
