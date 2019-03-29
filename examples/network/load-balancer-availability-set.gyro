@@ -164,24 +164,6 @@ azure::load-balancer load-balancer-example
         end
     end
 
-    backend-pool
-        name: "backend-pool-name"
-        target-network-ip-configuration
-            ip-configuration-name: "primary"
-            network-interface-id: $(azure::network-interface load-balancer-network-interface-example | network-interface-id)
-        end
-        target-network-ip-configuration
-            ip-configuration-name: "primary"
-            network-interface-id: $(azure::network-interface load-balancer-network-interface-example-two | network-interface-id)
-        end
-        target-network-ip-configuration
-            ip-configuration-name: "nic-ip-configuration-two"
-            network-interface-id: $(azure::network-interface load-balancer-network-interface-example-two | network-interface-id)
-        end
-        virtual-machine-ids: [$(azure::virtual-machine load-balancer-virtual-machine-example | virtual-machine-id),
-                                $(azure::virtual-machine load-balancer-virtual-machine-example-two | virtual-machine-id)]
-    end
-
     load-balancer-rule
         name: "test-rule-1"
         backend-port: 81

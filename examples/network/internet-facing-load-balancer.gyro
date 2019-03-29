@@ -124,13 +124,7 @@ azure::load-balancer load-balancer-example
                 network-interface-id: $(azure::network-interface load-balancer-network-interface-example | network-interface-id)
             end
         end
-    end
 
-    backend-pool
-        name: "backend-pool-name"
-        target-network-ip-configuration
-            ip-configuration-name: "primary"
-            network-interface-id: $(azure::network-interface load-balancer-network-interface-example | network-interface-id)
         end
         virtual-machine-ids: [$(azure::virtual-machine load-balancer-virtual-machine-example | virtual-machine-id)]
     end
