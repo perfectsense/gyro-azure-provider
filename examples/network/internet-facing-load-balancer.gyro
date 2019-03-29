@@ -151,6 +151,13 @@ azure::load-balancer load-balancer-example
             end
         end
 
+        inbound-nat-rule
+            name: "test-nat-rule-two"
+            floating-ip: false
+            frontend-port: 448
+            frontend-name: "public-frontend"
+            backend-port: 86
+            protocol: "TCP"
         end
     end
 
