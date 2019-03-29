@@ -93,8 +93,6 @@ import java.util.Set;
 @ResourceName("load-balancer")
 public class LoadBalancerResource extends AzureResource {
 
-    private Map<String, BackendPool> backends;
-    private List<BackendPool> backendPool;
     private Map<String, Frontend> frontends;
     private List<HealthCheckProbeHttp> healthCheckProbeHttp;
     private List<HealthCheckProbeTcp> healthCheckProbeTcp;
@@ -106,34 +104,6 @@ public class LoadBalancerResource extends AzureResource {
     private String resourceGroupName;
     private Boolean skuBasic;
     private Map<String, String> tags;
-
-    @ResourceDiffProperty(updatable = true)
-    public Map<String, BackendPool> backends() {
-        if (backends == null) {
-            backends = new HashMap<>();
-        }
-
-        getBackendPool()
-                .stream()
-                .forEach(backend -> backends.put(backend.getName(), backend));
-
-        return backends;
-    }
-
-    /**
-     * The backend pools associated with the load balancer. (Required)
-     */
-    public List<BackendPool> getBackendPool() {
-        if (backendPool == null) {
-            backendPool = new ArrayList<>();
-        }
-
-        return backendPool;
-    }
-
-    public void setBackendPool(List<BackendPool> backendPool) {
-        this.backendPool = backendPool;
-    }
 
     @ResourceDiffProperty(updatable = true)
     public Map<String, Frontend> frontends() {
@@ -295,25 +265,6 @@ public class LoadBalancerResource extends AzureResource {
 
         LoadBalancer loadBalancer = client.loadBalancers().getById(getId());
 
-        //backend pools
-        getBackendPool().clear();
-        for (Map.Entry<String, LoadBalancerBackend> backends : loadBalancer.backends().entrySet()) {
-            LoadBalancerBackend backend = backends.getValue();
-            List<TargetNetworkIpConfiguration> configurations = new ArrayList<>();
-            for (Map.Entry<String, String> config : backend.backendNicIPConfigurationNames().entrySet()) {
-                for (Map.Entry<String, NicIPConfiguration> nicConfig : client.networkInterfaces().getById(config.getKey()).ipConfigurations().entrySet()) {
-                    NicIPConfiguration nic = nicConfig.getValue();
-                    for (LoadBalancerBackend associated : nic.listAssociatedLoadBalancerBackends()) {
-                        if (associated.inner().name().equals(backend.name())) {
-                            configurations.add(new TargetNetworkIpConfiguration(nic.name(), config.getKey()));
-                        }
-                    }
-                }
-            }
-
-            getBackendPool().add(new BackendPool(backends.getValue(), configurations));
-        }
-
         //http probes
         getHealthCheckProbeHttp().clear();
         for (Map.Entry<String, LoadBalancerHttpProbe> httpProbe : loadBalancer.httpProbes().entrySet()) {
@@ -395,18 +346,6 @@ public class LoadBalancerResource extends AzureResource {
             }
         }
 
-        //define the backend pools
-        for (BackendPool backendPool : getBackendPool()) {
-            LoadBalancerBackend.DefinitionStages.Blank<WithCreate> backendCreate;
-
-            backendCreate = buildLoadBalancer.defineBackend(backendPool.getName());
-
-            if (!backendPool.getVirtualMachineIds().isEmpty()) {
-                backendCreate.withExistingVirtualMachines(toBackend(backendPool.getVirtualMachineIds()));
-            }
-            backendCreate.attach();
-        }
-
         //define the health check probes
         for (HealthCheckProbeHttp probe : getHealthCheckProbeHttp()) {
             //http
@@ -475,12 +414,6 @@ public class LoadBalancerResource extends AzureResource {
                     .withTags(getTags()).create();
 
         setId(loadBalancer.id());
-
-        //set up backend pool target ip configurations
-        for (BackendPool pool : getBackendPool()) {
-            setupBackendIpConfigurations(pool, loadBalancer);
-        }
-
     }
 
     @Override
@@ -494,29 +427,6 @@ public class LoadBalancerResource extends AzureResource {
         LoadBalancer.Update updateLoadBalancer = loadBalancer.update();
 
         //Performs creates and deletes of new and removed elements
-
-        //create added and delete removed backend pools
-        List<BackendPool> backendAdditions = new ArrayList<>(getBackendPool());
-        backendAdditions.removeAll(currentResource.getBackendPool());
-
-        List<BackendPool> backendSubtractions = new ArrayList<>(currentResource.getBackendPool());
-        backendSubtractions.removeAll(getBackendPool());
-
-        for (BackendPool pool : backendAdditions) {
-
-            updateLoadBalancer
-                    .defineBackend(pool.getName())
-                    .withExistingVirtualMachines(toBackend(pool.getVirtualMachineIds()))
-                    .attach();
-
-            setupBackendIpConfigurations(pool, loadBalancer);
-        }
-
-        for (BackendPool pool : backendSubtractions) {
-
-            updateLoadBalancer
-                    .withoutBackend(pool.getName());
-        }
 
         //create added and delete removed health check probes
         //http
@@ -647,20 +557,6 @@ public class LoadBalancerResource extends AzureResource {
 
             updateLoadBalancer
                     .withoutLoadBalancingRule(rule.getName());
-        }
-
-
-        //Performs updates of existing elements
-        for (BackendPool pool : getBackendPool()) {
-            updateLoadBalancer.updateBackend(pool.getName());
-        }
-
-        //backend pools ip configurations
-        for (BackendPool pool : getBackendPool()) {
-            if (!backendAdditions.contains(pool) && !backendSubtractions.contains(pool)) {
-
-                updateBackendIpConfigurations(pool, currentResource.backends().get(pool.getName()), loadBalancer);
-            }
         }
 
         //http probes
