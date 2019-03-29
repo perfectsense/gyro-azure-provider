@@ -3,8 +3,6 @@ package gyro.azure.network;
 import gyro.core.diff.Diffable;
 import gyro.core.diff.ResourceDiffProperty;
 
-import com.microsoft.azure.management.network.Route;
-
 /**
  * Creates a route in a route table.
  *
@@ -13,25 +11,25 @@ import com.microsoft.azure.management.network.Route;
  *
  * .. code-block:: beam
  *
- *     routes
+ *     route
  *         destination-address-prefix: "10.0.1.0/24"
  *         name: "test-route"
  *         next-hop-type: "VirtualAppliance"
  *         next-hop-ip-address: "10.0.2.4"
  *     end
  */
-public class Routes extends Diffable {
+public class Route extends Diffable {
 
     private String destinationAddressPrefix;
     private String name;
     private String nextHopIpAddress;
     private String nextHopType;
 
-    public Routes() {
+    public Route() {
 
     }
 
-    public Routes(Route route) {
+    public Route(com.microsoft.azure.management.network.Route route) {
         setDestinationAddressPrefix(route.destinationAddressPrefix());
         setName(route.name());
         setNextHopIpAddress(route.nextHopIPAddress());
@@ -105,7 +103,7 @@ public class Routes extends Diffable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        Routes route = (Routes) obj;
+        Route route = (Route) obj;
 
         return route.getName().equals(this.getName());
     }
