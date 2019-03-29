@@ -240,6 +240,13 @@ public class NetworkInterfaceResource extends AzureResource {
             }
         }
 
+        if (getPrimaryIpConfiguration().getNicNatRule() != null) {
+            for (NicNatRule rule : getPrimaryIpConfiguration().getNicNatRule()) {
+                withCreate.withExistingLoadBalancerInboundNatRule(client.loadBalancers().getByResourceGroup(getResourceGroupName(),
+                        rule.getLoadBalancerName()), rule.getNatRuleName());
+            }
+        }
+
         NetworkInterface networkInterface = withCreate.withTags(getTags()).create();
 
         setNetworkInterfaceId(networkInterface.id());

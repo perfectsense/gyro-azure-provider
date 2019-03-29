@@ -28,6 +28,7 @@ public class NicIpConfigurationResource extends AzureResource {
     private Boolean ipAllocationStatic;
     private Boolean primary;
     private List<NicBackend> nicBackend;
+    private List<NicNatRule> nicNatRule;
 
     /**
      * Name of the ip configuration. (Required)
@@ -119,6 +120,23 @@ public class NicIpConfigurationResource extends AzureResource {
         this.nicBackend = nicBackend;
     }
 
+    /**
+     * The load balancer nat rules associated with the configuration.
+     */
+    @ResourceDiffProperty(updatable = true)
+    public List<NicNatRule> getNicNatRule() {
+        if (nicNatRule == null) {
+            nicNatRule = new ArrayList<>();
+        }
+
+        return nicNatRule;
+    }
+
+
+    public void setNicNatRule(List<NicNatRule> nicNatRule) {
+        this.nicNatRule = nicNatRule;
+    }
+
     public NicIpConfigurationResource() {
 
     }
@@ -134,6 +152,7 @@ public class NicIpConfigurationResource extends AzureResource {
         setPrivateIpAddress(nicIpConfiguration.privateIPAddress());
         setIpAllocationStatic(nicIpConfiguration.privateIPAllocationMethod().equals(IPAllocationMethod.STATIC));
         setPrivateIpAddressStatic(getIpAllocationStatic() ? getPrivateIpAddress() : null);
+        refreshBackendsAndRules(nicIpConfiguration);
     }
 
     @Override
@@ -180,6 +199,13 @@ public class NicIpConfigurationResource extends AzureResource {
             }
         }
 
+        if (getNicNatRule() != null) {
+            for (NicNatRule rule : getNicNatRule()) {
+                LoadBalancer loadBalancer = client.loadBalancers().getByResourceGroup(parent.getResourceGroupName(), rule.getLoadBalancerName());
+                updateWithAttach.withExistingLoadBalancerInboundNatRule(loadBalancer, rule.getNatRuleName());
+            }
+        }
+
         updateWithAttach.attach().apply();
     }
 
@@ -216,6 +242,14 @@ public class NicIpConfigurationResource extends AzureResource {
             for (NicBackend backend : getNicBackend()) {
                 LoadBalancer loadBalancer = client.loadBalancers().getByResourceGroup(parent.getResourceGroupName(), backend.getLoadBalancerName());
                 update.withExistingLoadBalancerBackend(loadBalancer, backend.getBackendPoolName());
+            }
+        }
+
+        if (getNicNatRule() != null) {
+            update.withoutLoadBalancerInboundNatRules();
+            for (NicNatRule rule : getNicNatRule()) {
+                LoadBalancer loadBalancer = client.loadBalancers().getByResourceGroup(parent.getResourceGroupName(), rule.getLoadBalancerName());
+                update.withExistingLoadBalancerInboundNatRule(loadBalancer, rule.getNatRuleName());
             }
         }
 
@@ -258,5 +292,17 @@ public class NicIpConfigurationResource extends AzureResource {
     @Override
     public String resourceIdentifier() {
         return null;
+    }
+
+    private void refreshBackendsAndRules(NicIPConfiguration configuration) {
+        getNicBackend().clear();
+        for (LoadBalancerBackend backend : configuration.listAssociatedLoadBalancerBackends()) {
+            getNicBackend().add(new NicBackend(backend));
+        }
+
+        getNicNatRule().clear();
+        for(LoadBalancerInboundNatRule rule : configuration.listAssociatedLoadBalancerInboundNatRules()) {
+            getNicNatRule().add(new NicNatRule(rule));
+        }
     }
 }
