@@ -53,6 +53,70 @@ azure::disk load-balancer-disk-example
     }
 end
 
+azure::load-balancer load-balancer-example
+    name: "load-balancer-example"
+    resource-group-name: $(azure::resource-group load-balancer-resource-group-example | resource-group-name)
+    sku-basic: true
+
+    private-frontend
+        name: "private-frontend"
+        network-id: $(azure::network load-balancer-network-example | network-id)
+        subnet-name: "subnet2"
+
+        inbound-nat-pool
+            name: "test-nat-pool"
+            frontend-name: "private-frontend"
+            backend-port: 81
+            protocol: "TCP"
+            frontend-port-range-start: 81
+            frontend-port-range-end: 90
+        end
+    end
+
+    load-balancer-rule
+        name: "test-rule-one"
+        backend-port: 81
+        floating-ip: false
+        frontend-name: "private-frontend"
+        frontend-port: 443
+        idle-timeout-in-minutes: 9
+        protocol: "TCP"
+        backend-pool-name: "backend-pool-one"
+        health-check-probe-name: "health-check-http"
+    end
+
+    load-balancer-rule
+        name: "test-rule-two"
+        backend-port: 81
+        floating-ip: false
+        frontend-name: "private-frontend"
+        frontend-port: 445
+        idle-timeout-in-minutes: 9
+        protocol: "UDP"
+        backend-pool-name: "backend-pool-two"
+        health-check-probe-name: "health-check-tcp"
+    end
+
+    health-check-probe-http
+        name: "health-check-http"
+        interval: 13
+        request-path: "/"
+        port: 81
+        probes: 3
+    end
+
+    health-check-probe-tcp
+        name: "health-check-tcp"
+        interval: 7
+        port: 80
+        probes: 2
+    end
+
+    tags: {
+            Name: "load-balancer-example"
+    }
+end
+
 azure::network-interface load-balancer-network-interface-example
     network-interface-name: "load-balancer-network-interface-example"
     resource-group-name: $(azure::resource-group load-balancer-resource-group-example | resource-group-name)
@@ -66,6 +130,28 @@ azure::network-interface load-balancer-network-interface-example
         ip-allocation-static: false
         ip-configuration-name: 'primary'
         primary: true
+        nic-backend
+            load-balancer-name: "load-balancer-example"
+            backend-pool-name: "backend-pool-one"
+        end
+        nic-backend
+            load-balancer-name: $(azure::load-balancer load-balancer-example | name)
+            backend-pool-name: "backend-pool-two"
+        end
+    end
+
+    nic-ip-configuration
+        ip-configuration-name: "nic-ip-configuration-two"
+        private-ip-address-static: "10.0.0.8"
+        ip-allocation-static: true
+        nic-backend
+            load-balancer-name: $(azure::load-balancer load-balancer-example | name)
+            backend-pool-name: "backend-pool-one"
+        end
+        nic-backend
+            load-balancer-name: $(azure::load-balancer load-balancer-example | name)
+            backend-pool-name: "backend-pool-two"
+        end
     end
 end
 
@@ -91,68 +177,3 @@ azure::virtual-machine load-balancer-virtual-machine-example
             Name: "load-balancer-virtual-machine-example"
     }
 end
-
-azure::load-balancer load-balancer-example
-    name: "load-balancer-example"
-    resource-group-name: $(azure::resource-group load-balancer-resource-group-example | resource-group-name)
-    sku-basic: true
-
-    private-frontend
-        name: "private-frontend"
-        network-id: $(azure::network load-balancer-network-example | network-id)
-        subnet-name: "subnet2"
-
-        inbound-nat-pool
-            name: "test-nat-pool"
-            frontend-name: "private-frontend"
-            backend-port: 81
-            protocol: "TCP"
-            frontend-port-range-start: 81
-            frontend-port-range-end: 90
-        end
-    end
-
-    load-balancer-rule
-        name: "test-rule-1"
-        backend-port: 81
-        floating-ip: false
-        frontend-name: "private-frontend"
-        frontend-port: 443
-        idle-timeout-in-minutes: 9
-        protocol: "TCP"
-        backend-pool-name: "backend-pool-name"
-        health-check-probe-name: "health-check-http"
-    end
-
-    load-balancer-rule
-        name: "test-rule-2"
-        backend-port: 81
-        floating-ip: false
-        frontend-name: "private-frontend"
-        frontend-port: 445
-        idle-timeout-in-minutes: 9
-        protocol: "UDP"
-        backend-pool-name: "backend-pool-name"
-        health-check-probe-name: "health-check-tcp"
-    end
-
-    health-check-probe-http
-        name: "health-check-http"
-        interval: 13
-        request-path: "/"
-        port: 81
-        probes: 3
-    end
-
-    health-check-probe-tcp
-        name: "health-check-tcp"
-        interval: 7
-        port: 80
-        probes: 2
-    end
-
-    tags: {
-            Name: "load-balancer-example"
-    }
-end
-
