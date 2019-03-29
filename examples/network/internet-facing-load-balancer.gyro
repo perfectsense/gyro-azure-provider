@@ -145,10 +145,6 @@ azure::load-balancer load-balancer-example
             frontend-name: "public-frontend"
             backend-port: 85
             protocol: "TCP"
-            target-network-ip-configuration
-                ip-configuration-name: "primary"
-                network-interface-id: $(azure::network-interface load-balancer-network-interface-example | network-interface-id)
-            end
         end
 
         inbound-nat-rule
