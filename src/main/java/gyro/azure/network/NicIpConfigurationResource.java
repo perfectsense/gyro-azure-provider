@@ -173,9 +173,9 @@ public class NicIpConfigurationResource extends AzureResource {
         NetworkInterface networkInterface = parent.getNetworkInterface(client);
 
         NicIPConfiguration.UpdateDefinitionStages.WithPrivateIP<NetworkInterface.Update> updateWithPrivateIP = networkInterface.update()
-            .defineSecondaryIPConfiguration(getIpConfigurationName())
-            .withExistingNetwork(client.networks().getById(parent.getNetworkId()))
-            .withSubnet(parent.getSubnet());
+                .defineSecondaryIPConfiguration(getIpConfigurationName())
+                .withExistingNetwork(client.networks().getById(parent.getNetworkId()))
+                .withSubnet(parent.getSubnet());
 
         NicIPConfiguration.UpdateDefinitionStages.WithAttach<NetworkInterface.Update> updateWithAttach;
 
@@ -187,8 +187,8 @@ public class NicIpConfigurationResource extends AzureResource {
 
         if (!ObjectUtils.isBlank(getPublicIpAddressName())) {
             updateWithAttach = updateWithAttach.withExistingPublicIPAddress(
-                client.publicIPAddresses()
-                    .getByResourceGroup(parent.getResourceGroupName(),getPublicIpAddressName())
+                    client.publicIPAddresses()
+                            .getByResourceGroup(parent.getResourceGroupName(),getPublicIpAddressName())
             );
         }
 
@@ -218,15 +218,15 @@ public class NicIpConfigurationResource extends AzureResource {
         NetworkInterface networkInterface = parent.getNetworkInterface(client);
 
         NicIPConfiguration.Update update = networkInterface.update().updateIPConfiguration(getIpConfigurationName())
-            .withSubnet(parent.getSubnet());
+                .withSubnet(parent.getSubnet());
 
         if (changedProperties.contains("public-ip-address-name")) {
             if (ObjectUtils.isBlank(getPublicIpAddressName())) {
                 update = update.withoutPublicIPAddress();
             } else {
                 update = update.withExistingPublicIPAddress(
-                    client.publicIPAddresses()
-                        .getByResourceGroup(parent.getResourceGroupName(),getPublicIpAddressName())
+                        client.publicIPAddresses()
+                                .getByResourceGroup(parent.getResourceGroupName(),getPublicIpAddressName())
                 );
             }
         }
