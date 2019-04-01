@@ -1,7 +1,6 @@
 package gyro.azure.network;
 
 import gyro.azure.AzureResource;
-import com.psddev.dari.util.ObjectUtils;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.lang.Resource;
@@ -10,7 +9,6 @@ import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.network.Network;
 import com.microsoft.azure.management.network.ServiceEndpointType;
 import com.microsoft.azure.management.network.Subnet;
-
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 
 import java.util.ArrayList;
@@ -133,7 +131,7 @@ public class SubnetResource extends AzureResource {
 
         if (getServiceEndpoints() != null) {
             for (String endpoint : getServiceEndpoints().keySet()) {
-                updateWithAttach.withAccessFromService(ServiceEndpointType.fromString(endpoint));
+                updateWithAttach.withAccessFromService(ServiceEndpointType.fromString(endpointType(endpoint)));
             }
         }
 
@@ -172,7 +170,7 @@ public class SubnetResource extends AzureResource {
                     .collect(Collectors.toList());
 
             for (String endpoint : addServiceEndpoints) {
-                update.withAccessFromService(ServiceEndpointType.fromString(endpoint));
+                update.withAccessFromService(ServiceEndpointType.fromString(endpointType(endpoint)));
             }
 
             List<String> removeServiceEndpoints = oldResource.getServiceEndpoints().keySet().stream()
@@ -180,7 +178,7 @@ public class SubnetResource extends AzureResource {
                     .collect(Collectors.toList());
 
             for (String endpoint : removeServiceEndpoints) {
-                update.withoutAccessFromService(ServiceEndpointType.fromString(endpoint));
+                update.withoutAccessFromService(ServiceEndpointType.fromString(endpointType(endpoint)));
             }
         }
 
@@ -225,5 +223,15 @@ public class SubnetResource extends AzureResource {
         }
 
         return endpoints;
+    }
+
+    private String endpointType(String endpoint) {
+        if (endpoint.equals("MICROSOFT_AZURECOSMOSDB")) {
+            return "Microsoft.AzureCosmosDB";
+        } else if (endpoint.equals("MICROSOFT_SQL")) {
+            return "Microsoft.Sql";
+        } else {
+            return "Microsoft.Storage";
+        }
     }
 }
