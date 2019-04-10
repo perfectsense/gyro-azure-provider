@@ -1,82 +1,56 @@
-
 plugins {
-    id 'java'
+    id 'java-library'
     id 'maven-publish'
-    id 'checkstyle'
 }
 
-version = '0.14-SNAPSHOT'
-sourceCompatibility = 1.8
+if (System.getenv('TRAVIS_BRANCH')) {
+    defaultTasks 'build', 'publish'
 
-def azure_sdk_version = '1.19.0'
-
-defaultTasks 'build', 'check'
-
-if (System.getenv("TRAVIS_BRANCH") == null) {
-    check.dependsOn 'publishToMavenLocal'
 } else {
-    check.dependsOn 'publish'
+    defaultTasks 'build', 'publishToMavenLocal'
+}
+
+group = 'gyro'
+version = '0.14-SNAPSHOT'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+
+    maven {
+        url 'https://artifactory.psdops.com/public'
+    }
+
+    maven {
+        url 'https://artifactory.psdops.com/gyro-snapshots'
+    }
 }
 
 configurations {
     gyroDoclet
 }
 
-repositories {
-    mavenLocal()
-    mavenCentral()
-    maven {
-        url "https://artifactory.psdops.com/public"
-    }
-    maven {
-        url "https://artifactory.psdops.com/gyro-snapshots"
-    }
-}
+def azureSdkVersion = '1.19.0'
 
 dependencies {
-    compile 'com.psddev:dari-util:3.3.607-xe0f27a'
-    compile "com.google.guava:guava:23.0"
-    compile "com.microsoft.azure:azure:${azure_sdk_version}"
-    compile "com.microsoft.azure:azure-mgmt-resources:${azure_sdk_version}"
-    compile "com.microsoft.azure:azure-mgmt-network:${azure_sdk_version}"
-    compile "com.microsoft.azure:azure-mgmt-compute:${azure_sdk_version}"
-    compile "com.microsoft.azure:azure-mgmt-dns:${azure_sdk_version}"
-    compile "com.microsoft.azure:azure-storage:8.0.0"
-    compile "com.microsoft.azure:adal4j:1.6.3"
+    api 'gyro:gyro-core:0.14-SNAPSHOT'
 
-    compile "gyro:gyro-core:0.14-SNAPSHOT"
+    implementation 'com.psddev:dari-util:3.3.607-xe0f27a'
+    implementation 'com.google.guava:guava:23.0'
+    implementation 'com.microsoft.azure:adal4j:1.6.3'
+    implementation "com.microsoft.azure:azure:${azureSdkVersion}"
+    implementation "com.microsoft.azure:azure-mgmt-resources:${azureSdkVersion}"
+    implementation "com.microsoft.azure:azure-mgmt-network:${azureSdkVersion}"
+    implementation "com.microsoft.azure:azure-mgmt-compute:${azureSdkVersion}"
+    implementation "com.microsoft.azure:azure-mgmt-dns:${azureSdkVersion}"
+    implementation 'com.microsoft.azure:azure-storage:8.0.0'
 
-    checkstyle 'com.puppycrawl.tools:checkstyle:8.15'
-
-    gyroDoclet "gyro:gyro-doclet:0.14-SNAPSHOT"
-}
-
-
-publishing {
-    publications {
-        maven(MavenPublication) {
-            groupId = 'gyro'
-            artifactId = 'gyro-azure-provider'
-            version = version
-
-            from components.java
-        }
-    }
-
-    repositories {
-        maven {
-            credentials {
-                username System.getenv("GRADLE_DEPLOY_USER")
-                password System.getenv("GRADLE_DEPLOY_PASSWORD")
-            }
-
-            if (project.version.endsWith('-SNAPSHOT')) {
-                url "https://artifactory.psdops.com/gyro-snapshots"
-            } else {
-                url "https://artifactory.psdops.com/gyro-releases"
-            }
-        }
-    }
+    gyroDoclet 'gyro:gyro-doclet:0.14-SNAPSHOT'
 }
 
 task referenceDocs(type: Javadoc) {
@@ -87,18 +61,26 @@ task referenceDocs(type: Javadoc) {
     options.docletpath = configurations.gyroDoclet.files.asType(List)
 }
 
-checkstyle {
-    toolVersion = '6.13'
-    configFile rootProject.file('config/checkstyle.xml')
-    checkstyleMain.enabled = false
-    checkstyleTest.enabled = false
-}
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
 
-task checkstyle(type: Checkstyle) {
-    configFile rootProject.file('config/checkstyle.xml')
-    source 'src'
-    include '**/*.java'
-    exclude '**/generated-src/**'
+    repositories {
+        maven {
+            credentials {
+                username System.getenv('GRADLE_DEPLOY_USER')
+                password System.getenv('GRADLE_DEPLOY_PASSWORD')
+            }
 
-    classpath = files()
+            if (project.version.endsWith('-SNAPSHOT')) {
+                url 'https://artifactory.psdops.com/gyro-snapshots'
+
+            } else {
+                url 'https://artifactory.psdops.com/gyro-releases'
+            }
+        }
+    }
 }
