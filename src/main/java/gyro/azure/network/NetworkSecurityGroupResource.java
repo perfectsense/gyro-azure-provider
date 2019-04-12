@@ -22,7 +22,7 @@ import java.util.Set;
  * Example
  * -------
  *
- * .. code-block:: beam
+ * .. code-block:: gyro
  *
  *     azure::network-security-group network-security-group-example
  *          network-security-group-name: "network-security-group-example"
@@ -96,7 +96,7 @@ public class NetworkSecurityGroupResource extends AzureResource {
     /**
      * Inbound and Outbound rules for the security group.
      *
-     * @subresource beam.azure.network.NetworkSecurityGroupRuleResource
+     * @subresource gyro.azure.network.NetworkSecurityGroupRuleResource
      */
     @ResourceDiffProperty(updatable = true)
     public List<NetworkSecurityGroupRuleResource> getRule() {

@@ -44,7 +44,7 @@ import java.util.Set;
  * Example
  * -------
  *
- * .. code-block:: beam
+ * .. code-block:: gyro
  *
  *     azure::virtual-machine virtual-machine-example
  *          virtual-machine-name: "virtual-machine-example"

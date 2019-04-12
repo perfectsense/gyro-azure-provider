@@ -23,7 +23,7 @@ import java.util.Set;
  * Example
  * -------
  *
- * .. code-block:: beam
+ * .. code-block:: gyro
  *
  *     azure::public-ip-address public-ip-address-example
  *          name: "public-ip-address-example"

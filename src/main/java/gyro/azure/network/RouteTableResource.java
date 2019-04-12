@@ -25,7 +25,7 @@ import java.util.Set;
  * Example
  * -------
  *
- * .. code-block:: beam
+ * .. code-block:: gyro
  *
  *     azure::route-table route-table-example
  *          bgp-route-propagation-disabled: true

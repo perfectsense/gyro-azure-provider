@@ -23,7 +23,7 @@ import java.util.Set;
  * Example
  * -------
  *
- * .. code-block:: beam
+ * .. code-block:: gyro
  *
  *     azure::network-interface network-interface-example
  *          network-interface-name: "network-interface-example"
@@ -152,7 +152,7 @@ public class NetworkInterfaceResource extends AzureResource {
     /**
      * primary ip configuration for the network interface.
      *
-     * @subresource beam.azure.network.NicIpConfigurationResource
+     * @subresource gyro.azure.network.NicIpConfigurationResource
      */
     @ResourceDiffProperty(updatable = true)
     public NicIpConfigurationResource getPrimaryIpConfiguration() {
@@ -170,7 +170,7 @@ public class NetworkInterfaceResource extends AzureResource {
     /**
      * A list of ip configurations for the network interface.
      *
-     * @subresource beam.azure.network.NicIpConfigurationResource
+     * @subresource gyro.azure.network.NicIpConfigurationResource
      */
     @ResourceDiffProperty(updatable = true)
     public List<NicIpConfigurationResource> getNicIpConfiguration() {

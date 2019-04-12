@@ -54,7 +54,7 @@ dependencies {
 }
 
 task referenceDocs(type: Javadoc) {
-    title = null // Prevents -doctitle and -windowtitle from being passed to BeamDoclet
+    title = null // Prevents -doctitle and -windowtitle from being passed to GyroDoclet
     source = sourceSets.main.allJava
     classpath = configurations.compile
     options.doclet = "gyro.doclet.GyroDoclet"

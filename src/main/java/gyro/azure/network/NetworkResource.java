@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
  * Example
  * -------
  *
- * .. code-block:: beam
+ * .. code-block:: gyro
  *
  *     azure::network network-example
  *          network-name: "network-example"
@@ -101,7 +101,7 @@ public class NetworkResource extends AzureResource {
     /**
      * Subnets for the network.
      *
-     * @subresource beam.azure.network.SubnetResource
+     * @subresource gyro.azure.network.SubnetResource
      */
     public List<SubnetResource> getSubnet() {
         if (subnet == null) {

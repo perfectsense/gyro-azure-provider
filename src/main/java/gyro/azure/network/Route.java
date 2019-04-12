@@ -9,7 +9,7 @@ import gyro.core.diff.ResourceDiffProperty;
  * Example
  * -------
  *
- * .. code-block:: beam
+ * .. code-block:: gyro
  *
  *     route
  *         destination-address-prefix: "10.0.1.0/24"
