@@ -1,10 +1,10 @@
 package gyro.azure.network;
 
 import gyro.azure.AzureResource;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
-import gyro.core.diff.ResourceOutput;
-import gyro.lang.Resource;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Resource;
 
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.network.Route;
@@ -25,7 +25,7 @@ import java.util.Set;
  * Example
  * -------
  *
- * .. code-block:: beam
+ * .. code-block:: gyro
  *
  *     azure::route-table route-table-example
  *          bgp-route-propagation-disabled: true

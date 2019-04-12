@@ -1,7 +1,7 @@
 package gyro.azure;
 
-import gyro.core.diff.ResourceName;
-import gyro.lang.Credentials;
+import gyro.core.resource.ResourceName;
+import gyro.core.Credentials;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.Map;

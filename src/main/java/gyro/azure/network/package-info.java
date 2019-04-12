@@ -1,4 +1,4 @@
 @DocGroup("network")
 package gyro.azure.network;
 
-import gyro.core.docs.DocGroup;
+import gyro.core.resource.DocGroup;
