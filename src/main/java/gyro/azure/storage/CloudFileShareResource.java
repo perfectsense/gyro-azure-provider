@@ -1,7 +1,7 @@
 package gyro.azure.storage;
 
 import gyro.azure.AzureResource;
-import gyro.core.BeamException;
+import gyro.core.GyroException;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.lang.Resource;
@@ -79,7 +79,7 @@ public class CloudFileShareResource extends AzureResource {
             }
             return false;
         } catch (StorageException ex) {
-            throw new BeamException(ex.getMessage());
+            throw new GyroException(ex.getMessage());
         }
     }
 
@@ -92,7 +92,7 @@ public class CloudFileShareResource extends AzureResource {
             fileShareProperties.setShareQuota(getShareQuota());
             share.setProperties(fileShareProperties);
         } catch (StorageException ex) {
-            throw new BeamException(ex.getMessage());
+            throw new GyroException(ex.getMessage());
         }
     }
 
@@ -110,7 +110,7 @@ public class CloudFileShareResource extends AzureResource {
             CloudFileShare share = cloudFileShare();
             share.delete();
         } catch (StorageException ex) {
-            throw new BeamException(ex.getMessage());
+            throw new GyroException(ex.getMessage());
         }
     }
 
@@ -125,7 +125,7 @@ public class CloudFileShareResource extends AzureResource {
             CloudFileClient fileClient = storageAccount.createCloudFileClient();
             return fileClient.getShareReference(getCloudFileShareName());
         } catch (StorageException | URISyntaxException | InvalidKeyException ex) {
-            throw new BeamException(ex.getMessage());
+            throw new GyroException(ex.getMessage());
         }
     }
 }

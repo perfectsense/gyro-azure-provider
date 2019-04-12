@@ -1,7 +1,7 @@
 package gyro.azure.storage;
 
 import gyro.azure.AzureResource;
-import gyro.core.BeamException;
+import gyro.core.GyroException;
 import gyro.core.diff.ResourceName;
 import gyro.lang.Resource;
 
@@ -98,7 +98,7 @@ public class CloudFileDirectoryResource extends AzureResource {
             }
             return false;
         }  catch (StorageException ex) {
-            throw new BeamException(ex.getMessage());
+            throw new GyroException(ex.getMessage());
         }
     }
 
@@ -108,7 +108,7 @@ public class CloudFileDirectoryResource extends AzureResource {
             CloudFileDirectory directory = cloudFileDirectory();
             directory.create();
         } catch (StorageException | URISyntaxException ex) {
-            throw new BeamException(ex.getMessage());
+            throw new GyroException(ex.getMessage());
         }
     }
 
@@ -121,7 +121,7 @@ public class CloudFileDirectoryResource extends AzureResource {
             CloudFileDirectory directory = cloudFileDirectory();
             directory.delete();
         } catch (StorageException | URISyntaxException ex) {
-            throw new BeamException(ex.getMessage());
+            throw new GyroException(ex.getMessage());
         }
     }
 
@@ -150,7 +150,7 @@ public class CloudFileDirectoryResource extends AzureResource {
             }
             return rootDirectory.getDirectoryReference(directoryName);
         } catch (StorageException | URISyntaxException | InvalidKeyException ex) {
-            throw new BeamException(ex.getMessage());
+            throw new GyroException(ex.getMessage());
         }
     }
 }

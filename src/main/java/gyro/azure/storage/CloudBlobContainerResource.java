@@ -1,7 +1,7 @@
 package gyro.azure.storage;
 
 import gyro.azure.AzureResource;
-import gyro.core.BeamException;
+import gyro.core.GyroException;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.lang.Resource;
@@ -79,7 +79,7 @@ public class CloudBlobContainerResource extends AzureResource {
             }
             return false;
         } catch (StorageException ex) {
-            throw new BeamException(ex.getMessage());
+            throw new GyroException(ex.getMessage());
         }
     }
 
@@ -92,7 +92,7 @@ public class CloudBlobContainerResource extends AzureResource {
             permissions.setPublicAccess(BlobContainerPublicAccessType.valueOf(getPublicAccess()));
             container.uploadPermissions(permissions);
         } catch (StorageException ex) {
-            throw new BeamException(ex.getMessage());
+            throw new GyroException(ex.getMessage());
         }
     }
 
@@ -104,7 +104,7 @@ public class CloudBlobContainerResource extends AzureResource {
             permissions.setPublicAccess(BlobContainerPublicAccessType.valueOf(getPublicAccess()));
             container.uploadPermissions(permissions);
         } catch (StorageException ex) {
-            throw new BeamException(ex.getMessage());
+            throw new GyroException(ex.getMessage());
         }
     }
 
@@ -114,7 +114,7 @@ public class CloudBlobContainerResource extends AzureResource {
             CloudBlobContainer container = cloudBlobContainer();
             container.delete();
         } catch (StorageException ex) {
-            throw new BeamException(ex.getMessage());
+            throw new GyroException(ex.getMessage());
         }
     }
 
@@ -129,7 +129,7 @@ public class CloudBlobContainerResource extends AzureResource {
             CloudBlobClient client = account.createCloudBlobClient();
             return client.getContainerReference(getContainerName());
         } catch (StorageException | URISyntaxException | InvalidKeyException ex) {
-            throw new BeamException(ex.getMessage());
+            throw new GyroException(ex.getMessage());
         }
     }
 }

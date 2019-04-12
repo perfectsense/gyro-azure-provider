@@ -26,7 +26,7 @@ import com.microsoft.azure.management.compute.VirtualMachineSizeTypes;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
-import gyro.core.BeamException;
+import gyro.core.GyroException;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.core.diff.ResourceOutput;
@@ -654,7 +654,7 @@ public class VirtualMachineResource extends AzureResource {
         }
 
         if (create == null) {
-            throw new BeamException("Invalid config.");
+            throw new GyroException("Invalid config.");
         }
 
         if (!getSecondaryNetworkInterfaceNames().isEmpty()) {

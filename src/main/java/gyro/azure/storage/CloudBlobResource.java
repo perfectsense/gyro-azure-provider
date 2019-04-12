@@ -1,7 +1,7 @@
 package gyro.azure.storage;
 
 import gyro.azure.AzureResource;
-import gyro.core.BeamException;
+import gyro.core.GyroException;
 import gyro.core.diff.ResourceName;
 import gyro.lang.Resource;
 import com.microsoft.azure.storage.CloudStorageAccount;
@@ -102,7 +102,7 @@ public class CloudBlobResource extends AzureResource {
             }
             return false;
         } catch (StorageException ex) {
-            throw new BeamException(ex.getMessage());
+            throw new GyroException(ex.getMessage());
         }
     }
 
@@ -113,7 +113,7 @@ public class CloudBlobResource extends AzureResource {
             File file = new File(getFilePath());
             blob.upload(new FileInputStream(file), file.length());
         } catch (StorageException | IOException ex) {
-            throw new BeamException(ex.getMessage());
+            throw new GyroException(ex.getMessage());
         }
     }
 
@@ -126,7 +126,7 @@ public class CloudBlobResource extends AzureResource {
             CloudBlockBlob blob = cloudBlobBlob();
             blob.delete();
         } catch (StorageException ex) {
-            throw new BeamException(ex.getMessage());
+            throw new GyroException(ex.getMessage());
         }
     }
 
@@ -151,7 +151,7 @@ public class CloudBlobResource extends AzureResource {
             }
             return blob;
         } catch (StorageException | URISyntaxException | InvalidKeyException | IOException ex) {
-            throw new BeamException(ex.getMessage());
+            throw new GyroException(ex.getMessage());
         }
     }
 
@@ -168,7 +168,7 @@ public class CloudBlobResource extends AzureResource {
             }
             return directory;
         } catch (StorageException | URISyntaxException | InvalidKeyException ex) {
-            throw new BeamException(ex.getMessage());
+            throw new GyroException(ex.getMessage());
         }
     }
 }
