@@ -1,4 +1,4 @@
 @DocGroup("compute")
 package gyro.azure.compute;
 
-import gyro.core.docs.DocGroup;
+import gyro.core.resource.DocGroup;

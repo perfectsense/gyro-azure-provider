@@ -5,4 +5,4 @@
 @DocNamespace("azure")
 package gyro.azure;
 
-import gyro.core.docs.DocNamespace;
+import gyro.core.resource.DocNamespace;
