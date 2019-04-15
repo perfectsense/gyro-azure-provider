@@ -5,6 +5,19 @@ import com.microsoft.azure.management.network.ApplicationGatewayListener;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.diff.Diffable;
 
+/**
+ * Creates a Listener.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     listener
+ *         listener-name: "AG-ex-1-listener"
+ *         port: 81
+ *     end
+ */
 public class Listener extends Diffable {
     private String listenerName;
     private Integer port;
@@ -20,6 +33,9 @@ public class Listener extends Diffable {
         setPrivateFrontend(listener.frontend().isPrivate());
     }
 
+    /**
+     * Name of the listener. (Required)
+     */
     public String getListenerName() {
         return listenerName;
     }
@@ -28,6 +44,9 @@ public class Listener extends Diffable {
         this.listenerName = listenerName;
     }
 
+    /**
+     * Port for the listener to listen to. (Required)
+     */
     public Integer getPort() {
         return port;
     }
@@ -36,6 +55,9 @@ public class Listener extends Diffable {
         this.port = port;
     }
 
+    /**
+     * Enable private frontend. Defaults to false.
+     */
     public Boolean getPrivateFrontend() {
         if (privateFrontend == null) {
             privateFrontend = false;
