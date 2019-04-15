@@ -7,7 +7,21 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.core.diff.Diffable;
 import gyro.core.diff.ResourceDiffProperty;
 
-
+/**
+ * Creates a Request Routing Rule.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     request-routing-rule
+ *         rule-name: "request-routing-rule-example"
+ *         listener: "listener-example"
+ *         backend: "backend-example"
+ *         backend-http-configuration: "backend-http-configuration-example"
+ *     end
+ */
 public class RequestRoutingRule extends Diffable {
     private String ruleName;
     private String listener;
@@ -27,6 +41,9 @@ public class RequestRoutingRule extends Diffable {
         setRuleName(rule.name());
     }
 
+    /**
+     * Name of the rule. (Required)
+     */
     public String getRuleName() {
         return ruleName;
     }
@@ -35,6 +52,9 @@ public class RequestRoutingRule extends Diffable {
         this.ruleName = ruleName;
     }
 
+    /**
+     * Name of the listener to associated with the rule. (Required)
+     */
     @ResourceDiffProperty(updatable = true)
     public String getListener() {
         return listener;
@@ -44,6 +64,9 @@ public class RequestRoutingRule extends Diffable {
         this.listener = listener;
     }
 
+    /**
+     * Name of the backend to be associated with the rule. Required if redirection not present.
+     */
     @ResourceDiffProperty(updatable = true)
     public String getBackend() {
         return backend;
@@ -53,6 +76,9 @@ public class RequestRoutingRule extends Diffable {
         this.backend = backend;
     }
 
+    /**
+     * Name of the backend http configuration to be associated with the rule. Required if redirection not present.
+     */
     @ResourceDiffProperty(updatable = true)
     public String getBackendHttpConfiguration() {
         return backendHttpConfiguration;
@@ -62,6 +88,9 @@ public class RequestRoutingRule extends Diffable {
         this.backendHttpConfiguration = backendHttpConfiguration;
     }
 
+    /**
+     * Name of the redirect configuration to be associated with the rule. Required if backend bot present.
+     */
     @ResourceDiffProperty(updatable = true)
     public String getRedirectConfiguration() {
         return redirectConfiguration;
