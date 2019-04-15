@@ -14,6 +14,22 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+/**
+ * Creates a Backend.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     backend
+ *         backend-name: "backend-example"
+ *         ip-addresses: [
+ *             "10.0.0.3",
+ *             "10.0.0.4"
+ *         ]
+ *     end
+ */
 public class Backend extends Diffable {
     private String backendName;
     private List<String> ipAddresses;
@@ -29,6 +45,9 @@ public class Backend extends Diffable {
         setFqdns(backend.addresses().stream().map(ApplicationGatewayBackendAddress::fqdn).filter(Objects::nonNull).collect(Collectors.toList()));
     }
 
+    /**
+     * Name of the backend. (Required)
+     */
     public String getBackendName() {
         return backendName;
     }
@@ -37,6 +56,9 @@ public class Backend extends Diffable {
         this.backendName = backendName;
     }
 
+    /**
+     * List of ip addresses. Required if no fqdns are present.
+     */
     @ResourceDiffProperty(updatable = true)
     public List<String> getIpAddresses() {
         if (ipAddresses == null) {
@@ -50,6 +72,9 @@ public class Backend extends Diffable {
         this.ipAddresses = ipAddresses;
     }
 
+    /**
+     * List of fqdns. Required if no ip addresses are present.
+     */
     @ResourceDiffProperty(updatable = true)
     public List<String> getFqdns() {
         if (fqdns == null) {
