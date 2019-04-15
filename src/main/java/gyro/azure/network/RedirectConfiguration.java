@@ -6,6 +6,7 @@ import com.microsoft.azure.management.network.ApplicationGatewayRedirectConfigur
 import com.microsoft.azure.management.network.ApplicationGatewayRedirectType;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.diff.Diffable;
+import gyro.core.diff.ResourceDiffProperty;
 
 public class RedirectConfiguration extends Diffable {
     private String redirectConfigurationName;
@@ -37,6 +38,7 @@ public class RedirectConfiguration extends Diffable {
         this.redirectConfigurationName = redirectConfigurationName;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getType() {
         return type;
     }
@@ -45,6 +47,7 @@ public class RedirectConfiguration extends Diffable {
         this.type = type;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getTargetListener() {
         return targetListener;
     }
@@ -53,7 +56,14 @@ public class RedirectConfiguration extends Diffable {
         this.targetListener = targetListener;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getTargetUrl() {
+        if (!ObjectUtils.isBlank(targetUrl)) {
+            if (!targetUrl.startsWith("http://") && !targetUrl.startsWith("https://")) {
+                targetUrl = "http://" + targetUrl;
+            }
+        }
+
         return targetUrl;
     }
 
@@ -61,6 +71,7 @@ public class RedirectConfiguration extends Diffable {
         this.targetUrl = targetUrl;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public Boolean getIncludeQueryString() {
         if (includeQueryString == null) {
             includeQueryString = false;
@@ -73,6 +84,7 @@ public class RedirectConfiguration extends Diffable {
         this.includeQueryString = includeQueryString;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public Boolean getIncludePath() {
         if (includePath == null) {
             includePath = false;
@@ -87,12 +99,20 @@ public class RedirectConfiguration extends Diffable {
 
     @Override
     public String primaryKey() {
-        return null;
+        return getRedirectConfigurationName();
     }
 
     @Override
     public String toDisplayString() {
-        return null;
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("redirect configuration");
+
+        if (!ObjectUtils.isBlank(getRedirectConfigurationName())) {
+            sb.append(" - ").append(getRedirectConfigurationName());
+        }
+
+        return sb.toString();
     }
 
     Update createRedirectConfiguration(Update update) {
