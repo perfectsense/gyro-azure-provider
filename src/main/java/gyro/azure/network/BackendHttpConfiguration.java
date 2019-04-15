@@ -4,10 +4,18 @@ import com.microsoft.azure.management.network.ApplicationGateway.Update;
 import com.microsoft.azure.management.network.ApplicationGatewayBackendHttpConfiguration;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.diff.Diffable;
+import gyro.core.diff.ResourceDiffProperty;
 
 public class BackendHttpConfiguration extends Diffable {
     private String backendHttpConfigurationName;
     private Integer port;
+    private String cookieName;
+    private Boolean enableAffinityCookie;
+    private Integer connectionDrainingTimeout;
+    private String probe;
+    private String hostHeader;
+    private Boolean hostHeaderFromBackend;
+    private String backendPath;
 
     public BackendHttpConfiguration() {
 
@@ -16,6 +24,13 @@ public class BackendHttpConfiguration extends Diffable {
     public BackendHttpConfiguration(ApplicationGatewayBackendHttpConfiguration backendHttpConfiguration) {
         setBackendHttpConfigurationName(backendHttpConfiguration.name());
         setPort(backendHttpConfiguration.port());
+        setConnectionDrainingTimeout(backendHttpConfiguration.connectionDrainingTimeoutInSeconds());
+        setEnableAffinityCookie(backendHttpConfiguration.cookieBasedAffinity());
+        setCookieName(backendHttpConfiguration.affinityCookieName());
+        setProbe(backendHttpConfiguration.probe() != null ? backendHttpConfiguration.probe().name() : null);
+        setHostHeader(backendHttpConfiguration.hostHeader());
+        setHostHeaderFromBackend(backendHttpConfiguration.isHostHeaderFromBackend());
+        setBackendPath(backendHttpConfiguration.path());
     }
 
     public String getBackendHttpConfigurationName() {
@@ -26,12 +41,93 @@ public class BackendHttpConfiguration extends Diffable {
         this.backendHttpConfigurationName = backendHttpConfigurationName;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public Integer getPort() {
         return port;
     }
 
     public void setPort(Integer port) {
         this.port = port;
+    }
+
+    @ResourceDiffProperty(updatable = true)
+    public String getCookieName() {
+        return cookieName;
+    }
+
+    public void setCookieName(String cookieName) {
+        this.cookieName = cookieName;
+    }
+
+    @ResourceDiffProperty(updatable = true)
+    public Boolean getEnableAffinityCookie() {
+        if (enableAffinityCookie == null) {
+            enableAffinityCookie = false;
+        }
+
+        return enableAffinityCookie;
+    }
+
+    public void setEnableAffinityCookie(Boolean enableAffinityCookie) {
+        this.enableAffinityCookie = enableAffinityCookie;
+    }
+
+    @ResourceDiffProperty(updatable = true)
+    public Integer getConnectionDrainingTimeout() {
+        if (connectionDrainingTimeout == null) {
+            connectionDrainingTimeout = 0;
+        }
+
+        return connectionDrainingTimeout;
+    }
+
+    public void setConnectionDrainingTimeout(Integer connectionDrainingTimeout) {
+        this.connectionDrainingTimeout = connectionDrainingTimeout;
+    }
+
+    @ResourceDiffProperty(updatable = true)
+    public String getProbe() {
+        return probe;
+    }
+
+    public void setProbe(String probe) {
+        this.probe = probe;
+    }
+
+    @ResourceDiffProperty(updatable = true)
+    public String getHostHeader() {
+        return hostHeader;
+    }
+
+    public void setHostHeader(String hostHeader) {
+        this.hostHeader = hostHeader;
+    }
+
+    @ResourceDiffProperty(updatable = true)
+    public Boolean getHostHeaderFromBackend() {
+        if (hostHeaderFromBackend == null) {
+            hostHeaderFromBackend = false;
+        }
+
+        return hostHeaderFromBackend;
+    }
+
+    public void setHostHeaderFromBackend(Boolean hostHeaderFromBackend) {
+        this.hostHeaderFromBackend = hostHeaderFromBackend;
+    }
+
+    @ResourceDiffProperty(updatable = true)
+    public String getBackendPath() {
+        if (!ObjectUtils.isBlank(backendPath)) {
+            backendPath = (!backendPath.startsWith("/") ? "/" : "") + backendPath;
+            backendPath = backendPath + (!backendPath.endsWith("/") ? "/" : "");
+        }
+
+        return backendPath;
+    }
+
+    public void setBackendPath(String backendPath) {
+        this.backendPath = backendPath;
     }
 
     @Override
@@ -53,17 +149,56 @@ public class BackendHttpConfiguration extends Diffable {
     }
 
     Update createBackendHttpConfiguration(Update update) {
-        update.defineBackendHttpConfiguration(getBackendHttpConfigurationName())
-            .withPort(getPort())
-            .attach();
+        update = update.defineBackendHttpConfiguration(getBackendHttpConfigurationName())
+            .withPort(getPort()).attach();
+
+        update = updateBackendHttpConfiguration(update);
 
         return update;
     }
 
     Update updateBackendHttpConfiguration(Update update) {
-        update.updateBackendHttpConfiguration(getBackendHttpConfigurationName())
-            .withPort(getPort())
-            .parent();
+        ApplicationGatewayBackendHttpConfiguration.Update tempUpdate = update
+            .updateBackendHttpConfiguration(getBackendHttpConfigurationName())
+            .withPort(getPort());
+
+        if (getEnableAffinityCookie()) {
+            tempUpdate = tempUpdate.withCookieBasedAffinity();
+        } else {
+            tempUpdate = tempUpdate.withoutCookieBasedAffinity();
+        }
+
+        if (!ObjectUtils.isBlank(getCookieName())) {
+            tempUpdate = tempUpdate.withAffinityCookieName(getCookieName());
+        }
+
+        if (getConnectionDrainingTimeout() > 0) {
+            tempUpdate = tempUpdate.withConnectionDrainingTimeoutInSeconds(getConnectionDrainingTimeout());
+        } else {
+            tempUpdate = tempUpdate.withoutConnectionDraining();
+        }
+
+        if (!ObjectUtils.isBlank(getProbe())) {
+            tempUpdate = tempUpdate.withProbe(getProbe());
+        } else {
+            tempUpdate = tempUpdate.withoutProbe();
+        }
+
+        if (!ObjectUtils.isBlank(getBackendPath())) {
+            tempUpdate = tempUpdate.withPath(getBackendPath());
+        }
+
+        if (!ObjectUtils.isBlank(getHostHeader())) {
+            tempUpdate = tempUpdate.withHostHeader(getHostHeader());
+        } else {
+            tempUpdate = tempUpdate.withoutHostHeader();
+        }
+
+        if (getHostHeaderFromBackend()) {
+            tempUpdate = tempUpdate.withHostHeaderFromBackend();
+        }
+
+        update = tempUpdate.parent();
 
         return update;
     }
