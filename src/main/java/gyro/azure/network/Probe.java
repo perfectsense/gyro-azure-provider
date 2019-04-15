@@ -13,6 +13,28 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+/**
+ * Creates a Probe.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     probe
+ *         probe-name: "probe-example"
+ *         host-name: "example.com"
+ *         path: "/path"
+ *         interval: 40
+ *         timeout: 40
+ *         unhealthy-threshold: 4
+ *         https-protocol: false
+ *         http-response-codes: [
+ *             "200-210"
+ *         ]
+ *         http-response-body-match: "probe-body"
+ *     end
+ */
 public class Probe extends Diffable {
     private String probeName;
     private String hostName;
@@ -40,6 +62,9 @@ public class Probe extends Diffable {
         setHttpsProtocol(probe.inner().protocol().equals(ApplicationGatewayProtocol.HTTPS));
     }
 
+    /**
+     * Name of the probe. (Required)
+     */
     public String getProbeName() {
         return probeName;
     }
@@ -48,6 +73,9 @@ public class Probe extends Diffable {
         this.probeName = probeName;
     }
 
+    /**
+     * Host name associated with this probe. (Required)
+     */
     @ResourceDiffProperty(updatable = true)
     public String getHostName() {
         return hostName;
@@ -57,6 +85,9 @@ public class Probe extends Diffable {
         this.hostName = hostName;
     }
 
+    /**
+     * Path associated with this probe. (Required)
+     */
     @ResourceDiffProperty(updatable = true)
     public String getPath() {
         return path;
@@ -66,6 +97,9 @@ public class Probe extends Diffable {
         this.path = path;
     }
 
+    /**
+     * Interval for the probe. Defaults to 30 sec.
+     */
     @ResourceDiffProperty(updatable = true)
     public Integer getInterval() {
         if (interval == null) {
@@ -79,6 +113,9 @@ public class Probe extends Diffable {
         this.interval = interval;
     }
 
+    /**
+     * Timeout for the probe. Defaults to 30 sec.
+     */
     @ResourceDiffProperty(updatable = true)
     public Integer getTimeout() {
         if (timeout == null) {
@@ -92,6 +129,9 @@ public class Probe extends Diffable {
         this.timeout = timeout;
     }
 
+    /**
+     * Threshold for unhealthy instances before it triggers the probe. Defaults to 3.
+     */
     @ResourceDiffProperty(updatable = true)
     public Integer getUnhealthyThreshold() {
         if (unhealthyThreshold == null) {
@@ -105,6 +145,9 @@ public class Probe extends Diffable {
         this.unhealthyThreshold = unhealthyThreshold;
     }
 
+    /**
+     * Enable https protocol. Defaults to false.
+     */
     @ResourceDiffProperty(updatable = true)
     public Boolean getHttpsProtocol() {
         if (httpsProtocol == null) {
@@ -118,6 +161,9 @@ public class Probe extends Diffable {
         this.httpsProtocol = httpsProtocol;
     }
 
+    /**
+     * List of https response codes.
+     */
     @ResourceDiffProperty(updatable = true)
     public List<String> getHttpResponseCodes() {
         if (httpResponseCodes == null) {
@@ -131,6 +177,9 @@ public class Probe extends Diffable {
         this.httpResponseCodes = httpResponseCodes;
     }
 
+    /**
+     * String to match with the request body.
+     */
     @ResourceDiffProperty(updatable = true)
     public String getHttpResponseBodyMatch() {
         return httpResponseBodyMatch;
