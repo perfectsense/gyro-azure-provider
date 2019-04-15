@@ -8,6 +8,22 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.core.diff.Diffable;
 import gyro.core.diff.ResourceDiffProperty;
 
+/**
+ * Creates a Redirect Configuration.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     redirect-configuration
+ *         redirect-configuration-name: "redirect-configuration-example"
+ *         type: "Temporary"
+ *         target-listener: "listener-example"
+ *         include-query-string: true
+ *         include-path: true
+ *     end
+ */
 public class RedirectConfiguration extends Diffable {
     private String redirectConfigurationName;
     private String type;
@@ -30,6 +46,9 @@ public class RedirectConfiguration extends Diffable {
 
     }
 
+    /**
+     * Name of the redirect configuration. (Required)
+     */
     public String getRedirectConfigurationName() {
         return redirectConfigurationName;
     }
@@ -38,6 +57,9 @@ public class RedirectConfiguration extends Diffable {
         this.redirectConfigurationName = redirectConfigurationName;
     }
 
+    /**
+     * Type of the redirect configuration. Valid values are ``Permanent`` or ``Found`` or ``SeeOther`` or ``Temporary``  (Required)
+     */
     @ResourceDiffProperty(updatable = true)
     public String getType() {
         return type;
@@ -47,6 +69,9 @@ public class RedirectConfiguration extends Diffable {
         this.type = type;
     }
 
+    /**
+     * Name of the target listener to be associated with this redirect configuration. Required if target url not present.
+     */
     @ResourceDiffProperty(updatable = true)
     public String getTargetListener() {
         return targetListener;
@@ -56,6 +81,9 @@ public class RedirectConfiguration extends Diffable {
         this.targetListener = targetListener;
     }
 
+    /**
+     * Target url to be associated with this redirect configuration. Required if target listener not present.
+     */
     @ResourceDiffProperty(updatable = true)
     public String getTargetUrl() {
         if (!ObjectUtils.isBlank(targetUrl)) {
@@ -71,6 +99,9 @@ public class RedirectConfiguration extends Diffable {
         this.targetUrl = targetUrl;
     }
 
+    /**
+     * Include query string or not. Defaults to false.
+     */
     @ResourceDiffProperty(updatable = true)
     public Boolean getIncludeQueryString() {
         if (includeQueryString == null) {
@@ -84,6 +115,9 @@ public class RedirectConfiguration extends Diffable {
         this.includeQueryString = includeQueryString;
     }
 
+    /**
+     * Include path or not. Defaults to false.
+     */
     @ResourceDiffProperty(updatable = true)
     public Boolean getIncludePath() {
         if (includePath == null) {
@@ -152,35 +186,35 @@ public class RedirectConfiguration extends Diffable {
     }
 
     Update updateRedirectConfiguration(Update update) {
-        ApplicationGatewayRedirectConfiguration.Update parialUpdate = update
+        ApplicationGatewayRedirectConfiguration.Update partialUpdate = update
             .updateRedirectConfiguration(getRedirectConfigurationName())
             .withType(ApplicationGatewayRedirectType.fromString(getType()));
 
         if (!ObjectUtils.isBlank(getTargetListener())) {
             if (getIncludePath() && getIncludeQueryString()) {
-                update = parialUpdate.withTargetListener(getTargetListener())
+                update = partialUpdate.withTargetListener(getTargetListener())
                     .withPathIncluded()
                     .withQueryStringIncluded()
                     .parent();
             } else if (getIncludePath()) {
-                update = parialUpdate.withTargetListener(getTargetListener())
+                update = partialUpdate.withTargetListener(getTargetListener())
                     .withPathIncluded()
                     .parent();
             } else if (getIncludeQueryString()) {
-                update = parialUpdate.withTargetListener(getTargetListener())
+                update = partialUpdate.withTargetListener(getTargetListener())
                     .withQueryStringIncluded()
                     .parent();
             } else {
-                update = parialUpdate.withTargetListener(getTargetListener())
+                update = partialUpdate.withTargetListener(getTargetListener())
                     .parent();
             }
         } else {
             if (getIncludeQueryString()) {
-                update = parialUpdate.withTargetUrl(getTargetUrl())
+                update = partialUpdate.withTargetUrl(getTargetUrl())
                     .withQueryStringIncluded()
                     .parent();
             } else {
-                update = parialUpdate.withTargetUrl(getTargetUrl())
+                update = partialUpdate.withTargetUrl(getTargetUrl())
                     .parent();
             }
         }
