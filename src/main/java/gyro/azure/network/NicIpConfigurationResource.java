@@ -6,9 +6,9 @@ import com.microsoft.azure.management.network.NetworkInterface;
 import com.microsoft.azure.management.network.NicIPConfiguration;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
-import gyro.lang.Resource;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.Resource;
 
 import java.util.Set;
 

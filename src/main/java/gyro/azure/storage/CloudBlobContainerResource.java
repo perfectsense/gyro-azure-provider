@@ -1,10 +1,10 @@
 package gyro.azure.storage;
 
 import gyro.azure.AzureResource;
-import gyro.core.BeamException;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
-import gyro.lang.Resource;
+import gyro.core.GyroException;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.Resource;
 
 import com.microsoft.azure.storage.blob.BlobContainerPermissions;
 import com.microsoft.azure.storage.CloudStorageAccount;
@@ -79,7 +79,7 @@ public class CloudBlobContainerResource extends AzureResource {
             }
             return false;
         } catch (StorageException ex) {
-            throw new BeamException(ex.getMessage());
+            throw new GyroException(ex.getMessage());
         }
     }
 
@@ -92,7 +92,7 @@ public class CloudBlobContainerResource extends AzureResource {
             permissions.setPublicAccess(BlobContainerPublicAccessType.valueOf(getPublicAccess()));
             container.uploadPermissions(permissions);
         } catch (StorageException ex) {
-            throw new BeamException(ex.getMessage());
+            throw new GyroException(ex.getMessage());
         }
     }
 
@@ -104,7 +104,7 @@ public class CloudBlobContainerResource extends AzureResource {
             permissions.setPublicAccess(BlobContainerPublicAccessType.valueOf(getPublicAccess()));
             container.uploadPermissions(permissions);
         } catch (StorageException ex) {
-            throw new BeamException(ex.getMessage());
+            throw new GyroException(ex.getMessage());
         }
     }
 
@@ -114,7 +114,7 @@ public class CloudBlobContainerResource extends AzureResource {
             CloudBlobContainer container = cloudBlobContainer();
             container.delete();
         } catch (StorageException ex) {
-            throw new BeamException(ex.getMessage());
+            throw new GyroException(ex.getMessage());
         }
     }
 
@@ -129,7 +129,7 @@ public class CloudBlobContainerResource extends AzureResource {
             CloudBlobClient client = account.createCloudBlobClient();
             return client.getContainerReference(getContainerName());
         } catch (StorageException | URISyntaxException | InvalidKeyException ex) {
-            throw new BeamException(ex.getMessage());
+            throw new GyroException(ex.getMessage());
         }
     }
 }

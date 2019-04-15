@@ -1,7 +1,7 @@
 package gyro.azure.network;
 
 import gyro.core.diff.Diffable;
-import gyro.core.diff.ResourceDiffProperty;
+import gyro.core.resource.ResourceDiffProperty;
 
 /**
  * Creates a route in a route table.
@@ -9,7 +9,7 @@ import gyro.core.diff.ResourceDiffProperty;
  * Example
  * -------
  *
- * .. code-block:: beam
+ * .. code-block:: gyro
  *
  *     route
  *         destination-address-prefix: "10.0.1.0/24"
