@@ -9,6 +9,7 @@ import com.microsoft.azure.management.network.ApplicationGatewayListener;
 import com.microsoft.azure.management.network.ApplicationGatewayProbe;
 import com.microsoft.azure.management.network.ApplicationGatewayRedirectConfiguration;
 import com.microsoft.azure.management.network.ApplicationGatewayRequestRoutingRule;
+import com.microsoft.azure.management.network.ApplicationGatewayRequestRoutingRuleType;
 import com.microsoft.azure.management.network.ApplicationGatewaySkuName;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.psddev.dari.util.ObjectUtils;
@@ -16,7 +17,6 @@ import gyro.azure.AzureResource;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
 import gyro.lang.Resource;
-import org.apache.commons.lang3.time.StopWatch;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -240,9 +240,6 @@ public class ApplicationGatewayResource extends AzureResource {
 
     @Override
     public void create() {
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-
         Azure client = createClient();
 
         ApplicationGateway.DefinitionStages.WithRequestRoutingRule withRequestRoutingRule = client.applicationGateways()
@@ -285,14 +282,6 @@ public class ApplicationGatewayResource extends AzureResource {
             .withExistingSubnet(getNetworkId(), getSubnet())
             .create();
 
-        stopWatch.stop();
-
-        System.out.println("\n\n -->Initial create time : " + (stopWatch.getTime() / 60000));
-
-        stopWatch.reset();
-
-        stopWatch.start();
-
         setApplicationGatewayId(applicationGateway.id());
 
         ApplicationGateway.Update update = applicationGateway.update();
@@ -325,18 +314,10 @@ public class ApplicationGatewayResource extends AzureResource {
 
         applicationGateway = update.apply();
 
-        stopWatch.stop();
-
-        System.out.println("\n\n -->Rule create time : " + (stopWatch.getTime() / 60000));
-
-        stopWatch.reset();
-
-        stopWatch.start();
-
         // remove default rule
 
         Set<String> requestRoutingRuleNames = getRequestRoutingRule().stream()
-            .map(RequestRoutingRule::getRequestRoutingRuleName).collect(Collectors.toSet());
+            .map(RequestRoutingRule::getRuleName).collect(Collectors.toSet());
 
         List<String> requestRoutingRuleDeleteList = applicationGateway
             .requestRoutingRules().keySet().stream()
@@ -350,14 +331,6 @@ public class ApplicationGatewayResource extends AzureResource {
         }
 
         applicationGateway = update.apply();
-
-        stopWatch.stop();
-
-        System.out.println("\n\n -->Remove default rule time : " + (stopWatch.getTime() / 60000));
-
-        stopWatch.reset();
-
-        stopWatch.start();
 
         update = applicationGateway.update();
 
@@ -400,10 +373,6 @@ public class ApplicationGatewayResource extends AzureResource {
         applicationGateway = update.apply();
 
         loadApplicationGateway(applicationGateway);
-
-        stopWatch.stop();
-
-        System.out.println("\n\n -->Remove listeners, backend and httpconfig time : " + (stopWatch.getTime() / 60000));
     }
 
     @Override
@@ -418,17 +387,17 @@ public class ApplicationGatewayResource extends AzureResource {
 
         update = saveTags(oldApplicationGatewayResource.getTags(), update);
 
-        //update = saveRequestRoutingRule(oldApplicationGatewayResource.getRequestRoutingRule(), update);
+        update = saveListener(oldApplicationGatewayResource.getListener(), update);
 
-        //update = saveListener(oldApplicationGatewayResource.getListener(), update);
+        update = saveRedirectConfiguration(oldApplicationGatewayResource.getRedirectConfiguration(), update);
 
-        //update = saveRedirectConfiguration(oldApplicationGatewayResource.getRedirectConfiguration(), update);
-
-        //update = saveBackendHttpConfiguration(oldApplicationGatewayResource.getBackendHttpConfiguration(), update);
+        update = saveBackendHttpConfiguration(oldApplicationGatewayResource.getBackendHttpConfiguration(), update);
 
         update = saveProbe(oldApplicationGatewayResource.getProbe(), update);
 
         update = saveBackend(oldApplicationGatewayResource.getBackend(), update);
+
+        update = saveRequestRoutingRule(oldApplicationGatewayResource.getRequestRoutingRule(), update);
 
         applicationGateway = update.apply();
 
@@ -499,18 +468,22 @@ public class ApplicationGatewayResource extends AzureResource {
 
         getRequestRoutingRule().clear();
         for (ApplicationGatewayRequestRoutingRule applicationGatewayRequestRoutingRule: applicationGateway.requestRoutingRules().values()) {
-            RequestRoutingRule requestRoutingRule = new RequestRoutingRule(applicationGatewayRequestRoutingRule);
-            getRequestRoutingRule().add(requestRoutingRule);
+            if (applicationGatewayRequestRoutingRule.ruleType().equals(ApplicationGatewayRequestRoutingRuleType.BASIC)) {
+                RequestRoutingRule requestRoutingRule = new RequestRoutingRule(applicationGatewayRequestRoutingRule);
+                getRequestRoutingRule().add(requestRoutingRule);
+            }
         }
+
+
     }
 
     private Update saveRequestRoutingRule(List<RequestRoutingRule> oldRequestRoutingRules, Update update) {
         Set<String> requestRoutingRuleNames = getRequestRoutingRule().stream()
-            .map(RequestRoutingRule::getRequestRoutingRuleName).collect(Collectors.toSet());
+            .map(RequestRoutingRule::getRuleName).collect(Collectors.toSet());
 
         List<String> requestRoutingRuleDeleteList = oldRequestRoutingRules.stream()
-            .filter(o -> !requestRoutingRuleNames.contains(o.getRequestRoutingRuleName()))
-            .map(RequestRoutingRule::getRequestRoutingRuleName)
+            .filter(o -> !requestRoutingRuleNames.contains(o.getRuleName()))
+            .map(RequestRoutingRule::getRuleName)
             .collect(Collectors.toList());
 
         for (String requestRoutingRuleName : requestRoutingRuleDeleteList) {
@@ -518,10 +491,10 @@ public class ApplicationGatewayResource extends AzureResource {
         }
 
         Set<String> oldRequestRoutingRuleNames = oldRequestRoutingRules.stream()
-            .map(RequestRoutingRule::getRequestRoutingRuleName).collect(Collectors.toSet());
+            .map(RequestRoutingRule::getRuleName).collect(Collectors.toSet());
 
         List<RequestRoutingRule> requestRoutingRuleModificationList = getRequestRoutingRule().stream()
-            .filter(o -> oldRequestRoutingRuleNames.contains(o.getRequestRoutingRuleName()))
+            .filter(o -> oldRequestRoutingRuleNames.contains(o.getRuleName()))
             .collect(Collectors.toList());
 
         for (RequestRoutingRule requestRoutingRule : requestRoutingRuleModificationList) {
@@ -529,7 +502,7 @@ public class ApplicationGatewayResource extends AzureResource {
         }
 
         List<RequestRoutingRule> requestRoutingRuleAdditionList = getRequestRoutingRule().stream()
-            .filter(o -> !oldRequestRoutingRuleNames.contains(o.getRequestRoutingRuleName()))
+            .filter(o -> !oldRequestRoutingRuleNames.contains(o.getRuleName()))
             .collect(Collectors.toList());
 
         for (RequestRoutingRule requestRoutingRule : requestRoutingRuleAdditionList) {
