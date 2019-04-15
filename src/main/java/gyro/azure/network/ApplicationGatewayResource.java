@@ -16,6 +16,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
 import gyro.core.diff.ResourceDiffProperty;
 import gyro.core.diff.ResourceName;
+import gyro.core.diff.ResourceOutput;
 import gyro.lang.Resource;
 
 import java.util.ArrayList;
@@ -25,6 +26,99 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Creates an Application Gateway.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     azure::application-gateway application-gateway-example
+ *         application-gateway-name: "application-gateway-example"
+ *         resource-group-name: $(azure::resource-group resource-group-example-AG | resource-group-name)
+ *         network-id: $(azure::network network-example-AG | network-id)
+ *         subnet: "subnet1"
+ *         public-ip-address-name: $(azure::public-ip-address public-ip-address-example-AG | public-ip-address-name)
+ *         sku-size: "STANDARD_SMALL"
+ *         instance-count: 1
+ *         enable-http2: true
+ *         tags: {
+ *             Name: "application-gateway-example"
+ *         }
+ *
+ *         request-routing-rule
+ *             rule-name: "request-routing-rule-example"
+ *             listener: "listener-example"
+ *             backend: "backend-example"
+ *             backend-http-configuration: "backend-http-configuration-example"
+ *         end
+ *
+ *         request-routing-rule
+ *             rule-name: "request-routing-rule-2-example"
+ *             listener: "listener-example-2"
+ *             redirect-configuration: "redirect-configuration-example"
+ *         end
+ *
+ *         redirect-configuration
+ *             redirect-configuration-name: "redirect-configuration-example"
+ *             type: "Temporary"
+ *             target-listener: "listener-example-3"
+ *             include-query-string: true
+ *             include-path: true
+ *         end
+ *
+ *         listener
+ *             listener-name: "listener-example"
+ *             port: 81
+ *         end
+ *
+ *         listener
+ *             listener-name: "listener-example-2"
+ *             port: 82
+ *         end
+ *
+ *         listener
+ *             listener-name: "listener-example-3"
+ *             port: 83
+ *         end
+ *
+ *         backend
+ *             backend-name: "backend-example"
+ *             ip-addresses: [
+ *                 "10.0.0.2",
+ *                 "10.0.0.3"
+ *             ]
+ *         end
+ *
+ *         backend-http-configuration
+ *             backend-http-configuration-name: "backend-http-configuration-example"
+ *             port: 8080
+ *             cookie-name: "something"
+ *             enable-affinity-cookie: false
+ *             probe: "probe-example"
+ *             connection-draining-timeout: 30
+ *             host-header: "something"
+ *             host-header-from-backend: false
+ *             backend-path: "something"
+ *         end
+ *
+ *         probe
+ *             probe-name: "probe-example"
+ *             host-name: "www.google.com"
+ *             path: "/path"
+ *             interval: 40
+ *             timeout: 40
+ *             unhealthy-threshold: 4
+ *             https-protocol: false
+ *             http-response-codes: [
+ *                 "200-210"
+ *             ]
+ *             http-response-body-match: "body"
+ *         end
+ *
+ *     end
+ */
 @ResourceName("application-gateway")
 public class ApplicationGatewayResource extends AzureResource {
     private String resourceGroupName;
@@ -46,6 +140,9 @@ public class ApplicationGatewayResource extends AzureResource {
 
     private String applicationGatewayId;
 
+    /**
+     * Name of the resource group under which this would reside. (Required)
+     */
     public String getResourceGroupName() {
         return resourceGroupName;
     }
@@ -54,6 +151,9 @@ public class ApplicationGatewayResource extends AzureResource {
         this.resourceGroupName = resourceGroupName;
     }
 
+    /**
+     * Id of the virtual network which would be associated with this. (Required)
+     */
     public String getNetworkId() {
         return networkId;
     }
@@ -62,6 +162,9 @@ public class ApplicationGatewayResource extends AzureResource {
         this.networkId = networkId;
     }
 
+    /**
+     * The name of the public ip address associated with the application gateway. (Required)
+     */
     public String getPublicIpAddressName() {
         return publicIpAddressName;
     }
@@ -70,6 +173,9 @@ public class ApplicationGatewayResource extends AzureResource {
         this.publicIpAddressName = publicIpAddressName;
     }
 
+    /**
+     * One of the subnet name from the assigned virtual network. (Required)
+     */
     public String getSubnet() {
         return subnet;
     }
@@ -78,6 +184,9 @@ public class ApplicationGatewayResource extends AzureResource {
         this.subnet = subnet;
     }
 
+    /**
+     * Name of the application gateway. (Required)
+     */
     public String getApplicationGatewayName() {
         return applicationGatewayName;
     }
@@ -86,6 +195,11 @@ public class ApplicationGatewayResource extends AzureResource {
         this.applicationGatewayName = applicationGatewayName;
     }
 
+    /**
+     * Request routing rule for the application gateway. (Required)
+     *
+     * @subresource gyro.azure.network.RequestRoutingRule
+     */
     @ResourceDiffProperty(updatable = true)
     public List<RequestRoutingRule> getRequestRoutingRule() {
         if (requestRoutingRule == null) {
@@ -99,6 +213,11 @@ public class ApplicationGatewayResource extends AzureResource {
         this.requestRoutingRule = requestRoutingRule;
     }
 
+    /**
+     * Listener for the application gateway. (Required)
+     *
+     * @subresource gyro.azure.network.Listener
+     */
     @ResourceDiffProperty(updatable = true)
     public List<Listener> getListener() {
         if (listener == null) {
@@ -112,6 +231,11 @@ public class ApplicationGatewayResource extends AzureResource {
         this.listener = listener;
     }
 
+    /**
+     * Backend for the application gateway. Required if no redirect configuration present.
+     *
+     * @subresource gyro.azure.network.Backend
+     */
     @ResourceDiffProperty(updatable = true)
     public List<Backend> getBackend() {
         if (backend == null) {
@@ -125,6 +249,11 @@ public class ApplicationGatewayResource extends AzureResource {
         this.backend = backend;
     }
 
+    /**
+     * Backend http configuration for the application gateway. Required if no redirect configuration present.
+     *
+     * @subresource gyro.azure.network.BackendHttpConfiguration
+     */
     @ResourceDiffProperty(updatable = true)
     public List<BackendHttpConfiguration> getBackendHttpConfiguration() {
         if (backendHttpConfiguration == null) {
@@ -138,6 +267,11 @@ public class ApplicationGatewayResource extends AzureResource {
         this.backendHttpConfiguration = backendHttpConfiguration;
     }
 
+    /**
+     * Redirect configuration for the application gateway. Required if no backend present.
+     *
+     * @subresource gyro.azure.network.RedirectConfiguration
+     */
     @ResourceDiffProperty(updatable = true)
     public List<RedirectConfiguration> getRedirectConfiguration() {
         if (redirectConfiguration == null) {
@@ -151,6 +285,11 @@ public class ApplicationGatewayResource extends AzureResource {
         this.redirectConfiguration = redirectConfiguration;
     }
 
+    /**
+     * probe for the application gateway
+     *
+     * @subresource gyro.azure.network.Probe
+     */
     @ResourceDiffProperty(updatable = true)
     public List<Probe> getProbe() {
         if (probe == null) {
@@ -173,6 +312,9 @@ public class ApplicationGatewayResource extends AzureResource {
         this.skuSize = skuSize;
     }
 
+    /**
+     * Number of instances to scale. (Required)
+     */
     @ResourceDiffProperty(updatable = true)
     public Integer getInstanceCount() {
         return instanceCount;
@@ -182,6 +324,9 @@ public class ApplicationGatewayResource extends AzureResource {
         this.instanceCount = instanceCount;
     }
 
+    /**
+     * Tags for the application gateway.
+     */
     @ResourceDiffProperty(updatable = true)
     public Map<String, String> getTags() {
         if (tags == null) {
@@ -194,6 +339,9 @@ public class ApplicationGatewayResource extends AzureResource {
         this.tags = tags;
     }
 
+    /**
+     * Enable http2. Defaults to false.
+     */
     @ResourceDiffProperty(updatable = true)
     public Boolean getEnableHttp2() {
         if (enableHttp2 == null) {
@@ -207,6 +355,9 @@ public class ApplicationGatewayResource extends AzureResource {
         this.enableHttp2 = enableHttp2;
     }
 
+    /**
+     * Private front end for teh application gateway. Defaults to false.
+     */
     public Boolean getPrivateFrontEnd() {
         if (privateFrontEnd == null) {
             privateFrontEnd = false;
@@ -219,6 +370,10 @@ public class ApplicationGatewayResource extends AzureResource {
         this.privateFrontEnd = privateFrontEnd;
     }
 
+    /**
+     * The id of the application gateway.
+     */
+    @ResourceOutput
     public String getApplicationGatewayId() {
         return applicationGatewayId;
     }
@@ -250,7 +405,7 @@ public class ApplicationGatewayResource extends AzureResource {
 
         if (getPrivateFrontEnd()) {
             attach = withRequestRoutingRule
-                .defineRequestRoutingRule("Default_rule")
+                .defineRequestRoutingRule("Default_rule_gyro_default")
                 .fromPrivateFrontend()
                 .fromFrontendHttpPort(80)
                 .toBackendHttpPort(80)
@@ -258,7 +413,7 @@ public class ApplicationGatewayResource extends AzureResource {
                 .attach();
         } else {
             attach = withRequestRoutingRule
-                .defineRequestRoutingRule("Default_rule")
+                .defineRequestRoutingRule("Default_rule_gyro_default")
                 .fromPublicFrontend()
                 .fromFrontendHttpPort(80)
                 .toBackendHttpPort(80)
