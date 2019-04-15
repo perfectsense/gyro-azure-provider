@@ -14,10 +14,10 @@ import com.microsoft.azure.management.network.ApplicationGatewaySkuName;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
-import gyro.core.diff.ResourceOutput;
-import gyro.lang.Resource;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Resource;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -6,7 +6,7 @@ import com.microsoft.azure.management.network.ApplicationGatewayRedirectConfigur
 import com.microsoft.azure.management.network.ApplicationGatewayRedirectType;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.diff.Diffable;
-import gyro.core.diff.ResourceDiffProperty;
+import gyro.core.resource.ResourceDiffProperty;
 
 /**
  * Creates a Redirect Configuration.

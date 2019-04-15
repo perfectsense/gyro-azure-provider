@@ -6,7 +6,6 @@ plugins {
 version = '0.14-SNAPSHOT'
 sourceCompatibility = 1.8
 
-def azure_sdk_version = '1.21.0'
 if (System.getenv('TRAVIS_BRANCH') && System.getenv('TRAVIS_PULL_REQUEST') == 'false') {
     defaultTasks 'build', 'publish'
 } else {
@@ -38,7 +37,7 @@ configurations {
     gyroDoclet
 }
 
-def azureSdkVersion = '1.19.0'
+def azureSdkVersion = '1.21.0'
 
 dependencies {
     api 'gyro:gyro-core:0.14-SNAPSHOT'

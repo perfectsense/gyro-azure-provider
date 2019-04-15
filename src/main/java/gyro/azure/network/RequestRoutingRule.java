@@ -5,7 +5,7 @@ import com.microsoft.azure.management.network.ApplicationGatewayRequestRoutingRu
 import com.microsoft.azure.management.network.ApplicationGatewayRequestRoutingRule.UpdateDefinitionStages.WithBackendHttpConfigOrRedirect;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.diff.Diffable;
-import gyro.core.diff.ResourceDiffProperty;
+import gyro.core.resource.ResourceDiffProperty;
 
 /**
  * Creates a Request Routing Rule.

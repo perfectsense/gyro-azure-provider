@@ -4,7 +4,7 @@ import com.microsoft.azure.management.network.ApplicationGateway.Update;
 import com.microsoft.azure.management.network.ApplicationGatewayBackendHttpConfiguration;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.diff.Diffable;
-import gyro.core.diff.ResourceDiffProperty;
+import gyro.core.resource.ResourceDiffProperty;
 
 /**
  * Creates a Backend Http Configuration.
