@@ -5,15 +5,11 @@ import com.microsoft.azure.management.network.ApplicationGatewayRequestRoutingRu
 import com.microsoft.azure.management.network.ApplicationGatewayRequestRoutingRule.UpdateDefinitionStages.WithBackendHttpConfigOrRedirect;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.diff.Diffable;
+import gyro.core.diff.ResourceDiffProperty;
 
-import java.util.List;
 
 public class RequestRoutingRule extends Diffable {
-    private String requestRoutingRuleName;
-    private Integer frontendHttpPort;
-    private Integer backendHttpPort;
-    private List<String> backendIpAddresses;
-
+    private String ruleName;
     private String listener;
     private String backend;
     private String backendHttpConfiguration;
@@ -28,41 +24,18 @@ public class RequestRoutingRule extends Diffable {
         setListener(rule.listener() != null ? rule.listener().name() : null);
         setBackendHttpConfiguration(rule.backendHttpConfiguration() != null ? rule.backendHttpConfiguration().name() : null);
         setRedirectConfiguration(rule.redirectConfiguration() != null ? rule.redirectConfiguration().name() : null);
-        setRequestRoutingRuleName(rule.name());
+        setRuleName(rule.name());
     }
 
-    public String getRequestRoutingRuleName() {
-        return requestRoutingRuleName;
+    public String getRuleName() {
+        return ruleName;
     }
 
-    public void setRequestRoutingRuleName(String requestRoutingRuleName) {
-        this.requestRoutingRuleName = requestRoutingRuleName;
+    public void setRuleName(String ruleName) {
+        this.ruleName = ruleName;
     }
 
-    public Integer getFrontendHttpPort() {
-        return frontendHttpPort;
-    }
-
-    public void setFrontendHttpPort(Integer frontendHttpPort) {
-        this.frontendHttpPort = frontendHttpPort;
-    }
-
-    public Integer getBackendHttpPort() {
-        return backendHttpPort;
-    }
-
-    public void setBackendHttpPort(Integer backendHttpPort) {
-        this.backendHttpPort = backendHttpPort;
-    }
-
-    public List<String> getBackendIpAddresses() {
-        return backendIpAddresses;
-    }
-
-    public void setBackendIpAddresses(List<String> backendIpAddresses) {
-        this.backendIpAddresses = backendIpAddresses;
-    }
-
+    @ResourceDiffProperty(updatable = true)
     public String getListener() {
         return listener;
     }
@@ -71,6 +44,7 @@ public class RequestRoutingRule extends Diffable {
         this.listener = listener;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getBackend() {
         return backend;
     }
@@ -79,6 +53,7 @@ public class RequestRoutingRule extends Diffable {
         this.backend = backend;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getBackendHttpConfiguration() {
         return backendHttpConfiguration;
     }
@@ -87,6 +62,7 @@ public class RequestRoutingRule extends Diffable {
         this.backendHttpConfiguration = backendHttpConfiguration;
     }
 
+    @ResourceDiffProperty(updatable = true)
     public String getRedirectConfiguration() {
         return redirectConfiguration;
     }
@@ -97,7 +73,7 @@ public class RequestRoutingRule extends Diffable {
 
     @Override
     public String primaryKey() {
-        return getRequestRoutingRuleName();
+        return getRuleName();
     }
 
     @Override
@@ -106,15 +82,15 @@ public class RequestRoutingRule extends Diffable {
 
         sb.append("Request routing rule");
 
-        if (!ObjectUtils.isBlank(getRequestRoutingRuleName())) {
-            sb.append(" - ").append(getRequestRoutingRuleName());
+        if (!ObjectUtils.isBlank(getRuleName())) {
+            sb.append(" - ").append(getRuleName());
         }
 
         return sb.toString();
     }
 
     Update createRequestRoutingRule(Update update) {
-        WithBackendHttpConfigOrRedirect<Update> partialUpdate = update.defineRequestRoutingRule(getRequestRoutingRuleName())
+        WithBackendHttpConfigOrRedirect<Update> partialUpdate = update.defineRequestRoutingRule(getRuleName())
             .fromListener(getListener());
 
         if (!ObjectUtils.isBlank(getRedirectConfiguration())) {
@@ -130,7 +106,7 @@ public class RequestRoutingRule extends Diffable {
     }
 
     Update updateRequestRoutingRule(Update update) {
-        ApplicationGatewayRequestRoutingRule.Update partialUpdate = update.updateRequestRoutingRule(getRequestRoutingRuleName())
+        ApplicationGatewayRequestRoutingRule.Update partialUpdate = update.updateRequestRoutingRule(getRuleName())
             .fromListener(getListener());
 
         if (!ObjectUtils.isBlank(getRedirectConfiguration())) {
