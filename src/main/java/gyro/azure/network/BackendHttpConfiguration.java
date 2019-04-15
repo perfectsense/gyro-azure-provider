@@ -6,6 +6,26 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.core.diff.Diffable;
 import gyro.core.diff.ResourceDiffProperty;
 
+/**
+ * Creates a Backend Http Configuration.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     backend-http-configuration
+ *         backend-http-configuration-name: "backend-http-configuration-example"
+ *         port: 8080
+ *         cookie-name: "cookieName"
+ *         enable-affinity-cookie: false
+ *         probe: "probe-example"
+ *         connection-draining-timeout: 30
+ *         host-header: "hostHeader"
+ *         host-header-from-backend: false
+ *         backend-path: "backendPath"
+ *     end
+ */
 public class BackendHttpConfiguration extends Diffable {
     private String backendHttpConfigurationName;
     private Integer port;
@@ -33,6 +53,9 @@ public class BackendHttpConfiguration extends Diffable {
         setBackendPath(backendHttpConfiguration.path());
     }
 
+    /**
+     * Name of the backend http configuration. (Required)
+     */
     public String getBackendHttpConfigurationName() {
         return backendHttpConfigurationName;
     }
@@ -41,6 +64,9 @@ public class BackendHttpConfiguration extends Diffable {
         this.backendHttpConfigurationName = backendHttpConfigurationName;
     }
 
+    /**
+     * Port for the backend http configuration. (Required)
+     */
     @ResourceDiffProperty(updatable = true)
     public Integer getPort() {
         return port;
@@ -50,6 +76,9 @@ public class BackendHttpConfiguration extends Diffable {
         this.port = port;
     }
 
+    /**
+     * Cookie name for the backend http configuration.
+     */
     @ResourceDiffProperty(updatable = true)
     public String getCookieName() {
         return cookieName;
@@ -59,6 +88,9 @@ public class BackendHttpConfiguration extends Diffable {
         this.cookieName = cookieName;
     }
 
+    /**
+     * Enable cookie based affinity for the backend http configuration. Defaults to false.
+     */
     @ResourceDiffProperty(updatable = true)
     public Boolean getEnableAffinityCookie() {
         if (enableAffinityCookie == null) {
@@ -72,6 +104,9 @@ public class BackendHttpConfiguration extends Diffable {
         this.enableAffinityCookie = enableAffinityCookie;
     }
 
+    /**
+     * Connection draining timeout for the backend http configuration. defaults to 0.
+     */
     @ResourceDiffProperty(updatable = true)
     public Integer getConnectionDrainingTimeout() {
         if (connectionDrainingTimeout == null) {
@@ -85,6 +120,9 @@ public class BackendHttpConfiguration extends Diffable {
         this.connectionDrainingTimeout = connectionDrainingTimeout;
     }
 
+    /**
+     * Name of a probe to be associated with the backend http configuration.
+     */
     @ResourceDiffProperty(updatable = true)
     public String getProbe() {
         return probe;
@@ -94,6 +132,9 @@ public class BackendHttpConfiguration extends Diffable {
         this.probe = probe;
     }
 
+    /**
+     * Override hostname for the backend http configuration.
+     */
     @ResourceDiffProperty(updatable = true)
     public String getHostHeader() {
         return hostHeader;
@@ -103,6 +144,9 @@ public class BackendHttpConfiguration extends Diffable {
         this.hostHeader = hostHeader;
     }
 
+    /**
+     * Get host header from the backend for the backend http configuration. Defaults to false.
+     */
     @ResourceDiffProperty(updatable = true)
     public Boolean getHostHeaderFromBackend() {
         if (hostHeaderFromBackend == null) {
@@ -116,6 +160,9 @@ public class BackendHttpConfiguration extends Diffable {
         this.hostHeaderFromBackend = hostHeaderFromBackend;
     }
 
+    /**
+     * Override backend path for the backend http configuration.
+     */
     @ResourceDiffProperty(updatable = true)
     public String getBackendPath() {
         if (!ObjectUtils.isBlank(backendPath)) {
