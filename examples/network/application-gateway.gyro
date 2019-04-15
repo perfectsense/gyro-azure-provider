@@ -56,42 +56,65 @@ azure::application-gateway application-gateway-example
     }
 
     request-routing-rule
-        request-routing-rule-name: "AG-ex-1-request-routing-rule"
-        listener: "AG-ex-1-listener"
-        backend: "AG-ex-1-backend"
-        backend-http-configuration: "AG-ex-1-backend-http-configuration"
+        rule-name: "request-routing-rule-example"
+        listener: "listener-example"
+        backend: "backend-example"
+        backend-http-configuration: "backend-http-configuration-example"
+    end
+
+    request-routing-rule
+        rule-name: "request-routing-rule-2-example"
+        listener: "listener-example-2"
+        redirect-configuration: "redirect-configuration-example"
+    end
+
+    redirect-configuration
+        redirect-configuration-name: "redirect-configuration-example"
+        type: "Temporary"
+        target-listener: "listener-example-3"
+        include-query-string: true
+        include-path: true
     end
 
     listener
-        listener-name: "AG-ex-1-listener"
+        listener-name: "listener-example"
         port: 81
     end
 
+    listener
+        listener-name: "listener-example-2"
+        port: 82
+    end
+
+    listener
+        listener-name: "listener-example-3"
+        port: 83
+    end
+
     backend
-        backend-name: "AG-ex-1-backend"
+        backend-name: "backend-example"
         ip-addresses: [
             "10.0.0.2",
             "10.0.0.3"
         ]
     end
 
-    backend
-        backend-name: "AG-ex-2-backend"
-        ip-addresses: [
-            "10.0.0.3",
-            "10.0.0.4"
-        ]
-    end
-
     backend-http-configuration
-        backend-http-configuration-name: "AG-ex-1-backend-http-configuration"
+        backend-http-configuration-name: "backend-http-configuration-example"
         port: 8080
+        cookie-name: "something"
+        enable-affinity-cookie: false
+        probe: "probe-example"
+        connection-draining-timeout: 30
+        host-header: "something"
+        host-header-from-backend: false
+        backend-path: "something"
     end
 
     probe
-        probe-name: "AG-ex-1-probe"
+        probe-name: "probe-example"
         host-name: "www.google.com"
-        path: "/something"
+        path: "/path"
         interval: 40
         timeout: 40
         unhealthy-threshold: 4
@@ -99,7 +122,7 @@ azure::application-gateway application-gateway-example
         http-response-codes: [
             "200-210"
         ]
-        http-response-body-match: "something"
+        http-response-body-match: "body"
     end
 
 end
