@@ -73,7 +73,7 @@ azure::network-interface load-balancer-network-interface-example
         Name: "load-balancer-network-interface-example"
     }
 
-    primary-ip-configuration
+    nic-ip-configuration
         ip-allocation-static: false
         ip-configuration-name: 'primary'
         primary: true
@@ -117,7 +117,7 @@ azure::network-interface load-balancer-network-interface-example-two
         Name: "load-balancer-network-interface-example"
     }
 
-    primary-ip-configuration
+    nic-ip-configuration
         ip-allocation-static: false
         ip-configuration-name: 'primary'
         primary: true
