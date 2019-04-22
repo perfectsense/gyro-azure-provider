@@ -1,14 +1,13 @@
 package gyro.azure.network;
 
 import gyro.azure.AzureResource;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
-import gyro.core.diff.ResourceOutput;
-import gyro.lang.Resource;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Resource;
 
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.network.LoadBalancer;
-import com.microsoft.azure.management.network.LoadBalancerBackend;
 import com.microsoft.azure.management.network.LoadBalancerHttpProbe;
 import com.microsoft.azure.management.network.LoadBalancerInboundNatPool;
 import com.microsoft.azure.management.network.LoadBalancerPrivateFrontend;
@@ -17,8 +16,6 @@ import com.microsoft.azure.management.network.LoadBalancingRule;
 import com.microsoft.azure.management.network.LoadBalancerSkuType;
 import com.microsoft.azure.management.network.LoadBalancerTcpProbe;
 import com.microsoft.azure.management.network.Network;
-import com.microsoft.azure.management.network.NetworkInterface;
-import com.microsoft.azure.management.network.NicIPConfiguration;
 import com.microsoft.azure.management.network.PublicIPAddress;
 import com.microsoft.azure.management.network.TransportProtocol;
 import com.microsoft.azure.management.network.model.HasNetworkInterfaces;
@@ -153,6 +150,9 @@ public class LoadBalancerResource extends AzureResource {
         this.healthCheckProbeTcp = healthCheckProbeTcp;
     }
 
+    /**
+     * The id of the load balancer.
+     */
     @ResourceOutput
     public String getId() {
         return id;
@@ -264,6 +264,10 @@ public class LoadBalancerResource extends AzureResource {
         Azure client = createClient();
 
         LoadBalancer loadBalancer = client.loadBalancers().getById(getId());
+
+        if (loadBalancer == null) {
+            return false;
+        }
 
         //http probes
         getHealthCheckProbeHttp().clear();
