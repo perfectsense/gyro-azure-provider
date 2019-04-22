@@ -1,9 +1,9 @@
 package gyro.azure.storage;
 
 import gyro.azure.AzureResource;
-import gyro.core.BeamException;
-import gyro.core.diff.ResourceName;
-import gyro.lang.Resource;
+import gyro.core.GyroException;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.Resource;
 
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.StorageException;
@@ -62,7 +62,7 @@ public class CloudQueueResource extends AzureResource {
             }
             return false;
         } catch (StorageException ex) {
-            throw new BeamException(ex.getMessage());
+            throw new GyroException(ex.getMessage());
         }
     }
 
@@ -72,7 +72,7 @@ public class CloudQueueResource extends AzureResource {
             CloudQueue queue = cloudQueue();
             queue.create();
         } catch (StorageException ex) {
-            throw new BeamException(ex.getMessage());
+            throw new GyroException(ex.getMessage());
         }
     }
 
@@ -85,7 +85,7 @@ public class CloudQueueResource extends AzureResource {
             CloudQueue queue = cloudQueue();
             queue.delete();
         } catch (StorageException ex) {
-            throw new BeamException(ex.getMessage());
+            throw new GyroException(ex.getMessage());
         }
     }
 
@@ -100,7 +100,7 @@ public class CloudQueueResource extends AzureResource {
             CloudQueueClient queueClient = storageAccount.createCloudQueueClient();
             return queueClient.getQueueReference(getCloudQueueName());
         } catch (StorageException | URISyntaxException | InvalidKeyException ex) {
-            throw new BeamException(ex.getMessage());
+            throw new GyroException(ex.getMessage());
         }
     }
 }

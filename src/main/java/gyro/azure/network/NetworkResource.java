@@ -6,10 +6,10 @@ import com.microsoft.azure.management.network.Subnet;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
-import gyro.core.diff.ResourceOutput;
-import gyro.lang.Resource;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Resource;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
  * Example
  * -------
  *
- * .. code-block:: beam
+ * .. code-block:: gyro
  *
  *     azure::network network-example
  *          network-name: "network-example"
@@ -100,6 +100,8 @@ public class NetworkResource extends AzureResource {
 
     /**
      * Subnets for the network.
+     *
+     * @subresource gyro.azure.network.SubnetResource
      */
     public List<SubnetResource> getSubnet() {
         if (subnet == null) {
@@ -253,13 +255,5 @@ public class NetworkResource extends AzureResource {
 
     Network getNetwork(Azure client) {
         return client.networks().getByResourceGroup(getResourceGroupName(), getNetworkName());
-    }
-
-    private Map<String, String> subnetMap() {
-        Map<String, String> subnets = new HashMap<>();
-        for (SubnetResource subnet : getSubnet()) {
-            subnets.put(subnet.getName(), subnet.getAddressPrefix());
-        }
-        return subnets;
     }
 }

@@ -5,10 +5,10 @@ import com.microsoft.azure.management.network.NetworkSecurityGroup;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
-import gyro.core.diff.ResourceOutput;
-import gyro.lang.Resource;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Resource;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,7 +22,7 @@ import java.util.Set;
  * Example
  * -------
  *
- * .. code-block:: beam
+ * .. code-block:: gyro
  *
  *     azure::network-security-group network-security-group-example
  *          network-security-group-name: "network-security-group-example"
@@ -31,7 +31,7 @@ import java.util.Set;
  *          rule
  *              security-group-rule-name: "Port_8080"
  *              inbound-rule: true
- *              allowRule: true
+ *              allow-rule: true
  *              from-addresses: [
  *                  "8080"
  *              ]
@@ -96,7 +96,7 @@ public class NetworkSecurityGroupResource extends AzureResource {
     /**
      * Inbound and Outbound rules for the security group.
      *
-     * @subresource beam.azure.network.NetworkSecurityGroupRuleResource
+     * @subresource gyro.azure.network.NetworkSecurityGroupRuleResource
      */
     @ResourceDiffProperty(updatable = true)
     public List<NetworkSecurityGroupRuleResource> getRule() {

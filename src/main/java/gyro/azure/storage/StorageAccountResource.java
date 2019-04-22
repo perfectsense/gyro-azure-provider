@@ -1,10 +1,10 @@
 package gyro.azure.storage;
 
 import gyro.azure.AzureResource;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
-import gyro.core.diff.ResourceOutput;
-import gyro.lang.Resource;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Resource;
 
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
