@@ -1,10 +1,10 @@
 package gyro.azure.compute;
 
 import gyro.azure.AzureResource;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
-import gyro.core.diff.ResourceOutput;
-import gyro.lang.Resource;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Resource;
 
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.compute.AvailabilitySet;
@@ -21,7 +21,7 @@ import java.util.Set;
  * Example
  * -------
  *
- * .. code-block:: beam
+ * .. code-block:: gyro
  *
  *         azure::availability-set availability-set-example
  *             fault-domain-count: 2
@@ -56,6 +56,9 @@ public class AvailabilitySetResource extends AzureResource {
         this.faultDomainCount = faultDomainCount;
     }
 
+    /**
+     * The id of the availability set.
+     */
     @ResourceOutput
     public String getId() {
         return id;
@@ -76,6 +79,9 @@ public class AvailabilitySetResource extends AzureResource {
         this.name = name;
     }
 
+    /**
+     * The input resource group name where the availability set is found.
+     */
     public String getResourceGroupName() {
         return resourceGroupName;
     }
@@ -132,6 +138,10 @@ public class AvailabilitySetResource extends AzureResource {
         Azure client = createClient();
 
         AvailabilitySet availabilitySet = client.availabilitySets().getById(getId());
+
+        if (availabilitySet == null) {
+            return false;
+        }
 
         setFaultDomainCount(availabilitySet.faultDomainCount());
         setId(availabilitySet.id());
