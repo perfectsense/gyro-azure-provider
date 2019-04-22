@@ -1,7 +1,7 @@
 package gyro.azure.network;
 
 import gyro.core.diff.Diffable;
-import gyro.core.diff.ResourceDiffProperty;
+import gyro.core.resource.ResourceDiffProperty;
 
 import java.util.ArrayList;
 import java.util.HashMap;
