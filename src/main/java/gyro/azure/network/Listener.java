@@ -4,6 +4,7 @@ import com.microsoft.azure.management.network.ApplicationGateway.Update;
 import com.microsoft.azure.management.network.ApplicationGatewayListener;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.diff.Diffable;
+import gyro.core.resource.ResourceDiffProperty;
 
 /**
  * Creates a Listener.
@@ -47,6 +48,7 @@ public class Listener extends Diffable {
     /**
      * Port for the listener to listen to. (Required)
      */
+    @ResourceDiffProperty(updatable = true)
     public Integer getPort() {
         return port;
     }
@@ -58,6 +60,7 @@ public class Listener extends Diffable {
     /**
      * Enable private frontend. Defaults to false.
      */
+    @ResourceDiffProperty(updatable = true)
     public Boolean getPrivateFrontend() {
         if (privateFrontend == null) {
             privateFrontend = false;
