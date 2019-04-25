@@ -26,11 +26,11 @@ import com.microsoft.azure.management.compute.VirtualMachineSizeTypes;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
-import gyro.core.BeamException;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
-import gyro.core.diff.ResourceOutput;
-import gyro.lang.Resource;
+import gyro.core.GyroException;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Resource;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,7 +44,7 @@ import java.util.Set;
  * Example
  * -------
  *
- * .. code-block:: beam
+ * .. code-block:: gyro
  *
  *     azure::virtual-machine virtual-machine-example
  *          virtual-machine-name: "virtual-machine-example"
@@ -654,7 +654,7 @@ public class VirtualMachineResource extends AzureResource {
         }
 
         if (create == null) {
-            throw new BeamException("Invalid config.");
+            throw new GyroException("Invalid config.");
         }
 
         if (!getSecondaryNetworkInterfaceNames().isEmpty()) {

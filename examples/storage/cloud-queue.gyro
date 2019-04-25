@@ -1,4 +1,4 @@
-import ../init as _
+@import ../init as _
 
 azure::resource-group queue-resource-group
     resource-group-name: "queue-resource-group"

@@ -2,13 +2,14 @@ package gyro.azure.network;
 
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.network.Network;
+import com.microsoft.azure.management.network.Subnet;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
-import gyro.core.diff.ResourceOutput;
-import gyro.lang.Resource;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Resource;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,7 +26,7 @@ import java.util.stream.Collectors;
  * Example
  * -------
  *
- * .. code-block:: beam
+ * .. code-block:: gyro
  *
  *     azure::network network-example
  *          network-name: "network-example"
@@ -34,10 +35,16 @@ import java.util.stream.Collectors;
  *               "10.0.0.0/27",
  *               "10.1.0.0/27"
  *          ]
- *          subnets: {
- *              subnet1: "10.0.0.0/28",
- *              subnet2: "10.0.0.16/28"
- *          }
+ *
+ *          subnet
+ *              address-prefix: "10.0.0.0/28"
+ *              name: "subnet1"
+ *          end
+ *
+ *          subnet
+ *              address-prefix: "10.0.0.16/28"
+ *              name: "subnet2"
+ *     end
  *
  *          tags: {
  *              Name: "resource-group-network-example"
@@ -49,7 +56,7 @@ public class NetworkResource extends AzureResource {
     private String networkName;
     private String resourceGroupName;
     private List<String> addressSpaces;
-    private Map<String, String> subnets;
+    private List<SubnetResource> subnet;
     private Map<String, String> tags;
     private String networkId;
 
@@ -92,18 +99,20 @@ public class NetworkResource extends AzureResource {
     }
 
     /**
-     * Subnets for the network as key value pairs.
+     * Subnets for the network.
+     *
+     * @subresource gyro.azure.network.SubnetResource
      */
-    public Map<String, String> getSubnets() {
-        if (subnets == null) {
-            subnets = new HashMap<>();
+    public List<SubnetResource> getSubnet() {
+        if (subnet == null) {
+            subnet = new ArrayList<>();
         }
 
-        return subnets;
+        return subnet;
     }
 
-    public void setSubnets(Map<String, String> subnets) {
-        this.subnets = subnets;
+    public void setSubnet(List<SubnetResource> subnet) {
+        this.subnet = subnet;
     }
 
     @ResourceDiffProperty(updatable = true)
@@ -138,10 +147,12 @@ public class NetworkResource extends AzureResource {
         setAddressSpaces(network.addressSpaces()); // change to list
         setNetworkName(network.name());
 
-        getSubnets().clear();
+        getSubnet().clear();
         if (!network.subnets().isEmpty()) {
-            for (String key : network.subnets().keySet()) {
-                getSubnets().put(key, network.subnets().get(key).addressPrefix());
+            for (Subnet key : network.subnets().values()) {
+                SubnetResource subnetResource = new SubnetResource(key);
+                subnetResource.parent(this);
+                getSubnet().add(subnetResource);
             }
         }
 
@@ -165,7 +176,7 @@ public class NetworkResource extends AzureResource {
 
         //other options
 
-        Network network = withAddressSpace.withSubnets(getSubnets())
+        Network network = withAddressSpace
             .withTags(getTags())
             .create();
 
@@ -206,12 +217,6 @@ public class NetworkResource extends AzureResource {
             for (String addressSpace : addAddressSpaces) {
                 update = update.withAddressSpace(addressSpace);
             }
-
-            update.withSubnets(getSubnets());
-        }
-
-        if (changedProperties.contains("subnets")) {
-            update = update.withSubnets(getSubnets());
         }
 
         if (changedProperties.contains("tags")) {
@@ -246,5 +251,9 @@ public class NetworkResource extends AzureResource {
         }
 
         return sb.toString();
+    }
+
+    Network getNetwork(Azure client) {
+        return client.networks().getByResourceGroup(getResourceGroupName(), getNetworkName());
     }
 }

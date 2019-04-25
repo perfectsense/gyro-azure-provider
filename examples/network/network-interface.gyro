@@ -1,4 +1,4 @@
-import ../init as _
+@import ../init as _
 
 azure::resource-group resource-group-network-interface-example
     resource-group-name: "resource-group-network-interface-example"
@@ -24,10 +24,16 @@ azure::network network-example-interface
          "10.0.0.0/27",
          "10.1.0.0/27"
     ]
-    subnets: {
-        subnet1: "10.0.0.0/28",
-        subnet2: "10.0.0.16/28"
-    }
+
+    subnet
+        address-prefix: "10.0.0.0/28"
+        name: "subnet1"
+    end
+
+    subnet
+        address-prefix: "10.0.0.16/28"
+        name: "subnet2"
+    end
 
     tags: {
         Name: "network-example-interface"

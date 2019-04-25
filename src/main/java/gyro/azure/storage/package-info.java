@@ -2,4 +2,4 @@
 
 package gyro.azure.storage;
 
-import gyro.core.docs.DocGroup;
+import gyro.core.resource.DocGroup;

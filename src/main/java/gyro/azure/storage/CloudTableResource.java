@@ -1,10 +1,11 @@
 package gyro.azure.storage;
 
 import gyro.azure.AzureResource;
-import gyro.core.BeamException;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
-import gyro.lang.Resource;
+
+import gyro.core.GyroException;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.Resource;
+import gyro.core.resource.ResourceDiffProperty;
 
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.CorsRule;
@@ -97,7 +98,7 @@ public class CloudTableResource extends AzureResource {
             }
             return false;
         } catch (StorageException ex) {
-            throw new BeamException(ex.getMessage());
+            throw new GyroException(ex.getMessage());
         }
     }
 
@@ -107,7 +108,7 @@ public class CloudTableResource extends AzureResource {
             CloudTable cloudTable = cloudTable();
             cloudTable.create();
         } catch (StorageException ex) {
-            throw new BeamException(ex.getMessage());
+            throw new GyroException(ex.getMessage());
         }
     }
 
@@ -120,7 +121,7 @@ public class CloudTableResource extends AzureResource {
             CloudTable cloudTable = cloudTable();
             cloudTable.delete();
         } catch (StorageException ex) {
-            throw new BeamException(ex.getMessage());
+            throw new GyroException(ex.getMessage());
         }
     }
 
@@ -138,7 +139,7 @@ public class CloudTableResource extends AzureResource {
             tableClient.uploadServiceProperties(props);
             return tableClient.getTableReference(getCloudTableName());
         } catch (StorageException | URISyntaxException | InvalidKeyException ex) {
-            throw new BeamException(ex.getMessage());
+            throw new GyroException(ex.getMessage());
         }
     }
 }
