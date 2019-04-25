@@ -10,7 +10,7 @@ end
 
 azure::storage-account blob-storage-account-example
     resource-group-name: $(azure::resource-group blob-resource-group | resource-group-name)
-    storage-account-name: "cloudblob"
+    storage-account-name: "cloudblob2"
 
     tags: {
         Name: "cloud-blob-example"
@@ -22,7 +22,7 @@ azure::cloud-blob-container blob-container-example
     cors
         allowed-headers: ["*"]
         allowed-origins: ["GET"]
-        allowed-methods: ["*"]
+        allowed-methods: ["POST"]
         exposed-headers: ["*"]
         max-age: 6
     end
@@ -33,6 +33,6 @@ end
 azure::cloud-blob blob-example
     blob-directory-path: "/path/to/blob"
     container-name: $(azure::cloud-blob-container blob-container-example | container-name)
-    file-path: "gyro-providers/gyro-azure-provider/examples/storage/test-blob-doc.txt"
+    file-path: "examples/storage/test-blob-doc.txt"
     storage-connection: $(azure::storage-account blob-storage-account-example | storage-connection)
 end
