@@ -1,7 +1,7 @@
 package gyro.azure.storage;
 
 import gyro.core.diff.Diffable;
-import gyro.core.diff.ResourceDiffProperty;
+import gyro.core.resource.ResourceDiffProperty;
 
 import com.microsoft.azure.storage.CorsHttpMethods;
 import com.microsoft.azure.storage.CorsRule;
