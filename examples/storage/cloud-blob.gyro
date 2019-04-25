@@ -21,8 +21,8 @@ azure::cloud-blob-container blob-container-example
     container-name: "blobcontainer"
     cors
         allowed-headers: ["*"]
-        allowed-origins: ["GET"]
         allowed-methods: ["POST"]
+        allowed-origins: ["GET"]
         exposed-headers: ["*"]
         max-age: 6
     end
