@@ -401,24 +401,10 @@ public class ApplicationGatewayResource extends AzureResource {
             .define(getApplicationGatewayName()).withRegion(Region.fromName(getRegion()))
             .withExistingResourceGroup(getResourceGroupName());
 
-        ApplicationGateway.DefinitionStages.WithRequestRoutingRuleOrCreate attach;
+        ApplicationGateway.DefinitionStages.WithRequestRoutingRuleOrCreate attach = null;
 
-        if (getPrivateFrontEnd()) {
-            attach = withRequestRoutingRule
-                .defineRequestRoutingRule("Default_rule_gyro_default")
-                .fromPrivateFrontend()
-                .fromFrontendHttpPort(80)
-                .toBackendHttpPort(80)
-                .toBackendIPAddress("10.0.0.0")
-                .attach();
-        } else {
-            attach = withRequestRoutingRule
-                .defineRequestRoutingRule("Default_rule_gyro_default")
-                .fromPublicFrontend()
-                .fromFrontendHttpPort(80)
-                .toBackendHttpPort(80)
-                .toBackendIPAddress("10.0.0.0")
-                .attach();
+        for (RequestRoutingRule requestRoutingRule : getRequestRoutingRule()) {
+            attach = requestRoutingRule.createRequestRoutingRule(withRequestRoutingRule, attach);
         }
 
         ApplicationGateway.DefinitionStages.WithCreate withCreate;
@@ -426,6 +412,26 @@ public class ApplicationGatewayResource extends AzureResource {
             withCreate = attach.withHttp2();
         } else {
             withCreate = attach.withoutHttp2();
+        }
+
+        for (Listener listener : getListener()) {
+            withCreate = listener.createListener(withCreate);
+        }
+
+        for (Backend backend : getBackend()) {
+            withCreate = backend.createBackend(withCreate);
+        }
+
+        for (BackendHttpConfiguration backendHttpConfiguration : getBackendHttpConfiguration()) {
+            withCreate = backendHttpConfiguration.createBackendHttpConfiguration(withCreate);
+        }
+
+        for (RedirectConfiguration redirectConfiguration: getRedirectConfiguration()) {
+            withCreate = redirectConfiguration.createRedirectConfiguration(withCreate);
+        }
+
+        for (Probe probe: getProbe()) {
+            withCreate = probe.createProbe(withCreate);
         }
 
         ApplicationGateway applicationGateway = withCreate.withExistingPublicIPAddress(
@@ -436,96 +442,6 @@ public class ApplicationGatewayResource extends AzureResource {
             .withTags(getTags())
             .withExistingSubnet(getNetworkId(), getSubnet())
             .create();
-
-        setApplicationGatewayId(applicationGateway.id());
-
-        ApplicationGateway.Update update = applicationGateway.update();
-
-        // add relevant rule
-
-        for (Listener listener : getListener()) {
-            update = listener.createListener(update);
-        }
-
-        for (Backend backend : getBackend()) {
-            update = backend.createBackend(update);
-        }
-
-        for (BackendHttpConfiguration backendHttpConfiguration : getBackendHttpConfiguration()) {
-            update = backendHttpConfiguration.createBackendHttpConfiguration(update);
-        }
-
-        for (RedirectConfiguration redirectConfiguration: getRedirectConfiguration()) {
-            update = redirectConfiguration.createRedirectConfiguration(update);
-        }
-
-        for (Probe probe: getProbe()) {
-            update = probe.createProbe(update);
-        }
-
-        for (RequestRoutingRule requestRoutingRule : getRequestRoutingRule()) {
-            update = requestRoutingRule.createRequestRoutingRule(update);
-        }
-
-        applicationGateway = update.apply();
-
-        // remove default rule
-
-        Set<String> requestRoutingRuleNames = getRequestRoutingRule().stream()
-            .map(RequestRoutingRule::getRuleName).collect(Collectors.toSet());
-
-        List<String> requestRoutingRuleDeleteList = applicationGateway
-            .requestRoutingRules().keySet().stream()
-            .filter(o -> !requestRoutingRuleNames.contains(o))
-            .collect(Collectors.toList());
-
-        update = applicationGateway.update();
-
-        for (String requestRoutingRuleName : requestRoutingRuleDeleteList) {
-            update = update.withoutRequestRoutingRule(requestRoutingRuleName);
-        }
-
-        applicationGateway = update.apply();
-
-        update = applicationGateway.update();
-
-        // remove default listeners, backend and backendHttpConfig
-
-        Set<String> listenerNames = getListener().stream().map(Listener::getListenerName).collect(Collectors.toSet());
-
-        List<String> listenerDeleteList = applicationGateway
-            .listeners().keySet().stream()
-            .filter(o -> !listenerNames.contains(o))
-            .collect(Collectors.toList());
-
-        for (String listenerName : listenerDeleteList) {
-            update = update.withoutListener(listenerName);
-        }
-
-        Set<String> backendNames = getBackend().stream().map(Backend::getBackendName).collect(Collectors.toSet());
-
-        List<String> backendDeleteList = applicationGateway
-            .backends().keySet().stream()
-            .filter(o -> !backendNames.contains(o))
-            .collect(Collectors.toList());
-
-        for (String backendName : backendDeleteList) {
-            update = update.withoutBackend(backendName);
-        }
-
-        Set<String> backendHttpConfigurationNames = getBackendHttpConfiguration().stream()
-            .map(BackendHttpConfiguration::getBackendHttpConfigurationName).collect(Collectors.toSet());
-
-        List<String> backendHttpConfigurationDeleteList = applicationGateway
-            .backendHttpConfigurations().keySet().stream()
-            .filter(o -> !backendHttpConfigurationNames.contains(o))
-            .collect(Collectors.toList());
-
-        for (String backendHttpConfigurationName : backendHttpConfigurationDeleteList) {
-            update = update.withoutBackendHttpConfiguration(backendHttpConfigurationName);
-        }
-
-        applicationGateway = update.apply();
 
         loadApplicationGateway(applicationGateway);
     }

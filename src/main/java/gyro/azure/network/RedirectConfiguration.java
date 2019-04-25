@@ -4,6 +4,8 @@ import com.microsoft.azure.management.network.ApplicationGateway.Update;
 import com.microsoft.azure.management.network.ApplicationGatewayRedirectConfiguration;
 import com.microsoft.azure.management.network.ApplicationGatewayRedirectConfiguration.UpdateDefinitionStages.WithTarget;
 import com.microsoft.azure.management.network.ApplicationGatewayRedirectType;
+import com.microsoft.azure.management.network.ApplicationGateway.DefinitionStages.WithCreate;
+import com.microsoft.azure.management.network.ApplicationGatewayRedirectConfiguration.DefinitionStages;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.diff.Diffable;
 import gyro.core.resource.ResourceDiffProperty;
@@ -147,6 +149,42 @@ public class RedirectConfiguration extends Diffable {
         }
 
         return sb.toString();
+    }
+
+    WithCreate createRedirectConfiguration(WithCreate attach) {
+        DefinitionStages.WithTarget<WithCreate> withCreateWithTarget = attach.defineRedirectConfiguration(getRedirectConfigurationName())
+            .withType(ApplicationGatewayRedirectType.fromString(getType()));
+
+        if (!ObjectUtils.isBlank(getTargetListener())) {
+            if (getIncludePath() && getIncludeQueryString()) {
+                attach = withCreateWithTarget.withTargetListener(getTargetListener())
+                    .withPathIncluded()
+                    .withQueryStringIncluded()
+                    .attach();
+            } else if (getIncludePath()) {
+                attach = withCreateWithTarget.withTargetListener(getTargetListener())
+                    .withPathIncluded()
+                    .attach();
+            } else if (getIncludeQueryString()) {
+                attach = withCreateWithTarget.withTargetListener(getTargetListener())
+                    .withQueryStringIncluded()
+                    .attach();
+            } else {
+                attach = withCreateWithTarget.withTargetListener(getTargetListener())
+                    .attach();
+            }
+        } else {
+            if (getIncludeQueryString()) {
+                attach = withCreateWithTarget.withTargetUrl(getTargetUrl())
+                    .withQueryStringIncluded()
+                    .attach();
+            } else {
+                attach = withCreateWithTarget.withTargetUrl(getTargetUrl())
+                    .attach();
+            }
+        }
+
+        return attach;
     }
 
     Update createRedirectConfiguration(Update update) {

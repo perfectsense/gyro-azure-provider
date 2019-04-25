@@ -2,6 +2,8 @@ package gyro.azure.network;
 
 import com.microsoft.azure.management.network.ApplicationGateway.Update;
 import com.microsoft.azure.management.network.ApplicationGatewayBackendHttpConfiguration;
+import com.microsoft.azure.management.network.ApplicationGateway.DefinitionStages.WithCreate;
+import com.microsoft.azure.management.network.ApplicationGatewayBackendHttpConfiguration.DefinitionStages.WithAttach;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.diff.Diffable;
 import gyro.core.resource.ResourceDiffProperty;
@@ -193,6 +195,43 @@ public class BackendHttpConfiguration extends Diffable {
         }
 
         return sb.toString();
+    }
+
+    WithCreate createBackendHttpConfiguration(WithCreate attach) {
+        WithAttach<WithCreate> withCreateWithAttach = attach.defineBackendHttpConfiguration(getBackendHttpConfigurationName())
+            .withPort(getPort());
+
+        if (getEnableAffinityCookie()) {
+            withCreateWithAttach = withCreateWithAttach.withCookieBasedAffinity();
+        }
+
+        if (!ObjectUtils.isBlank(getCookieName())) {
+            withCreateWithAttach = withCreateWithAttach.withAffinityCookieName(getCookieName());
+        }
+
+        if (getConnectionDrainingTimeout() > 0) {
+            withCreateWithAttach = withCreateWithAttach.withConnectionDrainingTimeoutInSeconds(getConnectionDrainingTimeout());
+        }
+
+        if (!ObjectUtils.isBlank(getProbe())) {
+            withCreateWithAttach = withCreateWithAttach.withProbe(getProbe());
+        }
+
+        if (!ObjectUtils.isBlank(getBackendPath())) {
+            withCreateWithAttach = withCreateWithAttach.withPath(getBackendPath());
+        }
+
+        if (!ObjectUtils.isBlank(getHostHeader())) {
+            withCreateWithAttach = withCreateWithAttach.withHostHeader(getHostHeader());
+        }
+
+        if (getHostHeaderFromBackend()) {
+            withCreateWithAttach = withCreateWithAttach.withHostHeaderFromBackend();
+        }
+
+        attach = withCreateWithAttach.attach();
+
+        return attach;
     }
 
     Update createBackendHttpConfiguration(Update update) {

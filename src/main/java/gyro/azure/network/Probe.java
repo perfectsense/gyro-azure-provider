@@ -5,6 +5,7 @@ import com.microsoft.azure.management.network.ApplicationGatewayProbe;
 import com.microsoft.azure.management.network.ApplicationGatewayProbe.UpdateDefinitionStages.WithProtocol;
 import com.microsoft.azure.management.network.ApplicationGatewayProbe.UpdateDefinitionStages.WithAttach;
 import com.microsoft.azure.management.network.ApplicationGatewayProtocol;
+import com.microsoft.azure.management.network.ApplicationGateway.DefinitionStages.WithCreate;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.diff.Diffable;
 import gyro.core.resource.ResourceDiffProperty;
@@ -205,6 +206,32 @@ public class Probe extends Diffable {
         }
 
         return sb.toString();
+    }
+
+    WithCreate createProbe(WithCreate attach) {
+        ApplicationGatewayProbe.DefinitionStages.WithProtocol<WithCreate> attachWithProtocol = attach.defineProbe(getProbeName())
+            .withHost(getHostName()).withPath(getPath());
+
+        ApplicationGatewayProbe.DefinitionStages.WithAttach<WithCreate> withCreateWithAttach;
+
+        if (getHttpsProtocol()) {
+            withCreateWithAttach = attachWithProtocol.withHttps().withTimeoutInSeconds(getTimeout());
+        } else {
+            withCreateWithAttach = attachWithProtocol.withHttp().withTimeoutInSeconds(getTimeout());
+        }
+
+        withCreateWithAttach = withCreateWithAttach.withRetriesBeforeUnhealthy(getUnhealthyThreshold())
+            .withTimeBetweenProbesInSeconds(getInterval());
+
+        if (!getHttpResponseCodes().isEmpty()) {
+            attach = withCreateWithAttach.withHealthyHttpResponseStatusCodeRanges(new HashSet<>(getHttpResponseCodes()))
+                .withHealthyHttpResponseBodyContents(getHttpResponseBodyMatch())
+                .attach();
+        } else {
+            attach = withCreateWithAttach.attach();
+        }
+
+        return attach;
     }
 
     Update createProbe(Update update) {

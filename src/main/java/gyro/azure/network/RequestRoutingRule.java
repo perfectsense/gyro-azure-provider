@@ -3,6 +3,9 @@ package gyro.azure.network;
 import com.microsoft.azure.management.network.ApplicationGateway.Update;
 import com.microsoft.azure.management.network.ApplicationGatewayRequestRoutingRule;
 import com.microsoft.azure.management.network.ApplicationGatewayRequestRoutingRule.UpdateDefinitionStages.WithBackendHttpConfigOrRedirect;
+import com.microsoft.azure.management.network.ApplicationGatewayRequestRoutingRule.DefinitionStages;
+import com.microsoft.azure.management.network.ApplicationGateway.DefinitionStages.WithRequestRoutingRuleOrCreate;
+import com.microsoft.azure.management.network.ApplicationGateway.DefinitionStages.WithRequestRoutingRule;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.diff.Diffable;
 import gyro.core.resource.ResourceDiffProperty;
@@ -116,6 +119,27 @@ public class RequestRoutingRule extends Diffable {
         }
 
         return sb.toString();
+    }
+
+    WithRequestRoutingRuleOrCreate createRequestRoutingRule(WithRequestRoutingRule preAttach, WithRequestRoutingRuleOrCreate attach) {
+        DefinitionStages.WithBackendHttpConfigOrRedirect<WithRequestRoutingRuleOrCreate> partialAttach;
+        if (attach == null) {
+            partialAttach = preAttach.defineRequestRoutingRule(getRuleName()).fromListener(getListener());
+        } else {
+            partialAttach = attach.defineRequestRoutingRule(getRuleName())
+                .fromListener(getListener());
+        }
+
+        if (!ObjectUtils.isBlank(getRedirectConfiguration())) {
+            attach = partialAttach.withRedirectConfiguration(getRedirectConfiguration())
+                .attach();
+        } else {
+            attach = partialAttach.toBackendHttpConfiguration(getBackendHttpConfiguration())
+                .toBackend(getBackend())
+                .attach();
+        }
+
+        return attach;
     }
 
     Update createRequestRoutingRule(Update update) {

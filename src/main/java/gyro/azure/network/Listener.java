@@ -1,5 +1,6 @@
 package gyro.azure.network;
 
+import com.microsoft.azure.management.network.ApplicationGateway.DefinitionStages.WithCreate;
 import com.microsoft.azure.management.network.ApplicationGateway.Update;
 import com.microsoft.azure.management.network.ApplicationGatewayListener;
 import com.psddev.dari.util.ObjectUtils;
@@ -89,6 +90,22 @@ public class Listener extends Diffable {
         }
 
         return sb.toString();
+    }
+
+    WithCreate createListener(WithCreate attach) {
+        if (getPrivateFrontend()) {
+            attach = attach.defineListener(getListenerName())
+                .withPrivateFrontend()
+                .withFrontendPort(getPort())
+                .attach();
+        } else {
+            attach = attach.defineListener(getListenerName())
+                .withPublicFrontend()
+                .withFrontendPort(getPort())
+                .attach();
+        }
+
+        return attach;
     }
 
     Update createListener(Update update) {

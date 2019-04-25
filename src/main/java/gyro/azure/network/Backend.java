@@ -4,6 +4,7 @@ import com.microsoft.azure.management.network.ApplicationGateway;
 import com.microsoft.azure.management.network.ApplicationGateway.Update;
 import com.microsoft.azure.management.network.ApplicationGatewayBackend;
 import com.microsoft.azure.management.network.ApplicationGatewayBackend.UpdateDefinitionStages.WithAttach;
+import com.microsoft.azure.management.network.ApplicationGateway.DefinitionStages.WithCreate;
 import com.microsoft.azure.management.network.ApplicationGatewayBackendAddress;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.diff.Diffable;
@@ -104,6 +105,20 @@ public class Backend extends Diffable {
         }
 
         return sb.toString();
+    }
+
+    WithCreate createBackend(WithCreate attach) {
+        ApplicationGatewayBackend.DefinitionStages.Blank<WithCreate> withCreateBlank = attach.defineBackend(getBackendName());
+
+        for (String ipAddress : getIpAddresses()) {
+            attach = withCreateBlank.withIPAddress(ipAddress).attach();
+        }
+
+        for (String fqdn : getFqdns()) {
+            attach = withCreateBlank.withFqdn(fqdn).attach();
+        }
+
+        return attach;
     }
 
     Update createBackend(Update update) {
