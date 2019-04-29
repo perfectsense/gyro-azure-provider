@@ -1,13 +1,12 @@
 package gyro.azure.network;
 
 import gyro.azure.AzureResource;
-import gyro.core.diff.ResourceDiffProperty;
-import gyro.core.diff.ResourceName;
-import gyro.core.diff.ResourceOutput;
-import gyro.lang.Resource;
+import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Resource;
 
 import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.network.Network;
 import com.microsoft.azure.management.network.Route;
 import com.microsoft.azure.management.network.RouteNextHopType;
 import com.microsoft.azure.management.network.RouteTable;
@@ -26,21 +25,18 @@ import java.util.Set;
  * Example
  * -------
  *
- * .. code-block:: beam
+ * .. code-block:: gyro
  *
  *     azure::route-table route-table-example
  *          bgp-route-propagation-disabled: true
  *          name: "route-table-example"
  *          resource-group-name: $(azure::resource-group resource-group-network-example | resource-group-name)
- *          routes
+ *          route
  *              destination-address-prefix: "10.0.1.0/24"
  *              name: "test-route"
  *              next-hop-type: "VirtualAppliance"
  *              next-hop-ip-address: "10.0.2.4"
  *          end
- *          subnet-ids: {
- *              subnet2: $(azure::network network-example | network-id)
- *          }
  *          tags: {
  *              Name: "route-table-example"
  *          }
@@ -53,8 +49,7 @@ public class RouteTableResource extends AzureResource {
     private String id;
     private String name;
     private String resourceGroupName;
-    private List<Routes> routes;
-    private Map<String, String> subnets;
+    private List<gyro.azure.network.Route> route;
     private Map<String, String> tags;
 
     /**
@@ -108,16 +103,16 @@ public class RouteTableResource extends AzureResource {
      * The routes of the route table. (Optional)
      */
     @ResourceDiffProperty(updatable = true)
-    public List<Routes> getRoutes() {
-        if (routes == null) {
-            routes = new ArrayList<>();
+    public List<gyro.azure.network.Route> getRoute() {
+        if (route == null) {
+            route = new ArrayList<>();
         }
 
-        return routes;
+        return route;
     }
 
-    public void setRoutes(List<Routes> routes) {
-        this.routes = routes;
+    public void setRoute(List<gyro.azure.network.Route> route) {
+        this.route = route;
     }
 
     /**
@@ -145,7 +140,7 @@ public class RouteTableResource extends AzureResource {
         setBgpRoutePropagationDisabled(routeTable.isBgpRoutePropagationDisabled());
 
         for (Map.Entry<String, Route> routes : routeTable.routes().entrySet()) {
-            getRoutes().add(new Routes(routes.getValue()));
+            getRoute().add(new gyro.azure.network.Route(routes.getValue()));
         }
 
         setTags(routeTable.tags());
@@ -167,7 +162,7 @@ public class RouteTableResource extends AzureResource {
             withCreate.withDisableBgpRoutePropagation();
         }
 
-        for (Routes route : getRoutes()) {
+        for (gyro.azure.network.Route route : getRoute()) {
             WithNextHopType<RouteTable.DefinitionStages.WithCreate> withCreateWithNextHopType;
             withCreateWithNextHopType = withCreate.defineRoute(route.getName())
                     .withDestinationAddressPrefix(route.getDestinationAddressPrefix());
@@ -189,11 +184,11 @@ public class RouteTableResource extends AzureResource {
 
         RouteTableResource currentResource = (RouteTableResource) current;
 
-        List<Routes> additions = new ArrayList<>(getRoutes());
-        additions.removeAll(currentResource.getRoutes());
+        List<gyro.azure.network.Route> additions = new ArrayList<>(getRoute());
+        additions.removeAll(currentResource.getRoute());
 
-        List<Routes> subtractions = new ArrayList<>(currentResource.getRoutes());
-        subtractions.removeAll(getRoutes());
+        List<gyro.azure.network.Route> subtractions = new ArrayList<>(currentResource.getRoute());
+        subtractions.removeAll(getRoute());
 
         RouteTable.Update update = client.routeTables()
                 .getById(getId())
@@ -206,7 +201,7 @@ public class RouteTableResource extends AzureResource {
         }
 
         Route.UpdateDefinitionStages.WithNextHopType<RouteTable.Update> updateWithNextHopType;
-        for (Routes route : additions) {
+        for (gyro.azure.network.Route route : additions) {
             updateWithNextHopType =
                     update.defineRoute(route.getName())
                     .withDestinationAddressPrefix(route.getDestinationAddressPrefix());
@@ -217,11 +212,11 @@ public class RouteTableResource extends AzureResource {
             }
         }
 
-        for (Routes route : subtractions) {
+        for (gyro.azure.network.Route route : subtractions) {
             update.withoutRoute(route.getName());
         }
 
-        for (Routes route : getRoutes()) {
+        for (gyro.azure.network.Route route : getRoute()) {
             if (!additions.contains(route) && !subtractions.contains(route)) {
                 update.updateRoute(route.getName())
                         .withNextHopToVirtualAppliance(route.getNextHopIpAddress())

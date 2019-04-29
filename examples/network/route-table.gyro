@@ -1,44 +1,44 @@
-import ../init as _
+@import ../init as _
 
-azure::resource-group resource-group-network-example
+azure::resource-group resource-group-route-table-example
     resource-group-name: "resource-group-route-table-example"
 
     tags: {
-        Name: "resource-group-network-example"
+        Name: "resource-group-route-table-example"
     }
 end
 
 azure::route-table route-table-example
     bgp-route-propagation-disabled: true
     name: "route-table-example"
-    resource-group-name: $(azure::resource-group resource-group-network-example | resource-group-name)
+    resource-group-name: $(azure::resource-group resource-group-route-table-example | resource-group-name)
 
-    routes
+    route
         destination-address-prefix: "10.0.1.0/24"
         name: "test-route-1"
         next-hop-type: "VirtualAppliance"
         next-hop-ip-address: "10.0.2.4"
     end
 
-    routes
+    route
         destination-address-prefix: "10.0.0.0/16"
        name: "test-route-2"
         next-hop-type: "VirtualNetworkGateway"
     end
 
-    routes
+    route
         destination-address-prefix: "10.1.0.0/16"
         name: "test-route-3"
         next-hop-type: "None"
     end
 
-    routes
+    route
         destination-address-prefix: "10.10.0.0/24"
         name: "test-route-4"
         next-hop-type: "VnetLocal"
     end
 
-    routes
+    route
         destination-address-prefix: "0.0.0.0/0"
         name: "test-route-5"
         next-hop-type: "Internet"
@@ -51,7 +51,7 @@ end
 
 azure::network network-example
     network-name: "network-example"
-    resource-group-name: $(azure::resource-group resource-group-network-example | resource-group-name)
+    resource-group-name: $(azure::resource-group resource-group-route-table-example | resource-group-name)
     address-spaces:  [
          "10.0.0.0/27",
          "10.1.0.0/27"

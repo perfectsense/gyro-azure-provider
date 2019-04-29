@@ -1,7 +1,7 @@
 package gyro.azure;
 
-import gyro.core.BeamException;
-import gyro.lang.Resource;
+import gyro.core.GyroException;
+import gyro.core.resource.Resource;
 import com.microsoft.azure.management.Azure;
 import com.microsoft.rest.LogLevel;
 
@@ -26,7 +26,7 @@ public abstract class AzureResource extends Resource {
                     .authenticate(new File(azureCredentials.getCredentialFilePath()))
                     .withDefaultSubscription();
             } catch (IOException e) {
-                throw new BeamException("File not found");
+                throw new GyroException("File not found");
             }
         }
 
