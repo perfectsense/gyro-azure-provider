@@ -1,5 +1,7 @@
 package gyro.azure.cosmosdb;
 
+import com.microsoft.azure.management.cosmosdb.Location;
+import com.microsoft.azure.management.cosmosdb.implementation.FailoverPolicyInner;
 import gyro.azure.AzureResource;
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceDiffProperty;
@@ -14,8 +16,8 @@ import com.microsoft.azure.management.cosmosdb.VirtualNetworkRule;
 import com.microsoft.azure.management.cosmosdb.CosmosDBAccount.DefinitionStages.WithCreate;
 import com.microsoft.azure.management.cosmosdb.CosmosDBAccount.DefinitionStages.WithConsistencyPolicy;
 import com.microsoft.azure.management.cosmosdb.CosmosDBAccount.DefinitionStages.WithKind;
-import com.microsoft.azure.management.cosmosdb.CosmosDBAccount.UpdateStages.WithOptionals;
 import com.microsoft.azure.management.cosmosdb.CosmosDBAccount.DefinitionStages.WithWriteReplication;
+import com.microsoft.azure.management.cosmosdb.CosmosDBAccount.UpdateStages.WithOptionals;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 
 import java.util.ArrayList;
@@ -64,7 +66,7 @@ public class CosmosDBAccountResource extends AzureResource {
     private String resourceGroupName;
     private Map<String, String> tags;
     private List<String> virtualNetworkRules;
-    private List<String> writeReplicationRegions;
+    private String writeReplicationRegion;
 
     /**
      * The capabilities of the account. (Optional)
@@ -225,16 +227,12 @@ public class CosmosDBAccountResource extends AzureResource {
      * Sets the read location. (Optional)
      */
     @ResourceDiffProperty(updatable = true)
-    public List<String> getWriteReplicationRegions() {
-        if (writeReplicationRegions == null) {
-            writeReplicationRegions = new ArrayList<>();
-        }
-
-        return writeReplicationRegions;
+    public String getWriteReplicationRegion() {
+        return writeReplicationRegion;
     }
 
-    public void setWriteReplicationRegions(List<String> writeReplicationRegions) {
-        this.writeReplicationRegions = writeReplicationRegions;
+    public void setWriteReplicationRegion(String writeReplicationRegion) {
+        this.writeReplicationRegion = writeReplicationRegion;
     }
 
     @Override
@@ -253,6 +251,7 @@ public class CosmosDBAccountResource extends AzureResource {
         setConsistencyLevel(cosmosAccount.consistencyPolicy().defaultConsistencyLevel().toString());
         setId(cosmosAccount.id());
         setIpRangeFilter(cosmosAccount.ipRangeFilter());
+
         if (getConsistencyLevel().equals("BoundedStateless")) {
             setMaxInterval(cosmosAccount.consistencyPolicy().maxIntervalInSeconds());
             setMaxStalenessPrefix(cosmosAccount.consistencyPolicy().maxStalenessPrefix().toString());
@@ -267,8 +266,7 @@ public class CosmosDBAccountResource extends AzureResource {
         getVirtualNetworkRules().clear();
         cosmosAccount.virtualNetworkRules().forEach(rule -> getVirtualNetworkRules().add(rule.id()));
 
-        getWriteReplicationRegions().clear();
-        cosmosAccount.writableReplications().forEach(loc -> getWriteReplicationRegions().add(loc.locationName()));
+        cosmosAccount.writableReplications().forEach(loc -> setWriteReplicationRegion(loc.locationName()));
 
         return true;
     }
@@ -309,15 +307,15 @@ public class CosmosDBAccountResource extends AzureResource {
         WithCreate withCreate = null;
         CosmosDBAccount.DefinitionStages.WithWriteReplication withWriteReplication;
         if (getConsistencyLevel().equals("Bounded Staleness")) {
-            withWriteReplication = withConsistencyPolicy
-                    .withBoundedStalenessConsistency(Long.parseLong(getMaxStalenessPrefix()), getMaxInterval());
-            withCreate = addWriteReplicationRegions(withWriteReplication);
+            withCreate = withConsistencyPolicy
+                    .withBoundedStalenessConsistency(Long.parseLong(getMaxStalenessPrefix()), getMaxInterval())
+                    .withWriteReplication(Region.fromName(getWriteReplicationRegion()));
         } else if (consistencyLevel.equals("Eventual")) {
-            withWriteReplication = withConsistencyPolicy.withEventualConsistency();
-            withCreate = addWriteReplicationRegions(withWriteReplication);
+            withCreate = withConsistencyPolicy.withEventualConsistency()
+                        .withWriteReplication(Region.fromName(getWriteReplicationRegion()));
         } else if (consistencyLevel.equals("Session")) {
-            withWriteReplication = withConsistencyPolicy.withSessionConsistency();
-            withCreate = addWriteReplicationRegions(withWriteReplication);
+            withCreate = withConsistencyPolicy.withSessionConsistency()
+                        .withWriteReplication(Region.fromName(getWriteReplicationRegion()));
         } else if (consistencyLevel.equals("Strong")) {
             withCreate = withConsistencyPolicy.withStrongConsistency();
         }
@@ -396,14 +394,6 @@ public class CosmosDBAccountResource extends AzureResource {
     @Override
     public String toDisplayString() {
         return "cosmos database " + getName();
-    }
-
-    private WithCreate addWriteReplicationRegions(WithWriteReplication withWriteReplication) {
-        WithCreate withCreate = null;
-        for (String writeRegion : getWriteReplicationRegions()) {
-            withCreate = withWriteReplication.withWriteReplication(Region.fromName(writeRegion));
-        }
-        return withCreate;
     }
 
     private List<VirtualNetworkRule> toVirtualNetworkRules() {
