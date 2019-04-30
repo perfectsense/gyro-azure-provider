@@ -258,8 +258,17 @@ public class CosmosDBAccountResource extends AzureResource {
         }
         setName(cosmosAccount.name());
 
-        getReadReplicationRegions().clear();
-        cosmosAccount.readableReplications().forEach(loc -> getReadReplicationRegions().add(loc.locationName()));
+        // if the write regions is placed first in the list, then load everything.
+        if (getReadReplicationRegions().get(0).equals(getWriteReplicationRegion())) {
+            getReadReplicationRegions().clear();
+            cosmosAccount.readableReplications().forEach(loc -> getReadReplicationRegions().add(loc.locationName()));
+        } else {
+            // if not, omit the first element of the read replications list
+            getReadReplicationRegions().clear();
+            for (int i = 1; i < cosmosAccount.readableReplications().size(); i++) {
+                getReadReplicationRegions().add(cosmosAccount.readableReplications().get(i).locationName());
+            }
+        }
 
         setTags(cosmosAccount.tags());
 
