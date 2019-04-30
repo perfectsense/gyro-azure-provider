@@ -1,6 +1,5 @@
 package gyro.azure.cosmosdb;
 
-import com.microsoft.azure.management.cosmosdb.Location;
 import gyro.azure.AzureResource;
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceDiffProperty;
