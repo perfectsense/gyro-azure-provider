@@ -219,16 +219,15 @@ public class SubnetResource extends AzureResource {
             for (Region region : entry.getValue()) {
                 regions.add(region.toString());
             }
-            endpoints.put(entry.getKey().toString(), regions);
+            endpoints.put(entry.getKey().toString().split("[.]")[1], regions);
         }
-
         return endpoints;
     }
 
     private String endpointType(String endpoint) {
-        if (endpoint.equals("MICROSOFT_AZURECOSMOSDB")) {
+        if (endpoint.equals("AzureCosmosDB")) {
             return "Microsoft.AzureCosmosDB";
-        } else if (endpoint.equals("MICROSOFT_SQL")) {
+        } else if (endpoint.equals("Sql")) {
             return "Microsoft.Sql";
         } else {
             return "Microsoft.Storage";
