@@ -5,7 +5,6 @@ plugins {
 
 if (System.getenv('TRAVIS_BRANCH') && System.getenv('TRAVIS_PULL_REQUEST') == 'false') {
     defaultTasks 'build', 'publish'
-
 } else {
     defaultTasks 'build', 'publishToMavenLocal'
 }
@@ -35,7 +34,7 @@ configurations {
     gyroDoclet
 }
 
-def azureSdkVersion = '1.19.0'
+def azureSdkVersion = '1.21.0'
 
 dependencies {
     api 'gyro:gyro-core:0.14-SNAPSHOT'
