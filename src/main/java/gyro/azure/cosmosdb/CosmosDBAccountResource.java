@@ -1,7 +1,5 @@
 package gyro.azure.cosmosdb;
 
-import com.microsoft.azure.management.cosmosdb.Location;
-import com.microsoft.azure.management.cosmosdb.implementation.FailoverPolicyInner;
 import gyro.azure.AzureResource;
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceDiffProperty;
@@ -16,7 +14,6 @@ import com.microsoft.azure.management.cosmosdb.VirtualNetworkRule;
 import com.microsoft.azure.management.cosmosdb.CosmosDBAccount.DefinitionStages.WithCreate;
 import com.microsoft.azure.management.cosmosdb.CosmosDBAccount.DefinitionStages.WithConsistencyPolicy;
 import com.microsoft.azure.management.cosmosdb.CosmosDBAccount.DefinitionStages.WithKind;
-import com.microsoft.azure.management.cosmosdb.CosmosDBAccount.DefinitionStages.WithWriteReplication;
 import com.microsoft.azure.management.cosmosdb.CosmosDBAccount.UpdateStages.WithOptionals;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 
@@ -108,6 +105,9 @@ public class CosmosDBAccountResource extends AzureResource {
         this.consistencyLevel = consistencyLevel;
     }
 
+    /**
+     * The output id of the database.
+     */
     @ResourceOutput
     public String getId() {
         return id;
@@ -130,7 +130,7 @@ public class CosmosDBAccountResource extends AzureResource {
     }
 
     /**
-     * The max interval, in seconds. Used with bounded staleness consistency policy. (Optional)
+     * The max interval, in seconds. Used with bounded staleness consistency policy. (Conditional)
      */
     @ResourceDiffProperty(updatable = true)
     public Integer getMaxInterval() {
@@ -142,7 +142,7 @@ public class CosmosDBAccountResource extends AzureResource {
     }
 
     /**
-     * The max staleness prefix. Used with bounded staleness consistency policy. (Optional)
+     * The max staleness prefix. Used with bounded staleness consistency policy. (Conditional)
      */
     @ResourceDiffProperty(updatable = true)
     public String getMaxStalenessPrefix() {
@@ -165,7 +165,7 @@ public class CosmosDBAccountResource extends AzureResource {
     }
 
     /**
-     * Sets the write location regions. (Optional)
+     * Sets the read location regions. (Optional)
      */
     @ResourceDiffProperty(updatable = true)
     public List<String> getReadReplicationRegions() {
@@ -224,7 +224,8 @@ public class CosmosDBAccountResource extends AzureResource {
     }
 
     /**
-     * Sets the read location. (Optional)
+     * Sets the write location. Used with BoundedStaleness, Eventual, and Session
+     * consistency level (Conditional)
      */
     @ResourceDiffProperty(updatable = true)
     public String getWriteReplicationRegion() {
@@ -258,7 +259,7 @@ public class CosmosDBAccountResource extends AzureResource {
         }
         setName(cosmosAccount.name());
 
-        // if the write regions is placed first in the list, then load everything.
+        // if the write regions is placed first in the list, then load everything
         if (getReadReplicationRegions().get(0).equals(getWriteReplicationRegion())) {
             getReadReplicationRegions().clear();
             cosmosAccount.readableReplications().forEach(loc -> getReadReplicationRegions().add(loc.locationName()));
@@ -314,7 +315,6 @@ public class CosmosDBAccountResource extends AzureResource {
         }
 
         WithCreate withCreate = null;
-        CosmosDBAccount.DefinitionStages.WithWriteReplication withWriteReplication;
         if (getConsistencyLevel().equals("Bounded Staleness")) {
             withCreate = withConsistencyPolicy
                     .withBoundedStalenessConsistency(Long.parseLong(getMaxStalenessPrefix()), getMaxInterval())
