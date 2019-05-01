@@ -1,5 +1,3 @@
-@import ../init as _
-
 azure::resource-group cloud-file-resource-group-example
     resource-group-name: "cloud-file-resource-group"
 

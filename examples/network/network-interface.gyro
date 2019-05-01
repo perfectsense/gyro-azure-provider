@@ -1,5 +1,3 @@
-@import ../init as _
-
 azure::resource-group resource-group-network-interface-example
     resource-group-name: "resource-group-network-interface-example"
 

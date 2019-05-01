@@ -1,5 +1,3 @@
-@import ../init as _
-
 azure::resource-group blob-resource-group
     resource-group-name: "blob-resource-group"
 
