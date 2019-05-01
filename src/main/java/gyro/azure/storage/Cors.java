@@ -33,15 +33,17 @@ public class Cors extends Diffable {
     private List<String> allowedOrigins;
     private List<String> exposedHeaders;
     private Integer maxAge;
+    private String type;
 
     public Cors() {}
 
-    public Cors(CorsRule rule) {
+    public Cors(CorsRule rule, String type) {
         setAllowedHeaders(rule.getAllowedHeaders());
         setAllowedOrigins(rule.getAllowedOrigins());
         rule.getAllowedMethods().forEach(r -> getAllowedMethods().add(r.name()));
         setExposedHeaders(rule.getExposedHeaders());
         setMaxAge(rule.getMaxAgeInSeconds());
+        setType(type);
     }
 
     /**
@@ -120,13 +122,24 @@ public class Cors extends Diffable {
         this.maxAge = maxAge;
     }
 
+    /**
+     * Specifies which service the rule belongs to. Options include blob, file, queue, and table. (Required)
+     */
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
     public String primaryKey() {
-        return String.format("%s/%s/%s/%s/%s", getAllowedHeaders(), getAllowedMethods(),
-                getAllowedOrigins(), getExposedHeaders(), getMaxAge());
+        return String.format("%s/%s/%s/%s/%s/%s", getAllowedHeaders(), getAllowedMethods(),
+                getAllowedOrigins(), getExposedHeaders(), getMaxAge(), getType());
     }
 
     public String toDisplayString() {
-        return String.format("cors rule %s from %s, header %s", getAllowedMethods(), getAllowedOrigins(), getAllowedHeaders());
+        return String.format("%s cors rule %s from %s, header %s", getType(), getAllowedMethods(), getAllowedOrigins(), getAllowedHeaders());
     }
 
     public CorsRule toCors() {
