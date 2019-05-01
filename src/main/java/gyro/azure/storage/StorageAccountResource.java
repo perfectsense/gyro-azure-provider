@@ -234,18 +234,16 @@ public class StorageAccountResource extends AzureResource {
             for (Cors rule : getCorsRule()) {
                 if (rule.getType().equalsIgnoreCase("blob")) {
                     blobProperties.getCors().getCorsRules().add(rule.toCors());
-                }
-
-                if (rule.getType().equalsIgnoreCase("file")) {
+                } else if (rule.getType().equalsIgnoreCase("file")) {
                     fileProperties.getCors().getCorsRules().add(rule.toCors());
-                }
-
-                if (rule.getType().equalsIgnoreCase("queue")) {
+                } else if (rule.getType().equalsIgnoreCase("queue")) {
                     queueProperties.getCors().getCorsRules().add(rule.toCors());
-                }
-
-                if (rule.getType().equalsIgnoreCase("table")) {
+                } else if (rule.getType().equalsIgnoreCase("table")) {
                     tableProperties.getCors().getCorsRules().add(rule.toCors());
+                } else {
+                    throw new GyroException("Invalid storage service. " +
+                            "Valid storage service options include" +
+                            "blob, file, queue, and table");
                 }
             }
 
