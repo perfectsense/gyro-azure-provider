@@ -5,19 +5,14 @@ import gyro.azure.AzureResource;
 import gyro.core.GyroException;
 import gyro.core.resource.ResourceName;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceDiffProperty;
 
 import com.microsoft.azure.storage.CloudStorageAccount;
-import com.microsoft.azure.storage.CorsRule;
 import com.microsoft.azure.storage.StorageException;
-import com.microsoft.azure.storage.ServiceProperties;
 import com.microsoft.azure.storage.queue.CloudQueueClient;
 import com.microsoft.azure.storage.queue.CloudQueue;
 
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -30,22 +25,14 @@ import java.util.Set;
  *
  *     azure::cloud-queue cloud-queue-example
  *         cloud-queue-name: "cloudqueuename"
- *         cors
- *             allowed-headers: ["*"]
- *             allowed-methods: ["GET"]
- *             allowed-origins: ["*"]
- *             exposed-headers: ["*"]
- *             max-age: 6
- *         end
- *         storage-connection: $(azure::storage-account queue-storage-account-example | storage-connection)
+ *         storage-account: $(azure::storage-account queue-storage-account-example)
  *     end
  */
 @ResourceName("cloud-queue")
 public class CloudQueueResource extends AzureResource {
 
     private String cloudQueueName;
-    private List<Cors> cors;
-    private String storageConnection;
+    private StorageAccountResource storageAccount;
 
     /**
      * The name of the queue (Required)
@@ -58,28 +45,12 @@ public class CloudQueueResource extends AzureResource {
         this.cloudQueueName = cloudQueueName;
     }
 
-    /**
-     * The cors rules associated with the queue. (Optional)
-     */
-    @ResourceDiffProperty(updatable = true)
-    public List<Cors> getCors() {
-        if (cors == null) {
-            cors = new ArrayList<>();
-        }
-
-        return cors;
+    public StorageAccountResource getStorageAccount() {
+        return storageAccount;
     }
 
-    public void setCors(List<Cors> cors) {
-        this.cors = cors;
-    }
-
-    public String getStorageConnection() {
-        return storageConnection;
-    }
-
-    public void setStorageConnection(String storageConnection) {
-        this.storageConnection = storageConnection;
+    public void setStorageAccount(StorageAccountResource storageAccount) {
+        this.storageAccount = storageAccount;
     }
 
     @Override
@@ -88,11 +59,6 @@ public class CloudQueueResource extends AzureResource {
             CloudQueue queue = cloudQueue();
             if (queue.exists()) {
                 setCloudQueueName(queue.getName());
-
-                for (CorsRule rule :  queue.getServiceClient().downloadServiceProperties().getCors().getCorsRules()) {
-                    getCors().add(new Cors(rule));
-                }
-
                 return true;
             }
             return false;
@@ -131,11 +97,8 @@ public class CloudQueueResource extends AzureResource {
 
     private CloudQueue cloudQueue() {
         try {
-            CloudStorageAccount storageAccount = CloudStorageAccount.parse(getStorageConnection());
+            CloudStorageAccount storageAccount = CloudStorageAccount.parse(getStorageAccount().getConnection());
             CloudQueueClient queueClient = storageAccount.createCloudQueueClient();
-            ServiceProperties props = new ServiceProperties();
-            getCors().forEach(rule -> props.getCors().getCorsRules().add(rule.toCors()));
-            queueClient.uploadServiceProperties(props);
             return queueClient.getQueueReference(getCloudQueueName());
         } catch (StorageException | URISyntaxException | InvalidKeyException ex) {
             throw new GyroException(ex.getMessage());

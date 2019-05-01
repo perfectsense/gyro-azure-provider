@@ -10,7 +10,16 @@ end
 
 azure::storage-account blob-storage-account-example
     resource-group-name: $(azure::resource-group blob-resource-group | resource-group-name)
-    storage-account-name: "cloudblob2"
+    name: "cloudblob2"
+
+    cors-rule
+        allowed-headers: ["*"]
+        allowed-methods: ["POST"]
+        allowed-origins: ["GET"]
+        exposed-headers: ["*"]
+        max-age: 6
+        type: "blob"
+    end
 
     tags: {
         Name: "cloud-blob-example"
@@ -19,20 +28,13 @@ end
 
 azure::cloud-blob-container blob-container-example
     container-name: "blobcontainer"
-    cors
-        allowed-headers: ["*"]
-        allowed-methods: ["POST"]
-        allowed-origins: ["GET"]
-        exposed-headers: ["*"]
-        max-age: 6
-    end
     public-access: "CONTAINER"
-    storage-connection: $(azure::storage-account blob-storage-account-example | storage-connection)
+    storage-account: $(azure::storage-account blob-storage-account-example)
 end
 
 azure::cloud-blob blob-example
     blob-directory-path: "/path/to/blob"
     container-name: $(azure::cloud-blob-container blob-container-example | container-name)
     file-path: "examples/storage/test-blob-doc.txt"
-    storage-connection: $(azure::storage-account blob-storage-account-example | storage-connection)
+    storage-account: $(azure::storage-account blob-storage-account-example)
 end

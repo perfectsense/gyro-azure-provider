@@ -1,6 +1,5 @@
 package gyro.azure.storage;
 
-import com.microsoft.azure.storage.CorsRule;
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
 import gyro.core.resource.ResourceDiffProperty;
@@ -9,15 +8,12 @@ import gyro.core.resource.Resource;
 
 import com.microsoft.azure.storage.file.CloudFileClient;
 import com.microsoft.azure.storage.file.CloudFileShare;
-import com.microsoft.azure.storage.file.FileServiceProperties;
 import com.microsoft.azure.storage.file.FileShareProperties;
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.StorageException;
 
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -30,24 +26,16 @@ import java.util.Set;
  *
  *     azure::cloud-file-share cloud-file-share-example
  *         cloud-file-share-name: "example-cloud-file-share"
- *         cors
- *             allowed-headers: ["*"]
- *             allowed-methods: ["GET"]
- *             allowed-origins: ["*"]
- *             exposed-headers: ["*"]
- *             max-age: 6
- *         end
  *         share-quota: 10
- *         storage-connection: $(azure::storage-account blob-storage-account-example | storage-connection)
+ *         storage-account: $(azure::storage-account blob-storage-account-example)
  *     end
  */
 @ResourceName("cloud-file-share")
 public class CloudFileShareResource extends AzureResource {
 
     private String cloudFileShareName;
-    private List<Cors> cors;
     private Integer shareQuota;
-    private String storageConnection;
+    private StorageAccountResource storageAccount;
 
     /**
      * The name of the cloud share. (Required)
@@ -58,22 +46,6 @@ public class CloudFileShareResource extends AzureResource {
 
     public void setCloudFileShareName(String cloudFileShareName) {
         this.cloudFileShareName = cloudFileShareName;
-    }
-
-    /**
-     * The cors rules associated with the file share. (Optional)
-     */
-    @ResourceDiffProperty(updatable = true)
-    public List<Cors> getCors() {
-        if (cors == null) {
-            cors = new ArrayList<>();
-        }
-
-        return cors;
-    }
-
-    public void setCors(List<Cors> cors) {
-        this.cors = cors;
     }
 
     /**
@@ -88,12 +60,12 @@ public class CloudFileShareResource extends AzureResource {
         this.shareQuota = shareQuota;
     }
 
-    public String getStorageConnection() {
-        return storageConnection;
+    public StorageAccountResource getStorageAccount() {
+        return storageAccount;
     }
 
-    public void setStorageConnection(String storageConnection) {
-        this.storageConnection = storageConnection;
+    public void setStorageAccount(StorageAccountResource storageAccount) {
+        this.storageAccount = storageAccount;
     }
 
     @Override
@@ -103,11 +75,6 @@ public class CloudFileShareResource extends AzureResource {
             if (share.exists()) {
                 setCloudFileShareName(share.getName());
                 setShareQuota(share.getProperties().getShareQuota());
-
-                for (CorsRule rule : share.getServiceClient().downloadServiceProperties().getCors().getCorsRules()) {
-                    getCors().add(new Cors(rule));
-                }
-
                 return true;
             }
             return false;
@@ -154,11 +121,8 @@ public class CloudFileShareResource extends AzureResource {
 
     private CloudFileShare cloudFileShare() {
         try {
-            CloudStorageAccount storageAccount = CloudStorageAccount.parse(getStorageConnection());
+            CloudStorageAccount storageAccount = CloudStorageAccount.parse(getStorageAccount().getConnection());
             CloudFileClient fileClient = storageAccount.createCloudFileClient();
-            FileServiceProperties props = new FileServiceProperties();
-            getCors().forEach(rule -> props.getCors().getCorsRules().add(rule.toCors()));
-            fileClient.uploadServiceProperties(props);
             return fileClient.getShareReference(getCloudFileShareName());
         } catch (StorageException | URISyntaxException | InvalidKeyException ex) {
             throw new GyroException(ex.getMessage());

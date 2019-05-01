@@ -10,7 +10,7 @@ end
 
 azure::storage-account table-storage-account-example
     resource-group-name: $(azure::resource-group table-resource-group | resource-group-name)
-    storage-account-name: "testtableexample"
+    name: "testtableexample"
 
     tags: {
         Name: "testtableexample"
@@ -19,12 +19,5 @@ end
 
 azure::cloud-table cloud-table-example
     cloud-table-name: "cloudtablename"
-    cors
-        allowed-headers: ["*"]
-        allowed-methods: ["HEAD"]
-        allowed-origins: ["*"]
-        exposed-headers: ["*"]
-        max-age: 6
-    end
-    storage-connection: $(azure::storage-account table-storage-account-example | storage-connection)
+    storage-account: $(azure::storage-account table-storage-account-example)
 end

@@ -8,17 +8,13 @@ import gyro.core.resource.Resource;
 
 import com.microsoft.azure.storage.blob.BlobContainerPermissions;
 import com.microsoft.azure.storage.CloudStorageAccount;
-import com.microsoft.azure.storage.CorsRule;
 import com.microsoft.azure.storage.StorageException;
-import com.microsoft.azure.storage.ServiceProperties;
 import com.microsoft.azure.storage.blob.BlobContainerPublicAccessType;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -31,24 +27,16 @@ import java.util.Set;
  *
  *     azure::cloud-blob-container blob-container-example
  *         container-name: "blobcontainer"
- *         cors
- *             allowed-headers: ["*"]
- *             allowed-methods: ["GET"]
- *             allowed-origins: ["*"]
- *             exposed-headers: ["*"]
- *             max-age: 6
- *         end
  *         public-access: "CONTAINER"
- *         storage-connection: $(azure::storage-account blob-storage-account-example | storage-connection)
+ *         storage-account: $(azure::storage-account blob-storage-account-example)
  *     end
  */
 @ResourceName("cloud-blob-container")
 public class CloudBlobContainerResource extends AzureResource {
 
     private String containerName;
-    private List<Cors> cors;
     private String publicAccess;
-    private String storageConnection;
+    private StorageAccountResource storageAccount;
 
     /**
      * The name of the container. (Required)
@@ -59,22 +47,6 @@ public class CloudBlobContainerResource extends AzureResource {
 
     public void setContainerName(String containerName) {
         this.containerName = containerName;
-    }
-
-    /**
-     * The cors rules associated with the container. (Optional)
-     */
-    @ResourceDiffProperty(updatable = true)
-    public List<Cors> getCors() {
-        if (cors == null) {
-            cors = new ArrayList<>();
-        }
-
-        return cors;
-    }
-
-    public void setCors(List<Cors> cors) {
-        this.cors = cors;
     }
 
     /**
@@ -89,12 +61,12 @@ public class CloudBlobContainerResource extends AzureResource {
         this.publicAccess = publicAccess;
     }
 
-    public String getStorageConnection() {
-        return storageConnection;
+    public StorageAccountResource getStorageAccount() {
+        return storageAccount;
     }
 
-    public void setStorageConnection(String storageConnection) {
-        this.storageConnection = storageConnection;
+    public void setStorageAccount(StorageAccountResource storageAccount) {
+        this.storageAccount = storageAccount;
     }
 
     @Override
@@ -103,11 +75,6 @@ public class CloudBlobContainerResource extends AzureResource {
             CloudBlobContainer container = cloudBlobContainer();
             if (container.exists()) {
                 setPublicAccess(container.getProperties().getPublicAccess().toString());
-
-                for (CorsRule rule : container.getServiceClient().downloadServiceProperties().getCors().getCorsRules()) {
-                    getCors().add(new Cors(rule));
-                }
-
                 return true;
             }
             return false;
@@ -158,11 +125,8 @@ public class CloudBlobContainerResource extends AzureResource {
 
     private CloudBlobContainer cloudBlobContainer() {
         try {
-            CloudStorageAccount account = CloudStorageAccount.parse(getStorageConnection());
+            CloudStorageAccount account = CloudStorageAccount.parse(getStorageAccount().getConnection());
             CloudBlobClient blobClient = account.createCloudBlobClient();
-            ServiceProperties props = new ServiceProperties();
-            getCors().forEach(rule -> props.getCors().getCorsRules().add(rule.toCors()));
-            blobClient.uploadServiceProperties(props);
             return blobClient.getContainerReference(getContainerName());
         } catch (StorageException | URISyntaxException | InvalidKeyException ex) {
             throw new GyroException(ex.getMessage());

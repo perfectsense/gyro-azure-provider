@@ -10,7 +10,7 @@ end
 
 azure::storage-account queue-storage-account-example
     resource-group-name: $(azure::resource-group queue-resource-group | resource-group-name)
-    storage-account-name: "testqueueexample"
+    name: "testqueueexample"
 
     tags: {
         Name: "testqueueexample"
@@ -19,12 +19,5 @@ end
 
 azure::cloud-queue cloud-queue-example
     cloud-queue-name: "cloudqueuename"
-    cors
-        allowed-headers: ["*"]
-        allowed-methods: ["GET"]
-        allowed-origins: ["*"]
-        exposed-headers: ["*"]
-        max-age: 6
-    end
-    storage-connection: $(azure::storage-account queue-storage-account-example | storage-connection)
+    storage-account: $(azure::storage-account queue-storage-account-example)
 end
