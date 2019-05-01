@@ -17,6 +17,27 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Creates a snapshot.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *        azure::snapshot snapshot-example
+ *            provider: "Disk"
+ *            disk-id: $(azure::disk disk-example | disk-id)
+ *            name: "snapshot-name"
+ *            resource-group-name: $(azure::resource-group resource-group-snapshot-example | resource-group-name)
+ *            size: 10
+ *            sku: "Standard_LRS"
+ *            source: "Data"
+ *            tags: {
+ *                 Name: "snapshot-example"
+ *            }
+ *        end
+ */
 @ResourceName("snapshot")
 public class SnapshotResource extends AzureResource {
 
