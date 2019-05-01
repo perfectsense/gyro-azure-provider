@@ -93,8 +93,6 @@ azure::virtual-machine load-balancer-virtual-machine-example
     os-type: "linux"
     disk-id: $(azure::disk load-balancer-disk-example | disk-id)
     network-interface-name: $(azure::network-interface load-balancer-network-interface-example | network-interface-name)
-    #private-ip-address: "10.0.0.10"
-    #public-ip-address-name: $(azure::public-ip-address load-balancer-public-ip-address-example | public-ip-address-name)
     vm-image-type: "popular"
     known-virtual-image: "UBUNTU_SERVER_14_04_LTS"
     admin-user-name: "qwerty@123"
@@ -147,8 +145,6 @@ azure::virtual-machine load-balancer-virtual-machine-example-two
     os-type: "linux"
     disk-id: $(azure::disk load-balancer-disk-example | disk-id)
     network-interface-name: $(azure::network-interface load-balancer-network-interface-example-two | network-interface-name)
-    #private-ip-address: "10.0.0.10"
-    #public-ip-address-name: $(azure::public-ip-address load-balancer-public-ip-address-example | public-ip-address-name)
     vm-image-type: "popular"
     known-virtual-image: "UBUNTU_SERVER_14_04_LTS"
     admin-user-name: "qwerty@123"
