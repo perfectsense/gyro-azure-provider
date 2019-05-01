@@ -54,7 +54,7 @@ public class SnapshotResource extends AzureResource {
     private String vhdUrl;
 
     /**
-     * Input disk id from existing disk. (Optional)
+     * Input disk id from existing disk. Used when "Disk" is the provider. (Conditional)
      */
     public String getDiskId() {
         return diskId;
@@ -110,7 +110,7 @@ public class SnapshotResource extends AzureResource {
     }
 
     /**
-     * Specifies the sku type. Options include Premium_LRS, Standard_LRS, Standard_ZRS (Optional)
+     * Specifies the sku type. Options include Premium_LRS, Standard_LRS, Standard_ZRS. (Optional)
      */
     @ResourceDiffProperty(updatable = true)
     public String getSku() {
@@ -122,7 +122,7 @@ public class SnapshotResource extends AzureResource {
     }
 
     /**
-     * Specifies the disk size in GB (Optional)
+     * Specifies the disk size in GB. (Optional)
      */
     public Integer getSize() {
         return size;
@@ -133,7 +133,7 @@ public class SnapshotResource extends AzureResource {
     }
 
     /**
-     * The id of the source data managed snapshot. (Optional)
+     * The id of the source data managed snapshot. Used when "Snapshot" is the provider. (Conditional)
      */
     public String getSnapshotId() {
         return snapshotId;
@@ -155,7 +155,7 @@ public class SnapshotResource extends AzureResource {
     }
 
     /**
-     * The tags associated with the snapshot. (Required)
+     * The tags associated with the snapshot. (Optional)
      */
     @ResourceDiffProperty(updatable = true)
     public Map<String, String> getTags() {
@@ -171,7 +171,7 @@ public class SnapshotResource extends AzureResource {
     }
 
     /**
-     * The url of the vhd. (Optional)
+     * The url of the vhd. Used when "Vhd" is the provider. (Conditional)
      */
     public String getVhdUrl() {
         return vhdUrl;
