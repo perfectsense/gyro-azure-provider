@@ -15,7 +15,7 @@ azure::storage-account blob-storage-account-example
     cors-rule
         allowed-headers: ["*"]
         allowed-methods: ["POST"]
-        allowed-origins: ["GET"]
+        allowed-origins: ["*"]
         exposed-headers: ["*"]
         max-age: 6
         type: "blob"
