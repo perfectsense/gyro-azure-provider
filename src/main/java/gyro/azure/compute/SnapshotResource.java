@@ -1,6 +1,7 @@
 package gyro.azure.compute;
 
 import gyro.azure.AzureResource;
+import gyro.core.GyroException;
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceDiffProperty;
 import gyro.core.resource.ResourceName;
@@ -234,6 +235,8 @@ public class SnapshotResource extends AzureResource {
             } else if (getProvider().equals("Vhd")) {
                 withCreate = withSnapshotSource.withWindowsFromVhd(getVhdUrl());
             }
+        } else {
+            throw new GyroException("Invalid source. Source options include Data, Linux, and Windows");
         }
 
         if (getSize() != null) {
