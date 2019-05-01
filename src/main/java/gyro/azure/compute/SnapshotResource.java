@@ -245,22 +245,4 @@ public class SnapshotResource extends AzureResource {
     public String toDisplayString() {
         return "snapshot " + getName();
     }
-
-    /*
-    private void parseOutput(Snapshot snap) {
-        CreationSourceType type = snap.source().type();
-        if (type == CreationSourceType.COPIED_FROM_DISK ||
-            type == CreationSourceType.FROM_DATA_DISK_IMAGE ||
-                type == CreationSourceType.FROM_OS_DISK_IMAGE) {
-            //setSource("Disk");
-            setDiskId(snap.source().sourceId());
-        } else if (type == CreationSourceType.COPIED_FROM_SNAPSHOT) {
-            //setSource("Snapshot");
-            setSnapshotId(snap.source().sourceId());
-        } else if (type == CreationSourceType.IMPORTED_FROM_VHD) {
-            //setProvider("Vhd");
-            setVhdUrl(snap.source().sourceId());
-            //setSource(snap.osType().toString());
-        }
-    }*/
 }
