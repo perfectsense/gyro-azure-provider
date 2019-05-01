@@ -236,9 +236,14 @@ public class SnapshotResource extends AzureResource {
             }
         }
 
-        Snapshot snapshot = withCreate.withSizeInGB(getSize())
-                .withSku(SnapshotSkuType.fromStorageAccountType(SnapshotStorageAccountTypes.fromString(getSku())))
-                .withTags(getTags())
+        if (getSize() != null) {
+            withCreate = withCreate.withSizeInGB(getSize());
+        }
+        if (getSku() != null) {
+            withCreate.withSku(SnapshotSkuType.fromStorageAccountType(SnapshotStorageAccountTypes.fromString(getSku())));
+        }
+
+        Snapshot snapshot = withCreate.withTags(getTags())
                 .create();
 
         setId(snapshot.id());
