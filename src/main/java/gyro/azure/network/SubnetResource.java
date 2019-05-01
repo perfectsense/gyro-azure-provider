@@ -21,6 +21,19 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+/**
+ * Creates a subnet.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     subnet
+ *         address-prefix: "10.0.0.0/28"
+ *         name: "subnet1"
+ *     end
+ */
 @ResourceName(parent = "network", value = "subnet")
 public class SubnetResource extends AzureResource {
 

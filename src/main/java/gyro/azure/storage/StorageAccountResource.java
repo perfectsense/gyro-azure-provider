@@ -131,7 +131,7 @@ public class StorageAccountResource extends AzureResource {
         StorageAccount storageAccount = client.storageAccounts()
                 .define(getStorageAccountName())
                 .withRegion(Region.fromName(getRegion()))
-                .withNewResourceGroup(getResourceGroupName())
+                .withExistingResourceGroup(getResourceGroupName())
                 .withTags(getTags())
                 .create();
 
