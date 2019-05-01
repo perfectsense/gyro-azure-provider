@@ -24,6 +24,7 @@ import java.util.List;
  *          allowed-origins: ["*"]
  *          exposed-headers: ["*"]
  *          max-age: 6
+ *          type: "blob"
  *      end
  */
 public class Cors extends Diffable {
