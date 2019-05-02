@@ -27,7 +27,7 @@ import java.util.Set;
  *     azure::cloud-file-share cloud-file-share-example
  *         cloud-file-share-name: "example-cloud-file-share"
  *         share-quota: 10
- *         storage-connection: $(azure::storage-account blob-storage-account-example | storage-connection)
+ *         storage-account: $(azure::storage-account blob-storage-account-example)
  *     end
  */
 @ResourceName("cloud-file-share")
@@ -35,7 +35,7 @@ public class CloudFileShareResource extends AzureResource {
 
     private String cloudFileShareName;
     private Integer shareQuota;
-    private String storageConnection;
+    private StorageAccountResource storageAccount;
 
     /**
      * The name of the cloud share. (Required)
@@ -60,12 +60,12 @@ public class CloudFileShareResource extends AzureResource {
         this.shareQuota = shareQuota;
     }
 
-    public String getStorageConnection() {
-        return storageConnection;
+    public StorageAccountResource getStorageAccount() {
+        return storageAccount;
     }
 
-    public void setStorageConnection(String storageConnection) {
-        this.storageConnection = storageConnection;
+    public void setStorageAccount(StorageAccountResource storageAccount) {
+        this.storageAccount = storageAccount;
     }
 
     @Override
@@ -121,7 +121,7 @@ public class CloudFileShareResource extends AzureResource {
 
     private CloudFileShare cloudFileShare() {
         try {
-            CloudStorageAccount storageAccount = CloudStorageAccount.parse(getStorageConnection());
+            CloudStorageAccount storageAccount = CloudStorageAccount.parse(getStorageAccount().getConnection());
             CloudFileClient fileClient = storageAccount.createCloudFileClient();
             return fileClient.getShareReference(getCloudFileShareName());
         } catch (StorageException | URISyntaxException | InvalidKeyException ex) {

@@ -8,7 +8,16 @@ end
 
 azure::storage-account cloud-file-share-storage-account-example
     resource-group-name: $(azure::resource-group cloud-file-resource-group-example | resource-group-name)
-    storage-account-name: "cloudfilesharestacct"
+    name: "cloudfilesharestacct"
+
+    cors-rule
+        allowed-headers: ["*"]
+        allowed-methods: ["GET"]
+        allowed-origins: ["*"]
+        exposed-headers: ["*"]
+        max-age: 6
+        type: "file"
+    end
 
     tags: {
         Name: "cloudfilesharestacct"
@@ -17,5 +26,5 @@ end
 
 azure::cloud-file-share cloud-file-share-example
     cloud-file-share-name: "example-cloud-file-share"
-    storage-connection: $(azure::storage-account cloud-file-share-storage-account-example | storage-connection)
+    storage-account: $(azure::storage-account cloud-file-share-storage-account-example)
 end

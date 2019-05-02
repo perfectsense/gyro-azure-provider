@@ -28,7 +28,7 @@ import java.util.Set;
  *     azure::cloud-blob-container blob-container-example
  *         container-name: "blobcontainer"
  *         public-access: "CONTAINER"
- *         storage-connection: $(azure::storage-account blob-storage-account-example | storage-connection)
+ *         storage-account: $(azure::storage-account blob-storage-account-example)
  *     end
  */
 @ResourceName("cloud-blob-container")
@@ -36,7 +36,7 @@ public class CloudBlobContainerResource extends AzureResource {
 
     private String containerName;
     private String publicAccess;
-    private String storageConnection;
+    private StorageAccountResource storageAccount;
 
     /**
      * The name of the container. (Required)
@@ -61,12 +61,12 @@ public class CloudBlobContainerResource extends AzureResource {
         this.publicAccess = publicAccess;
     }
 
-    public String getStorageConnection() {
-        return storageConnection;
+    public StorageAccountResource getStorageAccount() {
+        return storageAccount;
     }
 
-    public void setStorageConnection(String storageConnection) {
-        this.storageConnection = storageConnection;
+    public void setStorageAccount(StorageAccountResource storageAccount) {
+        this.storageAccount = storageAccount;
     }
 
     @Override
@@ -125,9 +125,9 @@ public class CloudBlobContainerResource extends AzureResource {
 
     private CloudBlobContainer cloudBlobContainer() {
         try {
-            CloudStorageAccount account = CloudStorageAccount.parse(getStorageConnection());
-            CloudBlobClient client = account.createCloudBlobClient();
-            return client.getContainerReference(getContainerName());
+            CloudStorageAccount account = CloudStorageAccount.parse(getStorageAccount().getConnection());
+            CloudBlobClient blobClient = account.createCloudBlobClient();
+            return blobClient.getContainerReference(getContainerName());
         } catch (StorageException | URISyntaxException | InvalidKeyException ex) {
             throw new GyroException(ex.getMessage());
         }
