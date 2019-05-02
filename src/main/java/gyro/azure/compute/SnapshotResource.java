@@ -211,6 +211,8 @@ public class SnapshotResource extends AzureResource {
 
         WithCreate withCreate = null;
 
+        boolean invalidSource = false;
+
         if (getSource().equals("Data")) {
             if (getProvider().equals("Disk")) {
                 withCreate = withSnapshotSource.withDataFromDisk(getDiskId());
@@ -236,7 +238,15 @@ public class SnapshotResource extends AzureResource {
                 withCreate = withSnapshotSource.withWindowsFromVhd(getVhdUrl());
             }
         } else {
-            throw new GyroException("Invalid source. Source options include Data, Linux, and Windows");
+            invalidSource = true;
+        }
+
+        if (withCreate == null) {
+            if (invalidSource) {
+                throw new GyroException("Invalid source. Source options include Data, Linux, and Windows");
+            } else {
+                throw new GyroException("Invalid provider. Provider options include Disk, Snapshot, and Vhd");
+            }
         }
 
         if (getSize() != null) {
