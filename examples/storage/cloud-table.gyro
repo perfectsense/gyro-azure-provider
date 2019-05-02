@@ -1,5 +1,3 @@
-@import ../init as _
-
 azure::resource-group table-resource-group
     resource-group-name: "table-resource-group"
 

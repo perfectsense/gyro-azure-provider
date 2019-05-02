@@ -1,5 +1,3 @@
-@import ../init as _
-
 azure::resource-group load-balancer-resource-group-example
     resource-group-name: "load-balancer-resource-group-example"
 
