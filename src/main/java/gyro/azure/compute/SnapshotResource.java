@@ -45,6 +45,9 @@ public class SnapshotResource extends AzureResource {
     private static final String SOURCE_DATA = "Data";
     private static final String SOURCE_LINUX = "Linux";
     private static final String SOURCE_WINDOWS = "Windows";
+    private static final String DISK = "Disk";
+    private static final String SNAPSHOT = "Snapshot";
+    private static final String VHD = "Vhd";
 
     private String diskId;
     private String id;
@@ -218,27 +221,27 @@ public class SnapshotResource extends AzureResource {
         boolean invalidSource = false;
 
         if (SOURCE_DATA.equalsIgnoreCase(getSource())) {
-            if ("Disk".equalsIgnoreCase(getProvider())) {
+            if (DISK.equalsIgnoreCase(getProvider())) {
                 withCreate = withSnapshotSource.withDataFromDisk(getDiskId());
-            } else if ("Snapshot".equalsIgnoreCase(getProvider())) {
+            } else if (SNAPSHOT.equalsIgnoreCase(getProvider())) {
                 withCreate = withSnapshotSource.withDataFromSnapshot(getSnapshotId());
-            } else if ("Vhd".equalsIgnoreCase(getProvider())) {
+            } else if (VHD.equalsIgnoreCase(getProvider())) {
                 withCreate = withSnapshotSource.withDataFromVhd(getVhdUrl());
             }
         } else if (SOURCE_LINUX.equalsIgnoreCase(getSource())) {
-            if ("Disk".equalsIgnoreCase(getProvider())) {
+            if (DISK.equalsIgnoreCase(getProvider())) {
                 withCreate = withSnapshotSource.withLinuxFromDisk(getDiskId());
-            } else if ("Snapshot".equalsIgnoreCase(getProvider())) {
+            } else if (SNAPSHOT.equalsIgnoreCase(getProvider())) {
                 withCreate = withSnapshotSource.withLinuxFromSnapshot(getSnapshotId());
-            } else if ("Vhd".equalsIgnoreCase(getProvider())) {
+            } else if (VHD.equalsIgnoreCase(getProvider())) {
                 withCreate = withSnapshotSource.withLinuxFromVhd(getVhdUrl());
             }
         } else if (SOURCE_WINDOWS.equalsIgnoreCase(getSource())) {
-            if ("Disk".equalsIgnoreCase(getProvider())) {
+            if (DISK.equalsIgnoreCase(getProvider())) {
                 withCreate = withSnapshotSource.withWindowsFromDisk(getDiskId());
-            } else if ("Snapshot".equalsIgnoreCase(getProvider())) {
+            } else if (SNAPSHOT.equalsIgnoreCase(getProvider())) {
                 withCreate = withSnapshotSource.withWindowsFromSnapshot(getSnapshotId());
-            } else if ("Vhd".equalsIgnoreCase(getProvider())) {
+            } else if (VHD.equalsIgnoreCase(getProvider())) {
                 withCreate = withSnapshotSource.withWindowsFromVhd(getVhdUrl());
             }
         } else {
