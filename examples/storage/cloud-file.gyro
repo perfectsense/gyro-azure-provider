@@ -10,7 +10,16 @@ end
 
 azure::storage-account file-storage-account-example
     resource-group-name: $(azure::resource-group file-resource-group | resource-group-name)
-    storage-account-name: "fileexampleoscars"
+    name: "fileexampleoscars"
+
+    cors-rule
+        allowed-headers: ["*"]
+        allowed-methods: ["GET"]
+        allowed-origins: ["*"]
+        exposed-headers: ["*"]
+        max-age: 6
+        type: "file"
+    end
 
     tags: {
         Name: "fileexampleoscars"
@@ -19,18 +28,18 @@ end
 
 azure::cloud-file-share cloud-file-share-example
     cloud-file-share-name: "cloudfileshare"
-    storage-connection: $(azure::storage-account file-storage-account-example | storage-connection)
+    storage-account: $(azure::storage-account file-storage-account-example)
 end
 
 azure::cloud-file-directory cloud-file-directory
     cloud-file-directory-path: "/example/directory/path"
     cloud-file-share-name: $(azure::cloud-file-share cloud-file-share-example | cloud-file-share-name)
-    storage-connection: $(azure::storage-account file-storage-account-example | storage-connection)
+    storage-account: $(azure::storage-account file-storage-account-example)
 end
 
 azure::cloud-file cloud-file-example
     cloud-file-directory-path: $(azure::cloud-file-directory cloud-file-directory | cloud-file-directory-path)
     cloud-file-share-name: $(azure::cloud-file-share cloud-file-share-example | cloud-file-share-name)
-    file-path: "gyro-providers/gyro-azure-provider/examples/storage/test-cloud-file.txt"
-    storage-connection: $(azure::storage-account file-storage-account-example | storage-connection)
+    file-path: "../all_gyro/azure/examples/storage/test-cloud-file.txt"
+    storage-account: $(azure::storage-account file-storage-account-example)
 end

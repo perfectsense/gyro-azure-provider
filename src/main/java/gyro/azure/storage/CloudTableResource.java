@@ -1,12 +1,13 @@
 package gyro.azure.storage;
 
 import gyro.azure.AzureResource;
+
 import gyro.core.GyroException;
 import gyro.core.resource.ResourceName;
 import gyro.core.resource.Resource;
+
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.StorageException;
-
 import com.microsoft.azure.storage.table.CloudTable;
 import com.microsoft.azure.storage.table.CloudTableClient;
 
@@ -24,14 +25,14 @@ import java.util.Set;
  *
  *     azure::cloud-table cloud-table-example
  *         cloud-table-name: "cloudtablename"
- *         storage-connection: $(azure::storage-account queue-storage-account-example | storage-connection)
+ *         storage-account: $(azure::storage-account queue-storage-account-example)
  *     end
  */
 @ResourceName("cloud-table")
 public class CloudTableResource extends AzureResource {
 
     private String cloudTableName;
-    private String storageConnection;
+    private StorageAccountResource storageAccount;
 
     /**
      * The name of the table (Required)
@@ -44,12 +45,12 @@ public class CloudTableResource extends AzureResource {
         this.cloudTableName = cloudTableName;
     }
 
-    public String getStorageConnection() {
-        return storageConnection;
+    public StorageAccountResource getStorageAccount() {
+        return storageAccount;
     }
 
-    public void setStorageConnection(String storageConnection) {
-        this.storageConnection = storageConnection;
+    public void setStorageAccount(StorageAccountResource storageAccount) {
+        this.storageAccount = storageAccount;
     }
 
     @Override
@@ -97,9 +98,9 @@ public class CloudTableResource extends AzureResource {
 
     private CloudTable cloudTable() {
         try {
-            CloudStorageAccount account = CloudStorageAccount.parse(getStorageConnection());
-            CloudTableClient client = account.createCloudTableClient();
-            return client.getTableReference(getCloudTableName());
+            CloudStorageAccount account = CloudStorageAccount.parse(getStorageAccount().getConnection());
+            CloudTableClient tableClient = account.createCloudTableClient();
+            return tableClient.getTableReference(getCloudTableName());
         } catch (StorageException | URISyntaxException | InvalidKeyException ex) {
             throw new GyroException(ex.getMessage());
         }

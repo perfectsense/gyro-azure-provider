@@ -31,7 +31,7 @@ import java.util.Set;
  *     azure::cloud-file-directory cloud-file-directory
  *         cloud-file-directory-path: "/example/directory/path"
  *         cloud-file-share-name: $(azure::cloud-file-share cloud-file-share-example | cloud-file-share-name)
- *         storage-connection: $(azure::storage-account blob-storage-account-example | storage-connection)
+ *         storage-account: $(azure::storage-account blob-storage-account-example)
  *     end
  */
 @ResourceName("cloud-file-directory")
@@ -40,14 +40,14 @@ public class CloudFileDirectoryResource extends AzureResource {
     private String cloudFileDirectoryPath;
     private String cloudFileDirectoryName;
     private String cloudFileShareName;
-    private String storageConnection;
+    private StorageAccountResource storageAccount;
 
     public CloudFileDirectoryResource() {}
 
-    public CloudFileDirectoryResource(String directoryPath, String cloudFileShareName, String storageConnection) {
+    public CloudFileDirectoryResource(String directoryPath, String cloudFileShareName, StorageAccountResource storageAccount) {
         this.cloudFileDirectoryPath = directoryPath;
         this.cloudFileShareName = cloudFileShareName;
-        this.storageConnection = storageConnection;
+        this.storageAccount = storageAccount;
     }
 
     /**
@@ -80,12 +80,12 @@ public class CloudFileDirectoryResource extends AzureResource {
         this.cloudFileShareName = cloudFileShareName;
     }
 
-    public String getStorageConnection() {
-        return storageConnection;
+    public StorageAccountResource getStorageAccount() {
+        return storageAccount;
     }
 
-    public void setStorageConnection(String storageConnection) {
-        this.storageConnection = storageConnection;
+    public void setStorageAccount(StorageAccountResource storageAccount) {
+        this.storageAccount = storageAccount;
     }
 
     @Override
@@ -132,23 +132,21 @@ public class CloudFileDirectoryResource extends AzureResource {
 
     public CloudFileDirectory cloudFileDirectory() {
         try {
-            CloudStorageAccount storageAccount = CloudStorageAccount.parse(getStorageConnection());
+            CloudStorageAccount storageAccount = CloudStorageAccount.parse(getStorageAccount().getConnection());
             CloudFileClient fileClient = storageAccount.createCloudFileClient();
             CloudFileShare share = fileClient.getShareReference(getCloudFileShareName());
 
             CloudFileDirectory rootDirectory = share.getRootDirectoryReference();
 
-            Path cloudFilePath = Paths.get(getCloudFileDirectoryPath());
-            String directoryName = cloudFilePath.getFileName().toString();
+            Path cloudFilePath = Paths.get(getCloudFileDirectoryPath()).getParent();
+            String finalDirectory = Paths.get(getCloudFileDirectoryPath()).getFileName().toString();
             Iterator<Path> iter = cloudFilePath.iterator();
             while (iter.hasNext()) {
                 String currentDirectory = iter.next().toString();
-                if (currentDirectory != directoryName) {
-                    rootDirectory = rootDirectory.getDirectoryReference(currentDirectory);
-                    rootDirectory.createIfNotExists();
-                }
+                rootDirectory = rootDirectory.getDirectoryReference(currentDirectory);
+                rootDirectory.createIfNotExists();
             }
-            return rootDirectory.getDirectoryReference(directoryName);
+            return rootDirectory.getDirectoryReference(finalDirectory);
         } catch (StorageException | URISyntaxException | InvalidKeyException ex) {
             throw new GyroException(ex.getMessage());
         }
