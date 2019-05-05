@@ -45,6 +45,7 @@ public class CloudBlobResource extends AzureResource {
     private String containerName;
     private String filePath;
     private String storageConnection;
+    private String uri;
 
     public String getBlobName() {
         return Paths.get(getBlobDirectoryPath()).getFileName().toString();
@@ -92,12 +93,21 @@ public class CloudBlobResource extends AzureResource {
         this.storageConnection = storageConnection;
     }
 
+    public String getUri() {
+        return uri;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri;
+    }
+
     @Override
     public boolean refresh() {
         try {
             CloudBlockBlob blob = cloudBlobBlob();
             if (blob.exists()) {
                 setBlobName(blob.getName());
+                setUri(blob.getUri().toString());
                 return true;
             }
             return false;
@@ -112,6 +122,7 @@ public class CloudBlobResource extends AzureResource {
             CloudBlockBlob blob = cloudBlobBlob();
             File file = new File(getFilePath());
             blob.upload(new FileInputStream(file), file.length());
+            setUri(blob.getUri().toString());
         } catch (StorageException | IOException ex) {
             throw new GyroException(ex.getMessage());
         }
