@@ -36,7 +36,6 @@ public class SqlDatabaseResource extends AzureResource {
     private String maxStorageCapacity;
     private String name;
     private String sourceDatabaseId;
-    private String sqlServerId;
     private Map<String, String> tags;
 
     public String getCollation() {
@@ -129,12 +128,12 @@ public class SqlDatabaseResource extends AzureResource {
         this.sourceDatabaseId = sourceDatabaseId;
     }
 
-    public String getSqlServerId() {
-        return sqlServerId;
+    public SqlServerResource getSqlServer() {
+        return sqlServer;
     }
 
-    public void setSqlServerId(String sqlServerId) {
-        this.sqlServerId = sqlServerId;
+    public void setSqlServer(SqlServerResource sqlServer) {
+        this.sqlServer = sqlServer;
     }
 
     @ResourceDiffProperty(updatable = true)
@@ -192,6 +191,7 @@ public class SqlDatabaseResource extends AzureResource {
                 withCreateMode.withMode(CreateMode.fromString(getCreateMode()));
             }
         }
+        WithAllDifferentOptions buildDatabase = client.sqlServers().getById(getSqlServer().getId()).databases().define(getName());
 
         WithExistingDatabaseAfterElasticPool withExistingDatabaseAfterElasticPool = null;
         if (getElasticPoolName() != null) {
@@ -228,7 +228,8 @@ public class SqlDatabaseResource extends AzureResource {
 
         buildDatabase.withTags(getTags()).create();
 
-        setId(getSqlServerId() + "/databases/" + getName());
+
+        setId(getSqlServer().getId() + "/databases/" + getName());
     }
 
     @Override
@@ -281,6 +282,6 @@ public class SqlDatabaseResource extends AzureResource {
     }
 
     SqlDatabase getSqlDatabase(Azure client) {
-        return client.sqlServers().getById(getSqlServerId()).databases().get(getName());
+        return client.sqlServers().getById(getSqlServer().getId()).databases().get(getName());
     }
 }
