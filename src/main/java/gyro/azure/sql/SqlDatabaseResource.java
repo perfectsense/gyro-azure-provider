@@ -278,24 +278,26 @@ public class SqlDatabaseResource extends AzureResource {
             update.withoutElasticPool();
 
             if (getEdition() != null) {
-                if (getEditionServiceObjective() != null && getMaxStorageCapacity() != null) {
-                    if (getEdition().equals("Premium")) {
+                if (PREMIUM_EDITION.equalsIgnoreCase(getEdition())) {
+                    if (getEditionServiceObjective() != null && getMaxStorageCapacity() != null) {
                         update.withPremiumEdition(SqlDatabasePremiumServiceObjective.fromString(getEditionServiceObjective()),
                                 SqlDatabasePremiumStorage.valueOf(getMaxStorageCapacity()));
-                    } else if (getEdition().equals("Standard")) {
+                    } else {
+                        update.withPremiumEdition(SqlDatabasePremiumServiceObjective.fromString(getEditionServiceObjective()));
+                    }
+                } else if (STANDARD_EDITION.equalsIgnoreCase(getEdition())) {
+                    if (getEditionServiceObjective() != null && getMaxStorageCapacity() != null) {
                         update.withStandardEdition(SqlDatabaseStandardServiceObjective.fromString(getEditionServiceObjective()),
                                 SqlDatabaseStandardStorage.valueOf(getMaxStorageCapacity()));
-                    }
-                } else if (getEditionServiceObjective() != null) {
-                    if (getEdition().equals("Basic")) {
-                        update.withBasicEdition(SqlDatabaseBasicStorage.valueOf(getEditionServiceObjective()));
-                    } else if (getEdition().equals("Premium")) {
-                        update.withPremiumEdition(SqlDatabasePremiumServiceObjective.fromString(getEditionServiceObjective()));
-                    } else if (getEdition().equals("Standard")) {
+                    } else {
                         update.withStandardEdition(SqlDatabaseStandardServiceObjective.fromString(getEditionServiceObjective()));
                     }
-                } else if (getEdition().equals("Basic")) {
-                    update.withBasicEdition();
+                } else if (BASIC_EDITION.equalsIgnoreCase(getEdition())) {
+                    if (getMaxStorageCapacity() != null) {
+                        update.withBasicEdition(SqlDatabaseBasicStorage.MAX_100_MB);
+                    } else {
+                        update.withBasicEdition();
+                    }
                 }
             }
         }
