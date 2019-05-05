@@ -177,22 +177,9 @@ public class SqlDatabaseResource extends AzureResource {
     public void create() {
         Azure client = createClient();
 
-        WithAllDifferentOptions buildDatabase = client.sqlServers().getById(getSqlServerId()).databases().define(getName());
-
-        if (getCollation() != null) {
-            buildDatabase.withCollation(getCollation());
-        }
-
-        WithCreateMode withCreateMode = null;
-        if (getSourceDatabaseId() != null) {
-            withCreateMode = buildDatabase.withSourceDatabase(getSourceDatabaseId());
-
-            if (getCreateMode() != null) {
-                withCreateMode.withMode(CreateMode.fromString(getCreateMode()));
-            }
-        }
         WithAllDifferentOptions buildDatabase = client.sqlServers().getById(getSqlServer().getId()).databases().define(getName());
 
+        //configures the source database within the elastic pool
         WithExistingDatabaseAfterElasticPool withExistingDatabaseAfterElasticPool = null;
         if (getElasticPoolName() != null) {
             withExistingDatabaseAfterElasticPool = buildDatabase.withExistingElasticPool(getElasticPoolName());
@@ -200,33 +187,80 @@ public class SqlDatabaseResource extends AzureResource {
             if (getMaxStorageCapacity() != null) {
                 withExistingDatabaseAfterElasticPool.withMaxSizeBytes(Long.parseLong(getMaxStorageCapacity()));
             }
+
+            if (getCollation() != null) {
+                withExistingDatabaseAfterElasticPool.withCollation(getCollation());
+            }
+
+            if (getImportFromContainerName() != null
+                    && getImportFromFilename() != null
+                    && getImportFromStorageAccountId() != null
+            ) {
+                StorageAccount storageAccount = client.storageAccounts().getById(getStorageAccount().getStorageAccountId());
+                withExistingDatabaseAfterElasticPool.importFrom(storageAccount,
+                        getImportFromContainerName(),
+                        getImportFromFilename())
+                        .withSqlAdministratorLoginAndPassword(getSqlServer().getAdministratorLogin(), getSqlServer().getAdministratorPassword());
+            } else if (getStorageUri() != null && getStorageAccount() != null) {
+                buildDatabase.importFrom(getStorageUri()).withStorageAccessKey(getStorageAccount().getKeys().get(0))
+                .withSqlAdministratorLoginAndPassword(getSqlServer().getAdministratorLogin(), getSqlServer().getAdministratorPassword());
+            } else if (getWithSampleDatabase()) {
+                withExistingDatabaseAfterElasticPool.fromSample(SampleName.ADVENTURE_WORKS_LT);
+            } else if (getSourceDatabaseName() != null) {
+                withExistingDatabaseAfterElasticPool.withSourceDatabase(getSourceDatabaseName())
+                                                    .withMode(CreateMode.fromString(getCreateMode()));
+            }
         } else {
+            //or create a new database
+            if (getCollation() != null) {
+                buildDatabase.withCollation(getCollation());
+            }
             if (getEdition() != null) {
-                if (getEditionServiceObjective() != null && getMaxStorageCapacity() != null) {
-                    if (getEdition().equals("Premium")) {
+                if (PREMIUM_EDITION.equalsIgnoreCase(getEdition())) {
+                    if (getEditionServiceObjective() != null && getMaxStorageCapacity() != null) {
                         buildDatabase.withPremiumEdition(SqlDatabasePremiumServiceObjective.fromString(getEditionServiceObjective()),
                                 SqlDatabasePremiumStorage.valueOf(getMaxStorageCapacity()));
-                    } else if (getEdition().equals("Standard")) {
+                    } else {
+                        buildDatabase.withPremiumEdition(SqlDatabasePremiumServiceObjective.fromString(getEditionServiceObjective()));
+                    }
+                } else if (STANDARD_EDITION.equalsIgnoreCase(getEdition())) {
+                    if (getEditionServiceObjective() != null && getMaxStorageCapacity() != null) {
                         buildDatabase.withStandardEdition(SqlDatabaseStandardServiceObjective.fromString(getEditionServiceObjective()),
                                 SqlDatabaseStandardStorage.valueOf(getMaxStorageCapacity()));
-                    }
-                } else if (getEditionServiceObjective() != null) {
-                    if (getEdition().equals("Basic")) {
-                        buildDatabase.withBasicEdition(SqlDatabaseBasicStorage.valueOf(getEditionServiceObjective()));
-                    } else if (getEdition().equals("Premium")) {
-                        buildDatabase.withPremiumEdition(SqlDatabasePremiumServiceObjective.fromString(getEditionServiceObjective()));
-                    } else if (getEdition().equals("Standard")) {
+                    } else {
                         buildDatabase.withStandardEdition(SqlDatabaseStandardServiceObjective.fromString(getEditionServiceObjective()));
                     }
-                } else if (getEdition().equals("Basic")) {
-                    buildDatabase.withBasicEdition();
+                } else if (BASIC_EDITION.equalsIgnoreCase(getEdition())) {
+                    if (getMaxStorageCapacity() != null) {
+                        buildDatabase.withBasicEdition(SqlDatabaseBasicStorage.MAX_100_MB);
+                    } else {
+                        buildDatabase.withBasicEdition();
+                    }
                 } else {
                     buildDatabase.withEdition(DatabaseEditions.fromString(getEdition()));
                 }
             }
         }
 
-        buildDatabase.withTags(getTags()).create();
+        //pick the source of data for the database
+        WithCreateMode withCreateMode = null;
+        if (getSourceDatabaseName() != null && getCreateMode() != null) {
+            SqlDatabase db = client.sqlServers().getById(getSqlServer().getId()).databases().get(getSourceDatabaseName());
+            buildDatabase.withSourceDatabase(db).withMode(CreateMode.fromString(getCreateMode())).withTags(getTags()).create();
+        } else if (getImportFromStorageAccountId() != null && getImportFromContainerName() != null && getImportFromFilename() != null) {
+            StorageAccount storageAccount = client.storageAccounts().getById(getImportFromStorageAccountId());
+            buildDatabase.importFrom(storageAccount, getImportFromContainerName(), getImportFromFilename())
+                    .withSqlAdministratorLoginAndPassword(getSqlServer().getAdministratorLogin(), getSqlServer().getAdministratorPassword())
+                    .withTags(getTags()).create();
+        } else if (getStorageUri() != null && getStorageAccount() != null) {
+            buildDatabase.importFrom(getStorageUri()).withStorageAccessKey(getStorageAccount().getKeys().get(0))
+                    .withSqlAdministratorLoginAndPassword(getSqlServer().getAdministratorLogin(), getSqlServer().getAdministratorPassword())
+                    .withTags(getTags()).create();
+        } else if (getWithSampleDatabase() != null) {
+            buildDatabase.fromSample(SampleName.ADVENTURE_WORKS_LT).withTags(getTags()).create();
+        } else {
+            buildDatabase.withTags(getTags()).create();
+        }
 
 
         setId(getSqlServer().getId() + "/databases/" + getName());
