@@ -9,6 +9,7 @@ import gyro.core.resource.ResourceOutput;
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.sql.CreateMode;
 import com.microsoft.azure.management.sql.DatabaseEditions;
+import com.microsoft.azure.management.sql.SampleName;
 import com.microsoft.azure.management.sql.SqlDatabase;
 import com.microsoft.azure.management.sql.SqlDatabaseBasicStorage;
 import com.microsoft.azure.management.sql.SqlDatabasePremiumServiceObjective;
@@ -18,6 +19,9 @@ import com.microsoft.azure.management.sql.SqlDatabaseStandardStorage;
 import com.microsoft.azure.management.sql.SqlDatabaseOperations.DefinitionStages.WithAllDifferentOptions;
 import com.microsoft.azure.management.sql.SqlDatabaseOperations.DefinitionStages.WithExistingDatabaseAfterElasticPool;
 import com.microsoft.azure.management.sql.SqlDatabaseOperations.DefinitionStages.WithCreateMode;
+import com.microsoft.azure.management.storage.StorageAccount;
+import gyro.azure.storage.StorageAccountResource;
+
 import org.apache.commons.lang.StringUtils;
 
 import java.util.HashMap;
@@ -27,15 +31,26 @@ import java.util.Set;
 @ResourceName("sql-database")
 public class SqlDatabaseResource extends AzureResource {
 
+    private static final String BASIC_EDITION = "Basic";
+    private static final String STANDARD_EDITION = "Standard";
+    private static final String PREMIUM_EDITION = "Premium";
+
     private String collation;
     private String createMode;
     private String edition;
     private String editionServiceObjective;
     private String elasticPoolName;
     private String id;
+    private String importFromFilename;
+    private String importFromContainerName;
+    private String importFromStorageAccountId;
     private String maxStorageCapacity;
     private String name;
-    private String sourceDatabaseId;
+    private Boolean withSampleDatabase;
+    private String sourceDatabaseName;
+    private String storageUri;
+    private StorageAccountResource storageAccount;
+    private SqlServerResource sqlServer;
     private Map<String, String> tags;
 
     public String getCollation() {
@@ -92,6 +107,30 @@ public class SqlDatabaseResource extends AzureResource {
         this.id = id;
     }
 
+    public String getImportFromContainerName() {
+        return importFromContainerName;
+    }
+
+    public void setImportFromContainerName(String importFromContainerName) {
+        this.importFromContainerName = importFromContainerName;
+    }
+
+    public String getImportFromFilename() {
+        return importFromFilename;
+    }
+
+    public void setImportFromFilename(String importFromFilename) {
+        this.importFromFilename = importFromFilename;
+    }
+
+    public String getImportFromStorageAccountId() {
+        return importFromStorageAccountId;
+    }
+
+    public void setImportFromStorageAccountId(String importFromStorageAccountId) {
+        this.importFromStorageAccountId = importFromStorageAccountId;
+    }
+
     @ResourceDiffProperty(updatable = true)
     public String getMaxStorageCapacity() {
         if (!StringUtils.isNumeric(maxStorageCapacity)) {
@@ -120,12 +159,36 @@ public class SqlDatabaseResource extends AzureResource {
         this.name = name;
     }
 
-    public String getSourceDatabaseId() {
-        return sourceDatabaseId;
+    public Boolean getWithSampleDatabase() {
+        return withSampleDatabase;
     }
 
-    public void setSourceDatabaseId(String sourceDatabaseId) {
-        this.sourceDatabaseId = sourceDatabaseId;
+    public void setWithSampleDatabase(Boolean withSampleDatabase) {
+        this.withSampleDatabase = withSampleDatabase;
+    }
+
+    public String getSourceDatabaseName() {
+        return sourceDatabaseName;
+    }
+
+    public void setSourceDatabaseName(String sourceDatabaseName) {
+        this.sourceDatabaseName = sourceDatabaseName;
+    }
+
+    public String getStorageUri() {
+        return storageUri;
+    }
+
+    public void setStorageUri(String storageUri) {
+        this.storageUri = storageUri;
+    }
+
+    public StorageAccountResource getStorageAccount() {
+        return storageAccount;
+    }
+
+    public void setStorageAccount(StorageAccountResource storageAccount) {
+        this.storageAccount = storageAccount;
     }
 
     public SqlServerResource getSqlServer() {
@@ -164,10 +227,10 @@ public class SqlDatabaseResource extends AzureResource {
         setEdition(database.edition().toString());
         setEditionServiceObjective(database.serviceLevelObjective().toString());
         setElasticPoolName(database.elasticPoolName());
-        setId(getSqlServerId() + "/databases/" + getName());
+        setId(getSqlServer().getId() + "/databases/" + getName());
         setName(database.name());
         setMaxStorageCapacity(Long.toString(database.maxSizeBytes()));
-        setSourceDatabaseId(database.inner().sourceDatabaseId());
+        setSourceDatabaseName(database.inner().sourceDatabaseId());
         setTags(database.inner().getTags());
 
         return true;
