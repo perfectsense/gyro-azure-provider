@@ -13,6 +13,20 @@ import com.microsoft.azure.management.sql.SqlFirewallRuleOperations.DefinitionSt
 
 import java.util.Set;
 
+/**
+ * Creates a sql firewall rule.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     azure::sql-firewall-rule firewall
+ *         start-ip-address: "10.0.0.0"
+ *         name: "test firewall rule"
+ *         sql-server-id: $(azure::sql-server sql-server-example | id)
+ *     end
+ */
 @ResourceName("sql-firewall-rule")
 public class SqlFirewallRuleResource extends AzureResource {
 

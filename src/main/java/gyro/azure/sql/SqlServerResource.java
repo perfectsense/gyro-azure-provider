@@ -14,6 +14,26 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Creates a sql server.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     azure::sql-server sql-server-example
+ *         administrator-login: "TestAdmin18"
+ *         administrator-password: "TestPass18!"
+ *         name: "sql-server-example"
+ *         region: "westus"
+ *         resource-group-name: $(azure::resource-group sql-server-example | resource-group-name)
+ *         system-assigned-msi: true
+ *         tags: {
+ *             Name: "sql-server-example"
+ *         }
+ *     end
+ */
 @ResourceName("sql-server")
 public class SqlServerResource extends AzureResource {
 

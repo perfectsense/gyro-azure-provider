@@ -30,6 +30,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Creates a sql elastic pool.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     azure::sql-elastic-pool sql-elastic-pool-example
+ *         name: "sql-elastic-pool"
+ *         edition: "Basic"
+ *         dtu-min: "eDTU_0"
+ *         dtu-max: "eDTU_5"
+ *         dtu-reserved: "eDTU_50"
+ *         sql-server-id: $(azure::sql-server sql-server-example | id)
+ *         tags: {
+ *             Name: "sql-elastic-pool-example"
+ *         }
+ *     end
+ */
 @ResourceName("sql-elastic-pool")
 public class SqlElasticPoolResource extends AzureResource {
 

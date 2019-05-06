@@ -22,6 +22,24 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+/**
+ * Creates a sql failover group.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     azure::sql-failover-group failover-example
+ *         name: "sql-failover-example"
+ *         database-ids: [$(azure::sql-database sql-database-example | id)]
+ *         sql-server-id: $(azure::sql-server sql-server-example | id)
+ *         manual-read-and-write-policy: false
+ *         read-write-grace-period: 2
+ *         partner-server-ids: [$(azure::sql-server sql-server-example-partner-server | id)]
+ *        read-only-policy-enabled: false
+ *     end
+ */
 @ResourceName("sql-failover-group")
 public class SqlFailoverGroupResource extends AzureResource {
 

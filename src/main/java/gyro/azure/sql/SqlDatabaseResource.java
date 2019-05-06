@@ -28,6 +28,25 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Creates a sql database.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     azure::sql-database sql-database-example-source
+ *          name: "sql-database-example-source"
+ *          collation: "SQL_Latin1_General_CP1_CI_AS"
+ *          edition: "Basic"
+ *          max-storage-capacity: "MAX_100_MB"
+ *          sql-server: $(azure::sql-server sql-server-example)
+ *          tags: {
+ *              Name: "sql-database-example"
+ *          }
+ *     end
+ */
 @ResourceName("sql-database")
 public class SqlDatabaseResource extends AzureResource {
 

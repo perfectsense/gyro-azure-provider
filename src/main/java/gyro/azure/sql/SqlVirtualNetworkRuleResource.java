@@ -11,6 +11,21 @@ import com.microsoft.azure.management.sql.SqlVirtualNetworkRuleOperations.Defini
 
 import java.util.Set;
 
+/**
+ * Creates a sql virtual network rule.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     azure::sql-virtual-network-rule vnrule
+ *         name: "test vn rule"
+ *         network-id: $(azure::network sql-network-example | network-id)
+ *         subnet-name: "subnet1"
+ *         sql-server-id: $(azure::sql-server sql-server-example | id)
+ *     end
+ */
 @ResourceName("sql-virtual-network-rule")
 public class SqlVirtualNetworkRuleResource extends AzureResource {
 
