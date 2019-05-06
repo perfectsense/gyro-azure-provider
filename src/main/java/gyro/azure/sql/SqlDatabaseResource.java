@@ -183,17 +183,6 @@ public class SqlDatabaseResource extends AzureResource {
      */
     @ResourceDiffProperty(updatable = true)
     public String getMaxStorageCapacity() {
-        if (!StringUtils.isNumeric(maxStorageCapacity)) {
-            if (getElasticPoolName() == null) {
-                if (getEdition().equals("Basic")) {
-                    return Long.toString(SqlDatabaseBasicStorage.valueOf(maxStorageCapacity).capacity());
-                } else if (getEdition().equals("Standard")) {
-                    return Long.toString(SqlDatabaseStandardStorage.valueOf(maxStorageCapacity).capacity());
-                } else {
-                    return Long.toString(SqlDatabasePremiumStorage.valueOf(maxStorageCapacity).capacity());
-                }
-            }
-        }
         return maxStorageCapacity;
     }
 
@@ -300,8 +289,8 @@ public class SqlDatabaseResource extends AzureResource {
         setElasticPoolName(database.elasticPoolName());
         setId(getSqlServer().getId() + "/databases/" + getName());
         setName(database.name());
-        setMaxStorageCapacity(Long.toString(database.maxSizeBytes()));
         setSourceDatabaseName(database.inner().sourceDatabaseId());
+        setMaxStorageCapacity(findMaxCapacity(database.maxSizeBytes()));
         setTags(database.inner().getTags());
 
         return true;
@@ -319,7 +308,7 @@ public class SqlDatabaseResource extends AzureResource {
             withExistingDatabaseAfterElasticPool = buildDatabase.withExistingElasticPool(getElasticPoolName());
 
             if (getMaxStorageCapacity() != null) {
-                withExistingDatabaseAfterElasticPool.withMaxSizeBytes(Long.parseLong(getMaxStorageCapacity()));
+                withExistingDatabaseAfterElasticPool.withMaxSizeBytes(SqlDatabasePremiumStorage.valueOf(getMaxStorageCapacity()).capacityInMB());
             }
 
             if (getCollation() != null) {
@@ -366,7 +355,7 @@ public class SqlDatabaseResource extends AzureResource {
                     }
                 } else if (BASIC_EDITION.equalsIgnoreCase(getEdition())) {
                     if (getMaxStorageCapacity() != null) {
-                        buildDatabase.withBasicEdition(SqlDatabaseBasicStorage.MAX_100_MB);
+                        buildDatabase.withBasicEdition(SqlDatabaseBasicStorage.valueOf(getMaxStorageCapacity()));
                     } else {
                         buildDatabase.withBasicEdition();
                     }
@@ -395,7 +384,6 @@ public class SqlDatabaseResource extends AzureResource {
         } else {
             buildDatabase.withTags(getTags()).create();
         }
-
 
         setId(getSqlServer().getId() + "/databases/" + getName());
     }
@@ -428,7 +416,7 @@ public class SqlDatabaseResource extends AzureResource {
                     }
                 } else if (BASIC_EDITION.equalsIgnoreCase(getEdition())) {
                     if (getMaxStorageCapacity() != null) {
-                        update.withBasicEdition(SqlDatabaseBasicStorage.MAX_100_MB);
+                        update.withBasicEdition(SqlDatabaseBasicStorage.valueOf(getMaxStorageCapacity()));
                     } else {
                         update.withBasicEdition();
                     }
@@ -453,5 +441,15 @@ public class SqlDatabaseResource extends AzureResource {
 
     SqlDatabase getSqlDatabase(Azure client) {
         return client.sqlServers().getById(getSqlServer().getId()).databases().get(getName());
+    }
+
+    private String findMaxCapacity(Long storage) {
+        for (SqlDatabasePremiumStorage val : SqlDatabasePremiumStorage.values()) {
+            if (storage.equals(val.capacity())) {
+                return val.toString();
+            }
+        }
+
+        return null;
     }
 }
