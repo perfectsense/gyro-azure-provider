@@ -1,5 +1,3 @@
-@import ../init as _
-
 azure::resource-group resource-group-disk-example
     resource-group-name: "resource-group-disk-example"
 

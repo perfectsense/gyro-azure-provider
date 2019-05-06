@@ -28,7 +28,7 @@ import java.io.File;
  *         cloud-file-directory-path: $(azure::cloud-file-directory cloud-file-directory | cloud-file-directory-path)
  *         cloud-file-share-name: $(azure::cloud-file-share cloud-file-share-example | cloud-file-share-name)
  *         file-path: "gyro-providers/gyro-azure-provider/examples/storage/test-cloud-file.txt"
- *         storage-connection: $(azure::storage-account blob-storage-account-example | storage-connection)
+ *         storage-account: $(azure::storage-account blob-storage-account-example)
  *     end
  */
 @ResourceName("cloud-file")
@@ -38,7 +38,7 @@ public class CloudFileResource extends AzureResource {
     private String cloudFileShareName;
     private String filePath;
     private String fileName;
-    private String storageConnection;
+    private StorageAccountResource storageAccount;
 
     /**
      * The directory path for the file. (Required)
@@ -83,12 +83,12 @@ public class CloudFileResource extends AzureResource {
         this.fileName = fileName;
     }
 
-    public String getStorageConnection() {
-        return storageConnection;
+    public StorageAccountResource getStorageAccount() {
+        return storageAccount;
     }
 
-    public void setStorageConnection(String storageConnection) {
-        this.storageConnection = storageConnection;
+    public void setStorageAccount(StorageAccountResource storageAccount) {
+        this.storageAccount = storageAccount;
     }
 
     @Override
@@ -137,7 +137,7 @@ public class CloudFileResource extends AzureResource {
         try {
             String name = Paths.get(getFilePath()).getFileName().toString();
             CloudFileDirectoryResource rootDirectory =
-                    new CloudFileDirectoryResource(getCloudFileDirectoryPath(), getCloudFileShareName(), getStorageConnection());
+                    new CloudFileDirectoryResource(getCloudFileDirectoryPath(), getCloudFileShareName(), getStorageAccount());
             CloudFileDirectory root = rootDirectory.cloudFileDirectory();
             return root.getFileReference(name);
         } catch (StorageException | URISyntaxException ex) {
