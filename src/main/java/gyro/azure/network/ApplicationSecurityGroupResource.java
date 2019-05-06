@@ -14,6 +14,22 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Creates an application security group
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     azure::application-security-group application-security-group-example
+ *         name: "application-security-group-example"
+ *         resource-group-name: $(azure::resource-group resource-group-app-security-group-example | resource-group-name)
+ *         tags: {
+ *                Name: "application-security-group-example"
+ *         }
+ *     end
+ */
 @ResourceName("application-security-group")
 public class ApplicationSecurityGroupResource extends AzureResource {
 
