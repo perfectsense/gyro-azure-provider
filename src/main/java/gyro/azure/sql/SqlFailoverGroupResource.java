@@ -53,6 +53,9 @@ public class SqlFailoverGroupResource extends AzureResource {
     private String sqlServerId;
     private Map<String, String> tags;
 
+    /**
+     * The databases within the failover group. (Optional)
+     */
     @ResourceDiffProperty(updatable = true)
     public List<String> getDatabaseIds() {
         if (databaseIds == null) {
@@ -66,6 +69,9 @@ public class SqlFailoverGroupResource extends AzureResource {
         this.databaseIds = databaseIds;
     }
 
+    /**
+     * The id of the elastic pool.
+     */
     @ResourceOutput
     public String getId() {
         return id;
@@ -75,6 +81,9 @@ public class SqlFailoverGroupResource extends AzureResource {
         this.id = id;
     }
 
+    /**
+     * Determines whether the read and write policy is manual or automatic. (Required)
+     */
     @ResourceDiffProperty(updatable = true)
     public Boolean getManualReadAndWritePolicy() {
         return manualReadAndWritePolicy;
@@ -84,6 +93,9 @@ public class SqlFailoverGroupResource extends AzureResource {
         this.manualReadAndWritePolicy = manualReadAndWritePolicy;
     }
 
+    /**
+     * The name of the failover group. (Required)
+     */
     public String getName() {
         return name;
     }
@@ -92,6 +104,9 @@ public class SqlFailoverGroupResource extends AzureResource {
         this.name = name;
     }
 
+    /**
+     * The ids of the partner servers. (Optional)
+     */
     @ResourceDiffProperty(updatable = true)
     public List<String> getPartnerServerIds() {
         if (partnerServerIds == null) {
@@ -105,6 +120,9 @@ public class SqlFailoverGroupResource extends AzureResource {
         this.partnerServerIds = partnerServerIds;
     }
 
+    /**
+     * Determines if the read only policy is enabled. (Optional)
+     */
     @ResourceDiffProperty(updatable = true)
     public Boolean getReadOnlyPolicyEnabled() {
         return readOnlyPolicyEnabled;
@@ -114,6 +132,9 @@ public class SqlFailoverGroupResource extends AzureResource {
         this.readOnlyPolicyEnabled = readOnlyPolicyEnabled;
     }
 
+    /**
+     * Determines the grace period. Used with the automatic read and write policy. (Conditional)
+     */
     @ResourceDiffProperty(updatable = true)
     public Integer getReadWriteGracePeriod() {
         return readWriteGracePeriod;
@@ -123,6 +144,9 @@ public class SqlFailoverGroupResource extends AzureResource {
         this.readWriteGracePeriod = readWriteGracePeriod;
     }
 
+    /**
+     * The id of the sql server where the failover group is found. (Required)
+     */
     public String getSqlServerId() {
         return sqlServerId;
     }
@@ -131,6 +155,9 @@ public class SqlFailoverGroupResource extends AzureResource {
         this.sqlServerId = sqlServerId;
     }
 
+    /**
+     * The tags for the failover group. (Optional)
+     */
     @ResourceDiffProperty(updatable = true)
     public Map<String, String> getTags() {
         if (tags == null) {

@@ -64,6 +64,9 @@ public class SqlElasticPoolResource extends AzureResource {
     private String storageCapacity;
     private Map<String, String> tags;
 
+    /**
+     * The databases within the elastic pool. (Optional)
+     */
     @ResourceDiffProperty(updatable = true)
     public List<String> getDatabaseNames() {
         if (databaseNames == null) {
@@ -77,6 +80,9 @@ public class SqlElasticPoolResource extends AzureResource {
         this.databaseNames = databaseNames;
     }
 
+    /**
+     * Sets the maximum eDTU for the each database in the pool. (Required)
+     */
     @ResourceDiffProperty(updatable = true)
     public String getDtuMax() {
         return dtuMax;
@@ -86,6 +92,9 @@ public class SqlElasticPoolResource extends AzureResource {
         this.dtuMax = dtuMax;
     }
 
+    /**
+     * Sets the minimum of eDTU for each database in the pool. (Required)
+     */
     @ResourceDiffProperty(updatable = true)
     public String getDtuMin() {
         return dtuMin;
@@ -95,6 +104,9 @@ public class SqlElasticPoolResource extends AzureResource {
         this.dtuMin = dtuMin;
     }
 
+    /**
+     * Sets the total shared eDTU for the elastic pool. (Required)
+     */
     @ResourceDiffProperty(updatable = true)
     public String getDtuReserved() {
         return dtuReserved;
@@ -104,6 +116,9 @@ public class SqlElasticPoolResource extends AzureResource {
         this.dtuReserved = dtuReserved;
     }
 
+    /**
+     * The edition of the elastic pool. (Required)
+     */
     @ResourceDiffProperty(updatable = true)
     public String getEdition() {
         return edition;
@@ -113,6 +128,9 @@ public class SqlElasticPoolResource extends AzureResource {
         this.edition = edition;
     }
 
+    /**
+     * The id of the elastic pool.
+     */
     @ResourceOutput
     public String getId() {
         return id;
@@ -122,6 +140,9 @@ public class SqlElasticPoolResource extends AzureResource {
         this.id = id;
     }
 
+    /**
+     * The name of the elastic pool. (Required)
+     */
     public String getName() {
         return name;
     }
@@ -130,6 +151,9 @@ public class SqlElasticPoolResource extends AzureResource {
         this.name = name;
     }
 
+    /**
+     * Sets the storage limit for the database elastic pool. Used with Standard and Premium editions (Conditional)
+     */
     @ResourceDiffProperty(updatable = true)
     public String getStorageCapacity() {
         return storageCapacity;
@@ -139,6 +163,9 @@ public class SqlElasticPoolResource extends AzureResource {
         this.storageCapacity = storageCapacity;
     }
 
+    /**
+     * The id of the sql server where the elastic pool is found. (Required)
+     */
     public String getSqlServerId() {
         return sqlServerId;
     }
@@ -147,6 +174,9 @@ public class SqlElasticPoolResource extends AzureResource {
         this.sqlServerId = sqlServerId;
     }
 
+    /**
+     * The tags associated with the elastic pool. (Optional)
+     */
     @ResourceDiffProperty(updatable = true)
     public Map<String, String> getTags() {
         if (tags == null) {

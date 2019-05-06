@@ -36,6 +36,9 @@ public class SqlFirewallRuleResource extends AzureResource {
     private String name;
     private String sqlServerId;
 
+    /**
+     * The id of the firewall rule. (Required)
+     */
     @ResourceOutput
     public String getId() {
         return id;
@@ -45,6 +48,9 @@ public class SqlFirewallRuleResource extends AzureResource {
         this.id = id;
     }
 
+    /**
+     * The starting or only ip address of the firewall rule. (Required)
+     */
     @ResourceDiffProperty(updatable = true)
     public String getStartIpAddress() {
         return startIpAddress;
@@ -54,6 +60,9 @@ public class SqlFirewallRuleResource extends AzureResource {
         this.startIpAddress = startIpAddress;
     }
 
+    /**
+     * The ending ip address of the firewall rule. (Optional)
+     */
     @ResourceDiffProperty(updatable = true)
     public String getEndIpAddress() {
         return endIpAddress;
@@ -63,6 +72,9 @@ public class SqlFirewallRuleResource extends AzureResource {
         this.endIpAddress = endIpAddress;
     }
 
+    /**
+     * The name of the firewall rule. (Required)
+     */
     public String getName() {
         return name;
     }
@@ -71,6 +83,9 @@ public class SqlFirewallRuleResource extends AzureResource {
         this.name = name;
     }
 
+    /**
+     * The id of the sql server where the firewall rule is found. (Required)
+     */
     public String getSqlServerId() {
         return sqlServerId;
     }

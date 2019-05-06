@@ -1,6 +1,7 @@
 package gyro.azure.sql;
 
 import gyro.azure.AzureResource;
+import gyro.core.GyroException;
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceDiffProperty;
 import gyro.core.resource.ResourceName;
@@ -72,6 +73,9 @@ public class SqlDatabaseResource extends AzureResource {
     private SqlServerResource sqlServer;
     private Map<String, String> tags;
 
+    /**
+     * The collation of the database. (Optional)
+     */
     public String getCollation() {
         return collation;
     }
@@ -80,6 +84,9 @@ public class SqlDatabaseResource extends AzureResource {
         this.collation = collation;
     }
 
+    /**
+     * The create mode of the database. (Optional)
+     */
     @ResourceDiffProperty(updatable = true)
     public String getCreateMode() {
         return createMode;
@@ -89,6 +96,9 @@ public class SqlDatabaseResource extends AzureResource {
         this.createMode = createMode;
     }
 
+    /**
+     * The edition of the database. Options include Basic, Premium, and Standard. (Optional)
+     */
     @ResourceDiffProperty(updatable = true)
     public String getEdition() {
         return edition;
@@ -98,6 +108,9 @@ public class SqlDatabaseResource extends AzureResource {
         this.edition = edition;
     }
 
+    /**
+     * The edition service objective of the database. Used with editions Basic, Premium, and Standard. (Conditional)
+     */
     @ResourceDiffProperty(updatable = true)
     public String getEditionServiceObjective() {
         return editionServiceObjective;
@@ -108,6 +121,9 @@ public class SqlDatabaseResource extends AzureResource {
         this.editionServiceObjective = editionServiceObjective;
     }
 
+    /**
+     * The elastic pool associated with the database. (Optional)
+     */
     @ResourceDiffProperty(updatable = true)
     public String getElasticPoolName() {
         return elasticPoolName;
@@ -117,6 +133,9 @@ public class SqlDatabaseResource extends AzureResource {
         this.elasticPoolName = elasticPoolName;
     }
 
+    /**
+     * The id of the database.
+     */
     @ResourceOutput
     public String getId() {
         return id;
@@ -126,6 +145,9 @@ public class SqlDatabaseResource extends AzureResource {
         this.id = id;
     }
 
+    /**
+     * The container the source file is coming from. (Conditional)
+     */
     public String getImportFromContainerName() {
         return importFromContainerName;
     }
@@ -134,6 +156,9 @@ public class SqlDatabaseResource extends AzureResource {
         this.importFromContainerName = importFromContainerName;
     }
 
+    /**
+     * The source filename. (Conditional)
+     */
     public String getImportFromFilename() {
         return importFromFilename;
     }
@@ -142,6 +167,9 @@ public class SqlDatabaseResource extends AzureResource {
         this.importFromFilename = importFromFilename;
     }
 
+    /**
+     * The storage account id the source file is coming from. (Conditional)
+     */
     public String getImportFromStorageAccountId() {
         return importFromStorageAccountId;
     }
@@ -150,6 +178,9 @@ public class SqlDatabaseResource extends AzureResource {
         this.importFromStorageAccountId = importFromStorageAccountId;
     }
 
+    /**
+     * The maximum size of the database. Used with Premium and Standard Editions. (Conditional)
+     */
     @ResourceDiffProperty(updatable = true)
     public String getMaxStorageCapacity() {
         if (!StringUtils.isNumeric(maxStorageCapacity)) {
@@ -170,6 +201,9 @@ public class SqlDatabaseResource extends AzureResource {
         this.maxStorageCapacity = maxStorageCapacity;
     }
 
+    /**
+     * The name of the database. (Required)
+     */
     public String getName() {
         return name;
     }
@@ -178,6 +212,9 @@ public class SqlDatabaseResource extends AzureResource {
         this.name = name;
     }
 
+    /**
+     * Determines if the sample database is used. (Optional)
+     */
     public Boolean getWithSampleDatabase() {
         return withSampleDatabase;
     }
@@ -186,6 +223,9 @@ public class SqlDatabaseResource extends AzureResource {
         this.withSampleDatabase = withSampleDatabase;
     }
 
+    /**
+     * The name of the source database. (Optional)
+     */
     public String getSourceDatabaseName() {
         return sourceDatabaseName;
     }
@@ -194,6 +234,9 @@ public class SqlDatabaseResource extends AzureResource {
         this.sourceDatabaseName = sourceDatabaseName;
     }
 
+    /**
+     * The source uri of the database to be imported. (Optional)
+     */
     public String getStorageUri() {
         return storageUri;
     }
@@ -202,6 +245,9 @@ public class SqlDatabaseResource extends AzureResource {
         this.storageUri = storageUri;
     }
 
+    /**
+     * The storage account related to a database to be imported. (Conditional)
+     */
     public StorageAccountResource getStorageAccount() {
         return storageAccount;
     }
@@ -210,6 +256,9 @@ public class SqlDatabaseResource extends AzureResource {
         this.storageAccount = storageAccount;
     }
 
+    /**
+     * The sql server where the database is found. (Optional)
+     */
     public SqlServerResource getSqlServer() {
         return sqlServer;
     }
@@ -218,6 +267,9 @@ public class SqlDatabaseResource extends AzureResource {
         this.sqlServer = sqlServer;
     }
 
+    /**
+     * The tags associated with the database. (Optional)
+     */
     @ResourceDiffProperty(updatable = true)
     public Map<String, String> getTags() {
         if (tags == null) {

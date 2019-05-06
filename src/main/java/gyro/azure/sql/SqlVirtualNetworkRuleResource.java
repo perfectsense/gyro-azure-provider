@@ -36,6 +36,9 @@ public class SqlVirtualNetworkRuleResource extends AzureResource {
     private String sqlServerId;
     private String subnetName;
 
+    /**
+     * The id of the virtual network rule.
+     */
     @ResourceOutput
     public String getId() {
         return id;
@@ -45,6 +48,9 @@ public class SqlVirtualNetworkRuleResource extends AzureResource {
         this.id = id;
     }
 
+    /**
+     * Determines if the rule will ignore the missing sql endpoint. (Required)
+     */
     public Boolean getIgnoreMissingSqlEndpoint() {
         return ignoreMissingSqlEndpoint;
     }
@@ -53,6 +59,9 @@ public class SqlVirtualNetworkRuleResource extends AzureResource {
         this.ignoreMissingSqlEndpoint = ignoreMissingSqlEndpoint;
     }
 
+    /**
+     * The name of the virtual network rule. (Required)
+     */
     public String getName() {
         return name;
     }
@@ -61,6 +70,9 @@ public class SqlVirtualNetworkRuleResource extends AzureResource {
         this.name = name;
     }
 
+    /**
+     * The network id where the subnet is found. (Required)
+     */
     public String getNetworkId() {
         return networkId;
     }
@@ -69,6 +81,9 @@ public class SqlVirtualNetworkRuleResource extends AzureResource {
         this.networkId = networkId;
     }
 
+    /**
+     * The id of the sql server where the virtual network rule is found. (Required)
+     */
     public String getSqlServerId() {
         return sqlServerId;
     }
@@ -77,6 +92,9 @@ public class SqlVirtualNetworkRuleResource extends AzureResource {
         this.sqlServerId = sqlServerId;
     }
 
+    /**
+     * The name of a subnet within the specified network. (Required)
+     */
     public String getSubnetName() {
         return subnetName;
     }

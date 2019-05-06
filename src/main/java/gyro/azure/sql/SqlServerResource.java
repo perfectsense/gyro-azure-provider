@@ -47,6 +47,9 @@ public class SqlServerResource extends AzureResource {
     private Boolean systemAssignedMsi;
     private Map<String, String> tags;
 
+    /**
+     * Determines if the azure portal will have access to the server. (Required)
+     */
     public Boolean getWithAccessFromAzureServices() {
         if (withAccessFromAzureServices == null) {
             withAccessFromAzureServices = true;
@@ -59,6 +62,9 @@ public class SqlServerResource extends AzureResource {
         this.withAccessFromAzureServices = withAccessFromAzureServices;
     }
 
+    /**
+     * The administrator login. (Required)
+     */
     public String getAdministratorLogin() {
         return administratorLogin;
     }
@@ -67,6 +73,9 @@ public class SqlServerResource extends AzureResource {
         this.administratorLogin = administratorLogin;
     }
 
+    /**
+     * The administrator password. (Required)
+     */
     @ResourceDiffProperty(updatable = true)
     public String getAdministratorPassword() {
         return administratorPassword;
@@ -76,6 +85,9 @@ public class SqlServerResource extends AzureResource {
         this.administratorPassword = administratorPassword;
     }
 
+    /**
+     * The id of the server.
+     */
     @ResourceOutput
     public String getId() {
         return id;
@@ -85,6 +97,9 @@ public class SqlServerResource extends AzureResource {
         this.id = id;
     }
 
+    /**
+     * The name of the server. (Required)
+     */
     public String getName() {
         return name;
     }
@@ -93,6 +108,9 @@ public class SqlServerResource extends AzureResource {
         this.name = name;
     }
 
+    /**
+     * The server's region. (Required)
+     */
     @Override
     public String getRegion() {
         return region;
@@ -113,6 +131,9 @@ public class SqlServerResource extends AzureResource {
         this.resourceGroupName = resourceGroupName;
     }
 
+    /**
+     * Determines if the system will set a local Managed Service Identity (MSI) for the server. (Optional)
+     */
     @ResourceDiffProperty(updatable = true)
     public Boolean getSystemAssignedMsi() {
         return systemAssignedMsi;
@@ -122,6 +143,9 @@ public class SqlServerResource extends AzureResource {
         this.systemAssignedMsi = systemAssignedMsi;
     }
 
+    /**
+     * The tags for the sql server. (Optional)
+     */
     @ResourceDiffProperty(updatable = true)
     public Map<String, String> getTags() {
         if (tags == null) {
