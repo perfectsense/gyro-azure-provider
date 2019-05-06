@@ -1,5 +1,3 @@
-@import ../init as _
-
 azure::resource-group storage-account-example
     resource-group-name: "storage-account-example"
 
@@ -10,7 +8,43 @@ end
 
 azure::storage-account storage-account-example
     resource-group-name: $(azure::resource-group storage-account-example | resource-group-name)
-    storage-account-name: "storageaccountex"
+    name: "storageaccountex"
+
+    cors-rule
+        allowed-headers: ["*"]
+        allowed-methods: ["GET"]
+        allowed-origins: ["*"]
+        exposed-headers: ["*"]
+        max-age: 6
+        type: "blob"
+    end
+
+    cors-rule
+        allowed-headers: ["*"]
+        allowed-methods: ["PUT"]
+        allowed-origins: ["*"]
+        exposed-headers: ["*"]
+        max-age: 6
+        type: "file"
+    end
+
+    cors-rule
+        allowed-headers: ["*"]
+        allowed-methods: ["PUT"]
+        allowed-origins: ["*"]
+        exposed-headers: ["*"]
+        max-age: 6
+        type: "queue"
+    end
+
+    cors-rule
+        allowed-headers: ["*"]
+        allowed-methods: ["PUT"]
+        allowed-origins: ["*"]
+        exposed-headers: ["*"]
+        max-age: 6
+        type: "table"
+    end
 
     tags: {
         Name: "storage-account-example"

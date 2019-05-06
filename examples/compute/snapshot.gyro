@@ -1,0 +1,59 @@
+@import ../init as _
+
+azure::resource-group resource-group-snapshot-example
+    resource-group-name: "resource-group-snapshot-example"
+
+    tags: {
+        Name: "resource-group-snapshot-example"
+    }
+end
+
+azure::disk disk-example
+    disk-name: "disk-example"
+    disk-type: "Standard_LRS"
+    os-type: "LINUX"
+    size: 10
+    resource-group-name: $(azure::resource-group resource-group-snapshot-example | resource-group-name)
+    tags: {
+        Name: "snapshot-disk-example"
+    }
+end
+
+azure::snapshot snapshot-example
+    provider: "Disk"
+    disk-id: $(azure::disk disk-example | disk-id)
+    name: "snapshot-name"
+    resource-group-name: $(azure::resource-group resource-group-snapshot-example | resource-group-name)
+    size: 10
+    sku: "Standard_LRS"
+    source: "Data"
+    tags: {
+        Name: "snapshot-example"
+    }
+end
+
+azure::snapshot snapshot-example-linux
+    provider: "Disk"
+    disk-id: $(azure::disk disk-example | disk-id)
+    name: "snapshot-name-1"
+    resource-group-name: $(azure::resource-group resource-group-snapshot-example | resource-group-name)
+    size: 10
+    sku: "Standard_LRS"
+    source: "Linux"
+    tags: {
+        Name: "snapshot-example"
+    }
+end
+
+azure::snapshot snapshot-example-windows
+    provider: "Snapshot"
+    snapshot-id: $(azure::snapshot snapshot-example | id)
+    name: "snapshot-name-2"
+    resource-group-name: $(azure::resource-group resource-group-snapshot-example | resource-group-name)
+    size: 10
+    sku: "Standard_LRS"
+    source: "Windows"
+    tags: {
+        Name: "snapshot-example"
+    }
+end

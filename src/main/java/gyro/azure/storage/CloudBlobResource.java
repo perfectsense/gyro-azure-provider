@@ -34,7 +34,7 @@ import java.io.File;
  *         blob-directory-path: "/path/to/blob"
  *         container-name: $(azure::cloud-blob-container blob-container-example | container-name)
  *         file-path: "gyro-providers/gyro-azure-provider/examples/storage/test-blob-doc.txt"
- *         storage-connection: $(azure::storage-account blob-storage-account-example | storage-connection)
+ *         storage-account: $(azure::storage-account blob-storage-account-example)
  *     end
  */
 @ResourceName("cloud-blob")
@@ -44,7 +44,7 @@ public class CloudBlobResource extends AzureResource {
     private String blobDirectoryPath;
     private String containerName;
     private String filePath;
-    private String storageConnection;
+    private StorageAccountResource storageAccount;
 
     public String getBlobName() {
         return Paths.get(getBlobDirectoryPath()).getFileName().toString();
@@ -84,12 +84,12 @@ public class CloudBlobResource extends AzureResource {
         this.filePath = filePath;
     }
 
-    public String getStorageConnection() {
-        return storageConnection;
+    public StorageAccountResource getStorageAccount() {
+        return storageAccount;
     }
 
-    public void setStorageConnection(String storageConnection) {
-        this.storageConnection = storageConnection;
+    public void setStorageAccount(StorageAccountResource storageAccount) {
+        this.storageAccount = storageAccount;
     }
 
     @Override
@@ -137,7 +137,7 @@ public class CloudBlobResource extends AzureResource {
 
     private CloudBlockBlob cloudBlobBlob() {
         try {
-            CloudStorageAccount account = CloudStorageAccount.parse(getStorageConnection());
+            CloudStorageAccount account = CloudStorageAccount.parse(getStorageAccount().getConnection());
             CloudBlobClient client = account.createCloudBlobClient();
             CloudBlobContainer container = client.getContainerReference(getContainerName());
             CloudBlockBlob blob;
@@ -157,7 +157,7 @@ public class CloudBlobResource extends AzureResource {
 
     private CloudBlobDirectory createDirectories() {
         try {
-            CloudStorageAccount account = CloudStorageAccount.parse(getStorageConnection());
+            CloudStorageAccount account = CloudStorageAccount.parse(getStorageAccount().getConnection());
             CloudBlobClient client = account.createCloudBlobClient();
             CloudBlobContainer container = client.getContainerReference(getContainerName());
             Path directoryPath = Paths.get(getBlobDirectoryPath()).getParent();
