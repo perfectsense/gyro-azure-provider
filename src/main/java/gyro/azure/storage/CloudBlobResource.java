@@ -10,6 +10,7 @@ import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlobDirectory;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
+import gyro.core.resource.ResourceOutput;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -47,6 +48,9 @@ public class CloudBlobResource extends AzureResource {
     private StorageAccountResource storageAccount;
     private String uri;
 
+    /**
+     * The name of the blob. (Required)
+     */
     public String getBlobName() {
         return Paths.get(getBlobDirectoryPath()).getFileName().toString();
     }
@@ -66,6 +70,9 @@ public class CloudBlobResource extends AzureResource {
         this.blobDirectoryPath = blobDirectoryPath;
     }
 
+    /**
+     * The container where the blob found. (Required)
+     */
     public String getContainerName() {
         return containerName;
     }
@@ -96,6 +103,7 @@ public class CloudBlobResource extends AzureResource {
         this.storageAccount = storageAccount;
     }
 
+    @ResourceOutput
     public String getUri() {
         return uri;
     }

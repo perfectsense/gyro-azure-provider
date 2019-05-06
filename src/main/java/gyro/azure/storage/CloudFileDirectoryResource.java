@@ -51,7 +51,7 @@ public class CloudFileDirectoryResource extends AzureResource {
     }
 
     /**
-     * The name of the cloud file directory. (Required)
+     * The name of the cloud file path. (Required)
      */
     public String getCloudFileDirectoryPath() {
         return cloudFileDirectoryPath;
@@ -61,6 +61,9 @@ public class CloudFileDirectoryResource extends AzureResource {
         this.cloudFileDirectoryPath = cloudFileDirectoryPath;
     }
 
+    /**
+     * The name of the cloud file directory. (Required)
+     */
     public String getCloudFileDirectoryName() {
         return Paths.get(getCloudFileDirectoryPath()).getFileName().toString();
     }
