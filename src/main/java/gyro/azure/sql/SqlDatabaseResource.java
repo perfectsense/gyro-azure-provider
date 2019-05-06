@@ -318,7 +318,7 @@ public class SqlDatabaseResource extends AzureResource {
                     && getImportFromFilename() != null
                     && getImportFromStorageAccountId() != null
             ) {
-                StorageAccount storageAccount = client.storageAccounts().getById(getStorageAccount().getStorageAccountId());
+                StorageAccount storageAccount = client.storageAccounts().getById(getStorageAccount().getId());
                 withExistingDatabaseAfterElasticPool.importFrom(storageAccount,
                         getImportFromContainerName(),
                         getImportFromFilename())
