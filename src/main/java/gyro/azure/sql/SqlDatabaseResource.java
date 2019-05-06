@@ -289,7 +289,6 @@ public class SqlDatabaseResource extends AzureResource {
         setElasticPoolName(database.elasticPoolName());
         setId(getSqlServer().getId() + "/databases/" + getName());
         setName(database.name());
-        setSourceDatabaseName(database.inner().sourceDatabaseId());
         setMaxStorageCapacity(findMaxCapacity(database.maxSizeBytes()));
         setTags(database.inner().getTags());
 
@@ -303,7 +302,7 @@ public class SqlDatabaseResource extends AzureResource {
         WithAllDifferentOptions buildDatabase = client.sqlServers().getById(getSqlServer().getId()).databases().define(getName());
 
         //configures the source database within the elastic pool
-        WithExistingDatabaseAfterElasticPool withExistingDatabaseAfterElasticPool = null;
+        WithExistingDatabaseAfterElasticPool withExistingDatabaseAfterElasticPool;
         if (getElasticPoolName() != null) {
             withExistingDatabaseAfterElasticPool = buildDatabase.withExistingElasticPool(getElasticPoolName());
 
@@ -366,7 +365,6 @@ public class SqlDatabaseResource extends AzureResource {
         }
 
         //pick the source of data for the database
-        WithCreateMode withCreateMode = null;
         if (getSourceDatabaseName() != null && getCreateMode() != null) {
             SqlDatabase db = client.sqlServers().getById(getSqlServer().getId()).databases().get(getSourceDatabaseName());
             buildDatabase.withSourceDatabase(db).withMode(CreateMode.fromString(getCreateMode())).withTags(getTags()).create();
