@@ -136,6 +136,9 @@ public class SqlServerResource extends AzureResource {
      */
     @ResourceDiffProperty(updatable = true)
     public Boolean getSystemAssignedMsi() {
+        if (systemAssignedMsi == null) {
+            systemAssignedMsi = false;
+        }
         return systemAssignedMsi;
     }
 
@@ -189,10 +192,8 @@ public class SqlServerResource extends AzureResource {
                 .withAdministratorPassword(getAdministratorPassword())
                 .withTags(getTags());
 
-        if (getSystemAssignedMsi() != null) {
-            if (getSystemAssignedMsi()) {
-                withCreate.withSystemAssignedManagedServiceIdentity();
-            }
+        if (getSystemAssignedMsi()) {
+            withCreate.withSystemAssignedManagedServiceIdentity();
         }
 
         if (!getWithAccessFromAzureServices()) {
@@ -210,10 +211,8 @@ public class SqlServerResource extends AzureResource {
 
         SqlServer.Update update = client.sqlServers().getById(getId()).update();
 
-        if (getSystemAssignedMsi() != null) {
-            if (getSystemAssignedMsi()) {
-                update.withSystemAssignedManagedServiceIdentity();
-            }
+        if (getSystemAssignedMsi()) {
+            update.withSystemAssignedManagedServiceIdentity();
         }
 
         update.withAdministratorPassword(getAdministratorPassword())

@@ -52,6 +52,10 @@ public class SqlVirtualNetworkRuleResource extends AzureResource {
      * Determines if the rule will ignore the missing sql endpoint. (Required)
      */
     public Boolean getIgnoreMissingSqlEndpoint() {
+        if (ignoreMissingSqlEndpoint == null) {
+            ignoreMissingSqlEndpoint = false;
+        }
+
         return ignoreMissingSqlEndpoint;
     }
 
@@ -128,7 +132,7 @@ public class SqlVirtualNetworkRuleResource extends AzureResource {
         WithServiceEndpoint withServiceEndpoint = client.sqlServers().getById(getSqlServerId()).virtualNetworkRules().define(getName())
                 .withSubnet(getNetworkId(), getSubnetName());
 
-        if (getIgnoreMissingSqlEndpoint() != null) {
+        if (getIgnoreMissingSqlEndpoint()) {
             withServiceEndpoint.ignoreMissingSqlServiceEndpoint();
         }
 
