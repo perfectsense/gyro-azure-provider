@@ -80,6 +80,9 @@ public class CloudFileDirectoryResource extends AzureResource {
         this.cloudFileShareName = cloudFileShareName;
     }
 
+    /**
+     * The storage account resource where the file directory will be created. (Required)
+     */
     public StorageAccountResource getStorageAccount() {
         return storageAccount;
     }

@@ -83,6 +83,9 @@ public class CloudFileResource extends AzureResource {
         this.fileName = fileName;
     }
 
+    /**
+     * The storage account resource where the file will be created. (Required)
+     */
     public StorageAccountResource getStorageAccount() {
         return storageAccount;
     }

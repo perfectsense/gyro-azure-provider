@@ -85,6 +85,9 @@ public class CloudBlobResource extends AzureResource {
         this.filePath = filePath;
     }
 
+    /**
+     * The storage account resource where the blob will be created. (Required)
+     */
     public StorageAccountResource getStorageAccount() {
         return storageAccount;
     }

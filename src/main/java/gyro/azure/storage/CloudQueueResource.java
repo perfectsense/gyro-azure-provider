@@ -45,6 +45,9 @@ public class CloudQueueResource extends AzureResource {
         this.cloudQueueName = cloudQueueName;
     }
 
+    /**
+     * The storage account resource where the queue will be created. (Required)
+     */
     public StorageAccountResource getStorageAccount() {
         return storageAccount;
     }
