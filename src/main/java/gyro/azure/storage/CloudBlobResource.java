@@ -47,7 +47,6 @@ public class CloudBlobResource extends AzureResource {
     private StorageAccountResource storageAccount;
     private String uri;
 
-
     public String getBlobName() {
         return Paths.get(getBlobDirectoryPath()).getFileName().toString();
     }
