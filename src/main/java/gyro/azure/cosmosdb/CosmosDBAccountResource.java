@@ -66,6 +66,8 @@ public class CosmosDBAccountResource extends AzureResource {
     private String writeReplicationRegion;
 
     /**
+     * The consistency policy of the account. Values values are ``AzureTable``, ``Cassandra``,
+     * ``Gremlin``, ``MongoDB``, ``Sql``. (Required)
      */
     public String getDatabaseAccountKind() {
         return databaseAccountKind;
@@ -76,8 +78,8 @@ public class CosmosDBAccountResource extends AzureResource {
     }
 
     /**
-     * The consistency policy of the account. Options include BoundedStaleness, Eventual,
-     * Session, and Strong (Required)
+     * The consistency policy of the account. Valid values are ``BoundedStaleness``, ``Eventual``,
+     * ``Session``, and ``Strong``. (Required)
      */
     @ResourceDiffProperty(updatable = true)
     public String getConsistencyLevel() {
@@ -113,7 +115,7 @@ public class CosmosDBAccountResource extends AzureResource {
     }
 
     /**
-     * The max interval, in seconds. Used with bounded staleness consistency policy. (Conditional)
+     * The max interval, in seconds. Used with ``BoundedStaleness`` consistency policy. (Conditional)
      */
     @ResourceDiffProperty(updatable = true)
     public Integer getMaxInterval() {
@@ -125,7 +127,7 @@ public class CosmosDBAccountResource extends AzureResource {
     }
 
     /**
-     * The max staleness prefix. Used with bounded staleness consistency policy. (Conditional)
+     * The max staleness prefix. Used with ``BoundedStaleness`` consistency policy. (Conditional)
      */
     @ResourceDiffProperty(updatable = true)
     public String getMaxStalenessPrefix() {
@@ -207,8 +209,8 @@ public class CosmosDBAccountResource extends AzureResource {
     }
 
     /**
-     * Sets the write location. Used with BoundedStaleness, Eventual, and Session
-     * consistency level (Conditional)
+     * Sets the write location. Used with ``BoundedStaleness``, ``Eventual``, and ``Session``
+     * consistency levels. (Conditional)
      */
     @ResourceDiffProperty(updatable = true)
     public String getWriteReplicationRegion() {
