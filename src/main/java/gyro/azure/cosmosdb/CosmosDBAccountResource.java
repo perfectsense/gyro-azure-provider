@@ -52,7 +52,6 @@ import java.util.stream.Collectors;
 @ResourceName("cosmos-db")
 public class CosmosDBAccountResource extends AzureResource {
 
-    private List<String> capabilities;
     private String databaseAccountKind;
     private String consistencyLevel;
     private String id;
@@ -67,23 +66,6 @@ public class CosmosDBAccountResource extends AzureResource {
     private String writeReplicationRegion;
 
     /**
-     * The capabilities of the account. (Optional)
-     */
-    public List<String> getCapabilities() {
-        if (capabilities == null) {
-            capabilities = new ArrayList<>();
-        }
-
-        return capabilities;
-    }
-
-    public void setCapabilities(List<String> capabilities) {
-        this.capabilities = capabilities;
-    }
-
-    /**
-     * The consistency policy of the account. Options include AzureTable, Cassandra,
-     * Gremlin, MongoDB, Sql (Required)
      */
     public String getDatabaseAccountKind() {
         return databaseAccountKind;
@@ -247,9 +229,6 @@ public class CosmosDBAccountResource extends AzureResource {
             return false;
         }
 
-        getCapabilities().clear();
-        cosmosAccount.capabilities().forEach(cap -> getCapabilities().add(cap.name()));
-
         setConsistencyLevel(cosmosAccount.consistencyPolicy().defaultConsistencyLevel().toString());
         setId(cosmosAccount.id());
         setIpRangeFilter(cosmosAccount.ipRangeFilter());
@@ -292,15 +271,7 @@ public class CosmosDBAccountResource extends AzureResource {
                 .withExistingResourceGroup(getResourceGroupName());
 
         WithConsistencyPolicy withConsistencyPolicy = null;
-
         if (getDatabaseAccountKind() != null) {
-            if (getCapabilities() != null) {
-                for (String capability : getCapabilities()) {
-                    withConsistencyPolicy = withKind.withKind(DatabaseAccountKind.fromString(getDatabaseAccountKind()),
-                            new Capability().withName(capability));
-                }
-            }
-            if (getDatabaseAccountKind().equals("AzureTable")) {
                 withConsistencyPolicy = withKind.withDataModelAzureTable();
             } else if (getDatabaseAccountKind().equals("Cassandra")) {
                 withConsistencyPolicy = withKind.withDataModelCassandra();
