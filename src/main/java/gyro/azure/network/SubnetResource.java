@@ -1,6 +1,7 @@
 package gyro.azure.network;
 
 import gyro.azure.AzureResource;
+import gyro.core.GyroException;
 import gyro.core.resource.ResourceDiffProperty;
 import gyro.core.resource.ResourceName;
 import gyro.core.resource.Resource;
@@ -238,12 +239,14 @@ public class SubnetResource extends AzureResource {
     }
 
     private String endpointType(String endpoint) {
-        if (endpoint.equals("AzureCosmosDB")) {
+        if (endpoint.equalsIgnoreCase("AzureCosmosDB")) {
             return "Microsoft.AzureCosmosDB";
-        } else if (endpoint.equals("Sql")) {
+        } else if (endpoint.equalsIgnoreCase("Sql")) {
             return "Microsoft.Sql";
-        } else {
+        } else if (endpoint.equalsIgnoreCase("Storage")) {
             return "Microsoft.Storage";
+        } else {
+            throw new GyroException("Invalid enpoint type. Values are AzureCosmosDB, Sql, and Storage");
         }
     }
 }
