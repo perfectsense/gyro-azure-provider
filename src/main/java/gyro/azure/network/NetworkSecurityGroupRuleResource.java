@@ -419,8 +419,4 @@ public class NetworkSecurityGroupRuleResource extends AzureResource {
         return String.format("%s", getSecurityGroupRuleName());
     }
 
-    @Override
-    public String resourceIdentifier() {
-        return null;
-    }
 }

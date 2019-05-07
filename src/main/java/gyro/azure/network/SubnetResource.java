@@ -218,11 +218,6 @@ public class SubnetResource extends AzureResource {
         return String.format("%s", getName());
     }
 
-    @Override
-    public String resourceIdentifier() {
-        return null;
-    }
-
     private Map<String, List<String>> toServiceEndpoints(Map<ServiceEndpointType, List<Region>> serviceEndpointMap) {
         Map<String, List<String>> endpoints = new HashMap<>();
 

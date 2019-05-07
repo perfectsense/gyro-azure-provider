@@ -287,11 +287,6 @@ public class NicIpConfigurationResource extends AzureResource {
         return String.format("%s", getIpConfigurationName());
     }
 
-    @Override
-    public String resourceIdentifier() {
-        return null;
-    }
-
     private void refreshBackendsAndRules(NicIPConfiguration configuration) {
         getNicBackend().clear();
         for (LoadBalancerBackend backend : configuration.listAssociatedLoadBalancerBackends()) {
