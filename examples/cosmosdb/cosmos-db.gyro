@@ -1,5 +1,3 @@
-@import ../init as _
-
 azure::resource-group resource-group-cosmos-db-example
     resource-group-name: "resource-group-cosmos-db-example"
 
