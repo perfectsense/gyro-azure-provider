@@ -76,6 +76,7 @@ public class VirtualMachineResource extends AzureResource {
     private String networkInterfaceName;
     private String adminUserName;
     private String adminPassword;
+    private String availabilitySet;
     private String virtualMachineId;
     private String vmId;
     private String publicIpAddressName;
@@ -155,6 +156,17 @@ public class VirtualMachineResource extends AzureResource {
 
     public void setAdminUserName(String adminUserName) {
         this.adminUserName = adminUserName;
+    }
+
+    /**
+     * The availability set of the virtual machine.
+     */
+    public String getAvailabilitySet() {
+        return availabilitySet;
+    }
+
+    public void setAvailabilitySet(String availabilitySet) {
+        this.availabilitySet = availabilitySet;
     }
 
     /**
@@ -663,6 +675,10 @@ public class VirtualMachineResource extends AzureResource {
                     client.networkInterfaces().getByResourceGroup(getResourceGroupName(), networkInterfaceName)
                 );
             }
+        }
+
+        if (getAvailabilitySet() != null) {
+            create.withExistingAvailabilitySet(client.availabilitySets().getByResourceGroup(getResourceGroupName(), getAvailabilitySet()));
         }
 
         VirtualMachine virtualMachine = create.withTags(getTags()).create();

@@ -1,6 +1,7 @@
 package gyro.azure.storage;
 
 import gyro.azure.AzureResource;
+
 import gyro.core.GyroException;
 import gyro.core.resource.ResourceName;
 import gyro.core.resource.Resource;
@@ -24,14 +25,14 @@ import java.util.Set;
  *
  *     azure::cloud-queue cloud-queue-example
  *         cloud-queue-name: "cloudqueuename"
- *         storage-connection: $(azure::storage-account queue-storage-account-example | storage-connection)
+ *         storage-account: $(azure::storage-account queue-storage-account-example)
  *     end
  */
 @ResourceName("cloud-queue")
 public class CloudQueueResource extends AzureResource {
 
     private String cloudQueueName;
-    private String storageConnection;
+    private StorageAccountResource storageAccount;
 
     /**
      * The name of the queue (Required)
@@ -44,12 +45,12 @@ public class CloudQueueResource extends AzureResource {
         this.cloudQueueName = cloudQueueName;
     }
 
-    public String getStorageConnection() {
-        return storageConnection;
+    public StorageAccountResource getStorageAccount() {
+        return storageAccount;
     }
 
-    public void setStorageConnection(String storageConnection) {
-        this.storageConnection = storageConnection;
+    public void setStorageAccount(StorageAccountResource storageAccount) {
+        this.storageAccount = storageAccount;
     }
 
     @Override
@@ -96,7 +97,7 @@ public class CloudQueueResource extends AzureResource {
 
     private CloudQueue cloudQueue() {
         try {
-            CloudStorageAccount storageAccount = CloudStorageAccount.parse(getStorageConnection());
+            CloudStorageAccount storageAccount = CloudStorageAccount.parse(getStorageAccount().getConnection());
             CloudQueueClient queueClient = storageAccount.createCloudQueueClient();
             return queueClient.getQueueReference(getCloudQueueName());
         } catch (StorageException | URISyntaxException | InvalidKeyException ex) {

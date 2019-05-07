@@ -3,8 +3,8 @@ package gyro.azure.compute;
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.compute.Disk;
 import com.microsoft.azure.management.compute.DiskSkuTypes;
+import com.microsoft.azure.management.compute.DiskStorageAccountTypes;
 import com.microsoft.azure.management.compute.OperatingSystemTypes;
-import com.microsoft.azure.management.compute.StorageAccountTypes;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
@@ -205,14 +205,14 @@ public class DiskResource extends AzureResource {
 
             disk = diskDefWithData.withSizeInGB(getSize())
                 .withTags(getTags())
-                .withSku(DiskSkuTypes.fromStorageAccountType(StorageAccountTypes.fromString(getDiskType())))
+                .withSku(DiskSkuTypes.fromStorageAccountType(DiskStorageAccountTypes.fromString(getDiskType())))
                 .create();
 
         } else {
             disk = diskDefWithoutData.withData()
                 .withSizeInGB(getSize())
                 .withTags(getTags())
-                .withSku(DiskSkuTypes.fromStorageAccountType(StorageAccountTypes.fromString(getDiskType())))
+                .withSku(DiskSkuTypes.fromStorageAccountType(DiskStorageAccountTypes.fromString(getDiskType())))
                 .create();
 
             disk.update().withOSType(OperatingSystemTypes.fromString(getOsType())).apply();
@@ -242,7 +242,7 @@ public class DiskResource extends AzureResource {
         if (changedProperties.size() > changeCount) {
             disk.update()
                 .withSizeInGB(getSize())
-                .withSku(DiskSkuTypes.fromStorageAccountType(StorageAccountTypes.fromString(getDiskType())))
+                .withSku(DiskSkuTypes.fromStorageAccountType(DiskStorageAccountTypes.fromString(getDiskType())))
                 .withTags(getTags())
                 .apply();
         }

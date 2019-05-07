@@ -1,0 +1,221 @@
+azure::resource-group load-balancer-resource-group-example
+    resource-group-name: "load-balancer-resource-group-example"
+
+    tags: {
+        Name: "load-balancer-resource-group-example"
+    }
+end
+
+azure::network load-balancer-network-example
+    network-name: "load-balancer-network-example"
+    resource-group-name: $(azure::resource-group load-balancer-resource-group-example | resource-group-name)
+    address-spaces:  [
+         "10.0.0.0/27",
+         "10.1.0.0/27"
+    ]
+
+    subnet
+        address-prefix: "10.0.0.0/28"
+        name: "subnet1"
+    end
+
+    subnet
+        address-prefix: "10.0.0.16/28"
+        name: "subnet2"
+    end
+
+    tags: {
+        Name: "load-balancer-network-example"
+    }
+end
+
+azure::public-ip-address load-balancer-public-ip-address-example
+    public-ip-address-name: "load-balancer-public-ip-address-example"
+    resource-group-name: $(azure::resource-group load-balancer-resource-group-example | resource-group-name)
+    idle-timeout-in-minute: 4
+    sku-basic: false
+
+    tags: {
+        Name: "load-balancer-public-ip-address-example"
+    }
+end
+
+azure::disk load-balancer-disk-example
+    disk-name: "load-balancer-disk-example"
+    disk-type: "Standard_LRS"
+    os-type: "LINUX"
+    size: 10
+    resource-group-name: $(azure::resource-group load-balancer-resource-group-example | resource-group-name)
+    tags: {
+        Name: "load-balancer-disk-example"
+    }
+end
+
+azure::availability-set availability-set-example
+    fault-domain-count: 2
+    name: "availability-set-example"
+    resource-group-name: $(azure::resource-group load-balancer-resource-group-example | resource-group-name)
+    sku: "Aligned"
+    tags: {
+            Name: "availability-set-example"
+    }
+    update-domain-count: 20
+end
+
+azure::network-interface load-balancer-network-interface-example
+    network-interface-name: "load-balancer-network-interface-example"
+    resource-group-name: $(azure::resource-group load-balancer-resource-group-example | resource-group-name)
+    network-id: $(azure::network load-balancer-network-example | network-id)
+    subnet: "subnet1"
+    tags: {
+        Name: "load-balancer-network-interface-example"
+    }
+
+    nic-ip-configuration
+        ip-allocation-static: false
+        ip-configuration-name: 'primary'
+        primary: true
+        nic-backend
+            backend-pool-name: "backend-pool-one"
+            load-balancer-name: $(azure::load-balancer load-balancer-example | name)
+        end
+    end
+end
+
+azure::virtual-machine load-balancer-virtual-machine-example
+    virtual-machine-name: "load-balancer-virtual-machine-example"
+    resource-group-name: $(azure::resource-group load-balancer-resource-group-example | resource-group-name)
+    availability-set: $(azure::availability-set availability-set-example | name)
+    network-id: $(azure::network load-balancer-network-example | network-id)
+    subnet: "subnet1"
+    os-type: "linux"
+    disk-id: $(azure::disk load-balancer-disk-example | disk-id)
+    network-interface-name: $(azure::network-interface load-balancer-network-interface-example | network-interface-name)
+    vm-image-type: "popular"
+    known-virtual-image: "UBUNTU_SERVER_14_04_LTS"
+    admin-user-name: "qwerty@123"
+    admin-password: "qwerty@123"
+    caching-type: "NONE"
+    vm-size-type: "STANDARD_G1"
+    storage-account-type-data-disk: "STANDARD_LRS"
+    storage-account-type-os-disk: "STANDARD_LRS"
+    tags: {
+            Name: "load-balancer-virtual-machine-example"
+    }
+end
+
+azure::network-interface load-balancer-network-interface-example-two
+    network-interface-name: "load-balancer-network-interface-example-two"
+    resource-group-name: $(azure::resource-group load-balancer-resource-group-example | resource-group-name)
+    network-id: $(azure::network load-balancer-network-example | network-id)
+    subnet: "subnet1"
+    tags: {
+        Name: "load-balancer-network-interface-example"
+    }
+
+    nic-ip-configuration
+        ip-allocation-static: false
+        ip-configuration-name: 'primary'
+        primary: true
+        nic-backend
+            backend-pool-name: "backend-pool-two"
+            load-balancer-name: $(azure::load-balancer load-balancer-example | name)
+        end
+    end
+
+    nic-ip-configuration
+        ip-configuration-name: "nic-ip-configuration-two"
+        private-ip-address-static: "10.0.0.8"
+        ip-allocation-static: true
+        nic-backend
+            backend-pool-name: "backend-pool-two"
+            load-balancer-name: $(azure::load-balancer load-balancer-example | name)
+        end
+    end
+end
+
+azure::virtual-machine load-balancer-virtual-machine-example-two
+    virtual-machine-name: "load-balancer-virtual-machine-example-two"
+    resource-group-name: $(azure::resource-group load-balancer-resource-group-example | resource-group-name)
+    availability-set: $(azure::availability-set availability-set-example | name)
+    network-id: $(azure::network load-balancer-network-example | network-id)
+    subnet: "subnet1"
+    os-type: "linux"
+    disk-id: $(azure::disk load-balancer-disk-example | disk-id)
+    network-interface-name: $(azure::network-interface load-balancer-network-interface-example-two | network-interface-name)
+    vm-image-type: "popular"
+    known-virtual-image: "UBUNTU_SERVER_14_04_LTS"
+    admin-user-name: "qwerty@123"
+    admin-password: "qwerty@123"
+    caching-type: "NONE"
+    vm-size-type: "STANDARD_G1"
+    storage-account-type-data-disk: "STANDARD_LRS"
+    storage-account-type-os-disk: "STANDARD_LRS"
+    tags: {
+            Name: "load-balancer-virtual-machine-example"
+    }
+end
+
+azure::load-balancer load-balancer-example
+    name: "load-balancer-example"
+    resource-group-name: $(azure::resource-group load-balancer-resource-group-example | resource-group-name)
+    sku-basic: true
+
+    private-frontend
+        name: "private-frontend"
+        network-id: $(azure::network load-balancer-network-example | network-id)
+        subnet-name: "subnet2"
+
+        inbound-nat-pool
+            name: "test-nat-pool"
+            frontend-name: "private-frontend"
+            backend-port: 81
+            protocol: "TCP"
+            frontend-port-range-start: 81
+            frontend-port-range-end: 90
+        end
+    end
+
+    load-balancer-rule
+        name: "test-rule-1"
+        backend-port: 81
+        floating-ip: false
+        frontend-name: "private-frontend"
+        frontend-port: 443
+        idle-timeout-in-minutes: 9
+        protocol: "TCP"
+        backend-pool-name: "backend-pool-one"
+        health-check-probe-name: "health-check-http"
+    end
+
+    load-balancer-rule
+        name: "test-rule-2"
+        backend-port: 81
+        floating-ip: false
+        frontend-name: "private-frontend"
+        frontend-port: 445
+        idle-timeout-in-minutes: 9
+        protocol: "UDP"
+        backend-pool-name: "backend-pool-two"
+        health-check-probe-name: "health-check-tcp"
+    end
+
+    health-check-probe-http
+        name: "health-check-http"
+        interval: 13
+        request-path: "/"
+        port: 81
+        probes: 3
+    end
+
+    health-check-probe-tcp
+        name: "health-check-tcp"
+        interval: 7
+        port: 80
+        probes: 2
+    end
+
+    tags: {
+            Name: "load-balancer-example"
+    }
+end

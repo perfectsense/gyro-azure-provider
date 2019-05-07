@@ -6,6 +6,7 @@ import com.microsoft.azure.management.network.NicIPConfiguration;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
+
 import gyro.core.resource.ResourceDiffProperty;
 import gyro.core.resource.ResourceName;
 import gyro.core.resource.ResourceOutput;
@@ -32,7 +33,7 @@ import java.util.Set;
  *          subnet: "subnet2"
  *          security-group-id: $(azure::network-security-group network-security-group-example-interface | network-security-group-id)
  *
- *          primary-ip-configuration
+ *          nic-ip-configuration
  *              ip-allocation-static: false
  *              ip-configuration-name: 'primary'
  *              primary: true
@@ -57,7 +58,6 @@ public class NetworkInterfaceResource extends AzureResource {
     private String securityGroupId;
     private String networkInterfaceId;
     private Map<String, String> tags;
-    private NicIpConfigurationResource primaryIpConfiguration;
     private List<NicIpConfigurationResource> nicIpConfiguration;
 
     /**
@@ -150,24 +150,6 @@ public class NetworkInterfaceResource extends AzureResource {
     }
 
     /**
-     * primary ip configuration for the network interface.
-     *
-     * @subresource gyro.azure.network.NicIpConfigurationResource
-     */
-    @ResourceDiffProperty(updatable = true)
-    public NicIpConfigurationResource getPrimaryIpConfiguration() {
-        if (primaryIpConfiguration == null) {
-            primaryIpConfiguration = new NicIpConfigurationResource("primary");
-        }
-
-        return primaryIpConfiguration;
-    }
-
-    public void setPrimaryIpConfiguration(NicIpConfigurationResource primaryIpConfiguration) {
-        this.primaryIpConfiguration = primaryIpConfiguration;
-    }
-
-    /**
      * A list of ip configurations for the network interface.
      *
      * @subresource gyro.azure.network.NicIpConfigurationResource
@@ -201,10 +183,9 @@ public class NetworkInterfaceResource extends AzureResource {
 
             if (nicIpConfiguration.isPrimary()) {
                 nicIpConfigurationResource.setPrimary(true);
-                setPrimaryIpConfiguration(nicIpConfigurationResource);
-            } else {
-                getNicIpConfiguration().add(nicIpConfigurationResource);
             }
+
+            getNicIpConfiguration().add(nicIpConfigurationResource);
         }
 
         return true;
@@ -231,6 +212,27 @@ public class NetworkInterfaceResource extends AzureResource {
 
         if (!ObjectUtils.isBlank(getSecurityGroupId())) {
             withCreate = withCreate.withExistingNetworkSecurityGroup(client.networkSecurityGroups().getById(getSecurityGroupId()));
+        }
+
+        NicIpConfigurationResource primary = null;
+        for (NicIpConfigurationResource nic : getNicIpConfiguration()) {
+            if (nic.getPrimary()) {
+                primary = nic;
+            }
+        }
+
+        if (primary.getNicBackend() != null) {
+            for (NicBackend backend : primary.getNicBackend()) {
+                withCreate.withExistingLoadBalancerBackend(client.loadBalancers().getByResourceGroup(getResourceGroupName(),
+                        backend.getLoadBalancerName()), backend.getBackendPoolName());
+            }
+        }
+
+        if (primary.getNicNatRule() != null) {
+            for (NicNatRule rule : primary.getNicNatRule()) {
+                withCreate.withExistingLoadBalancerInboundNatRule(client.loadBalancers().getByResourceGroup(getResourceGroupName(),
+                        rule.getLoadBalancerName()), rule.getNatRuleName());
+            }
         }
 
         NetworkInterface networkInterface = withCreate.withTags(getTags()).create();
