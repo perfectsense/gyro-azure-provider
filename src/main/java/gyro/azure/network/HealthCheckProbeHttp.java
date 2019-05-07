@@ -1,6 +1,6 @@
 package gyro.azure.network;
 
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 
 import com.microsoft.azure.management.network.LoadBalancerHttpProbe;
 
@@ -37,7 +37,7 @@ public class HealthCheckProbeHttp extends HealthCheckProbeTcp {
     /**
      * The HTTP request path by the probe to call to check the health status. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getRequestPath() {
         return requestPath;
     }

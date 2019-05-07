@@ -3,7 +3,7 @@ package gyro.azure.compute;
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 
@@ -120,7 +120,7 @@ public class SnapshotResource extends AzureResource {
     /**
      * Specifies the sku type. Options include Premium_LRS, Standard_LRS, Standard_ZRS. (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getSku() {
         return sku;
     }
@@ -165,7 +165,7 @@ public class SnapshotResource extends AzureResource {
     /**
      * The tags associated with the snapshot. (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();

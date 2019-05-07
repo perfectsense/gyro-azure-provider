@@ -2,7 +2,7 @@ package gyro.azure.storage;
 
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 
@@ -52,7 +52,7 @@ public class CloudBlobContainerResource extends AzureResource {
     /**
      * The public access of the container. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getPublicAccess() {
         return publicAccess;
     }

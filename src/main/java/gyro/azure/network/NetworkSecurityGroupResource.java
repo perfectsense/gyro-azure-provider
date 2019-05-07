@@ -5,7 +5,7 @@ import com.microsoft.azure.management.network.NetworkSecurityGroup;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
@@ -98,7 +98,7 @@ public class NetworkSecurityGroupResource extends AzureResource {
      *
      * @subresource gyro.azure.network.NetworkSecurityGroupRuleResource
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<NetworkSecurityGroupRuleResource> getRule() {
         if (rule == null) {
             rule = new ArrayList<>();
@@ -111,7 +111,7 @@ public class NetworkSecurityGroupResource extends AzureResource {
         this.rule = rule;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();

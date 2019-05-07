@@ -1,7 +1,7 @@
 package gyro.azure.network;
 
 import gyro.core.diff.Diffable;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 
 import com.microsoft.azure.management.network.LoadBalancerInboundNatRule;
 import com.microsoft.azure.management.network.TransportProtocol;
@@ -44,7 +44,7 @@ public class InboundNatRule extends Diffable {
     /**
      * The backend port that receives network traffic. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getBackendPort() {
         return backendPort;
     }
@@ -56,7 +56,7 @@ public class InboundNatRule extends Diffable {
     /**
      * Determines whether floating ip support is enabled. Defaults to false (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getFloatingIp() {
         if (floatingIp == null) {
             floatingIp = false;
@@ -72,7 +72,7 @@ public class InboundNatRule extends Diffable {
     /**
      * The frontend associated with the inbound nat rule. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getFrontendName() {
         return frontendName;
     }
@@ -95,7 +95,7 @@ public class InboundNatRule extends Diffable {
     /**
      * The frontend port that receives network traffic. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getFrontendPort() {
         return frontendPort;
     }
@@ -107,7 +107,7 @@ public class InboundNatRule extends Diffable {
     /**
      * The protocol used by the nat rule. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getProtocol() {
         return protocol;
     }

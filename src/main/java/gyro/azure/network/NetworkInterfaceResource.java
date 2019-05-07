@@ -7,7 +7,7 @@ import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
 
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
@@ -119,7 +119,7 @@ public class NetworkInterfaceResource extends AzureResource {
     /**
      * The id of a security group to be assigned with the interface.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getSecurityGroupId() {
         return securityGroupId;
     }
@@ -136,7 +136,7 @@ public class NetworkInterfaceResource extends AzureResource {
         this.networkInterfaceId = networkInterfaceId;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();
@@ -154,7 +154,7 @@ public class NetworkInterfaceResource extends AzureResource {
      *
      * @subresource gyro.azure.network.NicIpConfigurationResource
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<NicIpConfigurationResource> getNicIpConfiguration() {
         if (nicIpConfiguration == null) {
             nicIpConfiguration = new ArrayList<>();

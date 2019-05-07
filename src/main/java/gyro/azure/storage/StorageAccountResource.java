@@ -10,7 +10,7 @@ import com.microsoft.azure.storage.queue.CloudQueueClient;
 import com.microsoft.azure.storage.table.CloudTableClient;
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
@@ -58,7 +58,7 @@ public class StorageAccountResource extends AzureResource {
     /**
      * The cors rules associated with the storage account. (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<Cors> getCorsRule() {
         if (corsRule == null) {
             corsRule = new ArrayList<>();
@@ -115,7 +115,7 @@ public class StorageAccountResource extends AzureResource {
     /**
      * The tags for the storage account. (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();

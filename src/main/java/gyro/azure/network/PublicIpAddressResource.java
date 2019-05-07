@@ -8,7 +8,7 @@ import com.microsoft.azure.management.resources.fluentcore.arm.AvailabilityZoneI
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
@@ -104,7 +104,7 @@ public class PublicIpAddressResource extends AzureResource {
     /**
      * Specify the idle time in minutes before time out. Valid values [ Integer from 4 - 30]. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getIdleTimeoutInMinute() {
         return idleTimeoutInMinute;
     }
@@ -145,7 +145,7 @@ public class PublicIpAddressResource extends AzureResource {
     /**
      * Specify the domain prefix.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getDomainLabel() {
         return domainLabel;
     }
@@ -154,7 +154,7 @@ public class PublicIpAddressResource extends AzureResource {
         this.domainLabel = domainLabel;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();

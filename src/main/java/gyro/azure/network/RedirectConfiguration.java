@@ -8,7 +8,7 @@ import com.microsoft.azure.management.network.ApplicationGateway.DefinitionStage
 import com.microsoft.azure.management.network.ApplicationGatewayRedirectConfiguration.DefinitionStages;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.diff.Diffable;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 
 /**
  * Creates a Redirect Configuration.
@@ -62,7 +62,7 @@ public class RedirectConfiguration extends Diffable {
     /**
      * Type of the redirect configuration. Valid values are ``Permanent`` or ``Found`` or ``SeeOther`` or ``Temporary``  (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getType() {
         return type;
     }
@@ -74,7 +74,7 @@ public class RedirectConfiguration extends Diffable {
     /**
      * Name of the target listener to be associated with this redirect configuration. Required if target url not present.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getTargetListener() {
         return targetListener;
     }
@@ -86,7 +86,7 @@ public class RedirectConfiguration extends Diffable {
     /**
      * Target url to be associated with this redirect configuration. Required if target listener not present.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getTargetUrl() {
         if (!ObjectUtils.isBlank(targetUrl)) {
             if (!targetUrl.startsWith("http://") && !targetUrl.startsWith("https://")) {
@@ -104,7 +104,7 @@ public class RedirectConfiguration extends Diffable {
     /**
      * Include query string or not. Defaults to false.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getIncludeQueryString() {
         if (includeQueryString == null) {
             includeQueryString = false;
@@ -120,7 +120,7 @@ public class RedirectConfiguration extends Diffable {
     /**
      * Include path or not. Defaults to false.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getIncludePath() {
         if (includePath == null) {
             includePath = false;

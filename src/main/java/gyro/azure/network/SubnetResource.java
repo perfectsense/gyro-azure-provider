@@ -1,7 +1,7 @@
 package gyro.azure.network;
 
 import gyro.azure.AzureResource;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.Resource;
 
 import com.microsoft.azure.management.Azure;
@@ -56,7 +56,7 @@ public class SubnetResource extends AzureResource {
     /**
      * The address prefix in CIDR notation. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getAddressPrefix() {
         return addressPrefix;
     }
@@ -79,7 +79,7 @@ public class SubnetResource extends AzureResource {
     /**
      * The resource id of the associated network security group. (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getNetworkSecurityGroupId() {
         return networkSecurityGroupId;
     }
@@ -91,7 +91,7 @@ public class SubnetResource extends AzureResource {
     /**
      * The resource id of the associated route table. (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getRouteTableId() {
         return routeTableId;
     }
@@ -103,7 +103,7 @@ public class SubnetResource extends AzureResource {
     /**
      * The service endpoints associated with the subnet. (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Map<String, List<String>> getServiceEndpoints() {
         if (serviceEndpoints == null) {
             serviceEndpoints = new HashMap<>();
