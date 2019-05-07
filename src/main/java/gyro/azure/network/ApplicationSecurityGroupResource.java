@@ -133,5 +133,7 @@ public class ApplicationSecurityGroupResource extends AzureResource {
     }
 
     @Override
-    public String toDisplayString() {return "application security group " + getName();}
+    public String toDisplayString() {
+        return "application security group " + getName();
+    }
 }
