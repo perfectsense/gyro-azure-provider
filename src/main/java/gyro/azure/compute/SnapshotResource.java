@@ -4,7 +4,7 @@ import gyro.azure.AzureResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 
 import com.microsoft.azure.management.Azure;
@@ -39,7 +39,7 @@ import java.util.Set;
  *            }
  *        end
  */
-@ResourceName("snapshot")
+@ResourceType("snapshot")
 public class SnapshotResource extends AzureResource {
 
     private static final String SOURCE_DATA = "Data";

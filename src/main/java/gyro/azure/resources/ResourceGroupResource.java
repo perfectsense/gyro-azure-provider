@@ -2,7 +2,7 @@ package gyro.azure.resources;
 
 import gyro.azure.AzureResource;
 import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.resources.ResourceGroup;
@@ -29,7 +29,7 @@ import java.util.Set;
  *         }
  *     end
  */
-@ResourceName("resource-group")
+@ResourceType("resource-group")
 public class ResourceGroupResource extends AzureResource {
 
     private String resourceGroupName;

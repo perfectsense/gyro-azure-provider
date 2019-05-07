@@ -2,7 +2,7 @@ package gyro.azure.network;
 
 import gyro.azure.AzureResource;
 import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 
@@ -87,7 +87,7 @@ import java.util.Set;
  *             }
  *         end
  */
-@ResourceName("load-balancer")
+@ResourceType("load-balancer")
 public class LoadBalancerResource extends AzureResource {
 
     private Map<String, Frontend> frontends;

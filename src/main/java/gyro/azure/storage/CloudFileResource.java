@@ -3,7 +3,7 @@ package gyro.azure.storage;
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
 import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 
 import com.microsoft.azure.storage.StorageException;
@@ -31,7 +31,7 @@ import java.io.File;
  *         storage-account: $(azure::storage-account blob-storage-account-example)
  *     end
  */
-@ResourceName("cloud-file")
+@ResourceType("cloud-file")
 public class CloudFileResource extends AzureResource {
 
     private String cloudFileDirectoryPath;

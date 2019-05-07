@@ -1,12 +1,12 @@
 package gyro.azure;
 
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.Credentials;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.Map;
 
-@ResourceName("credentials")
+@ResourceType("credentials")
 public class AzureCredentials extends Credentials {
     private String region;
 
