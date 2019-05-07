@@ -11,14 +11,12 @@ import com.microsoft.azure.management.network.LoadBalancerInboundNatRule;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
 import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
 import gyro.core.resource.Resource;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-@ResourceName(parent = "network-interface", value = "nic-ip-configuration")
 public class NicIpConfigurationResource extends AzureResource {
 
     private String ipConfigurationName;

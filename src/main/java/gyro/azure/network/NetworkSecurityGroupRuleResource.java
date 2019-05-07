@@ -10,7 +10,6 @@ import com.microsoft.azure.management.network.SecurityRuleProtocol;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
 import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
 import gyro.core.resource.Resource;
 
 import java.util.ArrayList;
@@ -19,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-@ResourceName(parent = "network-security-group", value = "rule")
 public class NetworkSecurityGroupRuleResource extends AzureResource {
     private String securityGroupRuleName;
     private Boolean inboundRule;

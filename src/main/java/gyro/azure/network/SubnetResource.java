@@ -2,7 +2,6 @@ package gyro.azure.network;
 
 import gyro.azure.AzureResource;
 import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
 import gyro.core.resource.Resource;
 
 import com.microsoft.azure.management.Azure;
@@ -34,7 +33,6 @@ import java.util.stream.Collectors;
  *         name: "subnet1"
  *     end
  */
-@ResourceName(parent = "network", value = "subnet")
 public class SubnetResource extends AzureResource {
 
     private String addressPrefix;
