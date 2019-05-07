@@ -1,6 +1,7 @@
 package gyro.azure.cosmosdb;
 
 import gyro.azure.AzureResource;
+import gyro.core.GyroException;
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceDiffProperty;
 import gyro.core.resource.ResourceName;
@@ -311,6 +312,8 @@ public class CosmosDBAccountResource extends AzureResource {
                 withConsistencyPolicy = withKind.withDataModelSql();
             } else {
                 withConsistencyPolicy = withKind.withKind(DatabaseAccountKind.fromString(getDatabaseAccountKind()));
+                throw new GyroException("Invalid database account kind. " +
+                        "Values are AzureTable, Cassandra, Gremlin, MongoDB, and Sql");
             }
         }
 
@@ -327,6 +330,9 @@ public class CosmosDBAccountResource extends AzureResource {
                         .withWriteReplication(Region.fromName(getWriteReplicationRegion()));
         } else if (consistencyLevel.equals("Strong")) {
             withCreate = withConsistencyPolicy.withStrongConsistency();
+        } else {
+            throw new GyroException("Invalid consistency level. " +
+                    "Values are BoundedStaleness, Eventual, Session, and Strong");
         }
 
         if (getIpRangeFilter() != null) {
@@ -368,6 +374,9 @@ public class CosmosDBAccountResource extends AzureResource {
         } else if (consistencyLevel.equals("Strong")) {
             withOptionals = update
                     .withStrongConsistency();
+        } else {
+            throw new GyroException("Invalid consistency level. " +
+                    "Values are BoundedStaleness, Eventual, Session, and Strong");
         }
 
         withOptionals.withIpRangeFilter(getIpRangeFilter());
