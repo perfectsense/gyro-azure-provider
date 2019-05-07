@@ -52,6 +52,16 @@ import java.util.stream.Collectors;
 @ResourceName("cosmos-db")
 public class CosmosDBAccountResource extends AzureResource {
 
+    private static final String KIND_AZURETABLE = "AzureTable";
+    private static final String KIND_CASSANDRA = "Cassandra";
+    private static final String KIND_GREMLIN = "Gremlin";
+    private static final String KIND_MONGODB = "MongoDB";
+    private static final String KIND_SQL = "Sql";
+    private static final String LEVEL_BOUNDED = "BoundedStaleness";
+    private static final String LEVEL_EVENTUAL = "Eventual";
+    private static final String LEVEL_SESSION = "Session";
+    private static final String LEVEL_STRONG = "Strong";
+
     private String databaseAccountKind;
     private String consistencyLevel;
     private String id;
@@ -235,7 +245,7 @@ public class CosmosDBAccountResource extends AzureResource {
         setId(cosmosAccount.id());
         setIpRangeFilter(cosmosAccount.ipRangeFilter());
 
-        if (getConsistencyLevel().equals("BoundedStateless")) {
+        if (LEVEL_BOUNDED.equalsIgnoreCase(getConsistencyLevel())) {
             setMaxInterval(cosmosAccount.consistencyPolicy().maxIntervalInSeconds());
             setMaxStalenessPrefix(cosmosAccount.consistencyPolicy().maxStalenessPrefix().toString());
         }
@@ -274,34 +284,34 @@ public class CosmosDBAccountResource extends AzureResource {
 
         WithConsistencyPolicy withConsistencyPolicy = null;
         if (getDatabaseAccountKind() != null) {
+            if (KIND_AZURETABLE.equalsIgnoreCase(getDatabaseAccountKind())) {
                 withConsistencyPolicy = withKind.withDataModelAzureTable();
-            } else if (getDatabaseAccountKind().equals("Cassandra")) {
+            } else if (KIND_CASSANDRA.equalsIgnoreCase(getDatabaseAccountKind())) {
                 withConsistencyPolicy = withKind.withDataModelCassandra();
-            } else if (getDatabaseAccountKind().equals("Gremlin")) {
+            } else if (KIND_GREMLIN.equalsIgnoreCase(getDatabaseAccountKind())) {
                 withConsistencyPolicy = withKind.withDataModelGremlin();
-            } else if (getDatabaseAccountKind().equals("MongoDB")) {
+            } else if (KIND_MONGODB.equalsIgnoreCase(getDatabaseAccountKind())) {
                 withConsistencyPolicy = withKind.withDataModelMongoDB();
-            } else if (getDatabaseAccountKind().equals("Sql")) {
+            } else if (KIND_SQL.equalsIgnoreCase(getDatabaseAccountKind())) {
                 withConsistencyPolicy = withKind.withDataModelSql();
             } else {
-                withConsistencyPolicy = withKind.withKind(DatabaseAccountKind.fromString(getDatabaseAccountKind()));
                 throw new GyroException("Invalid database account kind. " +
                         "Values are AzureTable, Cassandra, Gremlin, MongoDB, and Sql");
             }
         }
 
         WithCreate withCreate = null;
-        if (getConsistencyLevel().equals("Bounded Staleness")) {
+        if (LEVEL_BOUNDED.equalsIgnoreCase(getConsistencyLevel())) {
             withCreate = withConsistencyPolicy
                     .withBoundedStalenessConsistency(Long.parseLong(getMaxStalenessPrefix()), getMaxInterval())
                     .withWriteReplication(Region.fromName(getWriteReplicationRegion()));
-        } else if (consistencyLevel.equals("Eventual")) {
+        } else if (LEVEL_EVENTUAL.equalsIgnoreCase(getConsistencyLevel())) {
             withCreate = withConsistencyPolicy.withEventualConsistency()
                         .withWriteReplication(Region.fromName(getWriteReplicationRegion()));
-        } else if (consistencyLevel.equals("Session")) {
+        } else if (LEVEL_SESSION.equalsIgnoreCase(getConsistencyLevel())) {
             withCreate = withConsistencyPolicy.withSessionConsistency()
                         .withWriteReplication(Region.fromName(getWriteReplicationRegion()));
-        } else if (consistencyLevel.equals("Strong")) {
+        } else if (LEVEL_STRONG.equalsIgnoreCase(getConsistencyLevel())) {
             withCreate = withConsistencyPolicy.withStrongConsistency();
         } else {
             throw new GyroException("Invalid consistency level. " +
@@ -335,16 +345,16 @@ public class CosmosDBAccountResource extends AzureResource {
 
         WithOptionals withOptionals = null;
 
-        if (getConsistencyLevel().equals("BoundedStaleness")) {
+        if (LEVEL_BOUNDED.equalsIgnoreCase(getConsistencyLevel())) {
             withOptionals = update
                     .withBoundedStalenessConsistency(Long.parseLong(getMaxStalenessPrefix()), getMaxInterval());
-        } else if (consistencyLevel.equals("Eventual")) {
+        } else if (LEVEL_EVENTUAL.equalsIgnoreCase(getConsistencyLevel())) {
             withOptionals = update
                     .withEventualConsistency();
-        } else if (consistencyLevel.equals("Session")) {
+        } else if (LEVEL_SESSION.equalsIgnoreCase(getConsistencyLevel())) {
             withOptionals = update
                     .withSessionConsistency();
-        } else if (consistencyLevel.equals("Strong")) {
+        } else if (LEVEL_STRONG.equalsIgnoreCase(getConsistencyLevel())) {
             withOptionals = update
                     .withStrongConsistency();
         } else {
