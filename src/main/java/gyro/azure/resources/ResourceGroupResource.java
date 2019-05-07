@@ -56,7 +56,7 @@ public class ResourceGroupResource extends AzureResource {
         this.resourceGroupId = resourceGroupId;
     }
 
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceDiffProperty(updatable = true)
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();
