@@ -151,7 +151,6 @@ public class NetworkResource extends AzureResource {
         if (!network.subnets().isEmpty()) {
             for (Subnet key : network.subnets().values()) {
                 SubnetResource subnetResource = new SubnetResource(key);
-                subnetResource.parent(this);
                 getSubnet().add(subnetResource);
             }
         }

@@ -138,7 +138,6 @@ public class NetworkSecurityGroupResource extends AzureResource {
             NetworkSecurityGroupRuleResource ruleResource = new NetworkSecurityGroupRuleResource(
                 networkSecurityGroup.securityRules().get(key)
             );
-            ruleResource.parent(this);
             getRule().add(ruleResource);
         }
 
