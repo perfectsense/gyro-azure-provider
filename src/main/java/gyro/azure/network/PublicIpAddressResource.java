@@ -223,27 +223,27 @@ public class PublicIpAddressResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         PublicIPAddress publicIpAddress = client.publicIPAddresses().getByResourceGroup(getResourceGroupName(), getPublicIpAddressName());
 
         PublicIPAddress.Update update = publicIpAddress.update();
 
-        if (changedProperties.contains("idle-timeout-in-minute")) {
+        if (changedFieldNames.contains("idle-timeout-in-minute")) {
             update = update.withIdleTimeoutInMinutes(getIdleTimeoutInMinute());
         }
 
-        if (changedProperties.contains("tags")) {
+        if (changedFieldNames.contains("tags")) {
             update = update.withTags(getTags());
         }
 
-        if (changedProperties.contains("domain-label")) {
+        if (changedFieldNames.contains("domain-label")) {
             update = ObjectUtils.isBlank(getDomainLabel())
                 ? update.withoutLeafDomainLabel() : update.withLeafDomainLabel(getDomainLabel());
         }
 
-        if (!changedProperties.isEmpty()) {
+        if (!changedFieldNames.isEmpty()) {
             update.apply();
         }
     }

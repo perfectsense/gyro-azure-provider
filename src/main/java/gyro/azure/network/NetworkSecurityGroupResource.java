@@ -160,7 +160,7 @@ public class NetworkSecurityGroupResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         NetworkSecurityGroup networkSecurityGroup = client.networkSecurityGroups().getById(getNetworkSecurityGroupId());

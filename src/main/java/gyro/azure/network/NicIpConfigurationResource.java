@@ -208,7 +208,7 @@ public class NicIpConfigurationResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         NetworkInterfaceResource parent = (NetworkInterfaceResource) parent();
@@ -218,7 +218,7 @@ public class NicIpConfigurationResource extends AzureResource {
         NicIPConfiguration.Update update = networkInterface.update().updateIPConfiguration(getIpConfigurationName())
                 .withSubnet(parent.getSubnet());
 
-        if (changedProperties.contains("public-ip-address-name")) {
+        if (changedFieldNames.contains("public-ip-address-name")) {
             if (ObjectUtils.isBlank(getPublicIpAddressName())) {
                 update = update.withoutPublicIPAddress();
             } else {

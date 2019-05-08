@@ -97,7 +97,7 @@ public class CloudFileShareResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         CloudFileShare share = cloudFileShare();
         FileShareProperties fileShareProperties = new FileShareProperties();
         fileShareProperties.setShareQuota(getShareQuota());

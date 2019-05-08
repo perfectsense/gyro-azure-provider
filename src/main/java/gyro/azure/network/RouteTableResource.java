@@ -179,7 +179,7 @@ public class RouteTableResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         RouteTableResource currentResource = (RouteTableResource) current;

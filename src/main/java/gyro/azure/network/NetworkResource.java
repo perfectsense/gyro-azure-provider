@@ -192,14 +192,14 @@ public class NetworkResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         Network network = client.networks().getById(getNetworkId());
 
         Network.Update update = network.update();
 
-        if (changedProperties.contains("address-spaces")) {
+        if (changedFieldNames.contains("address-spaces")) {
             NetworkResource oldResource = (NetworkResource) current;
 
             List<String> removeAddressSpaces = oldResource.getAddressSpaces().stream()
@@ -219,11 +219,11 @@ public class NetworkResource extends AzureResource {
             }
         }
 
-        if (changedProperties.contains("tags")) {
+        if (changedFieldNames.contains("tags")) {
             update = update.withTags(getTags());
         }
 
-        if (!changedProperties.isEmpty()) {
+        if (!changedFieldNames.isEmpty()) {
             update.apply();
         }
 

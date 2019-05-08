@@ -447,7 +447,7 @@ public class ApplicationGatewayResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource resource, Set<String> set) {
+    public void update(Resource resource, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         ApplicationGateway applicationGateway = client.applicationGateways().getById(getApplicationGatewayId());

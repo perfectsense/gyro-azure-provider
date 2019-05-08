@@ -169,7 +169,7 @@ public class AvailabilitySetResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         client.availabilitySets().getById(getId()).update()

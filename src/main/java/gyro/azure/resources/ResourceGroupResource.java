@@ -98,7 +98,7 @@ public class ResourceGroupResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         ResourceGroup resourceGroup = client.resourceGroups().getByName(getResourceGroupName());

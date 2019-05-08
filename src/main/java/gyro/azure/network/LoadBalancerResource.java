@@ -421,7 +421,7 @@ public class LoadBalancerResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         LoadBalancer loadBalancer = client.loadBalancers().getById(getId());

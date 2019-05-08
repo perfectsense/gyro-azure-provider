@@ -151,7 +151,7 @@ public class SubnetResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         NetworkResource parent = (NetworkResource) parent();
@@ -175,7 +175,7 @@ public class SubnetResource extends AzureResource {
 
         SubnetResource oldResource = (SubnetResource) current;
 
-        if (getServiceEndpoints() != null || changedProperties.contains("service-endpoints")) {
+        if (getServiceEndpoints() != null || changedFieldNames.contains("service-endpoints")) {
 
             List<String> addServiceEndpoints = getServiceEndpoints().keySet().stream()
                     .filter(((Predicate<String>) new HashSet<>(oldResource.getServiceEndpoints().keySet())::contains).negate())

@@ -241,14 +241,14 @@ public class NetworkInterfaceResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         NetworkInterface networkInterface = getNetworkInterface(client);
 
         NetworkInterface.Update update = networkInterface.update();
 
-        if (changedProperties.contains("security-group-id")) {
+        if (changedFieldNames.contains("security-group-id")) {
             if (ObjectUtils.isBlank(getSecurityGroupId())) {
                 update = update.withoutNetworkSecurityGroup();
             } else {

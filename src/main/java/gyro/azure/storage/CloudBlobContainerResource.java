@@ -97,7 +97,7 @@ public class CloudBlobContainerResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         try {
             CloudBlobContainer container = cloudBlobContainer();
             BlobContainerPermissions permissions = new BlobContainerPermissions();
