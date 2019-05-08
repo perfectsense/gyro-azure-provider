@@ -125,20 +125,4 @@ public class InboundNatRule extends Diffable {
         return "inbound nat rule " + getName();
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-
-        InboundNatRule rule = (InboundNatRule) obj;
-
-        return (rule.getName()).equals(this.getName());
-    }
 }
