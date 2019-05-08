@@ -4,7 +4,7 @@ import com.microsoft.azure.management.network.ApplicationGateway.DefinitionStage
 import com.microsoft.azure.management.network.ApplicationGateway.Update;
 import com.microsoft.azure.management.network.ApplicationGatewayListener;
 import com.psddev.dari.util.ObjectUtils;
-import gyro.core.diff.Diffable;
+import gyro.core.resource.Diffable;
 import gyro.core.resource.ResourceUpdatable;
 
 /**

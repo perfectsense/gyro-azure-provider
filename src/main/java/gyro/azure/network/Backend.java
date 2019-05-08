@@ -7,7 +7,7 @@ import com.microsoft.azure.management.network.ApplicationGatewayBackend.UpdateDe
 import com.microsoft.azure.management.network.ApplicationGateway.DefinitionStages.WithCreate;
 import com.microsoft.azure.management.network.ApplicationGatewayBackendAddress;
 import com.psddev.dari.util.ObjectUtils;
-import gyro.core.diff.Diffable;
+import gyro.core.resource.Diffable;
 import gyro.core.resource.ResourceUpdatable;
 
 import java.util.ArrayList;

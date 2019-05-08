@@ -7,7 +7,7 @@ import com.microsoft.azure.management.network.ApplicationGatewayRequestRoutingRu
 import com.microsoft.azure.management.network.ApplicationGateway.DefinitionStages.WithRequestRoutingRuleOrCreate;
 import com.microsoft.azure.management.network.ApplicationGateway.DefinitionStages.WithRequestRoutingRule;
 import com.psddev.dari.util.ObjectUtils;
-import gyro.core.diff.Diffable;
+import gyro.core.resource.Diffable;
 import gyro.core.resource.ResourceUpdatable;
 
 /**
