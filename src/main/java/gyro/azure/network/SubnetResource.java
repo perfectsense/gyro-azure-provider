@@ -1,8 +1,7 @@
 package gyro.azure.network;
 
 import gyro.azure.AzureResource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.Resource;
 
 import com.microsoft.azure.management.Azure;
@@ -34,7 +33,6 @@ import java.util.stream.Collectors;
  *         name: "subnet1"
  *     end
  */
-@ResourceName(parent = "network", value = "subnet")
 public class SubnetResource extends AzureResource {
 
     private String addressPrefix;
@@ -58,7 +56,7 @@ public class SubnetResource extends AzureResource {
     /**
      * The address prefix in CIDR notation. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getAddressPrefix() {
         return addressPrefix;
     }
@@ -81,7 +79,7 @@ public class SubnetResource extends AzureResource {
     /**
      * The resource id of the associated network security group. (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getNetworkSecurityGroupId() {
         return networkSecurityGroupId;
     }
@@ -93,7 +91,7 @@ public class SubnetResource extends AzureResource {
     /**
      * The resource id of the associated route table. (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getRouteTableId() {
         return routeTableId;
     }
@@ -105,7 +103,7 @@ public class SubnetResource extends AzureResource {
     /**
      * The service endpoints associated with the subnet. (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Map<String, List<String>> getServiceEndpoints() {
         if (serviceEndpoints == null) {
             serviceEndpoints = new HashMap<>();
@@ -153,7 +151,7 @@ public class SubnetResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         NetworkResource parent = (NetworkResource) parent();
@@ -177,7 +175,7 @@ public class SubnetResource extends AzureResource {
 
         SubnetResource oldResource = (SubnetResource) current;
 
-        if (getServiceEndpoints() != null || changedProperties.contains("service-endpoints")) {
+        if (getServiceEndpoints() != null || changedFieldNames.contains("service-endpoints")) {
 
             List<String> addServiceEndpoints = getServiceEndpoints().keySet().stream()
                     .filter(((Predicate<String>) new HashSet<>(oldResource.getServiceEndpoints().keySet())::contains).negate())
@@ -218,11 +216,6 @@ public class SubnetResource extends AzureResource {
     @Override
     public String primaryKey() {
         return String.format("%s", getName());
-    }
-
-    @Override
-    public String resourceIdentifier() {
-        return null;
     }
 
     private Map<String, List<String>> toServiceEndpoints(Map<ServiceEndpointType, List<Region>> serviceEndpointMap) {

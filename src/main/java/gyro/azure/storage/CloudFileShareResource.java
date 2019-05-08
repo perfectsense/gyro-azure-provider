@@ -2,8 +2,8 @@ package gyro.azure.storage;
 
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 
 import com.microsoft.azure.storage.file.CloudFileClient;
@@ -30,7 +30,7 @@ import java.util.Set;
  *         storage-account: $(azure::storage-account blob-storage-account-example)
  *     end
  */
-@ResourceName("cloud-file-share")
+@ResourceType("cloud-file-share")
 public class CloudFileShareResource extends AzureResource {
 
     private String cloudFileShareName;
@@ -51,7 +51,7 @@ public class CloudFileShareResource extends AzureResource {
     /**
      * The limit on the size of files in GB. (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getShareQuota() {
         return shareQuota;
     }
@@ -97,7 +97,7 @@ public class CloudFileShareResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         CloudFileShare share = cloudFileShare();
         FileShareProperties fileShareProperties = new FileShareProperties();
         fileShareProperties.setShareQuota(getShareQuota());

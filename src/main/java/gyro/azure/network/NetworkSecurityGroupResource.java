@@ -5,8 +5,8 @@ import com.microsoft.azure.management.network.NetworkSecurityGroup;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 
@@ -54,7 +54,7 @@ import java.util.Set;
  *          }
  *     end
  */
-@ResourceName("network-security-group")
+@ResourceType("network-security-group")
 public class NetworkSecurityGroupResource extends AzureResource {
     private String networkSecurityGroupName;
     private String resourceGroupName;
@@ -98,7 +98,7 @@ public class NetworkSecurityGroupResource extends AzureResource {
      *
      * @subresource gyro.azure.network.NetworkSecurityGroupRuleResource
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<NetworkSecurityGroupRuleResource> getRule() {
         if (rule == null) {
             rule = new ArrayList<>();
@@ -111,7 +111,7 @@ public class NetworkSecurityGroupResource extends AzureResource {
         this.rule = rule;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();
@@ -138,7 +138,6 @@ public class NetworkSecurityGroupResource extends AzureResource {
             NetworkSecurityGroupRuleResource ruleResource = new NetworkSecurityGroupRuleResource(
                 networkSecurityGroup.securityRules().get(key)
             );
-            ruleResource.parent(this);
             getRule().add(ruleResource);
         }
 
@@ -160,7 +159,7 @@ public class NetworkSecurityGroupResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         NetworkSecurityGroup networkSecurityGroup = client.networkSecurityGroups().getById(getNetworkSecurityGroupId());

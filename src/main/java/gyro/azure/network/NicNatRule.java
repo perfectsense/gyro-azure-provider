@@ -1,6 +1,6 @@
 package gyro.azure.network;
 
-import gyro.core.diff.Diffable;
+import gyro.core.resource.Diffable;
 
 import com.microsoft.azure.management.network.LoadBalancerInboundNatRule;
 

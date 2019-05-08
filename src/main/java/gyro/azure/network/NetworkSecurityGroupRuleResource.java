@@ -9,8 +9,7 @@ import com.microsoft.azure.management.network.SecurityRuleDirection;
 import com.microsoft.azure.management.network.SecurityRuleProtocol;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.Resource;
 
 import java.util.ArrayList;
@@ -19,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-@ResourceName(parent = "network-security-group", value = "rule")
 public class NetworkSecurityGroupRuleResource extends AzureResource {
     private String securityGroupRuleName;
     private Boolean inboundRule;
@@ -53,7 +51,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource {
     /**
      * Set rule type as inbound or outbound. Defaults to true i.e inbound. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getInboundRule() {
         if (inboundRule == null) {
             inboundRule = true;
@@ -69,7 +67,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource {
     /**
      * Set rule to allow or block traffic. Defaults to true i.e allow. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getAllowRule() {
         if (allowRule == null) {
             allowRule = true;
@@ -85,7 +83,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource {
     /**
      * A list of source addresses for the rule to work. Required if fromApplicationSecurityGroupId is not set.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getFromAddresses() {
         if (fromAddresses == null) {
             fromAddresses = new ArrayList<>();
@@ -103,7 +101,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource {
     /**
      * A list of source ports for the rule to work. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getFromPorts() {
         if (fromPorts == null) {
             fromPorts = new ArrayList<>();
@@ -121,7 +119,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource {
     /**
      * A list of destination addresses for the rule to work. Required if toApplicationSecurityGroupId is not set.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getToAddresses() {
         if (toAddresses == null) {
             toAddresses = new ArrayList<>();
@@ -139,7 +137,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource {
     /**
      * A list of destination ports for the rule to work. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getToPorts() {
         if (toPorts == null) {
             toPorts = new ArrayList<>();
@@ -157,7 +155,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource {
     /**
      * Source application security group id. Required if fromAddresses not set.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getFromApplicationSecurityGroupId() {
         return fromApplicationSecurityGroupId;
     }
@@ -169,7 +167,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource {
     /**
      * Destination application security group id. Required if toAddresses not set.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getToApplicationSecurityGroupId() {
         return toApplicationSecurityGroupId;
     }
@@ -181,7 +179,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource {
     /**
      * Description for the rule.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getDescription() {
         return description;
     }
@@ -193,7 +191,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource {
     /**
      * Priority for the rule. Valid values [ Integer 100 to 4096 ]. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getPriority() {
         return priority;
     }
@@ -205,7 +203,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource {
     /**
      * Priority for the rule. Valid values [ all, tcp, udp ]. Defaults to all. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getProtocol() {
         if (protocol == null) {
             protocol = "all";
@@ -336,7 +334,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         NetworkSecurityGroupResource parent = (NetworkSecurityGroupResource) parent();
@@ -421,8 +419,4 @@ public class NetworkSecurityGroupRuleResource extends AzureResource {
         return String.format("%s", getSecurityGroupRuleName());
     }
 
-    @Override
-    public String resourceIdentifier() {
-        return null;
-    }
 }

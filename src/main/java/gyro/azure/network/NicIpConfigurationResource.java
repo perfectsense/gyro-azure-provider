@@ -10,15 +10,13 @@ import com.microsoft.azure.management.network.LoadBalancerInboundNatRule;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.Resource;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-@ResourceName(parent = "network-interface", value = "nic-ip-configuration")
 public class NicIpConfigurationResource extends AzureResource {
 
     private String ipConfigurationName;
@@ -44,7 +42,7 @@ public class NicIpConfigurationResource extends AzureResource {
     /**
      * Public ip address name to be associated with the ip config.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getPublicIpAddressName() {
         return publicIpAddressName;
     }
@@ -64,7 +62,7 @@ public class NicIpConfigurationResource extends AzureResource {
     /**
      * Private ip address to be associated with the ip config.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getPrivateIpAddressStatic() {
         return privateIpAddressStatic;
     }
@@ -76,7 +74,7 @@ public class NicIpConfigurationResource extends AzureResource {
     /**
      * Set ip allocation type to be static or dynamic. Defaults to false i.e dynamic.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getIpAllocationStatic() {
         if (ipAllocationStatic == null) {
             ipAllocationStatic = false;
@@ -107,7 +105,7 @@ public class NicIpConfigurationResource extends AzureResource {
     /**
      * The load balancer backends associated with the configuration.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<NicBackend> getNicBackend() {
         if (nicBackend == null) {
             nicBackend = new ArrayList<>();
@@ -123,7 +121,7 @@ public class NicIpConfigurationResource extends AzureResource {
     /**
      * The load balancer nat rules associated with the configuration.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<NicNatRule> getNicNatRule() {
         if (nicNatRule == null) {
             nicNatRule = new ArrayList<>();
@@ -210,7 +208,7 @@ public class NicIpConfigurationResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         NetworkInterfaceResource parent = (NetworkInterfaceResource) parent();
@@ -220,7 +218,7 @@ public class NicIpConfigurationResource extends AzureResource {
         NicIPConfiguration.Update update = networkInterface.update().updateIPConfiguration(getIpConfigurationName())
                 .withSubnet(parent.getSubnet());
 
-        if (changedProperties.contains("public-ip-address-name")) {
+        if (changedFieldNames.contains("public-ip-address-name")) {
             if (ObjectUtils.isBlank(getPublicIpAddressName())) {
                 update = update.withoutPublicIPAddress();
             } else {
@@ -287,11 +285,6 @@ public class NicIpConfigurationResource extends AzureResource {
     @Override
     public String primaryKey() {
         return String.format("%s", getIpConfigurationName());
-    }
-
-    @Override
-    public String resourceIdentifier() {
-        return null;
     }
 
     private void refreshBackendsAndRules(NicIPConfiguration configuration) {
