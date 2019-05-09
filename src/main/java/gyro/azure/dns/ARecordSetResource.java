@@ -1,6 +1,7 @@
 package gyro.azure.dns;
 
 import gyro.azure.AzureResource;
+import gyro.core.GyroException;
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceUpdatable;
 
@@ -91,6 +92,10 @@ public class ARecordSetResource extends AzureResource {
 
     @Override
     public void create() {
+        if (getIpv4Addresses() == null || getIpv4Addresses().size() == 0) {
+            throw new GyroException("At least one ipv4 address must be provided.");
+        }
+
         WithARecordIPv4AddressOrAttachable<DnsZone.Update> createARecordSet =
                 modify().defineARecordSet(getName()).withIPv4Address(getIpv4Addresses().get(0));
 
