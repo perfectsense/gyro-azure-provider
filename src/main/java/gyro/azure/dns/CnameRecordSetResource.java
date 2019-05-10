@@ -27,6 +27,7 @@ public class CnameRecordSetResource extends AzureResource {
     public CnameRecordSetResource() {}
 
     public CnameRecordSetResource(CNameRecordSet cNameRecordSet) {
+        setAlias(cNameRecordSet.canonicalName());
         setMetadata(cNameRecordSet.metadata());
         setName(cNameRecordSet.name());
         setTimeToLive(Long.toString(cNameRecordSet.timeToLive()));
