@@ -1,6 +1,6 @@
 package gyro.azure.network;
 
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.ResourceUpdatable;
 
 import com.microsoft.azure.management.network.LoadBalancerPrivateFrontend;
 
@@ -63,7 +63,7 @@ public class PrivateFrontend extends Frontend {
     /**
      * The name of the private ip address associated with the private frontend. (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getPrivateIpAddress() {
         return privateIpAddress;
     }
@@ -75,7 +75,7 @@ public class PrivateFrontend extends Frontend {
     /**
      * The id of the network where the subnet is found. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getNetworkId() {
         return networkId;
     }
@@ -87,7 +87,7 @@ public class PrivateFrontend extends Frontend {
     /**
      * The name of the subnet that is associated with the private frontend. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getSubnetName() {
         return subnetName;
     }
@@ -105,20 +105,4 @@ public class PrivateFrontend extends Frontend {
         return "private frontend " + getName();
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-
-        PrivateFrontend privateFrontend = (PrivateFrontend) obj;
-
-        return (privateFrontend.getName()).equals(this.getName());
-    }
 }

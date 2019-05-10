@@ -3,7 +3,7 @@ package gyro.azure.storage;
 import gyro.azure.AzureResource;
 
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 
 import com.microsoft.azure.storage.CloudStorageAccount;
@@ -28,7 +28,7 @@ import java.util.Set;
  *         storage-account: $(azure::storage-account queue-storage-account-example)
  *     end
  */
-@ResourceName("cloud-queue")
+@ResourceType("cloud-queue")
 public class CloudQueueResource extends AzureResource {
 
     private String cloudQueueName;
@@ -81,7 +81,7 @@ public class CloudQueueResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {}
+    public void update(Resource current, Set<String> changedFieldNames) {}
 
     @Override
     public void delete() {

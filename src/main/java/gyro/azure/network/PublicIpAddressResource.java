@@ -8,8 +8,8 @@ import com.microsoft.azure.management.resources.fluentcore.arm.AvailabilityZoneI
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 
@@ -36,7 +36,7 @@ import java.util.Set;
  *          }
  *     end
  */
-@ResourceName("public-ip-address")
+@ResourceType("public-ip-address")
 public class PublicIpAddressResource extends AzureResource {
     private String publicIpAddressName;
     private String resourceGroupName;
@@ -104,7 +104,7 @@ public class PublicIpAddressResource extends AzureResource {
     /**
      * Specify the idle time in minutes before time out. Valid values [ Integer from 4 - 30]. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getIdleTimeoutInMinute() {
         return idleTimeoutInMinute;
     }
@@ -145,7 +145,7 @@ public class PublicIpAddressResource extends AzureResource {
     /**
      * Specify the domain prefix.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getDomainLabel() {
         return domainLabel;
     }
@@ -154,7 +154,7 @@ public class PublicIpAddressResource extends AzureResource {
         this.domainLabel = domainLabel;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();
@@ -223,27 +223,27 @@ public class PublicIpAddressResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         PublicIPAddress publicIpAddress = client.publicIPAddresses().getByResourceGroup(getResourceGroupName(), getPublicIpAddressName());
 
         PublicIPAddress.Update update = publicIpAddress.update();
 
-        if (changedProperties.contains("idle-timeout-in-minute")) {
+        if (changedFieldNames.contains("idle-timeout-in-minute")) {
             update = update.withIdleTimeoutInMinutes(getIdleTimeoutInMinute());
         }
 
-        if (changedProperties.contains("tags")) {
+        if (changedFieldNames.contains("tags")) {
             update = update.withTags(getTags());
         }
 
-        if (changedProperties.contains("domain-label")) {
+        if (changedFieldNames.contains("domain-label")) {
             update = ObjectUtils.isBlank(getDomainLabel())
                 ? update.withoutLeafDomainLabel() : update.withLeafDomainLabel(getDomainLabel());
         }
 
-        if (!changedProperties.isEmpty()) {
+        if (!changedFieldNames.isEmpty()) {
             update.apply();
         }
     }

@@ -27,8 +27,8 @@ import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 
@@ -68,7 +68,7 @@ import java.util.Set;
  *          }
  *     end
  */
-@ResourceName("virtual-machine")
+@ResourceType("virtual-machine")
 public class VirtualMachineResource extends AzureResource {
     private String virtualMachineName;
     private String resourceGroupName;
@@ -448,7 +448,7 @@ public class VirtualMachineResource extends AzureResource {
         this.secondaryNetworkInterfaceNames = secondaryNetworkInterfaceNames;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();
@@ -688,7 +688,7 @@ public class VirtualMachineResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         VirtualMachine virtualMachine = client.virtualMachines().getById(getVirtualMachineId());

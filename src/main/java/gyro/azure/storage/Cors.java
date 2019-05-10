@@ -1,7 +1,7 @@
 package gyro.azure.storage;
 
-import gyro.core.diff.Diffable;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.Diffable;
+import gyro.core.resource.ResourceUpdatable;
 
 import com.microsoft.azure.storage.CorsHttpMethods;
 import com.microsoft.azure.storage.CorsRule;
@@ -50,7 +50,7 @@ public class Cors extends Diffable {
     /**
      * A list of the allowed headers. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getAllowedHeaders() {
         if (allowedHeaders == null) {
             allowedHeaders = new ArrayList<>();
@@ -66,7 +66,7 @@ public class Cors extends Diffable {
     /**
      * A list of the allowed methods. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getAllowedMethods() {
         if (allowedMethods == null) {
             allowedMethods = new ArrayList<>();
@@ -82,7 +82,7 @@ public class Cors extends Diffable {
     /**
      * A list of the allowed origins. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getAllowedOrigins() {
         if (allowedOrigins == null) {
             allowedOrigins = new ArrayList<>();
@@ -98,7 +98,7 @@ public class Cors extends Diffable {
     /**
      * A list of the exposed headers. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getExposedHeaders() {
         if (exposedHeaders == null) {
             exposedHeaders = new ArrayList<>();
@@ -114,7 +114,7 @@ public class Cors extends Diffable {
     /**
      * A maximum age, in seconds. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getMaxAge() {
         return maxAge;
     }

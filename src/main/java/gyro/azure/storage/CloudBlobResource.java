@@ -2,7 +2,7 @@ package gyro.azure.storage;
 
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.StorageException;
@@ -38,7 +38,7 @@ import java.io.File;
  *         storage-account: $(azure::storage-account blob-storage-account-example)
  *     end
  */
-@ResourceName("cloud-blob")
+@ResourceType("cloud-blob")
 public class CloudBlobResource extends AzureResource {
 
     private String blobName;
@@ -140,7 +140,7 @@ public class CloudBlobResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {}
+    public void update(Resource current, Set<String> changedFieldNames) {}
 
     @Override
     public void delete() {
