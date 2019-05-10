@@ -250,7 +250,7 @@ public class CosmosDBAccountResource extends AzureResource {
         setName(cosmosAccount.name());
 
         // if the write regions is placed first in the list, then load everything
-        if (getReadReplicationRegions() != null) {
+        if (!getReadReplicationRegions().isEmpty()) {
             if (getReadReplicationRegions().get(0).equals(getWriteReplicationRegion())) {
                 getReadReplicationRegions().clear();
                 cosmosAccount.readableReplications().forEach(loc -> getReadReplicationRegions().add(loc.locationName()));
@@ -275,6 +275,11 @@ public class CosmosDBAccountResource extends AzureResource {
 
     @Override
     public void create() {
+        if (getDatabaseAccountKind() == null || getConsistencyLevel() == null) {
+            throw new GyroException("Database account kind and consistency level" +
+                    "must be configured");
+        }
+
         Azure client = createClient();
 
         WithKind withKind = client.cosmosDBAccounts()
@@ -300,8 +305,10 @@ public class CosmosDBAccountResource extends AzureResource {
             }
         }
 
-        WithCreate withCreate = null;
-        if (LEVEL_BOUNDED.equalsIgnoreCase(getConsistencyLevel())) {
+        WithCreate withCreate;
+        if (LEVEL_BOUNDED.equalsIgnoreCase(getConsistencyLevel())
+                && getMaxStalenessPrefix() != null
+                && getMaxInterval() != null) {
             withCreate = withConsistencyPolicy
                     .withBoundedStalenessConsistency(Long.parseLong(getMaxStalenessPrefix()), getMaxInterval())
                     .withWriteReplication(Region.fromName(getWriteReplicationRegion()));
@@ -345,7 +352,9 @@ public class CosmosDBAccountResource extends AzureResource {
 
         WithOptionals withOptionals = null;
 
-        if (LEVEL_BOUNDED.equalsIgnoreCase(getConsistencyLevel())) {
+        if (LEVEL_BOUNDED.equalsIgnoreCase(getConsistencyLevel())
+                && getMaxStalenessPrefix() != null
+                && getMaxInterval() != null) {
             withOptionals = update
                     .withBoundedStalenessConsistency(Long.parseLong(getMaxStalenessPrefix()), getMaxInterval());
         } else if (LEVEL_EVENTUAL.equalsIgnoreCase(getConsistencyLevel())) {
