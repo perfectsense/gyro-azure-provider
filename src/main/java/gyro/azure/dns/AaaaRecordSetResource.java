@@ -12,6 +12,7 @@ import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.dns.DnsRecordSet;
 import com.microsoft.azure.management.dns.DnsZone;
 import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.WithAaaaRecordIPv6AddressOrAttachable;
+import inet.ipaddr.IPAddressString;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,6 +43,7 @@ public class AaaaRecordSetResource extends AzureResource {
             ipv6Addresses = new ArrayList<>();
         }
 
+        ipv6Addresses = addLeadingZeros(ipv6Addresses);
         return ipv6Addresses;
     }
 
@@ -175,5 +177,16 @@ public class AaaaRecordSetResource extends AzureResource {
         DnsZone dnsZone = parent.getDnsZone(client);
 
         return dnsZone.update();
+    }
+
+    private List<String> addLeadingZeros(List<String> addresses) {
+        List<String> results = new ArrayList<>();
+
+        for (String ip : addresses) {
+            IPAddressString addrString = new IPAddressString(ip);
+            results.add(addrString.getAddress().toFullString());
+        }
+
+        return results;
     }
 }
