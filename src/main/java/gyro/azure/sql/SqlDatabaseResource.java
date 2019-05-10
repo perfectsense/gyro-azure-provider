@@ -4,6 +4,8 @@ import gyro.azure.AzureResource;
 import gyro.azure.storage.StorageAccountResource;
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.ResourceType;
+import gyro.core.resource.ResourceUpdatable;
 
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.sql.CreateMode;
@@ -18,10 +20,7 @@ import com.microsoft.azure.management.sql.SqlDatabaseStandardStorage;
 import com.microsoft.azure.management.sql.SqlDatabaseOperations.DefinitionStages.WithAllDifferentOptions;
 import com.microsoft.azure.management.sql.SqlDatabaseOperations.DefinitionStages.WithExistingDatabaseAfterElasticPool;
 import com.microsoft.azure.management.storage.StorageAccount;
-
-
-import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceUpdatable;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -181,6 +180,10 @@ public class SqlDatabaseResource extends AzureResource {
      */
     @ResourceUpdatable
     public String getMaxStorageCapacity() {
+        if (StringUtils.isNumeric(maxStorageCapacity)) {
+            maxStorageCapacity = findMaxCapacity(Long.parseLong(maxStorageCapacity));
+        }
+
         return maxStorageCapacity;
     }
 
@@ -305,7 +308,8 @@ public class SqlDatabaseResource extends AzureResource {
             withExistingDatabaseAfterElasticPool = buildDatabase.withExistingElasticPool(getElasticPoolName());
 
             if (getMaxStorageCapacity() != null) {
-                withExistingDatabaseAfterElasticPool.withMaxSizeBytes(SqlDatabasePremiumStorage.valueOf(getMaxStorageCapacity()).capacityInMB());
+                withExistingDatabaseAfterElasticPool.
+                        withMaxSizeBytes(SqlDatabasePremiumStorage.valueOf(getMaxStorageCapacity()).capacity());
             }
 
             if (getCollation() != null) {
@@ -324,7 +328,7 @@ public class SqlDatabaseResource extends AzureResource {
             } else if (getStorageUri() != null && getStorageAccount() != null) {
                 buildDatabase.importFrom(getStorageUri()).withStorageAccessKey(getStorageAccount().getKeys().get(0))
                 .withSqlAdministratorLoginAndPassword(getSqlServer().getAdministratorLogin(), getSqlServer().getAdministratorPassword());
-            } else if (getWithSampleDatabase()) {
+            } else if (getWithSampleDatabase() != null) {
                 withExistingDatabaseAfterElasticPool.fromSample(SampleName.ADVENTURE_WORKS_LT);
             } else if (getSourceDatabaseName() != null) {
                 withExistingDatabaseAfterElasticPool.withSourceDatabase(getSourceDatabaseName())
