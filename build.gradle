@@ -48,6 +48,7 @@ dependencies {
     implementation "com.microsoft.azure:azure-mgmt-compute:${azureSdkVersion}"
     implementation "com.microsoft.azure:azure-mgmt-dns:${azureSdkVersion}"
     implementation 'com.microsoft.azure:azure-storage:8.0.0'
+    implementation 'com.github.seancfoley:ipaddress:5.0.2'
 
     gyroDoclet 'gyro:gyro-doclet:0.14-SNAPSHOT'
 }
