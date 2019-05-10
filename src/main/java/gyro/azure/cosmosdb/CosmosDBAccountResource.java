@@ -3,14 +3,12 @@ package gyro.azure.cosmosdb;
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
 import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.ResourceType;
+import gyro.core.resource.ResourceUpdatable;
 
 import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.cosmosdb.Capability;
 import com.microsoft.azure.management.cosmosdb.CosmosDBAccount;
-import com.microsoft.azure.management.cosmosdb.DatabaseAccountKind;
 import com.microsoft.azure.management.cosmosdb.VirtualNetworkRule;
 import com.microsoft.azure.management.cosmosdb.CosmosDBAccount.DefinitionStages.WithCreate;
 import com.microsoft.azure.management.cosmosdb.CosmosDBAccount.DefinitionStages.WithConsistencyPolicy;
@@ -49,7 +47,7 @@ import java.util.stream.Collectors;
  *             write-replication-region: "West US"
  *         end
  */
-@ResourceName("cosmos-db")
+@ResourceType("cosmos-db")
 public class CosmosDBAccountResource extends AzureResource {
 
     private static final String KIND_AZURETABLE = "AzureTable";
@@ -91,7 +89,7 @@ public class CosmosDBAccountResource extends AzureResource {
      * The consistency policy of the account. Valid values are ``BoundedStaleness``, ``Eventual``,
      * ``Session``, and ``Strong``. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getConsistencyLevel() {
         return consistencyLevel;
     }
@@ -115,7 +113,7 @@ public class CosmosDBAccountResource extends AzureResource {
     /**
      * The ip range filter in CIDR notation (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getIpRangeFilter() {
         return ipRangeFilter;
     }
@@ -127,7 +125,7 @@ public class CosmosDBAccountResource extends AzureResource {
     /**
      * The max interval, in seconds. Used with ``BoundedStaleness`` consistency policy. (Conditional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getMaxInterval() {
         return maxInterval;
     }
@@ -139,7 +137,7 @@ public class CosmosDBAccountResource extends AzureResource {
     /**
      * The max staleness prefix. Used with ``BoundedStaleness`` consistency policy. (Conditional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getMaxStalenessPrefix() {
         return maxStalenessPrefix;
     }
@@ -162,7 +160,7 @@ public class CosmosDBAccountResource extends AzureResource {
     /**
      * Sets the read location regions. (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getReadReplicationRegions() {
         if (readReplicationRegions == null) {
             readReplicationRegions = new ArrayList<>();
@@ -189,7 +187,7 @@ public class CosmosDBAccountResource extends AzureResource {
     /**
      * The tags associated with the account. (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();
@@ -205,7 +203,7 @@ public class CosmosDBAccountResource extends AzureResource {
     /**
      * The virtual network rules associated with the account. (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getVirtualNetworkRules() {
         if (virtualNetworkRules == null) {
             virtualNetworkRules = new ArrayList<>();
@@ -222,7 +220,7 @@ public class CosmosDBAccountResource extends AzureResource {
      * Sets the write location. Used with ``BoundedStaleness``, ``Eventual``, and ``Session``
      * consistency levels. (Conditional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getWriteReplicationRegion() {
         return writeReplicationRegion;
     }

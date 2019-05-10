@@ -1,14 +1,14 @@
 package gyro.azure.network;
 
-import com.microsoft.azure.management.network.ApplicationSecurityGroup;
-import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import gyro.azure.AzureResource;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.ResourceType;
 
 import com.microsoft.azure.management.Azure;
-import gyro.core.resource.ResourceOutput;
+import com.microsoft.azure.management.network.ApplicationSecurityGroup;
+import com.microsoft.azure.management.resources.fluentcore.arm.Region;
+import gyro.core.resource.ResourceUpdatable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +30,7 @@ import java.util.Set;
  *         }
  *     end
  */
-@ResourceName("application-security-group")
+@ResourceType("application-security-group")
 public class ApplicationSecurityGroupResource extends AzureResource {
 
     private String id;
@@ -75,7 +75,7 @@ public class ApplicationSecurityGroupResource extends AzureResource {
     /**
      * The tags associated with the application security group. (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();
