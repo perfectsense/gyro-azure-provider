@@ -17,6 +17,7 @@ import com.microsoft.azure.management.cosmosdb.CosmosDBAccount.UpdateStages.With
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -166,6 +167,8 @@ public class CosmosDBAccountResource extends AzureResource {
             readReplicationRegions = new ArrayList<>();
         }
 
+        readReplicationRegions.sort(Comparator.naturalOrder());
+
         return readReplicationRegions;
     }
 
@@ -262,6 +265,7 @@ public class CosmosDBAccountResource extends AzureResource {
                 }
             }
         }
+        getReadReplicationRegions().sort(Comparator.naturalOrder());
 
         setTags(cosmosAccount.tags());
 
