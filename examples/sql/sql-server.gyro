@@ -82,11 +82,9 @@ end
 
 azure::sql-database sql-database-example-with-elastic-pool
     name: "sql-database-example-with-pool"
-    create-mode: "DEFAULT"
     elastic-pool-name: $(azure::sql-elastic-pool sql-elastic-pool-example | name)
     max-storage-capacity: "524288000"
     sql-server: $(azure::sql-server sql-server-example)
-    #source-database-id: $(azure::sql-database sql-database-example | id)
     tags: {
         Name: "sql-database-example-with-elastic-pool-example"
     }
@@ -117,13 +115,10 @@ end
 
 azure::sql-database sql-database-example-with-elastic-pool-source-db
     name: "sql-database-example-with-pool-db"
-    create-mode: "DEFAULT"
     elastic-pool-name: $(azure::sql-elastic-pool sql-elastic-pool-example | name)
     max-storage-capacity: "524288000"
     sql-server: $(azure::sql-server sql-server-example)
-    #source-database-id: $(azure::sql-server sql-server-example-partner-server | id)
     tags: {
         Name: "sql-database-example-with-elastic-pool-example-source-db"
     }
 end
-
