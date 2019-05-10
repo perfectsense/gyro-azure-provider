@@ -39,7 +39,6 @@ public class DnsZoneResource extends AzureResource {
     private List<String> registrationVirtualNetworkIds;
     private List<String> resolutionVirtualNetworkIds;
     private String resourceGroupName;
-    private SoaRecordSetResource soaRecordSet;
     private List<SrvRecordSetResource> srvRecordSet;
     private Map<String, String> tags;
     private List<TxtRecordSetResource> txtRecordSet;
@@ -204,15 +203,6 @@ public class DnsZoneResource extends AzureResource {
 
     public void setResourceGroupName(String resourceGroupName) {
         this.resourceGroupName = resourceGroupName;
-    }
-
-    @ResourceUpdatable
-    public SoaRecordSetResource getSoaRecordSet() {
-        return soaRecordSet;
-    }
-
-    public void setSoaRecordSet(SoaRecordSetResource soaRecordSet) {
-        this.soaRecordSet = soaRecordSet;
     }
 
     @ResourceUpdatable
