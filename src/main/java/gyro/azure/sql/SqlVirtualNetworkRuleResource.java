@@ -2,8 +2,8 @@ package gyro.azure.sql;
 
 import gyro.azure.AzureResource;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceName;
 import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.ResourceType;
 
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.sql.SqlVirtualNetworkRule;
@@ -26,7 +26,7 @@ import java.util.Set;
  *         sql-server-id: $(azure::sql-server sql-server-example | id)
  *     end
  */
-@ResourceName("sql-virtual-network-rule")
+@ResourceType("sql-virtual-network-rule")
 public class SqlVirtualNetworkRuleResource extends AzureResource {
 
     private String id;

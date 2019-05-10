@@ -1,10 +1,8 @@
 package gyro.azure.sql;
 
 import gyro.azure.AzureResource;
-import gyro.core.GyroException;
+import gyro.azure.storage.StorageAccountResource;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
 import gyro.core.resource.ResourceOutput;
 
 import com.microsoft.azure.management.Azure;
@@ -19,11 +17,11 @@ import com.microsoft.azure.management.sql.SqlDatabaseStandardServiceObjective;
 import com.microsoft.azure.management.sql.SqlDatabaseStandardStorage;
 import com.microsoft.azure.management.sql.SqlDatabaseOperations.DefinitionStages.WithAllDifferentOptions;
 import com.microsoft.azure.management.sql.SqlDatabaseOperations.DefinitionStages.WithExistingDatabaseAfterElasticPool;
-import com.microsoft.azure.management.sql.SqlDatabaseOperations.DefinitionStages.WithCreateMode;
 import com.microsoft.azure.management.storage.StorageAccount;
-import gyro.azure.storage.StorageAccountResource;
 
-import org.apache.commons.lang.StringUtils;
+
+import gyro.core.resource.ResourceType;
+import gyro.core.resource.ResourceUpdatable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -48,7 +46,7 @@ import java.util.Set;
  *          }
  *     end
  */
-@ResourceName("sql-database")
+@ResourceType("sql-database")
 public class SqlDatabaseResource extends AzureResource {
 
     private static final String BASIC_EDITION = "Basic";
@@ -87,7 +85,7 @@ public class SqlDatabaseResource extends AzureResource {
     /**
      * The create mode of the database. (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getCreateMode() {
         return createMode;
     }
@@ -99,7 +97,7 @@ public class SqlDatabaseResource extends AzureResource {
     /**
      * The edition of the database. Options include Basic, Premium, and Standard. (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getEdition() {
         return edition;
     }
@@ -111,12 +109,12 @@ public class SqlDatabaseResource extends AzureResource {
     /**
      * The edition service objective of the database. Used with editions Basic, Premium, and Standard. (Conditional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getEditionServiceObjective() {
         return editionServiceObjective;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public void setEditionServiceObjective(String editionServiceObjective) {
         this.editionServiceObjective = editionServiceObjective;
     }
@@ -124,7 +122,7 @@ public class SqlDatabaseResource extends AzureResource {
     /**
      * The elastic pool associated with the database. (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getElasticPoolName() {
         return elasticPoolName;
     }
@@ -181,7 +179,7 @@ public class SqlDatabaseResource extends AzureResource {
     /**
      * The maximum size of the database. Used with Premium and Standard Editions. (Conditional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getMaxStorageCapacity() {
         return maxStorageCapacity;
     }
@@ -259,7 +257,7 @@ public class SqlDatabaseResource extends AzureResource {
     /**
      * The tags associated with the database. (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();

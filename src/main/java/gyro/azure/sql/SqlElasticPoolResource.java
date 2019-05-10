@@ -2,14 +2,11 @@ package gyro.azure.sql;
 
 import gyro.azure.AzureResource;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
 import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.ResourceType;
+import gyro.core.resource.ResourceUpdatable;
 
 import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.sql.SqlElasticPoolOperations.DefinitionStages.WithBasicEdition;
-import com.microsoft.azure.management.sql.SqlElasticPoolOperations.DefinitionStages.WithPremiumEdition;
-import com.microsoft.azure.management.sql.SqlElasticPoolOperations.DefinitionStages.WithStandardEdition;
 import com.microsoft.azure.management.sql.SqlElasticPool;
 import com.microsoft.azure.management.sql.SqlElasticPoolBasicEDTUs;
 import com.microsoft.azure.management.sql.SqlElasticPoolBasicMaxEDTUs;
@@ -23,6 +20,9 @@ import com.microsoft.azure.management.sql.SqlElasticPoolStandardMaxEDTUs;
 import com.microsoft.azure.management.sql.SqlElasticPoolStandardMinEDTUs;
 import com.microsoft.azure.management.sql.SqlElasticPoolStandardStorage;
 import com.microsoft.azure.management.sql.SqlElasticPoolOperations.DefinitionStages.WithEdition;
+import com.microsoft.azure.management.sql.SqlElasticPoolOperations.DefinitionStages.WithBasicEdition;
+import com.microsoft.azure.management.sql.SqlElasticPoolOperations.DefinitionStages.WithPremiumEdition;
+import com.microsoft.azure.management.sql.SqlElasticPoolOperations.DefinitionStages.WithStandardEdition;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,7 +50,7 @@ import java.util.Set;
  *         }
  *     end
  */
-@ResourceName("sql-elastic-pool")
+@ResourceType("sql-elastic-pool")
 public class SqlElasticPoolResource extends AzureResource {
 
     private List<String> databaseNames;
@@ -67,7 +67,7 @@ public class SqlElasticPoolResource extends AzureResource {
     /**
      * The databases within the elastic pool. (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getDatabaseNames() {
         if (databaseNames == null) {
             databaseNames = new ArrayList<>();
@@ -83,7 +83,7 @@ public class SqlElasticPoolResource extends AzureResource {
     /**
      * Sets the maximum eDTU for the each database in the pool. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getDtuMax() {
         return dtuMax;
     }
@@ -95,7 +95,7 @@ public class SqlElasticPoolResource extends AzureResource {
     /**
      * Sets the minimum of eDTU for each database in the pool. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getDtuMin() {
         return dtuMin;
     }
@@ -107,7 +107,7 @@ public class SqlElasticPoolResource extends AzureResource {
     /**
      * Sets the total shared eDTU for the elastic pool. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getDtuReserved() {
         return dtuReserved;
     }
@@ -119,7 +119,7 @@ public class SqlElasticPoolResource extends AzureResource {
     /**
      * The edition of the elastic pool. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getEdition() {
         return edition;
     }
@@ -154,7 +154,7 @@ public class SqlElasticPoolResource extends AzureResource {
     /**
      * Sets the storage limit for the database elastic pool. Used with Standard and Premium editions (Conditional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getStorageCapacity() {
         return storageCapacity;
     }
@@ -177,7 +177,7 @@ public class SqlElasticPoolResource extends AzureResource {
     /**
      * The tags associated with the elastic pool. (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();
