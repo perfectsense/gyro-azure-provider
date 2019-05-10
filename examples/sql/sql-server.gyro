@@ -17,6 +17,9 @@ azure::network sql-network-example
     subnet
         address-prefix: "10.0.0.0/28"
         name: "subnet1"
+        service-endpoints: {
+            Sql : ["westus"]
+        }
     end
 
     subnet
@@ -46,7 +49,7 @@ azure::sql-database sql-database-example
     edition: "Premium"
     edition-service-objective: "P1"
     max-storage-capacity: "MAX_100_MB"
-    sql-server-id: $(azure::sql-server sql-server-example | id)
+    sql-server: $(azure::sql-server sql-server-example)
     tags: {
         Name: "sql-database-example"
     }
@@ -82,7 +85,7 @@ azure::sql-database sql-database-example-with-elastic-pool
     create-mode: "DEFAULT"
     elastic-pool-name: $(azure::sql-elastic-pool sql-elastic-pool-example | name)
     max-storage-capacity: "524288000"
-    sql-server-id: $(azure::sql-server sql-server-example | id)
+    sql-server: $(azure::sql-server sql-server-example)
     #source-database-id: $(azure::sql-database sql-database-example | id)
     tags: {
         Name: "sql-database-example-with-elastic-pool-example"
@@ -117,7 +120,7 @@ azure::sql-database sql-database-example-with-elastic-pool-source-db
     create-mode: "DEFAULT"
     elastic-pool-name: $(azure::sql-elastic-pool sql-elastic-pool-example | name)
     max-storage-capacity: "524288000"
-    sql-server-id: $(azure::sql-server sql-server-example | id)
+    sql-server: $(azure::sql-server sql-server-example)
     #source-database-id: $(azure::sql-server sql-server-example-partner-server | id)
     tags: {
         Name: "sql-database-example-with-elastic-pool-example-source-db"
