@@ -89,7 +89,7 @@ public class TxtRecordSetResource extends AzureResource {
         if (getTxtRecords() == null || getTxtRecords().size() == 0) {
             throw new GyroException("At least one record must be provided.");
         }
-        
+
         String firstRecord = getTxtRecords().get(0);
 
         WithTxtRecordTextValueOrAttachable<DnsZone.Update> createTxtRecordSet =

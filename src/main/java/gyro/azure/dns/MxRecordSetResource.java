@@ -134,7 +134,6 @@ public class MxRecordSetResource extends AzureResource {
         diff.entriesOnlyOnLeft().keySet().forEach(del -> updateMXRecordSet.withoutMetadata(del));
 
         //update keys with changed values
-        //delete
         for (Map.Entry ele : diff.entriesDiffering().entrySet()) {
             MapDifference.ValueDifference<String> disc = (MapDifference.ValueDifference<String>) ele.getValue();
             updateMXRecordSet.withoutMetadata((String) ele.getKey());
