@@ -1,7 +1,7 @@
 package gyro.azure.network;
 
-import gyro.core.diff.Diffable;
-import gyro.core.resource.ResourceDiffProperty;
+import gyro.core.resource.Diffable;
+import gyro.core.resource.ResourceUpdatable;
 
 import com.microsoft.azure.management.network.LoadBalancingRule;
 import com.microsoft.azure.management.network.TransportProtocol;
@@ -66,7 +66,7 @@ public class LoadBalancerRule extends Diffable {
     /**
      * The backend port that receives network traffic. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getBackendPort() {
         return backendPort;
     }
@@ -78,7 +78,7 @@ public class LoadBalancerRule extends Diffable {
     /**
      * Determines whether floating ip support is enabled. Defaults to false (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getFloatingIp() {
         if (floatingIp == null) {
             floatingIp = false;
@@ -94,7 +94,7 @@ public class LoadBalancerRule extends Diffable {
     /**
      * The name of the frontend associated with the load balancer rule (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getFrontendName() {
         return frontendName;
     }
@@ -106,7 +106,7 @@ public class LoadBalancerRule extends Diffable {
     /**
      * The frontend port that receives network traffic. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getFrontendPort() {
         return frontendPort;
     }
@@ -118,7 +118,7 @@ public class LoadBalancerRule extends Diffable {
     /**
      * The number of minutes before an unresponsive connection is closed. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getIdleTimeoutInMinutes() {
         return idleTimeoutInMinutes;
     }
@@ -141,7 +141,7 @@ public class LoadBalancerRule extends Diffable {
     /**
      * The health check probe associated with the load balancer rule. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getHealthCheckProbeName() {
         return healthCheckProbeName;
     }
@@ -153,7 +153,7 @@ public class LoadBalancerRule extends Diffable {
     /**
      * The protocol used by the load balancer rule. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getProtocol() {
         return protocol;
     }
@@ -171,20 +171,4 @@ public class LoadBalancerRule extends Diffable {
         return "load balancer rule " + getName();
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-
-        LoadBalancerRule rule = (LoadBalancerRule) obj;
-
-        return (rule.getName()).equals(this.getName());
-    }
 }

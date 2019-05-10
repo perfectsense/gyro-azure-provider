@@ -6,8 +6,8 @@ import com.microsoft.azure.management.network.Subnet;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 
@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
  *          }
  *     end
  */
-@ResourceName("network")
+@ResourceType("network")
 public class NetworkResource extends AzureResource {
     private String networkName;
     private String resourceGroupName;
@@ -85,7 +85,7 @@ public class NetworkResource extends AzureResource {
     /**
      * Address spaces for the network. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<String> getAddressSpaces() {
         if (addressSpaces == null) {
             addressSpaces = new ArrayList<>();
@@ -115,7 +115,7 @@ public class NetworkResource extends AzureResource {
         this.subnet = subnet;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();
@@ -151,7 +151,6 @@ public class NetworkResource extends AzureResource {
         if (!network.subnets().isEmpty()) {
             for (Subnet key : network.subnets().values()) {
                 SubnetResource subnetResource = new SubnetResource(key);
-                subnetResource.parent(this);
                 getSubnet().add(subnetResource);
             }
         }
@@ -192,14 +191,14 @@ public class NetworkResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         Network network = client.networks().getById(getNetworkId());
 
         Network.Update update = network.update();
 
-        if (changedProperties.contains("address-spaces")) {
+        if (changedFieldNames.contains("address-spaces")) {
             NetworkResource oldResource = (NetworkResource) current;
 
             List<String> removeAddressSpaces = oldResource.getAddressSpaces().stream()
@@ -219,11 +218,11 @@ public class NetworkResource extends AzureResource {
             }
         }
 
-        if (changedProperties.contains("tags")) {
+        if (changedFieldNames.contains("tags")) {
             update = update.withTags(getTags());
         }
 
-        if (!changedProperties.isEmpty()) {
+        if (!changedFieldNames.isEmpty()) {
             update.apply();
         }
 

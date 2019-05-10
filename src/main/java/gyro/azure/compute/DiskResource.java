@@ -8,8 +8,8 @@ import com.microsoft.azure.management.compute.OperatingSystemTypes;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 
@@ -36,7 +36,7 @@ import java.util.Set;
  *          }
  *     end
  */
-@ResourceName("disk")
+@ResourceType("disk")
 public class DiskResource extends AzureResource {
     private String diskName;
     private String diskId;
@@ -82,7 +82,7 @@ public class DiskResource extends AzureResource {
     /**
      * Size of the disk in Gb. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getSize() {
         return size;
     }
@@ -94,7 +94,7 @@ public class DiskResource extends AzureResource {
     /**
      * Type of OS. Valid options include [ 'LINUX', 'WINDOWS'].
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getOsType() {
         return osType != null ? osType.toUpperCase() : null;
     }
@@ -106,7 +106,7 @@ public class DiskResource extends AzureResource {
     /**
      * Type of Disk. Valid options include [ 'STANDARD_LRS', 'PREMIUM_LRS', 'STANDARD_SSD_LRS'].
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getDiskType() {
         return diskType != null ? diskType.toUpperCase() : null;
     }
@@ -140,7 +140,7 @@ public class DiskResource extends AzureResource {
         this.dataLoadSource = dataLoadSource;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();
@@ -222,14 +222,14 @@ public class DiskResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         Disk disk = client.disks().getById(getDiskId());
 
         int changeCount = 0;
 
-        if (changedProperties.contains("os-type")) {
+        if (changedFieldNames.contains("os-type")) {
             if (!ObjectUtils.isBlank(getOsType())) {
                 disk.update()
                     .withOSType(OperatingSystemTypes.fromString(getOsType()))
@@ -239,7 +239,7 @@ public class DiskResource extends AzureResource {
             changeCount++;
         }
 
-        if (changedProperties.size() > changeCount) {
+        if (changedFieldNames.size() > changeCount) {
             disk.update()
                 .withSizeInGB(getSize())
                 .withSku(DiskSkuTypes.fromStorageAccountType(DiskStorageAccountTypes.fromString(getDiskType())))

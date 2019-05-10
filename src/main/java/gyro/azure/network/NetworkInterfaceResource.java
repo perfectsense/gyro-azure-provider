@@ -7,8 +7,8 @@ import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
 
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 
@@ -48,7 +48,7 @@ import java.util.Set;
  *          }
  *     end
  */
-@ResourceName("network-interface")
+@ResourceType("network-interface")
 public class NetworkInterfaceResource extends AzureResource {
     private String networkInterfaceName;
     private String resourceGroupName;
@@ -119,7 +119,7 @@ public class NetworkInterfaceResource extends AzureResource {
     /**
      * The id of a security group to be assigned with the interface.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getSecurityGroupId() {
         return securityGroupId;
     }
@@ -136,7 +136,7 @@ public class NetworkInterfaceResource extends AzureResource {
         this.networkInterfaceId = networkInterfaceId;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();
@@ -154,7 +154,7 @@ public class NetworkInterfaceResource extends AzureResource {
      *
      * @subresource gyro.azure.network.NicIpConfigurationResource
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<NicIpConfigurationResource> getNicIpConfiguration() {
         if (nicIpConfiguration == null) {
             nicIpConfiguration = new ArrayList<>();
@@ -179,7 +179,6 @@ public class NetworkInterfaceResource extends AzureResource {
         getNicIpConfiguration().clear();
         for (NicIPConfiguration nicIpConfiguration : networkInterface.ipConfigurations().values()) {
             NicIpConfigurationResource nicIpConfigurationResource = new NicIpConfigurationResource(nicIpConfiguration);
-            nicIpConfigurationResource.parent(this);
 
             if (nicIpConfiguration.isPrimary()) {
                 nicIpConfigurationResource.setPrimary(true);
@@ -241,14 +240,14 @@ public class NetworkInterfaceResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         NetworkInterface networkInterface = getNetworkInterface(client);
 
         NetworkInterface.Update update = networkInterface.update();
 
-        if (changedProperties.contains("security-group-id")) {
+        if (changedFieldNames.contains("security-group-id")) {
             if (ObjectUtils.isBlank(getSecurityGroupId())) {
                 update = update.withoutNetworkSecurityGroup();
             } else {

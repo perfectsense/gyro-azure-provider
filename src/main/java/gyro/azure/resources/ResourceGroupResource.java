@@ -1,8 +1,8 @@
 package gyro.azure.resources;
 
 import gyro.azure.AzureResource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.resources.ResourceGroup;
@@ -29,7 +29,7 @@ import java.util.Set;
  *         }
  *     end
  */
-@ResourceName("resource-group")
+@ResourceType("resource-group")
 public class ResourceGroupResource extends AzureResource {
 
     private String resourceGroupName;
@@ -56,7 +56,7 @@ public class ResourceGroupResource extends AzureResource {
         this.resourceGroupId = resourceGroupId;
     }
 
-    @ResourceDiffProperty(updatable = true, nullable = true)
+    @ResourceUpdatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();
@@ -98,7 +98,7 @@ public class ResourceGroupResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         ResourceGroup resourceGroup = client.resourceGroups().getByName(getResourceGroupName());
