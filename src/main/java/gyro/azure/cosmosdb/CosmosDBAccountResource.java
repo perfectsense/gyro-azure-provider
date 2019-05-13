@@ -9,6 +9,7 @@ import gyro.core.resource.ResourceUpdatable;
 
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.cosmosdb.CosmosDBAccount;
+import com.microsoft.azure.management.cosmosdb.Location;
 import com.microsoft.azure.management.cosmosdb.VirtualNetworkRule;
 import com.microsoft.azure.management.cosmosdb.CosmosDBAccount.DefinitionStages.WithCreate;
 import com.microsoft.azure.management.cosmosdb.CosmosDBAccount.DefinitionStages.WithConsistencyPolicy;
@@ -17,12 +18,12 @@ import com.microsoft.azure.management.cosmosdb.CosmosDBAccount.UpdateStages.With
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -36,16 +37,16 @@ import java.util.stream.Collectors;
  *
  *         azure::cosmos-db cosmos-db-example
  *             database-account-kind: "AzureTable"
- *             consistency-level: "BoundedStaleness"
- *             max-interval: 6
- *             max-staleness-prefix: 5
- *             end
+ *             consistency-level: "Session"
+ *             ip-range-filter: "10.1.0.0"
+ *             name: "cosmos-db-example"
+ *             read-replication-regions: ["Central US"]
  *             resource-group-name: $(azure::resource-group resource-group-cosmos-db-example | resource-group-name)
- *             subnet-name: "subnet1"
  *             tags: {
  *                 Name: "network-interface-example"
  *             }
- *             write-replication-region: "West US"
+ *             virtual-network-rules: ["$(azure::network network-example-fri | network-id)/subnets/subnet1"]
+ *             write-replication-region: "Canada East"
  *         end
  */
 @ResourceType("cosmos-db")
@@ -100,7 +101,7 @@ public class CosmosDBAccountResource extends AzureResource {
     }
 
     /**
-     * The output id of the database.
+     * The id of the database.
      */
     @ResourceOutput
     public String getId() {
@@ -112,7 +113,7 @@ public class CosmosDBAccountResource extends AzureResource {
     }
 
     /**
-     * The ip range filter in CIDR notation (Optional)
+     * The ip range filter in CIDR notation. (Optional)
      */
     @ResourceUpdatable
     public String getIpRangeFilter() {

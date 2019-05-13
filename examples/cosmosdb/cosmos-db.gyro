@@ -32,11 +32,11 @@ azure::cosmos-db cosmos-db-example
     consistency-level: "Session"
     ip-range-filter: "10.1.0.0"
     name: "cosmos-db-example"
-    read-replication-regions: ["West US", "North Europe"]
+    read-replication-regions: ["North Europe", "Central US"]
     resource-group-name: $(azure::resource-group resource-group-cosmos-db-example | resource-group-name)
     tags: {
         Name: "cosmos-db-example"
     }
     virtual-network-rules: ["$(azure::network network-example | network-id)/subnets/subnet1"]
-    write-replication-region: "East Asia"
+    write-replication-region: "Canada East"
 end
