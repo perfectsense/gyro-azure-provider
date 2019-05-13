@@ -385,6 +385,10 @@ public class CosmosDBAccountResource extends AzureResource {
             update.withReadReplication(Region.fromName(readRegions));
         }
 
+        if (!getReadReplicationRegions().contains(getWriteReplicationRegion())) {
+            update.withReadReplication(Region.fromName(getWriteReplicationRegion()));
+        }
+
         List<String> removeReadReplicationRegions = oldAccount.getReadReplicationRegions().stream()
                 .filter(((Predicate<String>) new HashSet<>(getReadReplicationRegions())::contains).negate())
                 .collect(Collectors.toList());
@@ -396,6 +400,23 @@ public class CosmosDBAccountResource extends AzureResource {
         withOptionals.withVirtualNetworkRules(toVirtualNetworkRules());
         withOptionals.withTags(getTags())
                 .apply();
+
+        List<Location> locations = new ArrayList<>();
+
+        Location writeLocation = new Location();
+        writeLocation.withLocationName(getWriteReplicationRegion());
+        writeLocation.withFailoverPriority(0);
+        locations.add(writeLocation);
+
+        int priority = 1;
+        for (String readReplicationRegion : getReadReplicationRegions()) {
+            Location readLocation = new Location();
+            readLocation.withLocationName(readReplicationRegion);
+            readLocation.withFailoverPriority(priority++);
+            locations.add(readLocation);
+        }
+
+        client.cosmosDBAccounts().failoverPriorityChange(getResourceGroupName(), getName(), locations);
     }
 
     @Override
