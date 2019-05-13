@@ -167,8 +167,6 @@ public class CosmosDBAccountResource extends AzureResource {
             readReplicationRegions = new ArrayList<>();
         }
 
-        readReplicationRegions.sort(Comparator.naturalOrder());
-
         return readReplicationRegions;
     }
 
@@ -252,20 +250,15 @@ public class CosmosDBAccountResource extends AzureResource {
         }
         setName(cosmosAccount.name());
 
-        // if the write regions is placed first in the list, then load everything
-        if (!getReadReplicationRegions().isEmpty()) {
-            if (getReadReplicationRegions().get(0).equals(getWriteReplicationRegion())) {
-                getReadReplicationRegions().clear();
-                cosmosAccount.readableReplications().forEach(loc -> getReadReplicationRegions().add(loc.locationName()));
-            } else {
-                // if not, omit the first element of the read replications list
-                getReadReplicationRegions().clear();
-                for (int i = 1; i < cosmosAccount.readableReplications().size(); i++) {
-                    getReadReplicationRegions().add(cosmosAccount.readableReplications().get(i).locationName());
-                }
-            }
+        Map<Integer, String> treeMap = new TreeMap<>();
+        getReadReplicationRegions().clear();
+        for (Location location : cosmosAccount.readableReplications()) {
+            treeMap.put(location.failoverPriority(), location.locationName());
         }
-        getReadReplicationRegions().sort(Comparator.naturalOrder());
+
+        setWriteReplicationRegion(treeMap.get(0));
+        treeMap.remove(0);
+        setReadReplicationRegions(new ArrayList(treeMap.values()));
 
         setTags(cosmosAccount.tags());
 
