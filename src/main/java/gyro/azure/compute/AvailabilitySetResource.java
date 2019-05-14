@@ -1,8 +1,8 @@
 package gyro.azure.compute;
 
 import gyro.azure.AzureResource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 
@@ -34,7 +34,7 @@ import java.util.Set;
  *             update-domain-count: 20
  *         end
  */
-@ResourceName("availability-set")
+@ResourceType("availability-set")
 public class AvailabilitySetResource extends AzureResource {
 
     private Integer faultDomainCount;
@@ -93,7 +93,7 @@ public class AvailabilitySetResource extends AzureResource {
     /**
      * The availability set sku. Options are Aligned and Classic. Defaults to Classic. (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getSku() {
         if (sku == null) {
             sku = "Classic";
@@ -109,7 +109,7 @@ public class AvailabilitySetResource extends AzureResource {
     /**
      * The tags associated with the availability set. (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();
@@ -169,7 +169,7 @@ public class AvailabilitySetResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         client.availabilitySets().getById(getId()).update()

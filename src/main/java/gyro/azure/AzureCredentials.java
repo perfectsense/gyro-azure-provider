@@ -5,21 +5,17 @@ import com.microsoft.azure.credentials.ApplicationTokenCredentials;
 import com.microsoft.azure.credentials.AzureTokenCredentials;
 import com.microsoft.azure.management.Azure;
 import com.microsoft.rest.LogLevel;
-import gyro.core.GyroException;
-import gyro.core.resource.ResourceName;
 import gyro.core.Credentials;
-import com.google.common.collect.ImmutableMap;
-import gyro.core.scope.FileScope;
+import gyro.core.GyroException;
+import gyro.core.resource.ResourceType;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
-import java.util.Map;
 import java.util.Properties;
 
-@ResourceName("credentials")
+@ResourceType("credentials")
 public class AzureCredentials extends Credentials<Azure.Authenticated> {
+
     private String region;
 
     private String credentialFilePath;
@@ -88,8 +84,6 @@ public class AzureCredentials extends Credentials<Azure.Authenticated> {
     }
 
     private InputStream getRelativeCredentialsPath() throws Exception {
-        FileScope fileScope = scope().getFileScope();
-
-        return fileScope.getRootScope().getBackend().openInput(Paths.get(fileScope.getFile()).getParent().resolve(getCredentialFilePath()).toString());
+        return openInput(getCredentialFilePath());
     }
 }

@@ -11,11 +11,6 @@ import java.io.IOException;
 public abstract class AzureResource extends Resource {
     private Azure client;
 
-    @Override
-    public Class resourceCredentialsClass() {
-        return AzureCredentials.class;
-    }
-
     protected Azure createClient() {
         if (client == null) {
             AzureCredentials azureCredentials = (AzureCredentials) resourceCredentials();

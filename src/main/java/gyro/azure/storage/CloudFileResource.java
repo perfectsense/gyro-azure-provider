@@ -2,8 +2,8 @@ package gyro.azure.storage;
 
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 
 import com.microsoft.azure.storage.StorageException;
@@ -31,7 +31,7 @@ import java.io.File;
  *         storage-account: $(azure::storage-account blob-storage-account-example)
  *     end
  */
-@ResourceName("cloud-file")
+@ResourceType("cloud-file")
 public class CloudFileResource extends AzureResource {
 
     private String cloudFileDirectoryPath;
@@ -43,7 +43,7 @@ public class CloudFileResource extends AzureResource {
     /**
      * The directory path for the file. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getCloudFileDirectoryPath() {
         return cloudFileDirectoryPath;
     }
@@ -116,7 +116,7 @@ public class CloudFileResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {}
+    public void update(Resource current, Set<String> changedFieldNames) {}
 
     @Override
     public void delete() {

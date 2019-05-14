@@ -14,8 +14,8 @@ import com.microsoft.azure.management.network.ApplicationGatewaySkuName;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 
@@ -119,7 +119,7 @@ import java.util.stream.Collectors;
  *
  *     end
  */
-@ResourceName("application-gateway")
+@ResourceType("application-gateway")
 public class ApplicationGatewayResource extends AzureResource {
     private String resourceGroupName;
     private String networkId;
@@ -200,7 +200,7 @@ public class ApplicationGatewayResource extends AzureResource {
      *
      * @subresource gyro.azure.network.RequestRoutingRule
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<RequestRoutingRule> getRequestRoutingRule() {
         if (requestRoutingRule == null) {
             requestRoutingRule = new ArrayList<>();
@@ -218,7 +218,7 @@ public class ApplicationGatewayResource extends AzureResource {
      *
      * @subresource gyro.azure.network.Listener
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<Listener> getListener() {
         if (listener == null) {
             listener = new ArrayList<>();
@@ -236,7 +236,7 @@ public class ApplicationGatewayResource extends AzureResource {
      *
      * @subresource gyro.azure.network.Backend
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<Backend> getBackend() {
         if (backend == null) {
             backend = new ArrayList<>();
@@ -254,7 +254,7 @@ public class ApplicationGatewayResource extends AzureResource {
      *
      * @subresource gyro.azure.network.BackendHttpConfiguration
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<BackendHttpConfiguration> getBackendHttpConfiguration() {
         if (backendHttpConfiguration == null) {
             backendHttpConfiguration = new ArrayList<>();
@@ -272,7 +272,7 @@ public class ApplicationGatewayResource extends AzureResource {
      *
      * @subresource gyro.azure.network.RedirectConfiguration
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<RedirectConfiguration> getRedirectConfiguration() {
         if (redirectConfiguration == null) {
             redirectConfiguration = new ArrayList<>();
@@ -290,7 +290,7 @@ public class ApplicationGatewayResource extends AzureResource {
      *
      * @subresource gyro.azure.network.Probe
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<Probe> getProbe() {
         if (probe == null) {
             probe = new ArrayList<>();
@@ -303,7 +303,7 @@ public class ApplicationGatewayResource extends AzureResource {
         this.probe = probe;
     }
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public String getSkuSize() {
         return skuSize != null ? skuSize.toUpperCase() : null;
     }
@@ -315,7 +315,7 @@ public class ApplicationGatewayResource extends AzureResource {
     /**
      * Number of instances to scale. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Integer getInstanceCount() {
         return instanceCount;
     }
@@ -327,7 +327,7 @@ public class ApplicationGatewayResource extends AzureResource {
     /**
      * Tags for the application gateway.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();
@@ -342,7 +342,7 @@ public class ApplicationGatewayResource extends AzureResource {
     /**
      * Enable http2. Defaults to false.
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getEnableHttp2() {
         if (enableHttp2 == null) {
             enableHttp2 = false;
@@ -447,7 +447,7 @@ public class ApplicationGatewayResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource resource, Set<String> set) {
+    public void update(Resource resource, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         ApplicationGateway applicationGateway = client.applicationGateways().getById(getApplicationGatewayId());

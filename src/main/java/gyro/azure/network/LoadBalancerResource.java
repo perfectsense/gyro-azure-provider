@@ -1,8 +1,8 @@
 package gyro.azure.network;
 
 import gyro.azure.AzureResource;
-import gyro.core.resource.ResourceDiffProperty;
-import gyro.core.resource.ResourceName;
+import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.Resource;
 
@@ -87,7 +87,7 @@ import java.util.Set;
  *             }
  *         end
  */
-@ResourceName("load-balancer")
+@ResourceType("load-balancer")
 public class LoadBalancerResource extends AzureResource {
 
     private Map<String, Frontend> frontends;
@@ -102,7 +102,7 @@ public class LoadBalancerResource extends AzureResource {
     private Boolean skuBasic;
     private Map<String, String> tags;
 
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Map<String, Frontend> frontends() {
         if (frontends == null) {
             frontends = new HashMap<>();
@@ -121,7 +121,7 @@ public class LoadBalancerResource extends AzureResource {
     /**
      * The http probes associated with the load balancer. (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<HealthCheckProbeHttp> getHealthCheckProbeHttp() {
         if (healthCheckProbeHttp == null) {
             healthCheckProbeHttp = new ArrayList<>();
@@ -137,7 +137,7 @@ public class LoadBalancerResource extends AzureResource {
     /**
      * The tcp probes associated with the load balancer. (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<HealthCheckProbeTcp> getHealthCheckProbeTcp() {
         if (healthCheckProbeTcp == null) {
             healthCheckProbeTcp = new ArrayList<>();
@@ -176,7 +176,7 @@ public class LoadBalancerResource extends AzureResource {
     /**
      * The load balancer rules associated with the load balancer. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public List<LoadBalancerRule> getLoadBalancerRule() {
         if (loadBalancerRule == null) {
             loadBalancerRule = new ArrayList<>();
@@ -230,7 +230,7 @@ public class LoadBalancerResource extends AzureResource {
     /**
      * Specifies if the sku type is basic or standard. Defaults to true. (Required)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Boolean getSkuBasic() {
         if (skuBasic == null) {
             skuBasic = true;
@@ -246,7 +246,7 @@ public class LoadBalancerResource extends AzureResource {
     /**
      * The tags associated with the load balancer. (Optional)
      */
-    @ResourceDiffProperty(updatable = true)
+    @ResourceUpdatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();
@@ -421,7 +421,7 @@ public class LoadBalancerResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         LoadBalancer loadBalancer = client.loadBalancers().getById(getId());
