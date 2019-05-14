@@ -259,7 +259,7 @@ public class CosmosDBAccountResource extends AzureResource {
 
         setWriteReplicationRegion(treeMap.get(0));
         treeMap.remove(0);
-        setReadReplicationRegions(new ArrayList(treeMap.values()));
+        setReadReplicationRegions(new ArrayList<>(treeMap.values()));
 
         setTags(cosmosAccount.tags());
 
@@ -286,21 +286,19 @@ public class CosmosDBAccountResource extends AzureResource {
                 .withExistingResourceGroup(getResourceGroupName());
 
         WithConsistencyPolicy withConsistencyPolicy = null;
-        if (getDatabaseAccountKind() != null) {
-            if (KIND_AZURETABLE.equalsIgnoreCase(getDatabaseAccountKind())) {
-                withConsistencyPolicy = withKind.withDataModelAzureTable();
-            } else if (KIND_CASSANDRA.equalsIgnoreCase(getDatabaseAccountKind())) {
-                withConsistencyPolicy = withKind.withDataModelCassandra();
-            } else if (KIND_GREMLIN.equalsIgnoreCase(getDatabaseAccountKind())) {
-                withConsistencyPolicy = withKind.withDataModelGremlin();
-            } else if (KIND_MONGODB.equalsIgnoreCase(getDatabaseAccountKind())) {
-                withConsistencyPolicy = withKind.withDataModelMongoDB();
-            } else if (KIND_SQL.equalsIgnoreCase(getDatabaseAccountKind())) {
-                withConsistencyPolicy = withKind.withDataModelSql();
-            } else {
-                throw new GyroException("Invalid database account kind. " +
-                        "Values are AzureTable, Cassandra, Gremlin, MongoDB, and Sql");
-            }
+        if (KIND_AZURETABLE.equalsIgnoreCase(getDatabaseAccountKind())) {
+            withConsistencyPolicy = withKind.withDataModelAzureTable();
+        } else if (KIND_CASSANDRA.equalsIgnoreCase(getDatabaseAccountKind())) {
+            withConsistencyPolicy = withKind.withDataModelCassandra();
+        } else if (KIND_GREMLIN.equalsIgnoreCase(getDatabaseAccountKind())) {
+            withConsistencyPolicy = withKind.withDataModelGremlin();
+        } else if (KIND_MONGODB.equalsIgnoreCase(getDatabaseAccountKind())) {
+            withConsistencyPolicy = withKind.withDataModelMongoDB();
+        } else if (KIND_SQL.equalsIgnoreCase(getDatabaseAccountKind())) {
+            withConsistencyPolicy = withKind.withDataModelSql();
+        } else {
+            throw new GyroException("Invalid database account kind. " +
+                    "Values are AzureTable, Cassandra, Gremlin, MongoDB, and Sql");
         }
 
         WithCreate withCreate;
