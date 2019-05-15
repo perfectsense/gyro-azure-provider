@@ -76,7 +76,7 @@ public class CosmosDBAccountResource extends AzureResource {
     private String writeReplicationRegion;
 
     /**
-     * The consistency policy of the account. Values values are ``AzureTable``, ``Cassandra``,
+     * The consistency policy of the account. Valid values are ``AzureTable``, ``Cassandra``,
      * ``Gremlin``, ``MongoDB``, ``Sql``. (Required)
      */
     public String getDatabaseAccountKind() {
@@ -125,7 +125,7 @@ public class CosmosDBAccountResource extends AzureResource {
     }
 
     /**
-     * The max interval, in seconds. Used with ``BoundedStaleness`` consistency policy. (Conditional)
+     * The max interval, in seconds. Required when used with ``BoundedStaleness`` consistency policy. (Optional)
      */
     @ResourceUpdatable
     public Integer getMaxInterval() {
@@ -137,7 +137,7 @@ public class CosmosDBAccountResource extends AzureResource {
     }
 
     /**
-     * The max staleness prefix. Used with ``BoundedStaleness`` consistency policy. (Conditional)
+     * The max staleness prefix. Required when used with ``BoundedStaleness`` consistency policy. (Optional)
      */
     @ResourceUpdatable
     public String getMaxStalenessPrefix() {
@@ -219,8 +219,8 @@ public class CosmosDBAccountResource extends AzureResource {
     }
 
     /**
-     * Sets the write location. Used with ``BoundedStaleness``, ``Eventual``, and ``Session``
-     * consistency levels. (Conditional)
+     * Sets the write location. Required when used with ``BoundedStaleness``, ``Eventual``, and ``Session``
+     * consistency levels. (Optional)
      */
     @ResourceUpdatable
     public String getWriteReplicationRegion() {
