@@ -272,6 +272,8 @@ public class SqlElasticPoolResource extends AzureResource {
             }
 
             elasticPool = withStandardEdition.withTags(getTags()).create();
+        } else {
+            throw new GyroException("Invalid edition. Valid values are Basic, Standard, and Premium");
         }
 
         setId(elasticPool.id());
@@ -297,6 +299,8 @@ public class SqlElasticPoolResource extends AzureResource {
                     .withDatabaseDtuMin(SqlElasticPoolStandardMinEDTUs.valueOf(getDtuMin()))
                     .withReservedDtu(SqlElasticPoolStandardEDTUs.valueOf(getDtuReserved()))
                     .withStorageCapacity(SqlElasticPoolStandardStorage.valueOf(getStorageCapacity()));
+        } else {
+            throw new GyroException("Invalid edition. Valid values are Basic, Standard, and Premium");
         }
 
         for (String database : getDatabaseNames()) {
