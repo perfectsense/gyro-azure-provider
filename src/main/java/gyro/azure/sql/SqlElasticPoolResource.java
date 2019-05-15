@@ -208,9 +208,9 @@ public class SqlElasticPoolResource extends AzureResource {
 
         getDatabaseNames().clear();
         elasticPool.listDatabases().forEach(db -> getDatabaseNames().add(db.name()));
-        setDtuMax("eDTU_" + Integer.toString(elasticPool.databaseDtuMax()));
-        setDtuMin("eDTU_" + Integer.toString(elasticPool.databaseDtuMin()));
-        setDtuReserved("eDTU_" + Integer.toString(elasticPool.dtu()));
+        setDtuMax("eDTU_" + elasticPool.databaseDtuMax());
+        setDtuMin("eDTU_" + elasticPool.databaseDtuMin());
+        setDtuReserved("eDTU_" + elasticPool.dtu());
         setEdition(elasticPool.edition().toString());
         setId(elasticPool.id());
         setName(elasticPool.name());
