@@ -50,6 +50,7 @@ public class SqlFailoverGroupResource extends AzureResource {
     private List<String> partnerServerIds;
     private Boolean readOnlyPolicyEnabled;
     private Integer readWriteGracePeriod;
+    private SqlFailoverGroup sqlFailoverGroup;
     private SqlServerResource sqlServer;
     private Map<String, String> tags;
 
@@ -175,7 +176,7 @@ public class SqlFailoverGroupResource extends AzureResource {
     public boolean refresh() {
         Azure client = createClient();
 
-        SqlFailoverGroup failoverGroup = getFailoverGroups(client);
+        SqlFailoverGroup failoverGroup = sqlFailoverGroup(client);
 
         if (failoverGroup == null) {
             return false;
@@ -235,7 +236,7 @@ public class SqlFailoverGroupResource extends AzureResource {
     public void update(Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
-        SqlFailoverGroup.Update update = getFailoverGroups(client).update();
+        SqlFailoverGroup.Update update = sqlFailoverGroup(client).update();
 
         SqlFailoverGroupResource oldResource = (SqlFailoverGroupResource) current;
 
@@ -278,7 +279,7 @@ public class SqlFailoverGroupResource extends AzureResource {
     public void delete() {
         Azure client = createClient();
 
-        getFailoverGroups(client).delete();
+        sqlFailoverGroup(client).delete();
     }
 
     @Override
@@ -286,7 +287,11 @@ public class SqlFailoverGroupResource extends AzureResource {
         return "failover group " + getName();
     }
 
-    SqlFailoverGroup getFailoverGroups(Azure client) {
-        return client.sqlServers().getById(getSqlServerId()).failoverGroups().get(getName());
+    private SqlFailoverGroup sqlFailoverGroup(Azure client) {
+        if (sqlFailoverGroup == null) {
+            sqlFailoverGroup = client.sqlServers().getById(getSqlServer().getId()).failoverGroups().get(getName());
+        }
+
+        return sqlFailoverGroup;
     }
 }

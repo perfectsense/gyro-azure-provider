@@ -68,6 +68,7 @@ public class SqlDatabaseResource extends AzureResource {
     private String storageUri;
     private StorageAccountResource storageAccount;
     private SqlServerResource sqlServer;
+    private SqlDatabase sqlDatabase;
     private Map<String, String> tags;
 
     /**
@@ -277,7 +278,7 @@ public class SqlDatabaseResource extends AzureResource {
     public boolean refresh() {
         Azure client = createClient();
 
-        if (getSqlDatabase(client) == null) {
+        if (sqlDatabase(client) == null) {
             return false;
         }
 
@@ -392,7 +393,7 @@ public class SqlDatabaseResource extends AzureResource {
     public void update(Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
-        SqlDatabase.Update update = getSqlDatabase(client).update();
+        SqlDatabase.Update update = sqlDatabase(client).update();
 
         if (getElasticPoolName() != null) {
             update.withExistingElasticPool(getElasticPoolName());
@@ -431,16 +432,12 @@ public class SqlDatabaseResource extends AzureResource {
     public void delete() {
         Azure client = createClient();
 
-        getSqlDatabase(client).delete();
+        sqlDatabase(client).delete();
     }
 
     @Override
     public String toDisplayString() {
         return "sql database " + getName();
-    }
-
-    SqlDatabase getSqlDatabase(Azure client) {
-        return client.sqlServers().getById(getSqlServer().getId()).databases().get(getName());
     }
 
     private String findMaxCapacity(Long storage) {
@@ -451,5 +448,13 @@ public class SqlDatabaseResource extends AzureResource {
         }
 
         return null;
+    }
+
+    private SqlDatabase sqlDatabase(Azure client) {
+        if (sqlDatabase == null) {
+            sqlDatabase = client.sqlServers().getById(getSqlServer().getId()).databases().get(getName());
+        }
+
+        return sqlDatabase;
     }
 }

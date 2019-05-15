@@ -60,6 +60,7 @@ public class SqlElasticPoolResource extends AzureResource {
     private String edition;
     private String id;
     private String name;
+    private SqlElasticPool sqlElasticPool;
     private SqlServerResource sqlServer;
     private String storageCapacity;
     private Map<String, String> tags;
@@ -194,7 +195,7 @@ public class SqlElasticPoolResource extends AzureResource {
     public boolean refresh() {
         Azure client = createClient();
 
-        SqlElasticPool elasticPool = getSqlElasticPool(client);
+        SqlElasticPool elasticPool = sqlElasticPool(client);
 
         if (elasticPool == null) {
             return false;
@@ -300,7 +301,7 @@ public class SqlElasticPoolResource extends AzureResource {
     public void delete() {
         Azure client = createClient();
 
-        getSqlElasticPool(client).delete();
+        sqlElasticPool(client).delete();
     }
 
     @Override
@@ -308,7 +309,11 @@ public class SqlElasticPoolResource extends AzureResource {
         return "sql elastic pool " + getName();
     }
 
-    SqlElasticPool getSqlElasticPool(Azure client) {
-        return client.sqlServers().getById(getSqlServerId()).elasticPools().get(getName());
+    private SqlElasticPool sqlElasticPool(Azure client) {
+        if (sqlElasticPool == null) {
+            sqlElasticPool = client.sqlServers().getById(getSqlServer().getId()).elasticPools().get(getName());
+        }
+
+        return sqlElasticPool;
     }
 }

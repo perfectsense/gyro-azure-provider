@@ -33,6 +33,7 @@ public class SqlVirtualNetworkRuleResource extends AzureResource {
     private String name;
     private String networkId;
     private SqlServerResource sqlServer;
+    private SqlVirtualNetworkRule sqlVirtualNetworkRule;
     private String subnetName;
 
     /**
@@ -95,7 +96,7 @@ public class SqlVirtualNetworkRuleResource extends AzureResource {
     public boolean refresh() {
         Azure client = createClient();
 
-        SqlVirtualNetworkRule virtualNetworkRule = getVirtualNetworkRule(client);
+        SqlVirtualNetworkRule virtualNetworkRule = virtualNetworkRule(client);
 
         if (virtualNetworkRule == null) {
             return false;
@@ -125,7 +126,7 @@ public class SqlVirtualNetworkRuleResource extends AzureResource {
     public void update(Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
-        SqlVirtualNetworkRule.Update update = getVirtualNetworkRule(client)
+        SqlVirtualNetworkRule.Update update = virtualNetworkRule(client)
                 .update()
                 .withSubnet(getNetworkId(), getSubnetName());
 
@@ -136,7 +137,7 @@ public class SqlVirtualNetworkRuleResource extends AzureResource {
     public void delete() {
         Azure client = createClient();
 
-        getVirtualNetworkRule(client).delete();
+        virtualNetworkRule(client).delete();
     }
 
     @Override
@@ -144,7 +145,11 @@ public class SqlVirtualNetworkRuleResource extends AzureResource {
         return "sql virtual network rule " + getName();
     }
 
-    SqlVirtualNetworkRule getVirtualNetworkRule(Azure client) {
-        return client.sqlServers().getById(getSqlServerId()).virtualNetworkRules().get(getName());
+    private SqlVirtualNetworkRule virtualNetworkRule(Azure client) {
+        if (sqlVirtualNetworkRule == null) {
+            sqlVirtualNetworkRule = client.sqlServers().getById(getSqlServer().getId()).virtualNetworkRules().get(getName());
+        }
+
+        return sqlVirtualNetworkRule;
     }
 }

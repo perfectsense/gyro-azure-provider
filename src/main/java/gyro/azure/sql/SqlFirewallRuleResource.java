@@ -34,6 +34,7 @@ public class SqlFirewallRuleResource extends AzureResource {
     private String startIpAddress;
     private String endIpAddress;
     private String name;
+    private SqlFirewallRule sqlFirewallRule;
     private SqlServerResource sqlServer;
 
     /**
@@ -98,7 +99,7 @@ public class SqlFirewallRuleResource extends AzureResource {
     public boolean refresh() {
         Azure client = createClient();
 
-        SqlFirewallRule firewallRule = getSqlFirewallRule(client);
+        SqlFirewallRule firewallRule = sqlFirewallRule(client);
 
         if (firewallRule == null) {
             return false;
@@ -134,7 +135,7 @@ public class SqlFirewallRuleResource extends AzureResource {
     public void update(Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
-        SqlFirewallRule.Update update = getSqlFirewallRule(client).update();
+        SqlFirewallRule.Update update = sqlFirewallRule(client).update();
 
         if (getStartIpAddress() != null && getEndIpAddress() != null) {
             update.withStartIPAddress(getStartIpAddress())
@@ -149,7 +150,7 @@ public class SqlFirewallRuleResource extends AzureResource {
     public void delete() {
         Azure client = createClient();
 
-        getSqlFirewallRule(client).delete();
+        sqlFirewallRule(client).delete();
     }
 
     @Override
@@ -157,7 +158,11 @@ public class SqlFirewallRuleResource extends AzureResource {
         return "sql firewall rule " + getName();
     }
 
-    SqlFirewallRule getSqlFirewallRule(Azure client) {
-        return client.sqlServers().getById(getSqlServerId()).firewallRules().get(getName());
+    private SqlFirewallRule sqlFirewallRule(Azure client) {
+        if (sqlFirewallRule == null) {
+            sqlFirewallRule = client.sqlServers().getById(getSqlServer().getId()).firewallRules().get(getName());
+        }
+
+        return sqlFirewallRule;
     }
 }
