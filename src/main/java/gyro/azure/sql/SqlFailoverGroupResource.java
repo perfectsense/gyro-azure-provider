@@ -1,5 +1,6 @@
 package gyro.azure.sql;
 
+import com.microsoft.azure.management.sql.SqlElasticPool;
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
@@ -185,12 +186,11 @@ public class SqlFailoverGroupResource extends AzureResource {
 
         setDatabaseIds(failoverGroup.databases());
         setId(failoverGroup.id());
-        setManualReadAndWritePolicy(failoverGroup.readWriteEndpointPolicy() == ReadWriteEndpointFailoverPolicy.MANUAL ?
-                true : false);
+        setManualReadAndWritePolicy(failoverGroup.readWriteEndpointPolicy() == ReadWriteEndpointFailoverPolicy.MANUAL);
         setName(failoverGroup.name());
         getPartnerServerIds().clear();
         failoverGroup.partnerServers().forEach(server -> getPartnerServerIds().add(server.id()));
-        setReadOnlyPolicyEnabled(failoverGroup.readOnlyEndpointPolicy() == ReadOnlyEndpointFailoverPolicy.ENABLED ? true : false);
+        setReadOnlyPolicyEnabled(failoverGroup.readOnlyEndpointPolicy() == ReadOnlyEndpointFailoverPolicy.ENABLED);
         setReadWriteGracePeriod(failoverGroup.readWriteEndpointDataLossGracePeriodMinutes());
         setTags(failoverGroup.tags());
 

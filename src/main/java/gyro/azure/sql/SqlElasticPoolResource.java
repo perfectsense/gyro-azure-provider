@@ -54,6 +54,10 @@ import java.util.Set;
 @ResourceType("sql-elastic-pool")
 public class SqlElasticPoolResource extends AzureResource {
 
+    private static final String EDITION_BASIC = "Basic";
+    private static final String EDITION_PREMIUM = "Premium";
+    private static final String EDITION_STANDARD = "Standard";
+
     private List<String> databaseNames;
     private String dtuMax;
     private String dtuMin;
@@ -231,7 +235,7 @@ public class SqlElasticPoolResource extends AzureResource {
         WithPremiumEdition withPremiumEdition;
         WithStandardEdition withStandardEdition;
 
-        if (getEdition().equals("Basic")) {
+        if (EDITION_BASIC.equalsIgnoreCase(getEdition())) {
             withBasicEdition = buildPool.withBasicPool()
                     .withDatabaseDtuMax(SqlElasticPoolBasicMaxEDTUs.valueOf(getDtuMax()))
                     .withDatabaseDtuMin(SqlElasticPoolBasicMinEDTUs.valueOf(getDtuMin()))
@@ -243,7 +247,7 @@ public class SqlElasticPoolResource extends AzureResource {
 
             elasticPool = withBasicEdition.create();
 
-        } else if (getEdition().equals("Premium")) {
+        } else if (EDITION_PREMIUM.equalsIgnoreCase(getEdition())) {
             withPremiumEdition = buildPool.withPremiumPool()
                     .withDatabaseDtuMax(SqlElasticPoolPremiumMaxEDTUs.valueOf(getDtuMax()))
                     .withDatabaseDtuMin(SqlElasticPoolPremiumMinEDTUs.valueOf(getDtuMin()))
@@ -256,7 +260,7 @@ public class SqlElasticPoolResource extends AzureResource {
 
             elasticPool = withPremiumEdition.create();
 
-        } else if (getEdition().equals("Standard")) {
+        } else if (EDITION_STANDARD.equalsIgnoreCase(getEdition())) {
             withStandardEdition = buildPool.withStandardPool()
                     .withDatabaseDtuMax(SqlElasticPoolStandardMaxEDTUs.valueOf(getDtuMax()))
                     .withDatabaseDtuMin(SqlElasticPoolStandardMinEDTUs.valueOf(getDtuMin()))
@@ -279,16 +283,16 @@ public class SqlElasticPoolResource extends AzureResource {
 
         SqlElasticPool.Update update = getSqlElasticPool(client).update();
 
-        if (getEdition().equals("Basic")) {
+        if (EDITION_BASIC.equalsIgnoreCase(getEdition())) {
             update.withDatabaseDtuMax(SqlElasticPoolBasicMaxEDTUs.valueOf(getDtuMax()))
                     .withDatabaseDtuMin(SqlElasticPoolBasicMinEDTUs.valueOf(getDtuMin()))
                     .withReservedDtu(SqlElasticPoolBasicEDTUs.valueOf(getDtuReserved()));
-        } else if (getEdition().equals("Premium")) {
+        } else if (EDITION_PREMIUM.equalsIgnoreCase(getEdition())) {
             update.withDatabaseDtuMax(SqlElasticPoolPremiumMaxEDTUs.valueOf(getDtuMax()))
                     .withDatabaseDtuMin(SqlElasticPoolPremiumMinEDTUs.valueOf(getDtuMin()))
                     .withReservedDtu(SqlElasticPoolPremiumEDTUs.valueOf(getDtuReserved()))
                     .withStorageCapacity(SqlElasticPoolPremiumSorage.valueOf(getStorageCapacity()));
-        } else if (getEdition().equals("Standard")) {
+        } else if (EDITION_STANDARD.equalsIgnoreCase(getEdition())) {
             update.withDatabaseDtuMax(SqlElasticPoolStandardMaxEDTUs.valueOf(getDtuMax()))
                     .withDatabaseDtuMin(SqlElasticPoolStandardMinEDTUs.valueOf(getDtuMin()))
                     .withReservedDtu(SqlElasticPoolStandardEDTUs.valueOf(getDtuReserved()))
