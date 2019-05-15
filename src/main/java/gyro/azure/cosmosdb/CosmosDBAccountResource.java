@@ -270,9 +270,8 @@ public class CosmosDBAccountResource extends AzureResource {
 
     @Override
     public void create() {
-        if (getDatabaseAccountKind() == null || getConsistencyLevel() == null) {
-            throw new GyroException("Database account kind and consistency level" +
-                    "must be configured");
+        if (getDatabaseAccountKind() == null && getConsistencyLevel() == null) {
+            throw new GyroException("Database account kind and consistency level must be configured");
         }
 
         Azure client = createClient();
