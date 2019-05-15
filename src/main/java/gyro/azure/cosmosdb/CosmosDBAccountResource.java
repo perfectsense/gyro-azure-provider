@@ -298,7 +298,7 @@ public class CosmosDBAccountResource extends AzureResource {
             withConsistencyPolicy = withKind.withDataModelSql();
         } else {
             throw new GyroException("Invalid database account kind. " +
-                    "Values are AzureTable, Cassandra, Gremlin, MongoDB, and Sql");
+                    "Valid values are AzureTable, Cassandra, Gremlin, MongoDB, and Sql");
         }
 
         WithCreate withCreate;
@@ -318,7 +318,7 @@ public class CosmosDBAccountResource extends AzureResource {
             withCreate = withConsistencyPolicy.withStrongConsistency();
         } else {
             throw new GyroException("Invalid consistency level. " +
-                    "Values are BoundedStaleness, Eventual, Session, and Strong");
+                    "Valid values are BoundedStaleness, Eventual, Session, and Strong");
         }
 
         if (getIpRangeFilter() != null) {
