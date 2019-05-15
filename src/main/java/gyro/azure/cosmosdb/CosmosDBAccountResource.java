@@ -348,27 +348,6 @@ public class CosmosDBAccountResource extends AzureResource {
 
         WithOptionals withOptionals = null;
 
-        if (LEVEL_BOUNDED.equalsIgnoreCase(getConsistencyLevel())
-                && getMaxStalenessPrefix() != null
-                && getMaxInterval() != null) {
-            withOptionals = update
-                    .withBoundedStalenessConsistency(Long.parseLong(getMaxStalenessPrefix()), getMaxInterval());
-        } else if (LEVEL_EVENTUAL.equalsIgnoreCase(getConsistencyLevel())) {
-            withOptionals = update
-                    .withEventualConsistency();
-        } else if (LEVEL_SESSION.equalsIgnoreCase(getConsistencyLevel())) {
-            withOptionals = update
-                    .withSessionConsistency();
-        } else if (LEVEL_STRONG.equalsIgnoreCase(getConsistencyLevel())) {
-            withOptionals = update
-                    .withStrongConsistency();
-        } else {
-            throw new GyroException("Invalid consistency level. " +
-                    "Values are BoundedStaleness, Eventual, Session, and Strong");
-        }
-
-        withOptionals.withIpRangeFilter(getIpRangeFilter());
-
         List<String> addReadReplicationRegions = getReadReplicationRegions().stream()
                 .filter(((Predicate<String>) new HashSet<>(oldAccount.getReadReplicationRegions())::contains).negate())
                 .collect(Collectors.toList());
@@ -389,9 +368,26 @@ public class CosmosDBAccountResource extends AzureResource {
             update.withoutReadReplication(Region.fromName(readRegions));
         }
 
+        if (LEVEL_BOUNDED.equalsIgnoreCase(getConsistencyLevel())
+                && getMaxStalenessPrefix() != null
+                && getMaxInterval() != null) {
+            withOptionals = update
+                    .withBoundedStalenessConsistency(Long.parseLong(getMaxStalenessPrefix()), getMaxInterval());
+        } else if (LEVEL_EVENTUAL.equalsIgnoreCase(getConsistencyLevel())) {
+            withOptionals = update.withEventualConsistency();
+        } else if (LEVEL_SESSION.equalsIgnoreCase(getConsistencyLevel())) {
+            withOptionals = update.withSessionConsistency();
+        } else if (LEVEL_STRONG.equalsIgnoreCase(getConsistencyLevel())) {
+            withOptionals = update.withStrongConsistency();
+        } else {
+            throw new GyroException("Invalid consistency level. " +
+                    "Valid values are BoundedStaleness, Eventual, Session, and Strong.");
+        }
+
+        withOptionals.withIpRangeFilter(getIpRangeFilter());
         withOptionals.withVirtualNetworkRules(toVirtualNetworkRules());
-        withOptionals.withTags(getTags())
-                .apply();
+        withOptionals.withTags(getTags());
+        update.apply();
 
         List<Location> locations = new ArrayList<>();
 
