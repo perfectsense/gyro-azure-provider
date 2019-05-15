@@ -245,7 +245,7 @@ public class SqlElasticPoolResource extends AzureResource {
                 withBasicEdition.withExistingDatabase(database);
             }
 
-            elasticPool = withBasicEdition.create();
+            elasticPool = withBasicEdition.withTags(getTags()).create();
 
         } else if (EDITION_PREMIUM.equalsIgnoreCase(getEdition())) {
             withPremiumEdition = buildPool.withPremiumPool()
@@ -258,7 +258,7 @@ public class SqlElasticPoolResource extends AzureResource {
                 withPremiumEdition.withExistingDatabase(database);
             }
 
-            elasticPool = withPremiumEdition.create();
+            elasticPool = withPremiumEdition.withTags(getTags()).create();
 
         } else if (EDITION_STANDARD.equalsIgnoreCase(getEdition())) {
             withStandardEdition = buildPool.withStandardPool()
