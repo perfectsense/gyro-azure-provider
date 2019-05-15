@@ -326,8 +326,9 @@ public class CosmosDBAccountResource extends AzureResource {
         }
 
         withCreate.withVirtualNetworkRules(toVirtualNetworkRules());
+        withCreate.withTags(getTags());
 
-        CosmosDBAccount cosmosDBAccount = withCreate.withTags(getTags()).create();
+        CosmosDBAccount cosmosDBAccount = withCreate.create();
 
         setId(cosmosDBAccount.id());
     }
