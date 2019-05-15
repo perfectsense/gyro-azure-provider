@@ -1,13 +1,20 @@
 package gyro.azure;
 
-import gyro.core.resource.ResourceType;
+import com.microsoft.azure.AzureEnvironment;
+import com.microsoft.azure.credentials.ApplicationTokenCredentials;
+import com.microsoft.azure.credentials.AzureTokenCredentials;
+import com.microsoft.azure.management.Azure;
+import com.microsoft.rest.LogLevel;
 import gyro.core.Credentials;
-import com.google.common.collect.ImmutableMap;
+import gyro.core.GyroException;
+import gyro.core.resource.ResourceType;
 
-import java.util.Map;
+import java.io.InputStream;
+import java.util.Properties;
 
 @ResourceType("credentials")
-public class AzureCredentials extends Credentials {
+public class AzureCredentials extends Credentials<Azure.Authenticated> {
+
     private String region;
 
     private String credentialFilePath;
@@ -44,14 +51,38 @@ public class AzureCredentials extends Credentials {
     }
 
     @Override
-    public Map<String, String> findCredentials(boolean refresh) {
-        ImmutableMap.Builder<String, String> mapBuilder = new ImmutableMap.Builder<>();
+    public Azure.Authenticated findCredentials(boolean refresh) {
+        AzureEnvironment environment = AzureEnvironment.AZURE;
+        Properties credentialsProperties = loadProperties();
+        AzureTokenCredentials credentials = new ApplicationTokenCredentials(
+            (String) credentialsProperties.get("client"),
+            (String) credentialsProperties.get("tenant"),
+            (String) credentialsProperties.get("key"),
+            environment
+        );
 
-        return mapBuilder.build();
+        return Azure.configure()
+            .withLogLevel(LogLevel.valueOf(getLogLevel()))
+            .authenticate(credentials);
     }
 
     @Override
-    public Map<String, String> findCredentials(boolean refresh, boolean extended) {
+    public Azure.Authenticated findCredentials(boolean refresh, boolean extended) {
         return findCredentials(refresh);
+    }
+
+    private Properties loadProperties() {
+        try (InputStream input = getRelativeCredentialsPath()) {
+            Properties props = new Properties();
+            props.load(input);
+
+            return props;
+        } catch (Exception ex) {
+            throw new GyroException(ex.getMessage());
+        }
+    }
+
+    private InputStream getRelativeCredentialsPath() throws Exception {
+        return openInput(getCredentialFilePath());
     }
 }
