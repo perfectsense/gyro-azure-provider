@@ -158,7 +158,7 @@ public class SqlElasticPoolResource extends AzureResource {
     }
 
     /**
-     * The storage limit for the database elastic pool. Used with Standard and Premium editions (Conditional)
+     * The storage limit for the database elastic pool. Required when used with ``Standard`` and ``Premium`` editions. (Optional)
      */
     @ResourceUpdatable
     public String getStorageCapacity() {

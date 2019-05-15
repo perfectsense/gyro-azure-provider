@@ -1,6 +1,5 @@
 package gyro.azure.sql;
 
-import com.microsoft.azure.management.sql.SqlElasticPool;
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
@@ -136,7 +135,7 @@ public class SqlFailoverGroupResource extends AzureResource {
     }
 
     /**
-     * Determines the grace period. Used with the automatic read and write policy. (Conditional)
+     * Determines the grace period. Required when used with the automatic read and write policy. (Optional)
      */
     @ResourceUpdatable
     public Integer getReadWriteGracePeriod() {

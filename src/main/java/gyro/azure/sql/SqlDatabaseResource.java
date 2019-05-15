@@ -108,7 +108,7 @@ public class SqlDatabaseResource extends AzureResource {
     }
 
     /**
-     * The edition service objective of the database. Used with editions ``Basic``, ``Premium``, and ``Standard``. (Conditional)
+     * The edition service objective of the database. Required when used with editions ``Basic``, ``Premium``, and ``Standard``. (Optional)
      */
     @ResourceUpdatable
     public String getEditionServiceObjective() {
@@ -145,7 +145,7 @@ public class SqlDatabaseResource extends AzureResource {
     }
 
     /**
-     * The container the source file is coming from. (Conditional)
+     * The container the source file is coming from. Required when used with storage account and source filename. (Optional)
      */
     public String getImportFromContainerName() {
         return importFromContainerName;
@@ -156,7 +156,7 @@ public class SqlDatabaseResource extends AzureResource {
     }
 
     /**
-     * The source filename. (Conditional)
+     * The source filename. Required when used with container name and storage account id. (Optional)
      */
     public String getImportFromFilename() {
         return importFromFilename;
@@ -167,7 +167,7 @@ public class SqlDatabaseResource extends AzureResource {
     }
 
     /**
-     * The storage account id the source file is coming from. (Conditional)
+     * The storage account id the source file is coming from. Required when used with container name and source filename. (Optional)
      */
     public String getImportFromStorageAccountId() {
         return importFromStorageAccountId;
@@ -178,7 +178,7 @@ public class SqlDatabaseResource extends AzureResource {
     }
 
     /**
-     * The maximum size of the database. Used with ``Premium`` and ``Standard`` editions. (Conditional)
+     * The maximum size of the database. Required when used with ``Premium`` and ``Standard`` editions. (Optional)
      */
     @ResourceUpdatable
     public String getMaxStorageCapacity() {
@@ -238,7 +238,7 @@ public class SqlDatabaseResource extends AzureResource {
     }
 
     /**
-     * The storage account related to a database to be imported. (Conditional)
+     * The storage account related to a database to be imported. (Optional)
      */
     public StorageAccountResource getStorageAccount() {
         return storageAccount;
