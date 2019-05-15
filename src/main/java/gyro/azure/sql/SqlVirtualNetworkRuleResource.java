@@ -5,11 +5,11 @@ import gyro.core.GyroException;
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.ResourceType;
+import gyro.core.resource.ResourceUpdatable;
 
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.sql.SqlVirtualNetworkRule;
 import com.microsoft.azure.management.sql.SqlVirtualNetworkRuleOperations.DefinitionStages.WithServiceEndpoint;
-import gyro.core.resource.ResourceUpdatable;
 
 import java.util.Set;
 

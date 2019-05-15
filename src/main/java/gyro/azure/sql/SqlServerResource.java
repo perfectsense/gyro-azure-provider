@@ -4,11 +4,11 @@ import gyro.azure.AzureResource;
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.ResourceType;
+import gyro.core.resource.ResourceUpdatable;
 
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.microsoft.azure.management.sql.SqlServer;
-import gyro.core.resource.ResourceUpdatable;
 
 import java.util.HashMap;
 import java.util.Map;
