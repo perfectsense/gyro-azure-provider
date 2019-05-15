@@ -44,7 +44,7 @@ import java.util.Set;
  *         dtu-min: "eDTU_0"
  *         dtu-max: "eDTU_5"
  *         dtu-reserved: "eDTU_50"
- *         sql-server-id: $(azure::sql-server sql-server-example | id)
+ *         sql-server: $(azure::sql-server sql-server-example)
  *         tags: {
  *             Name: "sql-elastic-pool-example"
  *         }
@@ -60,7 +60,7 @@ public class SqlElasticPoolResource extends AzureResource {
     private String edition;
     private String id;
     private String name;
-    private String sqlServerId;
+    private SqlServerResource sqlServer;
     private String storageCapacity;
     private Map<String, String> tags;
 
@@ -164,14 +164,14 @@ public class SqlElasticPoolResource extends AzureResource {
     }
 
     /**
-     * The id of the sql server where the elastic pool is found. (Required)
+     * The sql server where the elastic pool is found. (Required)
      */
-    public String getSqlServerId() {
-        return sqlServerId;
+    public SqlServerResource getSqlServer() {
+        return sqlServer;
     }
 
-    public void setSqlServerId(String sqlServerId) {
-        this.sqlServerId = sqlServerId;
+    public void setSqlServer(SqlServerResource sqlServer) {
+        this.sqlServer = sqlServer;
     }
 
     /**

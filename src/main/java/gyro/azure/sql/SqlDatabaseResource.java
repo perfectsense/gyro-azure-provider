@@ -247,7 +247,7 @@ public class SqlDatabaseResource extends AzureResource {
     }
 
     /**
-     * The sql server where the database is found. (Optional)
+     * The sql server where the database is found. (Required)
      */
     public SqlServerResource getSqlServer() {
         return sqlServer;

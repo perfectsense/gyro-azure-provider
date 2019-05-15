@@ -58,14 +58,14 @@ end
 azure::sql-firewall-rule firewall
     start-ip-address: "10.0.0.0"
     name: "test firewall rule"
-    sql-server-id: $(azure::sql-server sql-server-example | id)
+    sql-server: $(azure::sql-server sql-server-example)
 end
 
 azure::sql-virtual-network-rule vnrule
     name: "test vn rule"
     network-id: $(azure::network sql-network-example | network-id)
     subnet-name: "subnet1"
-    sql-server-id: $(azure::sql-server sql-server-example | id)
+    sql-server: $(azure::sql-server sql-server-example)
 end
 
 azure::sql-elastic-pool sql-elastic-pool-example
@@ -74,7 +74,7 @@ azure::sql-elastic-pool sql-elastic-pool-example
     dtu-min: "eDTU_0"
     dtu-max: "eDTU_5"
     dtu-reserved: "eDTU_50"
-    sql-server-id: $(azure::sql-server sql-server-example | id)
+    sql-server: $(azure::sql-server sql-server-example)
     tags: {
         Name: "sql-elastic-pool-example"
     }
@@ -105,7 +105,7 @@ end
 azure::sql-failover-group failover-example
     name: "sql-failover-example"
     database-ids: [$(azure::sql-database sql-database-example | id)]
-    sql-server-id: $(azure::sql-server sql-server-example | id)
+    sql-server: $(azure::sql-server sql-server-example)
     manual-read-and-write-policy: false
     read-write-grace-period: 2
     partner-server-ids: [$(azure::sql-server sql-server-example-partner-server | id)]

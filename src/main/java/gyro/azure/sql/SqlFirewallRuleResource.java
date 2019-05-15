@@ -24,7 +24,7 @@ import java.util.Set;
  *     azure::sql-firewall-rule firewall
  *         start-ip-address: "10.0.0.0"
  *         name: "test firewall rule"
- *         sql-server-id: $(azure::sql-server sql-server-example | id)
+ *         sql-server: $(azure::sql-server sql-server-example)
  *     end
  */
 @ResourceType("sql-firewall-rule")
@@ -34,7 +34,7 @@ public class SqlFirewallRuleResource extends AzureResource {
     private String startIpAddress;
     private String endIpAddress;
     private String name;
-    private String sqlServerId;
+    private SqlServerResource sqlServer;
 
     /**
      * The id of the firewall rule. (Required)
@@ -84,14 +84,14 @@ public class SqlFirewallRuleResource extends AzureResource {
     }
 
     /**
-     * The id of the sql server where the firewall rule is found. (Required)
+     * The sql server where the firewall rule is found. (Required)
      */
-    public String getSqlServerId() {
-        return sqlServerId;
+    public SqlServerResource getSqlServer() {
+        return sqlServer;
     }
 
-    public void setSqlServerId(String sqlServerId) {
-        this.sqlServerId = sqlServerId;
+    public void setSqlServer(SqlServerResource sqlServer) {
+        this.sqlServer = sqlServer;
     }
 
     @Override
@@ -116,7 +116,7 @@ public class SqlFirewallRuleResource extends AzureResource {
     public void create() {
         Azure client = createClient();
 
-        WithIPAddressRange rule = client.sqlServers().getById(getSqlServerId()).firewallRules().define(getName());
+        WithIPAddressRange rule = client.sqlServers().getById(getSqlServer().getId()).firewallRules().define(getName());
 
         WithCreate withCreate;
         if (getStartIpAddress() != null) {

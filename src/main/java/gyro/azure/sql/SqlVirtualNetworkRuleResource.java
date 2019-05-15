@@ -23,7 +23,7 @@ import java.util.Set;
  *         name: "test vn rule"
  *         network-id: $(azure::network sql-network-example | network-id)
  *         subnet-name: "subnet1"
- *         sql-server-id: $(azure::sql-server sql-server-example | id)
+ *         sql-server: $(azure::sql-server sql-server-example)
  *     end
  */
 @ResourceType("sql-virtual-network-rule")
@@ -33,7 +33,7 @@ public class SqlVirtualNetworkRuleResource extends AzureResource {
     private Boolean ignoreMissingSqlEndpoint;
     private String name;
     private String networkId;
-    private String sqlServerId;
+    private SqlServerResource sqlServer;
     private String subnetName;
 
     /**
@@ -86,14 +86,14 @@ public class SqlVirtualNetworkRuleResource extends AzureResource {
     }
 
     /**
-     * The id of the sql server where the virtual network rule is found. (Required)
+     * The sql server where the virtual network rule is found. (Required)
      */
-    public String getSqlServerId() {
-        return sqlServerId;
+    public SqlServerResource getSqlServer() {
+        return sqlServer;
     }
 
-    public void setSqlServerId(String sqlServerId) {
-        this.sqlServerId = sqlServerId;
+    public void setSqlServer(SqlServerResource sqlServer) {
+        this.sqlServer = sqlServer;
     }
 
     /**
@@ -129,7 +129,7 @@ public class SqlVirtualNetworkRuleResource extends AzureResource {
     public void create() {
         Azure client = createClient();
 
-        WithServiceEndpoint withServiceEndpoint = client.sqlServers().getById(getSqlServerId()).virtualNetworkRules().define(getName())
+        WithServiceEndpoint withServiceEndpoint = client.sqlServers().getById(getSqlServer().getId()).virtualNetworkRules().define(getName())
                 .withSubnet(getNetworkId(), getSubnetName());
 
         if (getIgnoreMissingSqlEndpoint()) {

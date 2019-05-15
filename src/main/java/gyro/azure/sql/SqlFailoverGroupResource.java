@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
  *     azure::sql-failover-group failover-example
  *         name: "sql-failover-example"
  *         database-ids: [$(azure::sql-database sql-database-example | id)]
- *         sql-server-id: $(azure::sql-server sql-server-example | id)
+ *         sql-server: $(azure::sql-server sql-server-example)
  *         manual-read-and-write-policy: false
  *         read-write-grace-period: 2
  *         partner-server-ids: [$(azure::sql-server sql-server-example-partner-server | id)]
@@ -50,7 +50,7 @@ public class SqlFailoverGroupResource extends AzureResource {
     private List<String> partnerServerIds;
     private Boolean readOnlyPolicyEnabled;
     private Integer readWriteGracePeriod;
-    private String sqlServerId;
+    private SqlServerResource sqlServer;
     private Map<String, String> tags;
 
     /**
@@ -145,14 +145,14 @@ public class SqlFailoverGroupResource extends AzureResource {
     }
 
     /**
-     * The id of the sql server where the failover group is found. (Required)
+     * Thesql server where the failover group is found. (Required)
      */
-    public String getSqlServerId() {
-        return sqlServerId;
+    public SqlServerResource getSqlServer() {
+        return sqlServer;
     }
 
-    public void setSqlServerId(String sqlServerId) {
-        this.sqlServerId = sqlServerId;
+    public void setSqlServer(SqlServerResource sqlServer) {
+        this.sqlServer = sqlServer;
     }
 
     /**
@@ -199,7 +199,7 @@ public class SqlFailoverGroupResource extends AzureResource {
     public void create() {
         Azure client = createClient();
 
-        WithReadWriteEndpointPolicy buildFailoverGroup = client.sqlServers().getById(getSqlServerId()).failoverGroups().define(getName());
+        WithReadWriteEndpointPolicy buildFailoverGroup = client.sqlServers().getById(getSqlServer().getId()).failoverGroups().define(getName());
 
         WithPartnerServer withPartnerServer;
         if (getManualReadAndWritePolicy() != null) {
