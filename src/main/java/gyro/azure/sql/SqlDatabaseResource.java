@@ -328,15 +328,15 @@ public class SqlDatabaseResource extends AzureResource {
 
             if (getImportFromContainerName() != null
                     && getImportFromFilename() != null
-                    && getImportFromStorageAccountId() != null
-            ) {
+                    && getImportFromStorageAccountId() != null)
+            {
                 StorageAccount storageAccount = client.storageAccounts().getById(getStorageAccount().getId());
                 withExistingDatabaseAfterElasticPool.importFrom(storageAccount,
                         getImportFromContainerName(),
                         getImportFromFilename())
                         .withSqlAdministratorLoginAndPassword(getSqlServer().getAdministratorLogin(), getSqlServer().getAdministratorPassword());
             } else if (getStorageUri() != null && getStorageAccount() != null) {
-                buildDatabase.importFrom(getStorageUri()).withStorageAccessKey(getStorageAccount().getKeys().get(0))
+                buildDatabase.importFrom(getStorageUri()).withStorageAccessKey(getStorageAccount().getKeys().get("key1"))
                 .withSqlAdministratorLoginAndPassword(getSqlServer().getAdministratorLogin(), getSqlServer().getAdministratorPassword());
             } else if (getWithSampleDatabase() != null) {
                 withExistingDatabaseAfterElasticPool.fromSample(SampleName.ADVENTURE_WORKS_LT);
@@ -386,7 +386,7 @@ public class SqlDatabaseResource extends AzureResource {
                     .withSqlAdministratorLoginAndPassword(getSqlServer().getAdministratorLogin(), getSqlServer().getAdministratorPassword())
                     .withTags(getTags()).create();
         } else if (getStorageUri() != null && getStorageAccount() != null) {
-            buildDatabase.importFrom(getStorageUri()).withStorageAccessKey(getStorageAccount().getKeys().get(0))
+            buildDatabase.importFrom(getStorageUri()).withStorageAccessKey(getStorageAccount().getKeys().get("key1"))
                     .withSqlAdministratorLoginAndPassword(getSqlServer().getAdministratorLogin(), getSqlServer().getAdministratorPassword())
                     .withTags(getTags()).create();
         } else if (getWithSampleDatabase() != null) {
