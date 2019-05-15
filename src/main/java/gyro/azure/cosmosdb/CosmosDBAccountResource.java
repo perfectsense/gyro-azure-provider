@@ -251,22 +251,19 @@ public class CosmosDBAccountResource extends AzureResource {
         }
         setName(cosmosAccount.name());
 
-        Map<Integer, String> treeMap = new TreeMap<>();
+        Map<Integer, String> priorities = new TreeMap<>();
         getReadReplicationRegions().clear();
         for (Location location : cosmosAccount.readableReplications()) {
-            treeMap.put(location.failoverPriority(), location.locationName());
+            priorities.put(location.failoverPriority(), location.locationName());
         }
 
-        setWriteReplicationRegion(treeMap.get(0));
-        treeMap.remove(0);
-        setReadReplicationRegions(new ArrayList<>(treeMap.values()));
+        setWriteReplicationRegion(priorities.remove(0));
+        setReadReplicationRegions(new ArrayList<>(priorities.values()));
 
         setTags(cosmosAccount.tags());
 
         getVirtualNetworkRules().clear();
         cosmosAccount.virtualNetworkRules().forEach(rule -> getVirtualNetworkRules().add(rule.id()));
-
-        cosmosAccount.writableReplications().forEach(loc -> setWriteReplicationRegion(loc.locationName()));
 
         return true;
     }
@@ -325,8 +322,8 @@ public class CosmosDBAccountResource extends AzureResource {
             withCreate.withIpRangeFilter(getIpRangeFilter());
         }
 
-        for (String readRegions : getReadReplicationRegions()) {
-            withCreate.withReadReplication(Region.fromName(readRegions));
+        for (String region : getReadReplicationRegions()) {
+            withCreate.withReadReplication(Region.fromName(region));
         }
 
         withCreate.withVirtualNetworkRules(toVirtualNetworkRules());
