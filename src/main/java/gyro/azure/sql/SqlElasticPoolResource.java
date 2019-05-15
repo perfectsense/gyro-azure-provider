@@ -83,7 +83,7 @@ public class SqlElasticPoolResource extends AzureResource {
     }
 
     /**
-     * Sets the maximum eDTU for the each database in the pool. (Required)
+     * The maximum eDTU for the each database in the pool. (Required)
      */
     @ResourceUpdatable
     public String getDtuMax() {
@@ -95,7 +95,7 @@ public class SqlElasticPoolResource extends AzureResource {
     }
 
     /**
-     * Sets the minimum of eDTU for each database in the pool. (Required)
+     * The minimum of eDTU for each database in the pool. (Required)
      */
     @ResourceUpdatable
     public String getDtuMin() {
@@ -107,7 +107,7 @@ public class SqlElasticPoolResource extends AzureResource {
     }
 
     /**
-     * Sets the total shared eDTU for the elastic pool. (Required)
+     * The total shared eDTU for the elastic pool. (Required)
      */
     @ResourceUpdatable
     public String getDtuReserved() {
@@ -154,7 +154,7 @@ public class SqlElasticPoolResource extends AzureResource {
     }
 
     /**
-     * Sets the storage limit for the database elastic pool. Used with Standard and Premium editions (Conditional)
+     * The storage limit for the database elastic pool. Used with Standard and Premium editions (Conditional)
      */
     @ResourceUpdatable
     public String getStorageCapacity() {

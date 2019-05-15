@@ -96,7 +96,7 @@ public class SqlDatabaseResource extends AzureResource {
     }
 
     /**
-     * The edition of the database. Options include Basic, Premium, and Standard. (Optional)
+     * The edition of the database. Options include ``Basic``, ``Premium``, and ``Standard``. (Optional)
      */
     @ResourceUpdatable
     public String getEdition() {
@@ -108,7 +108,7 @@ public class SqlDatabaseResource extends AzureResource {
     }
 
     /**
-     * The edition service objective of the database. Used with editions Basic, Premium, and Standard. (Conditional)
+     * The edition service objective of the database. Used with editions ``Basic``, ``Premium``, and ``Standard``. (Conditional)
      */
     @ResourceUpdatable
     public String getEditionServiceObjective() {
@@ -178,7 +178,7 @@ public class SqlDatabaseResource extends AzureResource {
     }
 
     /**
-     * The maximum size of the database. Used with Premium and Standard Editions. (Conditional)
+     * The maximum size of the database. Used with ``Premium`` and ``Standard`` editions. (Conditional)
      */
     @ResourceUpdatable
     public String getMaxStorageCapacity() {
