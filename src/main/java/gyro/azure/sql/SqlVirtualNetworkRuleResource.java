@@ -30,7 +30,6 @@ import java.util.Set;
 public class SqlVirtualNetworkRuleResource extends AzureResource {
 
     private String id;
-    private Boolean ignoreMissingSqlEndpoint;
     private String name;
     private String networkId;
     private SqlServerResource sqlServer;
@@ -46,21 +45,6 @@ public class SqlVirtualNetworkRuleResource extends AzureResource {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    /**
-     * Determines if the rule will ignore the missing sql endpoint. (Required)
-     */
-    public Boolean getIgnoreMissingSqlEndpoint() {
-        if (ignoreMissingSqlEndpoint == null) {
-            ignoreMissingSqlEndpoint = false;
-        }
-
-        return ignoreMissingSqlEndpoint;
-    }
-
-    public void setIgnoreMissingSqlEndpoint(Boolean ignoreMissingSqlEndpoint) {
-        this.ignoreMissingSqlEndpoint = ignoreMissingSqlEndpoint;
     }
 
     /**
@@ -132,10 +116,6 @@ public class SqlVirtualNetworkRuleResource extends AzureResource {
         WithServiceEndpoint withServiceEndpoint = client.sqlServers().getById(getSqlServer().getId()).virtualNetworkRules().define(getName())
                 .withSubnet(getNetworkId(), getSubnetName());
 
-        if (getIgnoreMissingSqlEndpoint()) {
-            withServiceEndpoint.ignoreMissingSqlServiceEndpoint();
-        }
-
         SqlVirtualNetworkRule virtualNetworkRule = withServiceEndpoint.create();
 
         setId(virtualNetworkRule.id());
@@ -148,10 +128,6 @@ public class SqlVirtualNetworkRuleResource extends AzureResource {
         SqlVirtualNetworkRule.Update update = getVirtualNetworkRule(client)
                 .update()
                 .withSubnet(getNetworkId(), getSubnetName());
-
-        if (getIgnoreMissingSqlEndpoint()) {
-            update.ignoreMissingSqlServiceEndpoint();
-        }
 
         update.apply();
     }
