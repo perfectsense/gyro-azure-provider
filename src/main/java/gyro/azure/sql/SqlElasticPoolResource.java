@@ -228,7 +228,7 @@ public class SqlElasticPoolResource extends AzureResource {
 
         Azure client = createClient();
 
-        WithEdition buildPool = client.sqlServers().getById(getSqlServerId()).elasticPools().define(getName());
+        WithEdition buildPool = client.sqlServers().getById(getSqlServer().getId()).elasticPools().define(getName());
 
         SqlElasticPool elasticPool = null;
         WithBasicEdition withBasicEdition;
@@ -283,7 +283,7 @@ public class SqlElasticPoolResource extends AzureResource {
     public void update(Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
-        SqlElasticPool.Update update = getSqlElasticPool(client).update();
+        SqlElasticPool.Update update = sqlElasticPool(client).update();
 
         if (EDITION_BASIC.equalsIgnoreCase(getEdition())) {
             update.withDatabaseDtuMax(SqlElasticPoolBasicMaxEDTUs.valueOf(getDtuMax()))
