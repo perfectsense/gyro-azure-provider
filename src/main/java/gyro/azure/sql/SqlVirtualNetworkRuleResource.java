@@ -9,6 +9,7 @@ import gyro.core.resource.ResourceType;
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.sql.SqlVirtualNetworkRule;
 import com.microsoft.azure.management.sql.SqlVirtualNetworkRuleOperations.DefinitionStages.WithServiceEndpoint;
+import gyro.core.resource.ResourceUpdatable;
 
 import java.util.Set;
 
@@ -63,6 +64,7 @@ public class SqlVirtualNetworkRuleResource extends AzureResource {
     /**
      * The network id where the subnet is found. (Required)
      */
+    @ResourceUpdatable
     public String getNetworkId() {
         return networkId;
     }
@@ -85,6 +87,7 @@ public class SqlVirtualNetworkRuleResource extends AzureResource {
     /**
      * The name of a subnet within the specified network. (Required)
      */
+    @ResourceUpdatable
     public String getSubnetName() {
         return subnetName;
     }
