@@ -3,9 +3,7 @@ package gyro.azure;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
 import com.microsoft.azure.management.Azure;
-import com.microsoft.rest.LogLevel;
 
-import java.io.File;
 import java.io.IOException;
 
 public abstract class AzureResource extends Resource {

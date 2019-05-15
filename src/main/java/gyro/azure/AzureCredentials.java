@@ -10,7 +10,6 @@ import gyro.core.GyroException;
 import gyro.core.resource.ResourceType;
 
 import java.io.InputStream;
-import java.nio.file.Paths;
 import java.util.Properties;
 
 @ResourceType("credentials")
