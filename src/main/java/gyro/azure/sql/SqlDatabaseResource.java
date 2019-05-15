@@ -2,6 +2,7 @@ package gyro.azure.sql;
 
 import gyro.azure.AzureResource;
 import gyro.azure.storage.StorageAccountResource;
+import gyro.core.GyroException;
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.ResourceType;
@@ -282,7 +283,11 @@ public class SqlDatabaseResource extends AzureResource {
             return false;
         }
 
-        SqlDatabase database = getSqlDatabase(client);
+        if (getSqlServer() == null) {
+            throw new GyroException("You must provide a sql server resource.");
+        }
+
+        SqlDatabase database = sqlDatabase(client);
 
         setCollation(database.collation());
         setCreateMode(database.inner().createMode() == null ? null : database.inner().createMode().toString());
@@ -299,6 +304,10 @@ public class SqlDatabaseResource extends AzureResource {
 
     @Override
     public void create() {
+        if (getSqlServer() == null) {
+            throw new GyroException("You must provide a sql server resource.");
+        }
+
         Azure client = createClient();
 
         WithAllDifferentOptions buildDatabase = client.sqlServers().getById(getSqlServer().getId()).databases().define(getName());

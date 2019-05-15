@@ -1,6 +1,7 @@
 package gyro.azure.sql;
 
 import gyro.azure.AzureResource;
+import gyro.core.GyroException;
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.ResourceType;
@@ -115,6 +116,10 @@ public class SqlFirewallRuleResource extends AzureResource {
 
     @Override
     public void create() {
+        if (getSqlServer() == null) {
+            throw new GyroException("You must provide a sql server resource.");
+        }
+
         Azure client = createClient();
 
         WithIPAddressRange rule = client.sqlServers().getById(getSqlServer().getId()).firewallRules().define(getName());
