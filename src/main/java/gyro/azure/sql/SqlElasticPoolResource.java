@@ -1,5 +1,6 @@
 package gyro.azure.sql;
 
+import com.microsoft.azure.management.sql.SqlElasticPoolOperations;
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
@@ -230,53 +231,38 @@ public class SqlElasticPoolResource extends AzureResource {
 
         WithEdition buildPool = client.sqlServers().getById(getSqlServer().getId()).elasticPools().define(getName());
 
-        SqlElasticPool elasticPool = null;
-        WithBasicEdition withBasicEdition;
-        WithPremiumEdition withPremiumEdition;
-        WithStandardEdition withStandardEdition;
+        SqlElasticPoolOperations.DefinitionStages.WithCreate elasticPool;
 
         if (EDITION_BASIC.equalsIgnoreCase(getEdition())) {
-            withBasicEdition = buildPool.withBasicPool()
+            elasticPool = buildPool.withBasicPool()
                     .withDatabaseDtuMax(SqlElasticPoolBasicMaxEDTUs.valueOf(getDtuMax()))
                     .withDatabaseDtuMin(SqlElasticPoolBasicMinEDTUs.valueOf(getDtuMin()))
                     .withReservedDtu(SqlElasticPoolBasicEDTUs.valueOf(getDtuReserved()));
-
-            for (String database : getDatabaseNames()) {
-                withBasicEdition.withExistingDatabase(database);
-            }
-
-            elasticPool = withBasicEdition.withTags(getTags()).create();
-
         } else if (EDITION_PREMIUM.equalsIgnoreCase(getEdition())) {
-            withPremiumEdition = buildPool.withPremiumPool()
+            elasticPool = buildPool.withPremiumPool()
                     .withDatabaseDtuMax(SqlElasticPoolPremiumMaxEDTUs.valueOf(getDtuMax()))
                     .withDatabaseDtuMin(SqlElasticPoolPremiumMinEDTUs.valueOf(getDtuMin()))
                     .withReservedDtu(SqlElasticPoolPremiumEDTUs.valueOf(getDtuReserved()))
                     .withStorageCapacity(SqlElasticPoolPremiumSorage.valueOf(getStorageCapacity()));
-
-            for (String database : getDatabaseNames()) {
-                withPremiumEdition.withExistingDatabase(database);
-            }
-
-            elasticPool = withPremiumEdition.withTags(getTags()).create();
-
         } else if (EDITION_STANDARD.equalsIgnoreCase(getEdition())) {
-            withStandardEdition = buildPool.withStandardPool()
+            elasticPool = buildPool.withStandardPool()
                     .withDatabaseDtuMax(SqlElasticPoolStandardMaxEDTUs.valueOf(getDtuMax()))
                     .withDatabaseDtuMin(SqlElasticPoolStandardMinEDTUs.valueOf(getDtuMin()))
                     .withReservedDtu(SqlElasticPoolStandardEDTUs.valueOf(getDtuReserved()))
                     .withStorageCapacity(SqlElasticPoolStandardStorage.valueOf(getStorageCapacity()));
-
-            for (String database : getDatabaseNames()) {
-                withStandardEdition.withExistingDatabase(database);
-            }
-
-            elasticPool = withStandardEdition.withTags(getTags()).create();
         } else {
             throw new GyroException("Invalid edition. Valid values are Basic, Standard, and Premium");
         }
 
-        setId(elasticPool.id());
+        for (String database : getDatabaseNames()) {
+            elasticPool.withExistingDatabase(database);
+        }
+
+        elasticPool.withTags(getTags());
+
+        SqlElasticPool pool = elasticPool.create();
+
+        setId(pool.id());
     }
 
     @Override
