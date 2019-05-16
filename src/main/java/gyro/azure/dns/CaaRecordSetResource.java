@@ -3,6 +3,7 @@ package gyro.azure.dns;
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
+import gyro.core.resource.ResourceUpdatable;
 
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
@@ -11,7 +12,6 @@ import com.microsoft.azure.management.dns.CaaRecordSet;
 import com.microsoft.azure.management.dns.DnsRecordSet;
 import com.microsoft.azure.management.dns.DnsZone;
 import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.WithCaaRecordEntryOrAttachable;
-import gyro.core.resource.ResourceUpdatable;
 import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.CaaRecordSetBlank;
 
 import java.util.ArrayList;
