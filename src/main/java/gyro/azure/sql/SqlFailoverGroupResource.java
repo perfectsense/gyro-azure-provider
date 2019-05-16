@@ -147,7 +147,7 @@ public class SqlFailoverGroupResource extends AzureResource {
     }
 
     /**
-     * Thesql server where the failover group is found. (Required)
+     * The sql server where the failover group is found. (Required)
      */
     public SqlServerResource getSqlServer() {
         return sqlServer;
