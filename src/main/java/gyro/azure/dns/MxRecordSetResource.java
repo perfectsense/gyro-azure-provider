@@ -194,22 +194,22 @@ public class MxRecordSetResource extends AzureResource {
 
         Map<String, Integer> oldMap =
                 oldRecord.getMxRecord().stream()
-                        .collect(Collectors.toMap(o->o.getExchange(), o->o.getPreference()));
+                        .collect(Collectors.toMap(MxRecord::getExchange, MxRecord::getPriority));
 
         addRecords.removeIf(o -> (oldMap.containsKey(o.getExchange())
-                && oldMap.get(o.getExchange()) == (o.getPreference())));
+                && oldMap.get(o.getExchange()).equals(o.getPriority())));
 
-        for (MxRecord arecord : addRecords) {
-            updateMXRecordSet.withMailExchange(arecord.getExchange(), arecord.getPreference());
+        for (MxRecord addRecord : addRecords) {
+            updateMXRecordSet.withMailExchange(addRecord.getExchange(), addRecord.getPriority());
         }
 
         List<MxRecord> removeRecords = new ArrayList<>(oldRecord.getMxRecord());
         Map<String, Integer> currentMap =
                 getMxRecord().stream()
-                        .collect(Collectors.toMap(o->o.getExchange(), o->o.getPreference()));
+                        .collect(Collectors.toMap(MxRecord::getExchange, MxRecord::getPriority));
 
         removeRecords.removeIf(o -> (currentMap.containsKey(o.getExchange())
-                && currentMap.get(o.getExchange()) == (o.getPreference())));
+                && currentMap.get(o.getExchange()).equals(o.getPriority())));
 
         for (MxRecord removeRecord : removeRecords) {
             updateMXRecordSet.withoutMailExchange(removeRecord.getExchange(), removeRecord.getPriority());
