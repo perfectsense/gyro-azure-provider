@@ -180,15 +180,15 @@ public class MxRecordSetResource extends AzureResource {
         MapDifference<String, String> diff = Maps.difference(currentMetaData, pendingMetaData);
 
         //add new metadata
-        diff.entriesOnlyOnRight().entrySet().forEach(ele -> updateMXRecordSet.withMetadata(ele.getKey(), ele.getValue()));
+        diff.entriesOnlyOnRight().forEach(updateMXRecordSet::withMetadata);
         //delete removed metadata
-        diff.entriesOnlyOnLeft().keySet().forEach(del -> updateMXRecordSet.withoutMetadata(del));
+        diff.entriesOnlyOnLeft().keySet().forEach(updateMXRecordSet::withoutMetadata);
 
-        //update keys with changed values
-        for (Map.Entry ele : diff.entriesDiffering().entrySet()) {
-            MapDifference.ValueDifference<String> disc = (MapDifference.ValueDifference<String>) ele.getValue();
-            updateMXRecordSet.withoutMetadata((String) ele.getKey());
-            updateMXRecordSet.withMetadata((String) ele.getKey(), disc.rightValue());
+        //update changed keys
+        for (Map.Entry<String, MapDifference.ValueDifference<String>> ele : diff.entriesDiffering().entrySet()) {
+            MapDifference.ValueDifference<String> disc = ele.getValue();
+            updateMXRecordSet.withoutMetadata(ele.getKey());
+            updateMXRecordSet.withMetadata(ele.getKey(), disc.rightValue());
         }
 
         List<MxRecord> addRecords = new ArrayList<>(getMxRecord());

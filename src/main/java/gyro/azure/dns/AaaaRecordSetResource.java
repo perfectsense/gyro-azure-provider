@@ -185,16 +185,15 @@ public class AaaaRecordSetResource extends AzureResource {
         MapDifference<String, String> diff = Maps.difference(currentMetaData, pendingMetaData);
 
         //add new metadata
-        diff.entriesOnlyOnRight().entrySet().forEach(ele -> updateAaaaRecordSet.withMetadata(ele.getKey(), ele.getValue()));
+        diff.entriesOnlyOnRight().forEach(updateAaaaRecordSet::withMetadata);
         //delete removed metadata
-        diff.entriesOnlyOnLeft().keySet().forEach(del -> updateAaaaRecordSet.withoutMetadata(del));
+        diff.entriesOnlyOnLeft().keySet().forEach(updateAaaaRecordSet::withoutMetadata);
 
         //update changed keys
-        //delete
-        for (Map.Entry ele : diff.entriesDiffering().entrySet()) {
-            MapDifference.ValueDifference<String> disc = (MapDifference.ValueDifference<String>) ele.getValue();
-            updateAaaaRecordSet.withoutMetadata((String) ele.getKey());
-            updateAaaaRecordSet.withMetadata((String) ele.getKey(), disc.rightValue());
+        for (Map.Entry<String, MapDifference.ValueDifference<String>> ele : diff.entriesDiffering().entrySet()) {
+            MapDifference.ValueDifference<String> disc = ele.getValue();
+            updateAaaaRecordSet.withoutMetadata(ele.getKey());
+            updateAaaaRecordSet.withMetadata(ele.getKey(), disc.rightValue());
         }
 
         updateAaaaRecordSet.parent().apply();

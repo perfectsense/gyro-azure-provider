@@ -184,15 +184,15 @@ public class PtrRecordSetResource extends AzureResource {
         MapDifference<String, String> diff = Maps.difference(currentMetaData, pendingMetaData);
 
         //add new metadata
-        diff.entriesOnlyOnRight().entrySet().forEach(ele -> updatePtrRecordSet.withMetadata(ele.getKey(), ele.getValue()));
+        diff.entriesOnlyOnRight().forEach(updatePtrRecordSet::withMetadata);
         //delete removed metadata
-        diff.entriesOnlyOnLeft().keySet().forEach(del -> updatePtrRecordSet.withoutMetadata(del));
+        diff.entriesOnlyOnLeft().keySet().forEach(updatePtrRecordSet::withoutMetadata);
 
-        //update keys with changed values
-        for (Map.Entry ele : diff.entriesDiffering().entrySet()) {
-            MapDifference.ValueDifference<String> disc = (MapDifference.ValueDifference<String>) ele.getValue();
-            updatePtrRecordSet.withoutMetadata((String) ele.getKey());
-            updatePtrRecordSet.withMetadata((String) ele.getKey(), disc.rightValue());
+        //update changed keys
+        for (Map.Entry<String, MapDifference.ValueDifference<String>> ele : diff.entriesDiffering().entrySet()) {
+            MapDifference.ValueDifference<String> disc = ele.getValue();
+            updatePtrRecordSet.withoutMetadata(ele.getKey());
+            updatePtrRecordSet.withMetadata(ele.getKey(), disc.rightValue());
         }
 
         updatePtrRecordSet.parent().apply();

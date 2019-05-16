@@ -171,16 +171,15 @@ public class TxtRecordSetResource extends AzureResource {
         MapDifference<String, String> diff = Maps.difference(currentMetaData, pendingMetaData);
 
         //add new metadata
-        diff.entriesOnlyOnRight().entrySet().forEach(ele -> updateTxtRecordSet.withMetadata(ele.getKey(), ele.getValue()));
+        diff.entriesOnlyOnRight().forEach(updateTxtRecordSet::withMetadata);
         //delete removed metadata
-        diff.entriesOnlyOnLeft().keySet().forEach(del -> updateTxtRecordSet.withoutMetadata(del));
+        diff.entriesOnlyOnLeft().keySet().forEach(updateTxtRecordSet::withoutMetadata);
 
-        //update keys with changed values
-        //delete
-        for (Map.Entry ele : diff.entriesDiffering().entrySet()) {
-            MapDifference.ValueDifference<String> disc = (MapDifference.ValueDifference<String>) ele.getValue();
-            updateTxtRecordSet.withoutMetadata((String) ele.getKey());
-            updateTxtRecordSet.withMetadata((String) ele.getKey(), disc.rightValue());
+        //update changed keys
+        for (Map.Entry<String, MapDifference.ValueDifference<String>> ele : diff.entriesDiffering().entrySet()) {
+            MapDifference.ValueDifference<String> disc = ele.getValue();
+            updateTxtRecordSet.withoutMetadata(ele.getKey());
+            updateTxtRecordSet.withMetadata(ele.getKey(), disc.rightValue());
         }
 
         List<String> addRecords = new ArrayList<>(getTxtRecords());

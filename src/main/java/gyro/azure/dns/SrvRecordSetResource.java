@@ -170,16 +170,15 @@ public class SrvRecordSetResource extends AzureResource {
         MapDifference<String, String> diff = Maps.difference(currentMetaData, pendingMetaData);
 
         //add new metadata
-        diff.entriesOnlyOnRight().entrySet().forEach(ele -> updateSrvRecordSet.withMetadata(ele.getKey(), ele.getValue()));
+        diff.entriesOnlyOnRight().forEach(updateSrvRecordSet::withMetadata);
         //delete removed metadata
-        diff.entriesOnlyOnLeft().keySet().forEach(del -> updateSrvRecordSet.withoutMetadata(del));
+        diff.entriesOnlyOnLeft().keySet().forEach(updateSrvRecordSet::withoutMetadata);
 
-        //update keys with changed values
-        //delete
-        for (Map.Entry ele : diff.entriesDiffering().entrySet()) {
-            MapDifference.ValueDifference<String> disc = (MapDifference.ValueDifference<String>) ele.getValue();
-            updateSrvRecordSet.withoutMetadata((String) ele.getKey());
-            updateSrvRecordSet.withMetadata((String) ele.getKey(), disc.rightValue());
+        //update changed keys
+        for (Map.Entry<String, MapDifference.ValueDifference<String>> ele : diff.entriesDiffering().entrySet()) {
+            MapDifference.ValueDifference<String> disc = ele.getValue();
+            updateSrvRecordSet.withoutMetadata(ele.getKey());
+            updateSrvRecordSet.withMetadata(ele.getKey(), disc.rightValue());
         }
 
         List<SrvRecord> addRecords = comparator(getSrvRecord(), oldRecord.getSrvRecord());
