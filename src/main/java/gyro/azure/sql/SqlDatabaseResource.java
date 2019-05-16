@@ -408,27 +408,25 @@ public class SqlDatabaseResource extends AzureResource {
         } else {
             update.withoutElasticPool();
 
-            if (getEdition() != null) {
-                if (PREMIUM_EDITION.equalsIgnoreCase(getEdition())) {
-                    if (getEditionServiceObjective() != null && getMaxStorageCapacity() != null) {
-                        update.withPremiumEdition(SqlDatabasePremiumServiceObjective.fromString(getEditionServiceObjective()),
-                                SqlDatabasePremiumStorage.valueOf(getMaxStorageCapacity()));
-                    } else {
-                        update.withPremiumEdition(SqlDatabasePremiumServiceObjective.fromString(getEditionServiceObjective()));
-                    }
-                } else if (STANDARD_EDITION.equalsIgnoreCase(getEdition())) {
-                    if (getEditionServiceObjective() != null && getMaxStorageCapacity() != null) {
-                        update.withStandardEdition(SqlDatabaseStandardServiceObjective.fromString(getEditionServiceObjective()),
-                                SqlDatabaseStandardStorage.valueOf(getMaxStorageCapacity()));
-                    } else {
-                        update.withStandardEdition(SqlDatabaseStandardServiceObjective.fromString(getEditionServiceObjective()));
-                    }
-                } else if (BASIC_EDITION.equalsIgnoreCase(getEdition())) {
-                    if (getMaxStorageCapacity() != null) {
-                        update.withBasicEdition(SqlDatabaseBasicStorage.valueOf(getMaxStorageCapacity()));
-                    } else {
-                        update.withBasicEdition();
-                    }
+            if (PREMIUM_EDITION.equalsIgnoreCase(getEdition())) {
+                if (getEditionServiceObjective() != null && getMaxStorageCapacity() != null) {
+                    update.withPremiumEdition(SqlDatabasePremiumServiceObjective.fromString(getEditionServiceObjective()),
+                            SqlDatabasePremiumStorage.valueOf(getMaxStorageCapacity()));
+                } else {
+                    update.withPremiumEdition(SqlDatabasePremiumServiceObjective.fromString(getEditionServiceObjective()));
+                }
+            } else if (STANDARD_EDITION.equalsIgnoreCase(getEdition())) {
+                if (getEditionServiceObjective() != null && getMaxStorageCapacity() != null) {
+                    update.withStandardEdition(SqlDatabaseStandardServiceObjective.fromString(getEditionServiceObjective()),
+                            SqlDatabaseStandardStorage.valueOf(getMaxStorageCapacity()));
+                } else {
+                    update.withStandardEdition(SqlDatabaseStandardServiceObjective.fromString(getEditionServiceObjective()));
+                }
+            } else if (BASIC_EDITION.equalsIgnoreCase(getEdition())) {
+                if (getMaxStorageCapacity() != null) {
+                    update.withBasicEdition(SqlDatabaseBasicStorage.valueOf(getMaxStorageCapacity()));
+                } else {
+                    update.withBasicEdition();
                 }
             }
         }
