@@ -59,6 +59,7 @@ public class DnsZoneResource extends AzureResource {
     private List<AaaaRecordSetResource> aaaaRecordSet;
     private List<CaaRecordSetResource> caaRecordSet;
     private List<CnameRecordSetResource> cnameRecordSet;
+    private DnsZone.Update dnsZone;
     private String id;
     private Boolean publicAccess;
     private List<MxRecordSetResource> mxRecordSet;
@@ -396,7 +397,7 @@ public class DnsZoneResource extends AzureResource {
     public void update(Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
-        DnsZone.Update update = client.dnsZones().getById(getId()).update();
+        DnsZone.Update update = getDnsZone(client);
 
         if (!getPublicAccess()) {
             if (getRegistrationVirtualNetworkIds() != null && getResolutionVirtualNetworkIds() != null) {
@@ -421,7 +422,11 @@ public class DnsZoneResource extends AzureResource {
     @Override
     public String toDisplayString() { return "dns zone " + getName(); }
 
-    DnsZone getDnsZone(Azure client) {
-        return client.dnsZones().getByResourceGroup(getResourceGroupName(), getName());
+    public DnsZone.Update getDnsZone(Azure client) {
+        if (dnsZone == null) {
+            dnsZone = client.dnsZones().getByResourceGroup(getResourceGroupName(), getName()).update();
+        }
+
+        return dnsZone;
     }
 }
