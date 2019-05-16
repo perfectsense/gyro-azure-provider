@@ -379,20 +379,16 @@ public class SqlDatabaseResource extends AzureResource {
         //pick the source of data for the database
         if (getSourceDatabaseName() != null && getCreateMode() != null) {
             SqlDatabase db = client.sqlServers().getById(getSqlServer().getId()).databases().get(getSourceDatabaseName());
-            buildDatabase.withSourceDatabase(db).withMode(CreateMode.fromString(getCreateMode())).withTags(getTags()).create();
+            buildDatabase.withSourceDatabase(db).withMode(CreateMode.fromString(getCreateMode()));
         } else if (getImportFromStorageAccountId() != null && getImportFromContainerName() != null && getImportFromFilename() != null) {
             StorageAccount storageAccount = client.storageAccounts().getById(getImportFromStorageAccountId());
             buildDatabase.importFrom(storageAccount, getImportFromContainerName(), getImportFromFilename())
-                    .withSqlAdministratorLoginAndPassword(getSqlServer().getAdministratorLogin(), getSqlServer().getAdministratorPassword())
-                    .withTags(getTags()).create();
+                    .withSqlAdministratorLoginAndPassword(getSqlServer().getAdministratorLogin(), getSqlServer().getAdministratorPassword());
         } else if (getStorageUri() != null && getStorageAccount() != null) {
             buildDatabase.importFrom(getStorageUri()).withStorageAccessKey(getStorageAccount().getKeys().get("key1"))
-                    .withSqlAdministratorLoginAndPassword(getSqlServer().getAdministratorLogin(), getSqlServer().getAdministratorPassword())
-                    .withTags(getTags()).create();
+                    .withSqlAdministratorLoginAndPassword(getSqlServer().getAdministratorLogin(), getSqlServer().getAdministratorPassword());
         } else if (getWithSampleDatabase() != null) {
-            buildDatabase.fromSample(SampleName.ADVENTURE_WORKS_LT).withTags(getTags()).create();
-        } else {
-            buildDatabase.withTags(getTags()).create();
+            buildDatabase.fromSample(SampleName.ADVENTURE_WORKS_LT);
         }
 
         buildDatabase.withTags(getTags());
