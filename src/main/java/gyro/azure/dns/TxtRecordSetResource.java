@@ -16,7 +16,6 @@ import com.microsoft.azure.management.dns.TxtRecordSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -128,12 +127,15 @@ public class TxtRecordSetResource extends AzureResource {
             throw new GyroException("At least one record must be provided.");
         }
 
-        String firstRecord = getTxtRecords().get(0);
         Azure client = createClient();
 
         DnsRecordSet.UpdateDefinitionStages.TxtRecordSetBlank<DnsZone.Update> defineTxtRecordSet =
                 getDnsZone().getDnsZone(client).defineTxtRecordSet(getName());
 
+        WithTxtRecordTextValueOrAttachable<DnsZone.Update> createTxtRecordSet = null;
+        for (String txtRecord : getTxtRecords()) {
+            createTxtRecordSet = defineTxtRecordSet.withText(txtRecord);
+        }
 
         if (getTimeToLive() != null) {
             createTxtRecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
@@ -141,12 +143,6 @@ public class TxtRecordSetResource extends AzureResource {
 
         for (Map.Entry<String,String> e : getMetadata().entrySet()) {
             createTxtRecordSet.withMetadata(e.getKey(), e.getValue());
-        }
-
-        ListIterator<String> iter = getTxtRecords().listIterator(1);
-        while (iter.hasNext()) {
-            String txtRecord = iter.next();
-            createTxtRecordSet.withText(txtRecord);
         }
 
         createTxtRecordSet.attach().apply();

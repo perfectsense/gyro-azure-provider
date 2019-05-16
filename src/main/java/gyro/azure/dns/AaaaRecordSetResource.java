@@ -11,13 +11,13 @@ import com.microsoft.azure.management.dns.AaaaRecordSet;
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.dns.DnsRecordSet;
 import com.microsoft.azure.management.dns.DnsZone;
+import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.AaaaRecordSetBlank;
 import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.WithAaaaRecordIPv6AddressOrAttachable;
 import inet.ipaddr.IPAddressString;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -135,6 +135,10 @@ public class AaaaRecordSetResource extends AzureResource {
         AaaaRecordSetBlank<DnsZone.Update> defineAaaaRecordSet =
                 getDnsZone().getDnsZone(client).defineAaaaRecordSet(getName());
 
+        WithAaaaRecordIPv6AddressOrAttachable<DnsZone.Update> createAaaaRecordSet = null;
+        for (String ip : getIpv6Addresses()) {
+            createAaaaRecordSet = defineAaaaRecordSet.withIPv6Address(ip);
+        }
 
         if (getTimeToLive() != null) {
             createAaaaRecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
@@ -142,11 +146,6 @@ public class AaaaRecordSetResource extends AzureResource {
 
         for (Map.Entry<String,String> e : getMetadata().entrySet()) {
             createAaaaRecordSet.withMetadata(e.getKey(), e.getValue());
-        }
-
-        ListIterator<String> iter = getIpv6Addresses().listIterator(1);
-        while (iter.hasNext()) {
-            createAaaaRecordSet.withIPv6Address(iter.next());
         }
 
         createAaaaRecordSet.attach().apply();

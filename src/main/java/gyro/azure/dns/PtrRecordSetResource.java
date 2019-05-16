@@ -11,12 +11,12 @@ import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.dns.DnsRecordSet;
 import com.microsoft.azure.management.dns.DnsZone;
 import com.microsoft.azure.management.dns.PtrRecordSet;
+import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.PtrRecordSetBlank;
 import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.WithPtrRecordTargetDomainNameOrAttachable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -133,6 +133,10 @@ public class PtrRecordSetResource extends AzureResource {
         PtrRecordSetBlank<DnsZone.Update> definePtrRecordSet =
                 getDnsZone().getDnsZone(client).definePtrRecordSet(getName());
 
+        WithPtrRecordTargetDomainNameOrAttachable<DnsZone.Update> createPtrRecordSet = null;
+        for (String targetDomainName : getTargetDomainNames()) {
+            createPtrRecordSet = definePtrRecordSet.withTargetDomainName(targetDomainName);
+        }
 
         if (getTimeToLive() != null) {
             createPtrRecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
@@ -140,12 +144,6 @@ public class PtrRecordSetResource extends AzureResource {
 
         for (Map.Entry<String,String> e : getMetadata().entrySet()) {
             createPtrRecordSet.withMetadata(e.getKey(), e.getValue());
-        }
-
-        ListIterator<String> iter = getTargetDomainNames().listIterator(1);
-        while (iter.hasNext()) {
-            String domainName = iter.next();
-            createPtrRecordSet.withTargetDomainName(domainName);
         }
 
         createPtrRecordSet.attach().apply();

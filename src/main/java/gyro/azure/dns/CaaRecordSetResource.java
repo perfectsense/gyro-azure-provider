@@ -12,11 +12,11 @@ import com.microsoft.azure.management.dns.DnsRecordSet;
 import com.microsoft.azure.management.dns.DnsZone;
 import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.WithCaaRecordEntryOrAttachable;
 import gyro.core.resource.ResourceUpdatable;
+import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.CaaRecordSetBlank;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -145,6 +145,10 @@ public class CaaRecordSetResource extends AzureResource {
         CaaRecordSetBlank<DnsZone.Update> defineCaaRecordSet =
                 getDnsZone().getDnsZone(client).defineCaaRecordSet(getName());
 
+        WithCaaRecordEntryOrAttachable<DnsZone.Update> createCaaRecordSet = null;
+        for (CaaRecord caaRecord : getCaaRecord()) {
+            createCaaRecordSet = defineCaaRecordSet.withRecord(caaRecord.getFlags(), caaRecord.getTag(), caaRecord.getValue());
+        }
 
         if (getTimeToLive() != null) {
             createCaaRecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
@@ -152,12 +156,6 @@ public class CaaRecordSetResource extends AzureResource {
 
         for (Map.Entry<String,String> e : getMetadata().entrySet()) {
             createCaaRecordSet.withMetadata(e.getKey(), e.getValue());
-        }
-
-        ListIterator<CaaRecord> iter = getCaaRecord().listIterator(1);
-        while (iter.hasNext()) {
-            CaaRecord record = iter.next();
-            createCaaRecordSet.withRecord(record.getFlags(), record.getTag(), record.getValue());
         }
 
         createCaaRecordSet.attach().apply();

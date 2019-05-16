@@ -11,12 +11,12 @@ import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.dns.DnsRecordSet;
 import com.microsoft.azure.management.dns.DnsZone;
 import com.microsoft.azure.management.dns.MXRecordSet;
+import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.MXRecordSetBlank;
 import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.WithMXRecordMailExchangeOrAttachable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -144,21 +144,20 @@ public class MxRecordSetResource extends AzureResource {
         MXRecordSetBlank<DnsZone.Update> defineMXRecordSet =
                 getDnsZone().getDnsZone(client).defineMXRecordSet(getName());
 
+        WithMXRecordMailExchangeOrAttachable<DnsZone.Update> createMXRecordSet = null;
+        for (MxRecord mxRecord : getMxRecord()) {
+            createMXRecordSet = defineMXRecordSet.withMailExchange(mxRecord.getExchange(), mxRecord.getPriority());
+        }
+
         if (getTimeToLive() != null) {
-            createMxRecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
+            createMXRecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
         }
 
         for (Map.Entry<String,String> e : getMetadata().entrySet()) {
-            createMxRecordSet.withMetadata(e.getKey(), e.getValue());
+            createMXRecordSet.withMetadata(e.getKey(), e.getValue());
         }
 
-        ListIterator<MxRecord> iter = getMxRecord().listIterator(1);
-        while (iter.hasNext()) {
-            MxRecord mxRecord = iter.next();
-            createMxRecordSet.withMailExchange(mxRecord.getExchange(), mxRecord.getPreference());
-        }
-
-        createMxRecordSet.attach().apply();
+        createMXRecordSet.attach().apply();
     }
 
     @Override

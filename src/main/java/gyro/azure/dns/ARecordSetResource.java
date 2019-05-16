@@ -10,8 +10,9 @@ import com.google.common.collect.Maps;
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.dns.ARecordSet;
 import com.microsoft.azure.management.dns.DnsRecordSet;
-import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.WithARecordIPv4AddressOrAttachable;
 import com.microsoft.azure.management.dns.DnsZone;
+import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.ARecordSetBlank;
+import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.WithARecordIPv4AddressOrAttachable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -138,20 +139,20 @@ public class ARecordSetResource extends AzureResource {
 
         Azure client = createClient();
 
-        if (getTimeToLive() != null) {
-            createARecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
         ARecordSetBlank<DnsZone.Update> defineARecordSetBlank =
                 getDnsZone().getDnsZone(client).defineARecordSet(getName());
 
+        WithARecordIPv4AddressOrAttachable<DnsZone.Update> createARecordSet = null;
+        for (String ip : getIpv4Addresses()) {
+            createARecordSet = defineARecordSetBlank.withIPv4Address(ip);
         }
 
         for (Map.Entry<String,String> e : getMetadata().entrySet()) {
             createARecordSet.withMetadata(e.getKey(), e.getValue());
         }
 
-        ListIterator<String> iter = getIpv4Addresses().listIterator(1);
-        while (iter.hasNext()) {
-            createARecordSet.withIPv4Address(iter.next());
+        if (getTimeToLive() != null) {
+            createARecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
         }
 
         createARecordSet.attach().apply();

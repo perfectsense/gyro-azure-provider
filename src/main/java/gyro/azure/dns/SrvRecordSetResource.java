@@ -10,11 +10,11 @@ import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.Wi
 import gyro.azure.AzureResource;
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceUpdatable;
+import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.SrvRecordSetBlank;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -133,19 +133,18 @@ public class SrvRecordSetResource extends AzureResource {
         SrvRecordSetBlank<DnsZone.Update> defineSrvRecordSet =
                 getDnsZone().getDnsZone(client).defineSrvRecordSet(getName());
 
+        WithSrvRecordEntryOrAttachable<DnsZone.Update> createSrvRecordSet = null;
+        for (SrvRecord srvRecord : getSrvRecord()) {
+            createSrvRecordSet = defineSrvRecordSet
+                    .withRecord(srvRecord.getTarget(), srvRecord.getPort(), srvRecord.getPriority(), srvRecord.getWeight());
+        }
+
         if (getTimeToLive() != null) {
             createSrvRecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
         }
 
         for (Map.Entry<String,String> e : getMetadata().entrySet()) {
             createSrvRecordSet.withMetadata(e.getKey(), e.getValue());
-        }
-
-        ListIterator<SrvRecord> iter = getSrvRecord().listIterator(1);
-        while (iter.hasNext()) {
-            SrvRecord srvRecord = iter.next();
-            createSrvRecordSet
-                    .withRecord(srvRecord.getTarget(), srvRecord.getPort(), srvRecord.getPriority(), srvRecord.getWeight());
         }
 
         createSrvRecordSet.attach().apply();
