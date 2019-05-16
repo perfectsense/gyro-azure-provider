@@ -1,6 +1,7 @@
 package gyro.azure.network;
 
 import gyro.azure.AzureResource;
+import gyro.core.GyroException;
 import gyro.core.resource.ResourceUpdatable;
 import gyro.core.resource.Resource;
 
@@ -8,7 +9,6 @@ import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.network.Network;
 import com.microsoft.azure.management.network.ServiceEndpointType;
 import com.microsoft.azure.management.network.Subnet;
-
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 
 import java.util.ArrayList;
@@ -143,7 +143,7 @@ public class SubnetResource extends AzureResource {
 
         if (getServiceEndpoints() != null) {
             for (String endpoint : getServiceEndpoints().keySet()) {
-                updateWithAttach.withAccessFromService(ServiceEndpointType.fromString(endpoint));
+                updateWithAttach.withAccessFromService(ServiceEndpointType.fromString(endpointType(endpoint)));
             }
         }
 
@@ -182,7 +182,7 @@ public class SubnetResource extends AzureResource {
                     .collect(Collectors.toList());
 
             for (String endpoint : addServiceEndpoints) {
-                update.withAccessFromService(ServiceEndpointType.fromString(endpoint));
+                update.withAccessFromService(ServiceEndpointType.fromString(endpointType(endpoint)));
             }
 
             List<String> removeServiceEndpoints = oldResource.getServiceEndpoints().keySet().stream()
@@ -190,7 +190,7 @@ public class SubnetResource extends AzureResource {
                     .collect(Collectors.toList());
 
             for (String endpoint : removeServiceEndpoints) {
-                update.withoutAccessFromService(ServiceEndpointType.fromString(endpoint));
+                update.withoutAccessFromService(ServiceEndpointType.fromString(endpointType(endpoint)));
             }
         }
 
@@ -226,9 +226,20 @@ public class SubnetResource extends AzureResource {
             for (Region region : entry.getValue()) {
                 regions.add(region.toString());
             }
-            endpoints.put(entry.getKey().toString(), regions);
+            endpoints.put(entry.getKey().toString().split("[.]")[1], regions);
         }
-
         return endpoints;
+    }
+
+    private String endpointType(String endpoint) {
+        if (endpoint.equalsIgnoreCase("AzureCosmosDB")) {
+            return "Microsoft.AzureCosmosDB";
+        } else if (endpoint.equalsIgnoreCase("Sql")) {
+            return "Microsoft.Sql";
+        } else if (endpoint.equalsIgnoreCase("Storage")) {
+            return "Microsoft.Storage";
+        } else {
+            throw new GyroException("Invalid endpoint type. Valid values are AzureCosmosDB, Sql, and Storage");
+        }
     }
 }

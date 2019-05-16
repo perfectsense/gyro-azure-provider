@@ -3,9 +3,7 @@ package gyro.azure;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
 import com.microsoft.azure.management.Azure;
-import com.microsoft.rest.LogLevel;
 
-import java.io.File;
 import java.io.IOException;
 
 public abstract class AzureResource extends Resource {
@@ -14,14 +12,14 @@ public abstract class AzureResource extends Resource {
     protected Azure createClient() {
         if (client == null) {
             AzureCredentials azureCredentials = (AzureCredentials) resourceCredentials();
+            Azure.Authenticated authenticated = azureCredentials.findCredentials(true);
 
             try {
-                client = Azure.configure()
-                    .withLogLevel(LogLevel.valueOf(azureCredentials.getLogLevel()))
-                    .authenticate(new File(azureCredentials.getCredentialFilePath()))
-                    .withDefaultSubscription();
-            } catch (IOException e) {
-                throw new GyroException("File not found");
+                if (authenticated != null) {
+                    client = authenticated.withDefaultSubscription();
+                }
+            } catch (IOException ex) {
+                throw new GyroException(ex.getMessage(), ex);
             }
         }
 

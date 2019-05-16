@@ -1,14 +1,14 @@
 package gyro.azure.network;
 
-import com.microsoft.azure.management.network.ApplicationSecurityGroup;
-import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import gyro.azure.AzureResource;
 import gyro.core.resource.Resource;
-
-import com.microsoft.azure.management.Azure;
 import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceUpdatable;
+
+import com.microsoft.azure.management.Azure;
+import com.microsoft.azure.management.network.ApplicationSecurityGroup;
+import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 
 import java.util.HashMap;
 import java.util.Map;
