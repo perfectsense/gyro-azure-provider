@@ -140,8 +140,10 @@ public class CnameRecordSetResource extends AzureResource {
 
     @Override
     public void update(Resource current, Set<String> changedProperties) {
+        Azure client = createClient();
+
         DnsRecordSet.UpdateCNameRecordSet updateCNameRecordSet =
-                modify().updateCNameRecordSet(getName());
+                getDnsZone().getDnsZone(client).updateCNameRecordSet(getName());
 
         if (getAlias() != null) {
             updateCNameRecordSet.withAlias(getAlias());
