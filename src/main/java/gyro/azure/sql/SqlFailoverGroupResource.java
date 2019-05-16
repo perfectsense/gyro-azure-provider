@@ -252,20 +252,18 @@ public class SqlFailoverGroupResource extends AzureResource {
             }
         }
 
-        List<String> removeDatabaseIds = oldResource.getDatabaseIds().stream()
-                .filter(((Predicate<String>) new HashSet<>(getDatabaseIds())::contains).negate())
-                .collect(Collectors.toList());
-
-        List<String> addDatabaseIds = getDatabaseIds().stream()
-                .filter(((Predicate<String>) new HashSet<>(oldResource.getDatabaseIds())::contains).negate())
-                .collect(Collectors.toList());
-
-        for (String databaseId : addDatabaseIds) {
-            update.withNewDatabaseId(databaseId);
-        }
+        Set<String> removeDatabaseIds = new HashSet<>(oldResource.getDatabaseIds());
+        removeDatabaseIds.removeAll(getDatabaseIds());
 
         for (String databaseId : removeDatabaseIds) {
             update.withoutDatabaseId(databaseId);
+        }
+
+        Set<String> addDatabaseIds = new HashSet<>(getDatabaseIds());
+        addDatabaseIds.removeAll(oldResource.getDatabaseIds());
+
+        for (String databaseId : addDatabaseIds) {
+            update.withNewDatabaseId(databaseId);
         }
 
         if (getReadOnlyPolicyEnabled() != null) {
