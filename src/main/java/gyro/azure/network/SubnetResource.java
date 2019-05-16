@@ -228,7 +228,6 @@ public class SubnetResource extends AzureResource {
             }
             endpoints.put(entry.getKey().toString().split("[.]")[1], regions);
         }
-
         return endpoints;
     }
 
@@ -240,7 +239,7 @@ public class SubnetResource extends AzureResource {
         } else if (endpoint.equalsIgnoreCase("Storage")) {
             return "Microsoft.Storage";
         } else {
-            throw new GyroException("Invalid enpoint type. Values are AzureCosmosDB, Sql, and Storage");
+            throw new GyroException("Invalid endpoint type. Valid values are AzureCosmosDB, Sql, and Storage");
         }
     }
 }
