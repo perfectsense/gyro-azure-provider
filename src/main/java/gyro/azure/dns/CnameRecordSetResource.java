@@ -83,8 +83,10 @@ public class CnameRecordSetResource extends AzureResource {
             throw new GyroException("An alias must be provided.");
         }
 
+        Azure client = createClient();
+
         WithCNameRecordSetAttachable<DnsZone.Update> createCNameRecordSet =
-                modify().defineCNameRecordSet(getName()).withAlias(getAlias());
+                getDnsZone().getDnsZone(client).defineCNameRecordSet(getName()).withAlias(getAlias());
 
         if (getTimeToLive() != null) {
             createCNameRecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
@@ -134,7 +136,9 @@ public class CnameRecordSetResource extends AzureResource {
 
     @Override
     public void delete() {
-        modify().withoutCNameRecordSet(getName());
+        Azure client = createClient();
+
+        getDnsZone().getDnsZone(client).withoutCaaRecordSet(getName()).apply();
     }
 
     @Override
@@ -145,15 +149,5 @@ public class CnameRecordSetResource extends AzureResource {
     @Override
     public String primaryKey() {
         return String.format("%s", getName());
-    }
-
-    private DnsZone.Update modify() {
-        Azure client = createClient();
-
-        DnsZoneResource parent = (DnsZoneResource) parent();
-
-        DnsZone dnsZone = parent.getDnsZone(client);
-
-        return dnsZone.update();
     }
 }

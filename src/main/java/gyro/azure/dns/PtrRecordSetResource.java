@@ -89,8 +89,11 @@ public class PtrRecordSetResource extends AzureResource {
             throw new GyroException("At least one target domain name must be provided.");
         }
 
-        WithPtrRecordTargetDomainNameOrAttachable<DnsZone.Update> createPtrRecordSet =
-                modify().definePtrRecordSet(getName()).withTargetDomainName(getTargetDomainNames().get(0));
+        Azure client = createClient();
+
+        PtrRecordSetBlank<DnsZone.Update> definePtrRecordSet =
+                getDnsZone().getDnsZone(client).definePtrRecordSet(getName());
+
 
         if (getTimeToLive() != null) {
             createPtrRecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
@@ -111,7 +114,10 @@ public class PtrRecordSetResource extends AzureResource {
 
     @Override
     public void update(Resource current, Set<String> changedProperties) {
-        DnsRecordSet.UpdatePtrRecordSet updatePtrRecordSet = modify().updatePtrRecordSet(getName());
+        Azure client = createClient();
+
+        DnsRecordSet.UpdatePtrRecordSet updatePtrRecordSet =
+                getDnsZone().getDnsZone(client).updatePtrRecordSet(getName());
 
         if (getTimeToLive() != null) {
             updatePtrRecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
@@ -155,7 +161,9 @@ public class PtrRecordSetResource extends AzureResource {
 
     @Override
     public void delete() {
-        modify().withoutPtrRecordSet(getName()).apply();
+        Azure client = createClient();
+
+        getDnsZone().getDnsZone(client).withoutPtrRecordSet(getName()).apply();
     }
 
     @Override
@@ -164,15 +172,5 @@ public class PtrRecordSetResource extends AzureResource {
     @Override
     public String primaryKey() {
         return String.format("%s", getName());
-    }
-
-    private DnsZone.Update modify() {
-        Azure client = createClient();
-
-        DnsZoneResource parent = (DnsZoneResource) parent();
-
-        DnsZone dnsZone = parent.getDnsZone(client);
-
-        return dnsZone.update();
     }
 }

@@ -91,10 +91,10 @@ public class MxRecordSetResource extends AzureResource {
             throw new GyroException("At least one mx record must be provided.");
         }
 
-        MxRecord firstRecord = getMxRecord().get(0);
-        WithMXRecordMailExchangeOrAttachable<DnsZone.Update> createMxRecordSet =
-                modify().defineMXRecordSet(getName())
-                        .withMailExchange(firstRecord.getExchange(), firstRecord.getPreference());
+        Azure client = createClient();
+
+        MXRecordSetBlank<DnsZone.Update> defineMXRecordSet =
+                getDnsZone().getDnsZone(client).defineMXRecordSet(getName());
 
         if (getTimeToLive() != null) {
             createMxRecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
@@ -115,7 +115,10 @@ public class MxRecordSetResource extends AzureResource {
 
     @Override
     public void update(Resource current, Set<String> changedProperties) {
-        DnsRecordSet.UpdateMXRecordSet updateMXRecordSet = modify().updateMXRecordSet(getName());
+        Azure client = createClient();
+
+        DnsRecordSet.UpdateMXRecordSet updateMXRecordSet =
+                getDnsZone().getDnsZone(client).updateMXRecordSet(getName());
 
         if (getTimeToLive() != null) {
             updateMXRecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
@@ -170,7 +173,9 @@ public class MxRecordSetResource extends AzureResource {
 
     @Override
     public void delete() {
-        modify().withoutMXRecordSet(getName()).apply();
+        Azure client = createClient();
+
+        getDnsZone().getDnsZone(client).withoutMXRecordSet(getName()).apply();
     }
 
     @Override
@@ -179,15 +184,5 @@ public class MxRecordSetResource extends AzureResource {
     @Override
     public String primaryKey() {
         return String.format("%s", getName());
-    }
-
-    private DnsZone.Update modify() {
-        Azure client = createClient();
-
-        DnsZoneResource parent = (DnsZoneResource) parent();
-
-        DnsZone dnsZone = parent.getDnsZone(client);
-
-        return dnsZone.update();
     }
 }

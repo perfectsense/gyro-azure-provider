@@ -91,9 +91,11 @@ public class TxtRecordSetResource extends AzureResource {
         }
 
         String firstRecord = getTxtRecords().get(0);
+        Azure client = createClient();
 
-        WithTxtRecordTextValueOrAttachable<DnsZone.Update> createTxtRecordSet =
-                modify().defineTxtRecordSet(getName()).withText(firstRecord);
+        DnsRecordSet.UpdateDefinitionStages.TxtRecordSetBlank<DnsZone.Update> defineTxtRecordSet =
+                getDnsZone().getDnsZone(client).defineTxtRecordSet(getName());
+
 
         if (getTimeToLive() != null) {
             createTxtRecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
@@ -114,8 +116,10 @@ public class TxtRecordSetResource extends AzureResource {
 
     @Override
     public void update(Resource current, Set<String> changedProperties) {
-        DnsRecordSet.UpdateTxtRecordSet updateTxtRecordSet = modify().updateTxtRecordSet(getName());
+        Azure client = createClient();
 
+        DnsRecordSet.UpdateTxtRecordSet updateTxtRecordSet =
+                getDnsZone().getDnsZone(client).updateTxtRecordSet(getName());
 
         if (getTimeToLive() != null) {
             updateTxtRecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
@@ -160,7 +164,9 @@ public class TxtRecordSetResource extends AzureResource {
 
     @Override
     public void delete() {
-        modify().withoutTxtRecordSet(getName()).apply();
+        Azure client = createClient();
+
+        getDnsZone().getDnsZone(client).withoutTxtRecordSet(getName()).apply();
     }
 
     @Override
@@ -169,15 +175,5 @@ public class TxtRecordSetResource extends AzureResource {
     @Override
     public String primaryKey() {
         return String.format("%s", getName());
-    }
-
-    private DnsZone.Update modify() {
-        Azure client = createClient();
-
-        DnsZoneResource parent = (DnsZoneResource) parent();
-
-        DnsZone dnsZone = parent.getDnsZone(client);
-
-        return dnsZone.update();
     }
 }

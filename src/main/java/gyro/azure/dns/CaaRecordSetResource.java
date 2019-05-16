@@ -90,10 +90,11 @@ public class CaaRecordSetResource extends AzureResource {
             throw new GyroException("At least one caa record must be provided.");
         }
 
-        CaaRecord firstRecord = getCaaRecord().get(0);
-        WithCaaRecordEntryOrAttachable<DnsZone.Update> createCaaRecordSet =
-                modify().defineCaaRecordSet(getName())
-                        .withRecord(firstRecord.getFlags(), firstRecord.getTag(), firstRecord.getValue());
+        Azure client = createClient();
+
+        CaaRecordSetBlank<DnsZone.Update> defineCaaRecordSet =
+                getDnsZone().getDnsZone(client).defineCaaRecordSet(getName());
+
 
         if (getTimeToLive() != null) {
             createCaaRecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
@@ -114,7 +115,9 @@ public class CaaRecordSetResource extends AzureResource {
 
     @Override
     public void update(Resource current, Set<String> changedProperties) {
-        DnsRecordSet.UpdateCaaRecordSet updateCaaRecordSet = modify().updateCaaRecordSet(getName());
+        Azure client = createClient();
+
+        DnsRecordSet.UpdateCaaRecordSet updateCaaRecordSet = getDnsZone().getDnsZone(client).updateCaaRecordSet(getName());
 
         if (getTimeToLive() != null) {
             updateCaaRecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
@@ -156,7 +159,9 @@ public class CaaRecordSetResource extends AzureResource {
 
     @Override
     public void delete() {
-        modify().withoutCaaRecordSet(getName()).apply();
+        Azure client = createClient();
+
+        getDnsZone().getDnsZone(client).withoutCaaRecordSet(getName()).apply();
     }
 
     @Override
@@ -165,16 +170,6 @@ public class CaaRecordSetResource extends AzureResource {
     @Override
     public String primaryKey() {
         return String.format("%s", getName());
-    }
-
-    private DnsZone.Update modify() {
-        Azure client = createClient();
-
-        DnsZoneResource parent = (DnsZoneResource) parent();
-
-        DnsZone dnsZone = parent.getDnsZone(client);
-
-        return dnsZone.update();
     }
 
     private List<CaaRecord> comparator(List<CaaRecord> original, List<CaaRecord> compareTo) {

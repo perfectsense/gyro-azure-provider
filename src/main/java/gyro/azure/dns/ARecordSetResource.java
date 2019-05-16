@@ -96,11 +96,13 @@ public class ARecordSetResource extends AzureResource {
             throw new GyroException("At least one ipv4 address must be provided.");
         }
 
-        WithARecordIPv4AddressOrAttachable<DnsZone.Update> createARecordSet =
-                modify().defineARecordSet(getName()).withIPv4Address(getIpv4Addresses().get(0));
+        Azure client = createClient();
 
         if (getTimeToLive() != null) {
             createARecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
+        ARecordSetBlank<DnsZone.Update> defineARecordSetBlank =
+                getDnsZone().getDnsZone(client).defineARecordSet(getName());
+
         }
 
         for (Map.Entry<String,String> e : getMetadata().entrySet()) {
@@ -117,7 +119,9 @@ public class ARecordSetResource extends AzureResource {
 
     @Override
     public void update(Resource current, Set<String> changedProperties) {
-        DnsRecordSet.UpdateARecordSet updateARecordSet = modify().updateARecordSet(getName());
+        Azure client = createClient();
+
+        DnsRecordSet.UpdateARecordSet updateARecordSet = getDnsZone().getDnsZone(client).updateARecordSet(getName());
 
         if (getTimeToLive() != null) {
             updateARecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
@@ -161,7 +165,9 @@ public class ARecordSetResource extends AzureResource {
 
     @Override
     public void delete() {
-        modify().withoutARecordSet(getName()).apply();
+        Azure client = createClient();
+
+        getDnsZone().getDnsZone(client).withoutARecordSet(getName()).apply();
     }
 
     @Override
@@ -172,15 +178,5 @@ public class ARecordSetResource extends AzureResource {
     @Override
     public String primaryKey() {
         return String.format("%s", getName());
-    }
-
-    private DnsZone.Update modify() {
-        Azure client = createClient();
-
-        DnsZoneResource parent = (DnsZoneResource) parent();
-
-        DnsZone dnsZone = parent.getDnsZone(client);
-
-        return dnsZone.update();
     }
 }

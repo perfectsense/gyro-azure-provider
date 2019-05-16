@@ -84,9 +84,10 @@ public class SrvRecordSetResource extends AzureResource {
 
     @Override
     public void create() {
-        SrvRecord firstRecord = getSrvRecord().get(0);
-        WithSrvRecordEntryOrAttachable<DnsZone.Update> createSrvRecordSet = modify().defineSrvRecordSet(getName())
-                .withRecord(firstRecord.getTarget(), firstRecord.getPort(), firstRecord.getPriority(), firstRecord.getWeight());
+        Azure client = createClient();
+
+        SrvRecordSetBlank<DnsZone.Update> defineSrvRecordSet =
+                getDnsZone().getDnsZone(client).defineSrvRecordSet(getName());
 
         if (getTimeToLive() != null) {
             createSrvRecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
@@ -108,7 +109,10 @@ public class SrvRecordSetResource extends AzureResource {
 
     @Override
     public void update(Resource current, Set<String> changedProperties) {
-        DnsRecordSet.UpdateSrvRecordSet updateSrvRecordSet = modify().updateSrvRecordSet(getName());
+        Azure client = createClient();
+
+        DnsRecordSet.UpdateSrvRecordSet updateSrvRecordSet =
+                getDnsZone().getDnsZone(client).updateSrvRecordSet(getName());
 
         if (getTimeToLive() != null) {
             updateSrvRecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
@@ -152,7 +156,9 @@ public class SrvRecordSetResource extends AzureResource {
 
     @Override
     public void delete() {
-        modify().withoutSrvRecordSet(getName()).apply();
+        Azure client = createClient();
+
+        getDnsZone().getDnsZone(client).withoutSrvRecordSet(getName()).apply();
     }
 
     @Override
@@ -161,16 +167,6 @@ public class SrvRecordSetResource extends AzureResource {
     @Override
     public String primaryKey() {
         return String.format("%s", getName());
-    }
-
-    private DnsZone.Update modify() {
-        Azure client = createClient();
-
-        DnsZoneResource parent = (DnsZoneResource) parent();
-
-        DnsZone dnsZone = parent.getDnsZone(client);
-
-        return dnsZone.update();
     }
 
     private List<SrvRecord> comparator(List<SrvRecord> original, List<SrvRecord> compareTo) {

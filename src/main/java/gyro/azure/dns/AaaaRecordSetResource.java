@@ -92,8 +92,11 @@ public class AaaaRecordSetResource extends AzureResource {
             throw new GyroException("At least one ipv4 address must be provided.");
         }
 
-        WithAaaaRecordIPv6AddressOrAttachable<DnsZone.Update> createAaaaRecordSet =
-                modify().defineAaaaRecordSet(getName()).withIPv6Address(getIpv6Addresses().get(0));
+        Azure client = createClient();
+
+        AaaaRecordSetBlank<DnsZone.Update> defineAaaaRecordSet =
+                getDnsZone().getDnsZone(client).defineAaaaRecordSet(getName());
+
 
         if (getTimeToLive() != null) {
             createAaaaRecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
@@ -113,7 +116,10 @@ public class AaaaRecordSetResource extends AzureResource {
 
     @Override
     public void update(Resource current, Set<String> changedProperties) {
-        DnsRecordSet.UpdateAaaaRecordSet updateAaaaRecordSet = modify().updateAaaaRecordSet(getName());
+        Azure client = createClient();
+
+        DnsRecordSet.UpdateAaaaRecordSet updateAaaaRecordSet =
+                getDnsZone().getDnsZone(client).updateAaaaRecordSet(getName());
 
         if (getTimeToLive() != null) {
             updateAaaaRecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
@@ -158,7 +164,9 @@ public class AaaaRecordSetResource extends AzureResource {
 
     @Override
     public void delete() {
-        modify().withoutAaaaRecordSet(getName()).apply();
+        Azure client = createClient();
+
+        getDnsZone().getDnsZone(client).withoutAaaaRecordSet(getName()).apply();
     }
 
     @Override
@@ -167,16 +175,6 @@ public class AaaaRecordSetResource extends AzureResource {
     @Override
     public String primaryKey() {
         return String.format("%s", getName());
-    }
-
-    private DnsZone.Update modify() {
-        Azure client = createClient();
-
-        DnsZoneResource parent = (DnsZoneResource) parent();
-
-        DnsZone dnsZone = parent.getDnsZone(client);
-
-        return dnsZone.update();
     }
 
     private List<String> addLeadingZeros(List<String> addresses) {
