@@ -219,8 +219,8 @@ public class AaaaRecordSetResource extends AzureResource {
         List<String> results = new ArrayList<>();
 
         for (String ip : addresses) {
-            IPAddressString addrString = new IPAddressString(ip);
-            results.add(addrString.getAddress().toFullString());
+            IPAddressString addressString = new IPAddressString(ip);
+            results.add(addressString.getAddress().toFullString());
         }
 
         return results;

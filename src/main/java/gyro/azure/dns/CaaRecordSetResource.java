@@ -194,14 +194,14 @@ public class CaaRecordSetResource extends AzureResource {
 
         List<CaaRecord> addRecords = comparator(getCaaRecord(), oldRecord.getCaaRecord());
 
-        for (CaaRecord arecord : addRecords) {
-            updateCaaRecordSet.withRecord(arecord.getFlags(), arecord.getTag(), arecord.getValue());
+        for (CaaRecord addRecord : addRecords) {
+            updateCaaRecordSet.withRecord(addRecord.getFlags(), addRecord.getTag(), addRecord.getValue());
         }
 
         List<CaaRecord> removeRecords = comparator(oldRecord.getCaaRecord(), getCaaRecord());
 
-        for (CaaRecord rrecord : removeRecords) {
-            updateCaaRecordSet.withoutRecord(rrecord.getFlags(), rrecord.getTag(), rrecord.getValue());
+        for (CaaRecord removeRecord : removeRecords) {
+            updateCaaRecordSet.withoutRecord(removeRecord.getFlags(), removeRecord.getTag(), removeRecord.getValue());
         }
 
         updateCaaRecordSet.parent().apply();

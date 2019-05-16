@@ -189,12 +189,12 @@ public class TxtRecordSetResource extends AzureResource {
         List<String> removeRecords = new ArrayList<>(oldRecord.getTxtRecords());
         removeRecords.removeAll(getTxtRecords());
 
-        for (String arecord : addRecords) {
-            updateTxtRecordSet.withText(arecord);
+        for (String addRecord : addRecords) {
+            updateTxtRecordSet.withText(addRecord);
         }
 
-        for (String rrecord : removeRecords) {
-            updateTxtRecordSet.withoutText(rrecord);
+        for (String removeRecord : removeRecords) {
+            updateTxtRecordSet.withoutText(removeRecord);
         }
 
         updateTxtRecordSet.parent().apply();

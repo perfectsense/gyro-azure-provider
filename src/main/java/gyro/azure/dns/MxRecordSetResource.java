@@ -212,8 +212,8 @@ public class MxRecordSetResource extends AzureResource {
         removeRecords.removeIf(o -> (currentMap.containsKey(o.getExchange())
                 && currentMap.get(o.getExchange()) == (o.getPreference())));
 
-        for (MxRecord rrecord : removeRecords) {
-            updateMXRecordSet.withoutMailExchange(rrecord.getExchange(), rrecord.getPreference());
+        for (MxRecord removeRecord : removeRecords) {
+            updateMXRecordSet.withoutMailExchange(removeRecord.getExchange(), removeRecord.getPriority());
         }
 
         updateMXRecordSet.parent().apply();

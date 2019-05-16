@@ -184,15 +184,14 @@ public class SrvRecordSetResource extends AzureResource {
 
         List<SrvRecord> addRecords = comparator(getSrvRecord(), oldRecord.getSrvRecord());
 
-
-        for (SrvRecord arecord : addRecords) {
-            updateSrvRecordSet.withRecord(arecord.getTarget(), arecord.getPort(), arecord.getPriority(), arecord.getWeight());
+        for (SrvRecord addRecord : addRecords) {
+            updateSrvRecordSet.withRecord(addRecord.getTarget(), addRecord.getPort(), addRecord.getPriority(), addRecord.getWeight());
         }
 
         List<SrvRecord> removeRecords = comparator(oldRecord.getSrvRecord(), getSrvRecord());
 
-        for (SrvRecord rrecord : removeRecords) {
-            updateSrvRecordSet.withoutRecord(rrecord.getTarget(), rrecord.getPort(), rrecord.getPriority(), rrecord.getWeight());
+        for (SrvRecord removeRecord : removeRecords) {
+            updateSrvRecordSet.withoutRecord(removeRecord.getTarget(), removeRecord.getPort(), removeRecord.getPriority(), removeRecord.getWeight());
         }
 
         updateSrvRecordSet.parent().apply();
