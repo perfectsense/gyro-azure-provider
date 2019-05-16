@@ -1,14 +1,14 @@
-azure::resource-group resource-group-sql-elastic-pool-example
-    resource-group-name: "resource-group-sql-elastic-pool-example"
+azure::resource-group resource-group-sql-database-example
+    resource-group-name: "resource-group-sql-database-example"
 
     tags: {
-        Name: "resource-group-sql-elastic-pool-example"
+        Name: "resource-group-sql-database-example"
     }
 end
 
 azure::network sql-network-example
     network-name: "sql-network-example"
-    resource-group-name: $(azure::resource-group resource-group-sql-elastic-pool-example | resource-group-name)
+    resource-group-name: $(azure::resource-group resource-group-sql-database-example | resource-group-name)
     address-spaces:  [
          "10.0.0.0/27",
          "10.1.0.0/27"
@@ -37,7 +37,7 @@ azure::sql-server sql-server-example
     administrator-password: "TestPass18!"
     name: "sql-server-example"
     region: "westus"
-    resource-group-name: $(azure::resource-group resource-group-sql-elastic-pool-example | resource-group-name)
+    resource-group-name: $(azure::resource-group resource-group-sql-database-example | resource-group-name)
     system-assigned-msi: true
     tags: {
         Name: "sql-server-example"
@@ -95,7 +95,7 @@ azure::sql-server sql-server-example-partner-server
     administrator-password: "TestPass183!"
     name: "sql-server-example-partner-server"
     region: "eastus"
-    resource-group-name: $(azure::resource-group resource-group-sql-elastic-pool-example | resource-group-name)
+    resource-group-name: $(azure::resource-group resource-group-sql-database-example | resource-group-name)
     system-assigned-msi: true
     tags: {
         Name: "sql-server-example-partner-server"
