@@ -20,6 +20,32 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Creates an CAA Record Set.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     caa-record-set
+ *         name: "caaexample"
+ *         time-to-live: "3"
+ *         dns-zone: $(azure::dns-zone dns-zone-resource-example)
+ *
+ *         caa-record
+ *             flags: 1
+ *             tag: "tag1"
+ *             value: "val1"
+ *         end
+ *
+ *         caa-record
+ *             flags: 2
+ *             tag: "tag2"
+ *             value: "val2"
+ *         end
+ *     end
+ */
 public class CaaRecordSetResource extends AzureResource {
 
     private List<CaaRecord> caaRecord;
@@ -37,6 +63,9 @@ public class CaaRecordSetResource extends AzureResource {
         setTimeToLive(Long.toString(caaRecordSet.timeToLive()));
     }
 
+    /**
+     * The Caa records associated with the record. (Required)
+     */
     @ResourceUpdatable
     public List<CaaRecord> getCaaRecord() {
         if (caaRecord == null) {
@@ -77,6 +106,9 @@ public class CaaRecordSetResource extends AzureResource {
         this.metadata = metadata;
     }
 
+    /**
+     * The name of the record. (Required)
+     */
     public String getName() {
         return name;
     }
@@ -85,6 +117,9 @@ public class CaaRecordSetResource extends AzureResource {
         this.name = name;
     }
 
+    /**
+     * The Time To Live for the records in the set. (Required)
+     */
     @ResourceUpdatable
     public String getTimeToLive() {
         return timeToLive;

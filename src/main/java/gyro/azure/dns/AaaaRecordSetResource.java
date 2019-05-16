@@ -21,6 +21,20 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Creates an AAAA Record Set.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     aaaa-record-set
+ *         name: "aaaarecexample"
+ *         dns-zone: $(azure::dns-zone dns-zone-resource-example)
+ *         ipv6-addresses: ["2001:0db8:85a3:0000:0000:8a2e:0370:7334", "2001:0db8:85a3:0000:0000:8a2e:0370:7335"]
+ *     end
+ */
 public class AaaaRecordSetResource extends AzureResource {
 
     private DnsZoneResource dnsZone;
@@ -66,6 +80,9 @@ public class AaaaRecordSetResource extends AzureResource {
         this.ipv6Addresses = ipv6Addresses;
     }
 
+    /**
+     * The metadata for the record. (Optional)
+     */
     @ResourceUpdatable
     public Map<String, String> getMetadata() {
         if (metadata == null) {
@@ -79,6 +96,9 @@ public class AaaaRecordSetResource extends AzureResource {
         this.metadata = metadata;
     }
 
+    /**
+     * The name of the record. (Required)
+     */
     public String getName() {
         return name;
     }
@@ -87,6 +107,9 @@ public class AaaaRecordSetResource extends AzureResource {
         this.name = name;
     }
 
+    /**
+     * The Time To Live for the records in the set. (Required)
+     */
     @ResourceUpdatable
     public String getTimeToLive() {
         return timeToLive;

@@ -17,6 +17,21 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Creates an CNAME Record Set.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     cname-record-set
+ *         name: "cname-rec-example"
+ *         time-to-live: "5"
+ *         alias: "cname-rec-alias"
+ *         dns-zone: $(azure::dns-zone dns-zone-resource-example)
+ *     end
+ */
 public class CnameRecordSetResource extends AzureResource {
 
     private String alias;
@@ -34,6 +49,9 @@ public class CnameRecordSetResource extends AzureResource {
         setTimeToLive(Long.toString(cNameRecordSet.timeToLive()));
     }
 
+    /**
+     * The alias for the record. (Required)
+     */
     @ResourceUpdatable
     public String getAlias() {
         return alias;
@@ -70,6 +88,9 @@ public class CnameRecordSetResource extends AzureResource {
         this.metadata = metadata;
     }
 
+    /**
+     * The name of the record. (Required)
+     */
     public String getName() {
         return name;
     }
@@ -78,6 +99,9 @@ public class CnameRecordSetResource extends AzureResource {
         this.name = name;
     }
 
+    /**
+     * The Time To Live for the records in the set. (Required)
+     */
     @ResourceUpdatable
     public String getTimeToLive() {
         return timeToLive;

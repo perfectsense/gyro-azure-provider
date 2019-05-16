@@ -18,6 +18,26 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Creates an SRV Record Set.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     srv-record-set
+ *         name: "srvrecexample"
+ *         time-to-live: "4"
+ *
+ *         srv-record
+ *             port: 80
+ *             priority: 1
+ *             target: "testtarget.com"
+ *             weight: 100
+ *         end
+ *     end
+ */
 public class SrvRecordSetResource extends AzureResource {
 
     private DnsZoneResource dnsZone;
@@ -45,6 +65,10 @@ public class SrvRecordSetResource extends AzureResource {
     public void setDnsZone(DnsZoneResource dnsZone) {
         this.dnsZone = dnsZone;
     }
+
+    /**
+     * The metadata for the record. (Optional)
+     */
     @ResourceUpdatable
     public Map<String, String> getMetadata() {
         if (metadata == null) {
@@ -58,6 +82,9 @@ public class SrvRecordSetResource extends AzureResource {
         this.metadata = metadata;
     }
 
+    /**
+     * The name of the record. (Required)
+     */
     public String getName() {
         return name;
     }
@@ -66,6 +93,9 @@ public class SrvRecordSetResource extends AzureResource {
         this.name = name;
     }
 
+    /**
+     * The list of srv records. (Required)
+     */
     @ResourceUpdatable
     public List<SrvRecord> getSrvRecord() {
         if (srvRecord == null) {
@@ -79,6 +109,9 @@ public class SrvRecordSetResource extends AzureResource {
         this.srvRecord = srvRecord;
     }
 
+    /**
+     * The Time To Live for the records in the set. (Required)
+     */
     @ResourceUpdatable
     public String getTimeToLive() {
         return timeToLive;

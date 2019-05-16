@@ -21,6 +21,30 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Creates an MX Record Set.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     mx-record-set
+ *         name: "mxrecexample"
+ *         time-to-live: "4"
+ *         dns-zone: $(azure::dns-zone dns-zone-resource-example)
+ *
+ *         mx-record
+ *             exchange: "mail.cont.com"
+ *             preference: 1
+ *         end
+ *
+ *         mx-record
+ *             exchange: "mail.conto.com"
+ *             preference: 2
+ *         end
+ *     end
+ */
 public class MxRecordSetResource extends AzureResource {
 
     private DnsZoneResource dnsZone;
@@ -65,6 +89,9 @@ public class MxRecordSetResource extends AzureResource {
         this.mxRecord = mxRecord;
     }
 
+    /**
+     * The metadata for the record. (Optional)
+     */
     @ResourceUpdatable
     public Map<String, String> getMetadata() {
         if (metadata == null) {
@@ -78,6 +105,9 @@ public class MxRecordSetResource extends AzureResource {
         this.metadata = metadata;
     }
 
+    /**
+     * The name of the record. (Required)
+     */
     public String getName() {
         return name;
     }
@@ -86,6 +116,9 @@ public class MxRecordSetResource extends AzureResource {
         this.name = name;
     }
 
+    /**
+     * The Time To Live for the records in the set. (Required)
+     */
     @ResourceUpdatable
     public String getTimeToLive() {
         return timeToLive;

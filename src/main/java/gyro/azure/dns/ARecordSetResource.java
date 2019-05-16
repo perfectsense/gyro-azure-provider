@@ -79,6 +79,9 @@ public class ARecordSetResource extends AzureResource {
         this.ipv4Addresses = ipv4Addresses;
     }
 
+    /**
+     * The metadata for the record. (Optional)
+     */
     @ResourceUpdatable
     public Map<String, String> getMetadata() {
         if (metadata == null) {
@@ -95,11 +98,18 @@ public class ARecordSetResource extends AzureResource {
     public String getName() {
         return name;
     }
+    /**
+     * The name of the record. (Required)
+     */
+    public String getName() { return name; }
 
     public void setName(String name) {
         this.name = name;
     }
 
+    /**
+     * The Time To Live for the records in the set. (Required)
+     */
     @ResourceUpdatable
     public String getTimeToLive() {
         return timeToLive;

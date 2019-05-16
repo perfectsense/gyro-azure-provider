@@ -24,6 +24,34 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Creates a DNS Zone.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     azure::dns-zone dns-zone-example-zones
+ *         name: "zones.example.com"
+ *         public-access: false
+ *         resource-group-name: $(azure::resource-group resource-group-dns-zone-example | resource-group-name)
+ *         tags: {
+ *            Name: "resource-group-dns-zone-example"
+ *         }
+ *
+ *         a-record-set
+ *             name: "arecexample"
+ *             time-to-live: "3"
+ *             ipv4-addresses: ["10.0.0.1"]
+ *         end
+ *
+ *         aaaa-record-set
+ *             name: "aaaarecexample"
+ *             ipv6-addresses: ["2001:0db8:85a3:0000:0000:8a2e:0370:7334", "2001:0db8:85a3:0000:0000:8a2e:0370:7335"]
+ *         end
+ *     end
+ */
 @ResourceType("dns-zone")
 public class DnsZoneResource extends AzureResource {
 
@@ -43,6 +71,9 @@ public class DnsZoneResource extends AzureResource {
     private Map<String, String> tags;
     private List<TxtRecordSetResource> txtRecordSet;
 
+    /**
+     * The list of a record sets. (Optional)
+     */
     @ResourceUpdatable
     public List<ARecordSetResource> getaRecordSet() {
         if (aRecordSet == null) {
@@ -56,6 +87,9 @@ public class DnsZoneResource extends AzureResource {
         this.aRecordSet = aRecordSet;
     }
 
+    /**
+     * The list of aaaa record sets. (Optional)
+     */
     @ResourceUpdatable
     public List<AaaaRecordSetResource> getAaaaRecordSet() {
         if (aaaaRecordSet == null) {
@@ -69,6 +103,9 @@ public class DnsZoneResource extends AzureResource {
         this.aaaaRecordSet = aaaaRecordSet;
     }
 
+    /**
+     * The list of caa record sets. (Optional)
+     */
     @ResourceUpdatable
     public List<CaaRecordSetResource> getCaaRecordSet() {
         if (caaRecordSet == null) {
@@ -82,6 +119,9 @@ public class DnsZoneResource extends AzureResource {
         this.caaRecordSet = caaRecordSet;
     }
 
+    /**
+     * The list of cname record sets. (Optional)
+     */
     @ResourceUpdatable
     public List<CnameRecordSetResource> getCnameRecordSet() {
         if (cnameRecordSet == null) {
@@ -123,6 +163,9 @@ public class DnsZoneResource extends AzureResource {
         this.publicAccess = publicAccess;
     }
 
+    /**
+     * The list of mx record sets. (Optional)
+     */
     @ResourceUpdatable
     public List<MxRecordSetResource> getMxRecordSet() {
         if (mxRecordSet == null) {
@@ -147,6 +190,9 @@ public class DnsZoneResource extends AzureResource {
         this.name = name;
     }
 
+    /**
+     * The list of ptr record sets. (Optional)
+     */
     @ResourceUpdatable
     public List<PtrRecordSetResource> getPtrRecordSet() {
         if (ptrRecordSet == null) {
@@ -205,6 +251,9 @@ public class DnsZoneResource extends AzureResource {
         this.resourceGroupName = resourceGroupName;
     }
 
+    /**
+     * The list of srv record sets. (Optional)
+     */
     @ResourceUpdatable
     public List<SrvRecordSetResource> getSrvRecordSet() {
         if (srvRecordSet == null) {
@@ -234,6 +283,9 @@ public class DnsZoneResource extends AzureResource {
         this.tags = tags;
     }
 
+    /**
+     * The list of txt record sets. (Optional)
+     */
     @ResourceUpdatable
     public List<TxtRecordSetResource> getTxtRecordSet() {
         if (txtRecordSet == null) {

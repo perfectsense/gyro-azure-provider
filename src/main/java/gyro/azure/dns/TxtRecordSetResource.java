@@ -20,6 +20,20 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Creates an TXT Record Set.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     txt-record-set
+ *         name: "txtexample"
+ *         txt-records: ["record1", "record2"]
+ *         time-to-live: "3"
+ *     end
+ */
 public class TxtRecordSetResource extends AzureResource {
 
     private DnsZoneResource dnsZone;
@@ -64,6 +78,9 @@ public class TxtRecordSetResource extends AzureResource {
         this.metadata = metadata;
     }
 
+    /**
+     * The name of the record. (Required)
+     */
     public String getName() {
         return name;
     }
@@ -72,6 +89,9 @@ public class TxtRecordSetResource extends AzureResource {
         this.name = name;
     }
 
+    /**
+     * The list of txt records. (Required)
+     */
     @ResourceUpdatable
     public List<String> getTxtRecords() {
         if (txtRecords == null) {
@@ -85,6 +105,9 @@ public class TxtRecordSetResource extends AzureResource {
         this.txtRecords = txtRecords;
     }
 
+    /**
+     * The Time To Live for the records in the set. (Required)
+     */
     @ResourceUpdatable
     public String getTimeToLive() {
         return timeToLive;

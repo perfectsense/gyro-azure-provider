@@ -20,6 +20,21 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Creates an PTR Record Set.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     ptr-record-set
+ *         name: "ptrexample"
+ *         target-domain-names: ["domain1.com", "domain2.com"]
+ *         time-to-live: "3"
+ *         dns-zone: $(azure::dns-zone dns-zone-resource-example)
+ *     end
+ */
 public class PtrRecordSetResource extends AzureResource {
 
     private DnsZoneResource dnsZone;
@@ -64,6 +79,9 @@ public class PtrRecordSetResource extends AzureResource {
         this.metadata = metadata;
     }
 
+    /**
+     * The name of the record. (Required)
+     */
     public String getName() {
         return name;
     }
@@ -72,6 +90,9 @@ public class PtrRecordSetResource extends AzureResource {
         this.name = name;
     }
 
+    /**
+     * The domain names associated with the record. (Required)
+     */
     @ResourceUpdatable
     public List<String> getTargetDomainNames() {
         if (targetDomainNames == null) {
@@ -85,6 +106,9 @@ public class PtrRecordSetResource extends AzureResource {
         this.targetDomainNames = targetDomainNames;
     }
 
+    /**
+     * The Time To Live for the records in the set. (Required)
+     */
     @ResourceUpdatable
     public String getTimeToLive() {
         return timeToLive;

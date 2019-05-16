@@ -2,6 +2,20 @@ package gyro.azure.dns;
 
 import gyro.core.resource.Diffable;
 
+/**
+ * Creates an CAA Record.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     caa-record
+ *         flags: 1
+ *         tag: "tag1"
+ *         value: "val1"
+ *     end
+ */
 public class CaaRecord extends Diffable {
 
     private Integer flags;
@@ -16,6 +30,9 @@ public class CaaRecord extends Diffable {
         setValue(caaRecord.value());
     }
 
+    /**
+     * The flags for the record. Valid values are integers between 0 and 255. (Required)
+     */
     public Integer getFlags() {
         return flags;
     }
@@ -24,6 +41,9 @@ public class CaaRecord extends Diffable {
         this.flags = flags;
     }
 
+    /**
+     * The tag for the record. (Required)
+     */
     public String getTag() {
         return tag;
     }
@@ -32,6 +52,9 @@ public class CaaRecord extends Diffable {
         this.tag = tag;
     }
 
+    /**
+     * The value for the record. (Required)
+     */
     public String getValue() {
         return value;
     }
@@ -40,10 +63,12 @@ public class CaaRecord extends Diffable {
         this.value = value;
     }
 
+    @Override
     public String primaryKey() {
         return String.format("%d/%s/%s", getFlags(), getTag(), getValue());
     }
 
+    @Override
     public String toDisplayString() {
         return "caa record with flag " + getFlags() + ", tag " + getTag() + ", and value " + getValue();
     }
