@@ -17,7 +17,6 @@ import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.Wi
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -96,9 +95,6 @@ public class ARecordSetResource extends AzureResource {
         this.metadata = metadata;
     }
 
-    public String getName() {
-        return name;
-    }
     /**
      * The name of the record. (Required)
      */
@@ -118,12 +114,6 @@ public class ARecordSetResource extends AzureResource {
 
     public void setTimeToLive(String timeToLive) {
         this.timeToLive = timeToLive;
-    }
-
-    private String parentId() {
-        DnsZoneResource parent = (DnsZoneResource) parent();
-
-        return parent.getId();
     }
 
     @Override
