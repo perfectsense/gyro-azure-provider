@@ -61,10 +61,12 @@ public class MxRecord extends Diffable {
         this.preference = preference;
     }
 
+    @Override
     public String primaryKey() {
         return String.format("%s", getExchange());
     }
 
+    @Override
     public String toDisplayString() {
         return "mx record with exchange " + getExchange() + " and preference " + getPreference();
     }
