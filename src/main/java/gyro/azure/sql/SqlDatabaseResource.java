@@ -279,15 +279,15 @@ public class SqlDatabaseResource extends AzureResource {
     public boolean refresh() {
         Azure client = createClient();
 
-        if (sqlDatabase(client) == null) {
+        SqlDatabase database = sqlDatabase(client);
+
+        if (database == null) {
             return false;
         }
 
         if (getSqlServer() == null) {
             throw new GyroException("You must provide a sql server resource.");
         }
-
-        SqlDatabase database = sqlDatabase(client);
 
         setCollation(database.collation());
         setCreateMode(database.inner().createMode() == null ? null : database.inner().createMode().toString());
