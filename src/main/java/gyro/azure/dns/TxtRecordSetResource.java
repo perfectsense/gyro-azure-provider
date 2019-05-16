@@ -124,7 +124,7 @@ public class TxtRecordSetResource extends AzureResource {
 
     @Override
     public void create() {
-        if (getTxtRecords() == null || getTxtRecords().size() == 0) {
+        if (getTxtRecords().isEmpty()) {
             throw new GyroException("At least one record must be provided.");
         }
 

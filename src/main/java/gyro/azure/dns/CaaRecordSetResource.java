@@ -136,7 +136,7 @@ public class CaaRecordSetResource extends AzureResource {
 
     @Override
     public void create() {
-        if (getCaaRecord() == null || getCaaRecord().size() == 0) {
+        if (getCaaRecord().isEmpty()) {
             throw new GyroException("At least one caa record must be provided.");
         }
 

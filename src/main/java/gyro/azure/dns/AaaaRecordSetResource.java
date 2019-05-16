@@ -126,7 +126,7 @@ public class AaaaRecordSetResource extends AzureResource {
 
     @Override
     public void create() {
-        if (getIpv6Addresses() == null || getIpv6Addresses().size() == 0) {
+        if (getIpv6Addresses().isEmpty()) {
             throw new GyroException("At least one ipv4 address must be provided.");
         }
 
