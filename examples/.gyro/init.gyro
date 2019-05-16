@@ -13,5 +13,5 @@ end
 azure::credentials default
     region: "westus"
     log-level: "basic"
-    credential-file-path: "network/creds.txt"
+    credential-file-path: "path/to/credentials"
 end
