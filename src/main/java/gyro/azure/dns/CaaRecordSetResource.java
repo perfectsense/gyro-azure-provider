@@ -225,9 +225,7 @@ public class CaaRecordSetResource extends AzureResource {
 
         for (CaaRecord record : original) {
             for (CaaRecord comp : compareTo) {
-                if (record.getFlags().equals(comp.getFlags())
-                        && record.getTag().equals(comp.getTag())
-                        && record.getValue().equals(comp.getValue())) {
+                if (record.primaryKey().equals(comp.primaryKey())) {
                     differences.remove(record);
                 }
             }

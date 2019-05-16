@@ -215,10 +215,7 @@ public class SrvRecordSetResource extends AzureResource {
 
         for (SrvRecord record : original) {
             for (SrvRecord comp : compareTo) {
-                if (record.getTarget().equals(comp.getTarget())
-                        && record.getPort().equals(comp.getPort())
-                        && record.getPriority().equals(comp.getPriority())
-                        && record.getWeight().equals(comp.getWeight())) {
+                if (record.primaryKey().equals(comp.primaryKey())) {
                     differences.remove(record);
                 }
             }
