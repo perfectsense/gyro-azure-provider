@@ -276,7 +276,8 @@ public class SqlFailoverGroupResource extends AzureResource {
             }
         }
 
-        update.withTags(getTags()).apply();
+        update.withTags(getTags());
+        update.apply();
     }
 
     @Override

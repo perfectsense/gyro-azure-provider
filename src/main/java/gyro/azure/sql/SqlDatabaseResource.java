@@ -395,6 +395,9 @@ public class SqlDatabaseResource extends AzureResource {
             buildDatabase.withTags(getTags()).create();
         }
 
+        buildDatabase.withTags(getTags());
+        buildDatabase.create();
+
         setId(getSqlServer().getId() + "/databases/" + getName());
     }
 
@@ -434,7 +437,8 @@ public class SqlDatabaseResource extends AzureResource {
             }
         }
 
-        update.withTags(getTags()).apply();
+        update.withTags(getTags());
+        update.apply();
     }
 
     @Override

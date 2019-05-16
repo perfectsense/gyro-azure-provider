@@ -200,7 +200,7 @@ public class SqlServerResource extends AzureResource {
             withCreate.withoutAccessFromAzureServices();
         }
 
-        SqlServer sqlServer = withCreate.withTags(getTags()).create();
+        SqlServer sqlServer = withCreate.create();
 
         setId(sqlServer.id());
     }
@@ -215,9 +215,9 @@ public class SqlServerResource extends AzureResource {
             update.withSystemAssignedManagedServiceIdentity();
         }
 
-        update.withAdministratorPassword(getAdministratorPassword())
-                .withTags(getTags())
-                .apply();
+        update.withAdministratorPassword(getAdministratorPassword());
+        update.withTags(getTags());
+        update.apply();
     }
 
     @Override
