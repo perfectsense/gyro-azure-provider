@@ -23,6 +23,7 @@ import java.util.Set;
 
 public class AaaaRecordSetResource extends AzureResource {
 
+    private DnsZoneResource dnsZone;
     private List<String> ipv6Addresses;
     private Map<String, String> metadata;
     private String name;
@@ -37,6 +38,20 @@ public class AaaaRecordSetResource extends AzureResource {
         setTimeToLive(Long.toString(aaaaRecordSet.timeToLive()));
     }
 
+    /**
+     * The dns zone where the record set resides. (Required)
+     */
+    public DnsZoneResource getDnsZone() {
+        return dnsZone;
+    }
+
+    public void setDnsZone(DnsZoneResource dnsZone) {
+        this.dnsZone = dnsZone;
+    }
+
+    /**
+     * The ipv6 addresses associated with the record set. (Required)
+     */
     @ResourceUpdatable
     public List<String> getIpv6Addresses() {
         if (ipv6Addresses == null) {

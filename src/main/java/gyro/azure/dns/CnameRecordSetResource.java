@@ -20,6 +20,7 @@ import java.util.Set;
 public class CnameRecordSetResource extends AzureResource {
 
     private String alias;
+    private DnsZoneResource dnsZone;
     private Map<String, String> metadata;
     private String name;
     private String timeToLive;
@@ -42,6 +43,20 @@ public class CnameRecordSetResource extends AzureResource {
         this.alias = alias;
     }
 
+    /**
+     * The dns zone where the record set resides. (Required)
+     */
+    public DnsZoneResource getDnsZone() {
+        return dnsZone;
+    }
+
+    public void setDnsZone(DnsZoneResource dnsZone) {
+        this.dnsZone = dnsZone;
+    }
+
+    /**
+     * The metadata for the record. (Optional)
+     */
     @ResourceUpdatable
     public Map<String, String> getMetadata() {
         if (metadata == null) {

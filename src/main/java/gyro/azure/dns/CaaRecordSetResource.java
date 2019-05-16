@@ -23,6 +23,7 @@ import java.util.Set;
 public class CaaRecordSetResource extends AzureResource {
 
     private List<CaaRecord> caaRecord;
+    private DnsZoneResource dnsZone;
     private Map<String, String> metadata;
     private String name;
     private String timeToLive;
@@ -49,6 +50,20 @@ public class CaaRecordSetResource extends AzureResource {
         this.caaRecord = caaRecord;
     }
 
+    /**
+     * The dns zone where the record set resides. (Required)
+     */
+    public DnsZoneResource getDnsZone() {
+        return dnsZone;
+    }
+
+    public void setDnsZone(DnsZoneResource dnsZone) {
+        this.dnsZone = dnsZone;
+    }
+
+    /**
+     * The metadata for the record. (Optional)
+     */
     @ResourceUpdatable
     public Map<String, String> getMetadata() {
         if (metadata == null) {

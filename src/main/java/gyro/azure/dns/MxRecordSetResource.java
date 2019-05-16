@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 
 public class MxRecordSetResource extends AzureResource {
 
+    private DnsZoneResource dnsZone;
     private List<MxRecord> mxRecord;
     private Map<String, String> metadata;
     private String name;
@@ -37,6 +38,20 @@ public class MxRecordSetResource extends AzureResource {
         setTimeToLive(Long.toString(mxRecordSet.timeToLive()));
     }
 
+    /**
+     * The dns zone where the record set resides. (Required)
+     */
+    public DnsZoneResource getDnsZone() {
+        return dnsZone;
+    }
+
+    public void setDnsZone(DnsZoneResource dnsZone) {
+        this.dnsZone = dnsZone;
+    }
+
+    /**
+     * The list of mx records. (Required)
+     */
     @ResourceUpdatable
     public List<MxRecord> getMxRecord() {
         if (mxRecord == null) {

@@ -20,8 +20,24 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Creates an A Record Set.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     a-record-set
+ *         name: "arecexample"
+ *         dns-zone: $(azure::dns-zone dns-zone-resource-example)
+ *         time-to-live: "3"
+ *         ipv4-addresses: ["10.0.0.1"]
+ *     end
+ */
 public class ARecordSetResource extends AzureResource {
 
+    private DnsZoneResource dnsZone;
     private List<String> ipv4Addresses;
     private Map<String, String> metadata;
     private String name;
@@ -36,6 +52,20 @@ public class ARecordSetResource extends AzureResource {
         setTimeToLive(Long.toString(aRecordSet.timeToLive()));
     }
 
+    /**
+     * The dns zone where the record set resides. (Required)
+     */
+    public DnsZoneResource getDnsZone() {
+        return dnsZone;
+    }
+
+    public void setDnsZone(DnsZoneResource dnsZone) {
+        this.dnsZone = dnsZone;
+    }
+
+    /**
+     * The ipv4 addresses associated with the record set. (Required)
+     */
     @ResourceUpdatable
     public List<String> getIpv4Addresses() {
         if (ipv4Addresses == null) {

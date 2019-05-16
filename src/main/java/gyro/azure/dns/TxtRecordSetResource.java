@@ -22,6 +22,7 @@ import java.util.Set;
 
 public class TxtRecordSetResource extends AzureResource {
 
+    private DnsZoneResource dnsZone;
     private Map<String, String> metadata;
     private String name;
     private List<String> txtRecords;
@@ -36,6 +37,20 @@ public class TxtRecordSetResource extends AzureResource {
         setTimeToLive(Long.toString(txtRecordSet.timeToLive()));
     }
 
+    /**
+     * The dns zone where the record set resides. (Required)
+     */
+    public DnsZoneResource getDnsZone() {
+        return dnsZone;
+    }
+
+    public void setDnsZone(DnsZoneResource dnsZone) {
+        this.dnsZone = dnsZone;
+    }
+
+    /**
+     * The metadata for the record. (Optional)
+     */
     @ResourceUpdatable
     public Map<String, String> getMetadata() {
         if (metadata == null) {
