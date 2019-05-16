@@ -146,7 +146,7 @@ public class MxRecordSetResource extends AzureResource {
 
         WithMXRecordMailExchangeOrAttachable<DnsZone.Update> createMXRecordSet = null;
         for (MxRecord mxRecord : getMxRecord()) {
-            createMXRecordSet = defineMXRecordSet.withMailExchange(mxRecord.getExchange(), mxRecord.getPriority());
+            createMXRecordSet = defineMXRecordSet.withMailExchange(mxRecord.getExchange(), mxRecord.getPreference());
         }
 
         if (getTimeToLive() != null) {
@@ -194,25 +194,25 @@ public class MxRecordSetResource extends AzureResource {
 
         Map<String, Integer> oldMap =
                 oldRecord.getMxRecord().stream()
-                        .collect(Collectors.toMap(MxRecord::getExchange, MxRecord::getPriority));
+                        .collect(Collectors.toMap(MxRecord::getExchange, MxRecord::getPreference));
 
         addRecords.removeIf(o -> (oldMap.containsKey(o.getExchange())
-                && oldMap.get(o.getExchange()).equals(o.getPriority())));
+                && oldMap.get(o.getExchange()).equals(o.getPreference())));
 
         for (MxRecord addRecord : addRecords) {
-            updateMXRecordSet.withMailExchange(addRecord.getExchange(), addRecord.getPriority());
+            updateMXRecordSet.withMailExchange(addRecord.getExchange(), addRecord.getPreference());
         }
 
         List<MxRecord> removeRecords = new ArrayList<>(oldRecord.getMxRecord());
         Map<String, Integer> currentMap =
                 getMxRecord().stream()
-                        .collect(Collectors.toMap(MxRecord::getExchange, MxRecord::getPriority));
+                        .collect(Collectors.toMap(MxRecord::getExchange, MxRecord::getPreference));
 
         removeRecords.removeIf(o -> (currentMap.containsKey(o.getExchange())
-                && currentMap.get(o.getExchange()).equals(o.getPriority())));
+                && currentMap.get(o.getExchange()).equals(o.getPreference())));
 
         for (MxRecord removeRecord : removeRecords) {
-            updateMXRecordSet.withoutMailExchange(removeRecord.getExchange(), removeRecord.getPriority());
+            updateMXRecordSet.withoutMailExchange(removeRecord.getExchange(), removeRecord.getPreference());
         }
 
         updateMXRecordSet.parent().apply();
