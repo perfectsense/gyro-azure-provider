@@ -310,7 +310,6 @@ public class DnsZoneResource extends AzureResource {
             return false;
         }
 
-        //refresh a records
         getaRecordSet().clear();
         for (ARecordSet aRecordSet : dnsZone.aRecordSets().list()) {
             ARecordSetResource aRecordSetResource = new ARecordSetResource(aRecordSet);
@@ -360,7 +359,7 @@ public class DnsZoneResource extends AzureResource {
         }
 
         setId(dnsZone.id());
-        setPublicAccess(dnsZone.accessType() == ZoneType.PUBLIC ? true : false);
+        setPublicAccess(dnsZone.accessType() == ZoneType.PUBLIC);
         setName(dnsZone.name());
         setRegistrationVirtualNetworkIds(dnsZone.registrationVirtualNetworkIds());
         setResolutionVirtualNetworkIds(dnsZone.resolutionVirtualNetworkIds());
@@ -378,8 +377,8 @@ public class DnsZoneResource extends AzureResource {
 
         withCreate = client.dnsZones().define(getName()).withExistingResourceGroup(getResourceGroupName());
 
-        if (!getPublicAccess()) {
-            if (getRegistrationVirtualNetworkIds() != null && getResolutionVirtualNetworkIds() != null) {
+        if (getPublicAccess() != null && !getPublicAccess()) {
+            if (getRegistrationVirtualNetworkIds().isEmpty() && getResolutionVirtualNetworkIds().isEmpty()) {
                 withCreate.withPrivateAccess(getRegistrationVirtualNetworkIds(), getResolutionVirtualNetworkIds());
             } else {
                 withCreate.withPrivateAccess();
