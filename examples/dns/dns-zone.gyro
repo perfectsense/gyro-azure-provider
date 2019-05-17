@@ -16,7 +16,6 @@ azure::dns-zone dns-zone-example-zones
 
     a-record-set
         name: "arecexample"
-        dns-zone: $(azure::dns-zone dns-zone-example-zones)
         time-to-live: "3"
         ipv4-addresses: ["10.0.0.1"]
     end
