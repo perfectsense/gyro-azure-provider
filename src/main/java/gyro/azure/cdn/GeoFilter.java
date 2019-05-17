@@ -62,7 +62,11 @@ public class GeoFilter extends Diffable {
     }
 
     public String toDisplayString() {
-        return String.format("action: %s and country code %s", getAction(), getCountryCodes());
+        String displayString = String.format("action: %s and country code %s", getAction(), getCountryCodes());
+        if (getCountryCodes().size() > 1) {
+            displayString = String.format("action: %s and country codes %s", getAction(), getCountryCodes());
+        }
+        return displayString;
     }
 
     public com.microsoft.azure.management.cdn.GeoFilter toGeoFilter() {
