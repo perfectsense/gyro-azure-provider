@@ -30,14 +30,12 @@ import java.util.Set;
  *
  *     a-record-set
  *         name: "arecexample"
- *         dns-zone: $(azure::dns-zone dns-zone-resource-example)
  *         time-to-live: "3"
  *         ipv4-addresses: ["10.0.0.1"]
  *     end
  */
 public class ARecordSetResource extends AzureResource {
 
-    private DnsZoneResource dnsZone;
     private List<String> ipv4Addresses;
     private Map<String, String> metadata;
     private String name;
@@ -50,17 +48,6 @@ public class ARecordSetResource extends AzureResource {
         setMetadata(aRecordSet.metadata());
         setName(aRecordSet.name());
         setTimeToLive(Long.toString(aRecordSet.timeToLive()));
-    }
-
-    /**
-     * The dns zone where the record set resides. (Required)
-     */
-    public DnsZoneResource getDnsZone() {
-        return dnsZone;
-    }
-
-    public void setDnsZone(DnsZoneResource dnsZone) {
-        this.dnsZone = dnsZone;
     }
 
     /**
@@ -130,7 +117,7 @@ public class ARecordSetResource extends AzureResource {
         Azure client = createClient();
 
         ARecordSetBlank<DnsZone.Update> defineARecordSetBlank =
-                getDnsZone().getDnsZone(client).defineARecordSet(getName());
+                ((DnsZoneResource) parentResource()).getDnsZone(client).defineARecordSet(getName());
 
         WithARecordIPv4AddressOrAttachable<DnsZone.Update> createARecordSet = null;
         for (String ip : getIpv4Addresses()) {
@@ -152,7 +139,8 @@ public class ARecordSetResource extends AzureResource {
     public void update(Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
-        DnsRecordSet.UpdateARecordSet updateARecordSet = getDnsZone().getDnsZone(client).updateARecordSet(getName());
+        DnsRecordSet.UpdateARecordSet updateARecordSet =
+                ((DnsZoneResource) parentResource()).getDnsZone(client).updateARecordSet(getName());
 
         if (getTimeToLive() != null) {
             updateARecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
@@ -198,7 +186,7 @@ public class ARecordSetResource extends AzureResource {
     public void delete() {
         Azure client = createClient();
 
-        getDnsZone().getDnsZone(client).withoutARecordSet(getName()).apply();
+        ((DnsZoneResource) parentResource()).getDnsZone(client).withoutARecordSet(getName()).apply();
     }
 
     @Override

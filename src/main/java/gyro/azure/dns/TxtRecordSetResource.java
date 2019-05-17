@@ -35,7 +35,6 @@ import java.util.Set;
  */
 public class TxtRecordSetResource extends AzureResource {
 
-    private DnsZoneResource dnsZone;
     private Map<String, String> metadata;
     private String name;
     private List<String> txtRecords;
@@ -48,17 +47,6 @@ public class TxtRecordSetResource extends AzureResource {
         setMetadata(txtRecordSet.metadata());
         setName(txtRecordSet.name());
         setTimeToLive(Long.toString(txtRecordSet.timeToLive()));
-    }
-
-    /**
-     * The dns zone where the record set resides. (Required)
-     */
-    public DnsZoneResource getDnsZone() {
-        return dnsZone;
-    }
-
-    public void setDnsZone(DnsZoneResource dnsZone) {
-        this.dnsZone = dnsZone;
     }
 
     /**
@@ -130,7 +118,7 @@ public class TxtRecordSetResource extends AzureResource {
         Azure client = createClient();
 
         DnsRecordSet.UpdateDefinitionStages.TxtRecordSetBlank<DnsZone.Update> defineTxtRecordSet =
-                getDnsZone().getDnsZone(client).defineTxtRecordSet(getName());
+                ((DnsZoneResource) parentResource()).getDnsZone(client).defineTxtRecordSet(getName());
 
         WithTxtRecordTextValueOrAttachable<DnsZone.Update> createTxtRecordSet = null;
         for (String txtRecord : getTxtRecords()) {
@@ -153,7 +141,7 @@ public class TxtRecordSetResource extends AzureResource {
         Azure client = createClient();
 
         DnsRecordSet.UpdateTxtRecordSet updateTxtRecordSet =
-                getDnsZone().getDnsZone(client).updateTxtRecordSet(getName());
+                ((DnsZoneResource) parentResource()).getDnsZone(client).updateTxtRecordSet(getName());
 
         if (getTimeToLive() != null) {
             updateTxtRecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
@@ -199,7 +187,7 @@ public class TxtRecordSetResource extends AzureResource {
     public void delete() {
         Azure client = createClient();
 
-        getDnsZone().getDnsZone(client).withoutTxtRecordSet(getName()).apply();
+        ((DnsZoneResource) parentResource()).getDnsZone(client).withoutTxtRecordSet(getName()).apply();
     }
 
     @Override

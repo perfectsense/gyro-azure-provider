@@ -32,12 +32,10 @@ import java.util.Set;
  *         name: "ptrexample"
  *         target-domain-names: ["domain1.com", "domain2.com"]
  *         time-to-live: "3"
- *         dns-zone: $(azure::dns-zone dns-zone-resource-example)
  *     end
  */
 public class PtrRecordSetResource extends AzureResource {
 
-    private DnsZoneResource dnsZone;
     private Map<String, String> metadata;
     private String name;
     private List<String> targetDomainNames;
@@ -50,17 +48,6 @@ public class PtrRecordSetResource extends AzureResource {
         setName(nsRecordSet.name());
         setTargetDomainNames(nsRecordSet.targetDomainNames());
         setTimeToLive(Long.toString(nsRecordSet.timeToLive()));
-    }
-
-    /**
-     * The dns zone where the record set resides. (Required)
-     */
-    public DnsZoneResource getDnsZone() {
-        return dnsZone;
-    }
-
-    public void setDnsZone(DnsZoneResource dnsZone) {
-        this.dnsZone = dnsZone;
     }
 
     /**
@@ -131,7 +118,7 @@ public class PtrRecordSetResource extends AzureResource {
         Azure client = createClient();
 
         PtrRecordSetBlank<DnsZone.Update> definePtrRecordSet =
-                getDnsZone().getDnsZone(client).definePtrRecordSet(getName());
+                ((DnsZoneResource) parentResource()).getDnsZone(client).definePtrRecordSet(getName());
 
         WithPtrRecordTargetDomainNameOrAttachable<DnsZone.Update> createPtrRecordSet = null;
         for (String targetDomainName : getTargetDomainNames()) {
@@ -154,7 +141,7 @@ public class PtrRecordSetResource extends AzureResource {
         Azure client = createClient();
 
         DnsRecordSet.UpdatePtrRecordSet updatePtrRecordSet =
-                getDnsZone().getDnsZone(client).updatePtrRecordSet(getName());
+                ((DnsZoneResource) parentResource()).getDnsZone(client).updatePtrRecordSet(getName());
 
         if (getTimeToLive() != null) {
             updatePtrRecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
@@ -200,7 +187,7 @@ public class PtrRecordSetResource extends AzureResource {
     public void delete() {
         Azure client = createClient();
 
-        getDnsZone().getDnsZone(client).withoutPtrRecordSet(getName()).apply();
+        ((DnsZoneResource) parentResource()).getDnsZone(client).withoutPtrRecordSet(getName()).apply();
     }
 
     @Override

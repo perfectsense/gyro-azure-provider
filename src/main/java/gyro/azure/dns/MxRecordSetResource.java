@@ -32,7 +32,6 @@ import java.util.stream.Collectors;
  *     mx-record-set
  *         name: "mxrecexample"
  *         time-to-live: "4"
- *         dns-zone: $(azure::dns-zone dns-zone-resource-example)
  *
  *         mx-record
  *             exchange: "mail.cont.com"
@@ -47,7 +46,6 @@ import java.util.stream.Collectors;
  */
 public class MxRecordSetResource extends AzureResource {
 
-    private DnsZoneResource dnsZone;
     private List<MxRecord> mxRecord;
     private Map<String, String> metadata;
     private String name;
@@ -60,17 +58,6 @@ public class MxRecordSetResource extends AzureResource {
         setMetadata(mxRecordSet.metadata());
         setName(mxRecordSet.name());
         setTimeToLive(Long.toString(mxRecordSet.timeToLive()));
-    }
-
-    /**
-     * The dns zone where the record set resides. (Required)
-     */
-    public DnsZoneResource getDnsZone() {
-        return dnsZone;
-    }
-
-    public void setDnsZone(DnsZoneResource dnsZone) {
-        this.dnsZone = dnsZone;
     }
 
     /**
@@ -142,7 +129,7 @@ public class MxRecordSetResource extends AzureResource {
         Azure client = createClient();
 
         MXRecordSetBlank<DnsZone.Update> defineMXRecordSet =
-                getDnsZone().getDnsZone(client).defineMXRecordSet(getName());
+                ((DnsZoneResource) parentResource()).getDnsZone(client).defineMXRecordSet(getName());
 
         WithMXRecordMailExchangeOrAttachable<DnsZone.Update> createMXRecordSet = null;
         for (MxRecord mxRecord : getMxRecord()) {
@@ -165,7 +152,7 @@ public class MxRecordSetResource extends AzureResource {
         Azure client = createClient();
 
         DnsRecordSet.UpdateMXRecordSet updateMXRecordSet =
-                getDnsZone().getDnsZone(client).updateMXRecordSet(getName());
+                ((DnsZoneResource) parentResource()).getDnsZone(client).updateMXRecordSet(getName());
 
         if (getTimeToLive() != null) {
             updateMXRecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
@@ -222,7 +209,7 @@ public class MxRecordSetResource extends AzureResource {
     public void delete() {
         Azure client = createClient();
 
-        getDnsZone().getDnsZone(client).withoutMXRecordSet(getName()).apply();
+        ((DnsZoneResource) parentResource()).getDnsZone(client).withoutMXRecordSet(getName()).apply();
     }
 
     @Override

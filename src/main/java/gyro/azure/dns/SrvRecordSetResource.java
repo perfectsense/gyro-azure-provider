@@ -41,7 +41,6 @@ import java.util.Set;
  */
 public class SrvRecordSetResource extends AzureResource {
 
-    private DnsZoneResource dnsZone;
     private Map<String, String> metadata;
     private String name;
     private List<SrvRecord> srvRecord;
@@ -54,17 +53,6 @@ public class SrvRecordSetResource extends AzureResource {
         setMetadata(srvRecordSet.metadata());
         setName(srvRecordSet.name());
         setTimeToLive(Long.toString(srvRecordSet.timeToLive()));
-    }
-
-    /**
-     * The dns zone where the record set resides. (Required)
-     */
-    public DnsZoneResource getDnsZone() {
-        return dnsZone;
-    }
-
-    public void setDnsZone(DnsZoneResource dnsZone) {
-        this.dnsZone = dnsZone;
     }
 
     /**
@@ -132,7 +120,7 @@ public class SrvRecordSetResource extends AzureResource {
         Azure client = createClient();
 
         SrvRecordSetBlank<DnsZone.Update> defineSrvRecordSet =
-                getDnsZone().getDnsZone(client).defineSrvRecordSet(getName());
+                ((DnsZoneResource) parentResource()).getDnsZone(client).defineSrvRecordSet(getName());
 
         WithSrvRecordEntryOrAttachable<DnsZone.Update> createSrvRecordSet = null;
         for (SrvRecord srvRecord : getSrvRecord()) {
@@ -156,7 +144,7 @@ public class SrvRecordSetResource extends AzureResource {
         Azure client = createClient();
 
         DnsRecordSet.UpdateSrvRecordSet updateSrvRecordSet =
-                getDnsZone().getDnsZone(client).updateSrvRecordSet(getName());
+                ((DnsZoneResource) parentResource()).getDnsZone(client).updateSrvRecordSet(getName());
 
         if (getTimeToLive() != null) {
             updateSrvRecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
@@ -200,7 +188,7 @@ public class SrvRecordSetResource extends AzureResource {
     public void delete() {
         Azure client = createClient();
 
-        getDnsZone().getDnsZone(client).withoutSrvRecordSet(getName()).apply();
+        ((DnsZoneResource) parentResource()).getDnsZone(client).withoutSrvRecordSet(getName()).apply();
     }
 
     @Override

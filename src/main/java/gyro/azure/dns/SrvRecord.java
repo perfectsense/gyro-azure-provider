@@ -85,6 +85,7 @@ public class SrvRecord extends Diffable {
 
     @Override
     public String toDisplayString() {
-        return "srv record ";
+        return "srv record with " + getPort() + " priority " + getPriority()
+                + " target " + getTarget() + " and weight " + getWeight();
     }
 }

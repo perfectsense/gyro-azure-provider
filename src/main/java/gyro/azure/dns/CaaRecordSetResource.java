@@ -31,7 +31,6 @@ import java.util.Set;
  *     caa-record-set
  *         name: "caaexample"
  *         time-to-live: "3"
- *         dns-zone: $(azure::dns-zone dns-zone-resource-example)
  *
  *         caa-record
  *             flags: 1
@@ -49,7 +48,6 @@ import java.util.Set;
 public class CaaRecordSetResource extends AzureResource {
 
     private List<CaaRecord> caaRecord;
-    private DnsZoneResource dnsZone;
     private Map<String, String> metadata;
     private String name;
     private String timeToLive;
@@ -77,17 +75,6 @@ public class CaaRecordSetResource extends AzureResource {
 
     public void setCaaRecord(List<CaaRecord> caaRecord) {
         this.caaRecord = caaRecord;
-    }
-
-    /**
-     * The dns zone where the record set resides. (Required)
-     */
-    public DnsZoneResource getDnsZone() {
-        return dnsZone;
-    }
-
-    public void setDnsZone(DnsZoneResource dnsZone) {
-        this.dnsZone = dnsZone;
     }
 
     /**
@@ -143,7 +130,7 @@ public class CaaRecordSetResource extends AzureResource {
         Azure client = createClient();
 
         CaaRecordSetBlank<DnsZone.Update> defineCaaRecordSet =
-                getDnsZone().getDnsZone(client).defineCaaRecordSet(getName());
+                ((DnsZoneResource) parentResource()).getDnsZone(client).defineCaaRecordSet(getName());
 
         WithCaaRecordEntryOrAttachable<DnsZone.Update> createCaaRecordSet = null;
         for (CaaRecord caaRecord : getCaaRecord()) {
@@ -165,7 +152,8 @@ public class CaaRecordSetResource extends AzureResource {
     public void update(Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
-        DnsRecordSet.UpdateCaaRecordSet updateCaaRecordSet = getDnsZone().getDnsZone(client).updateCaaRecordSet(getName());
+        DnsRecordSet.UpdateCaaRecordSet updateCaaRecordSet =
+                ((DnsZoneResource) parentResource()).getDnsZone(client).updateCaaRecordSet(getName());
 
         if (getTimeToLive() != null) {
             updateCaaRecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
@@ -209,7 +197,7 @@ public class CaaRecordSetResource extends AzureResource {
     public void delete() {
         Azure client = createClient();
 
-        getDnsZone().getDnsZone(client).withoutCaaRecordSet(getName()).apply();
+        ((DnsZoneResource) parentResource()).getDnsZone(client).withoutCaaRecordSet(getName()).apply();
     }
 
     @Override

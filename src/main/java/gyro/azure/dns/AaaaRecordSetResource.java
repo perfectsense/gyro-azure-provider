@@ -31,13 +31,10 @@ import java.util.Set;
  *
  *     aaaa-record-set
  *         name: "aaaarecexample"
- *         dns-zone: $(azure::dns-zone dns-zone-resource-example)
  *         ipv6-addresses: ["2001:0db8:85a3:0000:0000:8a2e:0370:7334", "2001:0db8:85a3:0000:0000:8a2e:0370:7335"]
  *     end
  */
 public class AaaaRecordSetResource extends AzureResource {
-
-    private DnsZoneResource dnsZone;
     private List<String> ipv6Addresses;
     private Map<String, String> metadata;
     private String name;
@@ -50,17 +47,6 @@ public class AaaaRecordSetResource extends AzureResource {
         setMetadata(aaaaRecordSet.metadata());
         setName(aaaaRecordSet.name());
         setTimeToLive(Long.toString(aaaaRecordSet.timeToLive()));
-    }
-
-    /**
-     * The dns zone where the record set resides. (Required)
-     */
-    public DnsZoneResource getDnsZone() {
-        return dnsZone;
-    }
-
-    public void setDnsZone(DnsZoneResource dnsZone) {
-        this.dnsZone = dnsZone;
     }
 
     /**
@@ -133,7 +119,7 @@ public class AaaaRecordSetResource extends AzureResource {
         Azure client = createClient();
 
         AaaaRecordSetBlank<DnsZone.Update> defineAaaaRecordSet =
-                getDnsZone().getDnsZone(client).defineAaaaRecordSet(getName());
+                ((DnsZoneResource) parentResource()).getDnsZone(client).defineAaaaRecordSet(getName());
 
         WithAaaaRecordIPv6AddressOrAttachable<DnsZone.Update> createAaaaRecordSet = null;
         for (String ip : getIpv6Addresses()) {
@@ -148,7 +134,8 @@ public class AaaaRecordSetResource extends AzureResource {
             createAaaaRecordSet.withMetadata(e.getKey(), e.getValue());
         }
 
-        createAaaaRecordSet.attach().apply();
+        DnsZone.Update attach = createAaaaRecordSet.attach();
+        attach.apply();
     }
 
     @Override
@@ -156,7 +143,7 @@ public class AaaaRecordSetResource extends AzureResource {
         Azure client = createClient();
 
         DnsRecordSet.UpdateAaaaRecordSet updateAaaaRecordSet =
-                getDnsZone().getDnsZone(client).updateAaaaRecordSet(getName());
+                ((DnsZoneResource) parentResource()).getDnsZone(client).updateAaaaRecordSet(getName());
 
         if (getTimeToLive() != null) {
             updateAaaaRecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
@@ -202,7 +189,7 @@ public class AaaaRecordSetResource extends AzureResource {
     public void delete() {
         Azure client = createClient();
 
-        getDnsZone().getDnsZone(client).withoutAaaaRecordSet(getName()).apply();
+        ((DnsZoneResource) parentResource()).getDnsZone(client).withoutAaaaRecordSet(getName()).apply();
     }
 
     @Override
