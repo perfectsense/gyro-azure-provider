@@ -33,9 +33,9 @@ azure::cdn-endpoint standard-cdn-endpoint-example
     end
 
     host-header: "my.host.com"
-    http-allowed: true
+    http-enabled: true
     http-port: 81
-    https-allowed: true
+    https-enabled: true
     https-port: 8443
     name: "test-endpoint-cdn"
     origin-hostname: "origin.hostname.com"
