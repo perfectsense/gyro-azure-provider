@@ -285,7 +285,6 @@ public class CdnEndpointResource extends AzureResource {
         this.type = type;
     }
 
-
     @Override
     public boolean refresh() {
         Azure client = createClient();
@@ -308,7 +307,6 @@ public class CdnEndpointResource extends AzureResource {
         setOriginHostname(cdnEndpoint.originHostName());
         setOriginPath(cdnEndpoint.originPath());
         setQueryCachingBehavior(adjustQueueCaching(cdnEndpoint.queryStringCachingBehavior().toString()));
-        System.out.println("show qcb " + cdnEndpoint.queryStringCachingBehavior().toString());
 
         return true;
     }
@@ -484,10 +482,6 @@ public class CdnEndpointResource extends AzureResource {
                 updateStandardEndpoint
                         .withQueryStringCachingBehavior(QueryStringCachingBehavior
                         .valueOf(getQueryCachingBehavior()));
-
-                System.out.println("show query caching " + QueryStringCachingBehavior
-                        .valueOf(getQueryCachingBehavior()));
-
             }
 
             for (String customDomain : getCustomDomains()) {

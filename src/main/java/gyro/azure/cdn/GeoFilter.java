@@ -6,20 +6,6 @@ import com.microsoft.azure.management.cdn.GeoFilterActions;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Creates a geo filter.
- *
- * Example
- * -------
- *
- * .. code-block:: gyro
- *
- *           geo-filter
- *                 action: "ALLOW"
- *                 country-codes: ["CA", "CL"]
- *                 relative-path: "/"
- *           end
- */
 public class GeoFilter extends Diffable {
 
     private String action;
