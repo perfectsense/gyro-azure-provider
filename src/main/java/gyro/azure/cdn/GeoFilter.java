@@ -21,7 +21,7 @@ public class GeoFilter extends Diffable {
     }
 
     /**
-     * The action to be taken. Values are ALLOW and BLOCK. (Required)
+     * The action to be taken. Values are ``ALLOW`` and ``BLOCK``. (Required)
      */
     public String getAction() {
         return action;
@@ -62,7 +62,7 @@ public class GeoFilter extends Diffable {
     }
 
     public String toDisplayString() {
-        return String.format("action: %s and country code %s", getAction(), getCountryCodes().get(0));
+        return String.format("action: %s and country code %s", getAction(), getCountryCodes());
     }
 
     public com.microsoft.azure.management.cdn.GeoFilter toGeoFilter() {
