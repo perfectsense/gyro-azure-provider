@@ -45,6 +45,9 @@ public class CloudTableResource extends AzureResource {
         this.cloudTableName = cloudTableName;
     }
 
+    /**
+     * The storage account resource where the table will be created. (Required)
+     */
     public StorageAccountResource getStorageAccount() {
         return storageAccount;
     }

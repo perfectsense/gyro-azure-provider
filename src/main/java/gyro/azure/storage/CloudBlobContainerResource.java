@@ -61,6 +61,9 @@ public class CloudBlobContainerResource extends AzureResource {
         this.publicAccess = publicAccess;
     }
 
+    /**
+     * The storage account resource where the blob container will be created. (Required)
+     */
     public StorageAccountResource getStorageAccount() {
         return storageAccount;
     }

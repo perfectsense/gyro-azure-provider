@@ -60,6 +60,9 @@ public class CloudFileShareResource extends AzureResource {
         this.shareQuota = shareQuota;
     }
 
+    /**
+     * The storage account resource where the file share will be created. (Required)
+     */
     public StorageAccountResource getStorageAccount() {
         return storageAccount;
     }

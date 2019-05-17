@@ -10,6 +10,7 @@ import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlobDirectory;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
+import gyro.core.resource.ResourceOutput;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -45,7 +46,11 @@ public class CloudBlobResource extends AzureResource {
     private String containerName;
     private String filePath;
     private StorageAccountResource storageAccount;
+    private String uri;
 
+    /**
+     * The name of the blob. (Required)
+     */
     public String getBlobName() {
         return Paths.get(getBlobDirectoryPath()).getFileName().toString();
     }
@@ -65,6 +70,9 @@ public class CloudBlobResource extends AzureResource {
         this.blobDirectoryPath = blobDirectoryPath;
     }
 
+    /**
+     * The container where the blob found. (Required)
+     */
     public String getContainerName() {
         return containerName;
     }
@@ -84,6 +92,9 @@ public class CloudBlobResource extends AzureResource {
         this.filePath = filePath;
     }
 
+    /**
+     * The storage account resource where the blob will be created. (Required)
+     */
     public StorageAccountResource getStorageAccount() {
         return storageAccount;
     }
@@ -92,12 +103,22 @@ public class CloudBlobResource extends AzureResource {
         this.storageAccount = storageAccount;
     }
 
+    @ResourceOutput
+    public String getUri() {
+        return uri;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri;
+    }
+
     @Override
     public boolean refresh() {
         try {
             CloudBlockBlob blob = cloudBlobBlob();
             if (blob.exists()) {
                 setBlobName(blob.getName());
+                setUri(blob.getUri().toString());
                 return true;
             }
             return false;
@@ -112,6 +133,7 @@ public class CloudBlobResource extends AzureResource {
             CloudBlockBlob blob = cloudBlobBlob();
             File file = new File(getFilePath());
             blob.upload(new FileInputStream(file), file.length());
+            setUri(blob.getUri().toString());
         } catch (StorageException | IOException ex) {
             throw new GyroException(ex.getMessage());
         }

@@ -51,7 +51,7 @@ public class CloudFileDirectoryResource extends AzureResource {
     }
 
     /**
-     * The name of the cloud file directory. (Required)
+     * The name of the cloud file path. (Required)
      */
     public String getCloudFileDirectoryPath() {
         return cloudFileDirectoryPath;
@@ -61,6 +61,9 @@ public class CloudFileDirectoryResource extends AzureResource {
         this.cloudFileDirectoryPath = cloudFileDirectoryPath;
     }
 
+    /**
+     * The name of the cloud file directory. (Required)
+     */
     public String getCloudFileDirectoryName() {
         return Paths.get(getCloudFileDirectoryPath()).getFileName().toString();
     }
@@ -80,6 +83,9 @@ public class CloudFileDirectoryResource extends AzureResource {
         this.cloudFileShareName = cloudFileShareName;
     }
 
+    /**
+     * The storage account resource where the file directory will be created. (Required)
+     */
     public StorageAccountResource getStorageAccount() {
         return storageAccount;
     }
