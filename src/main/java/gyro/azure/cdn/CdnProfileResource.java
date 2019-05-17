@@ -1,7 +1,9 @@
 package gyro.azure.cdn;
 
 import gyro.azure.AzureResource;
+import gyro.core.GyroException;
 import gyro.core.resource.Resource;
+import gyro.core.resource.ResourceOutput;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceUpdatable;
 
@@ -43,6 +45,7 @@ public class CdnProfileResource extends AzureResource {
     /**
      * The id of the profile.
      */
+    @ResourceOutput
     public String getId() {
         return id;
     }
@@ -134,6 +137,9 @@ public class CdnProfileResource extends AzureResource {
             cdnProfile = withSku.withStandardVerizonSku().withTags(getTags()).create();
         } else if ("Standard_Akamai".equalsIgnoreCase(getSku())) {
             cdnProfile = withSku.withStandardAkamaiSku().withTags(getTags()).create();
+        } else {
+            throw new GyroException("Invalid sku. Valid values are Premium_Verizon, " +
+                    "Standard_Verizon, Standard_Akamai.");
         }
 
         setId(cdnProfile.id());
