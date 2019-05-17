@@ -359,7 +359,7 @@ public class CdnEndpointResource extends AzureResource {
                         .withContentTypesToCompress(getContentTypesToCompress());
             }
 
-            if (getGeoFilter() != null) {
+            if (!getGeoFilter().isEmpty()) {
                 createStandardEndpoint.withGeoFilters(toGeoFilters());
             }
 
@@ -452,7 +452,7 @@ public class CdnEndpointResource extends AzureResource {
                         .withContentTypesToCompress(getContentTypesToCompress());
             }
 
-            if (getGeoFilter() != null) {
+            if (!getGeoFilter().isEmpty()) {
                 updateStandardEndpoint.withGeoFilters(toGeoFilters());
             }
 
