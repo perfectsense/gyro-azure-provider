@@ -133,7 +133,8 @@ public class TxtRecordSetResource extends AzureResource {
             createTxtRecordSet.withMetadata(e.getKey(), e.getValue());
         }
 
-        createTxtRecordSet.attach().apply();
+        DnsZone.Update attach = createTxtRecordSet.attach();
+        attach.apply();
     }
 
     @Override
@@ -180,7 +181,8 @@ public class TxtRecordSetResource extends AzureResource {
             updateTxtRecordSet.withoutText(removeRecord);
         }
 
-        updateTxtRecordSet.parent().apply();
+        DnsZone.Update parent = updateTxtRecordSet.parent();
+        parent.apply();
     }
 
     @Override

@@ -133,7 +133,8 @@ public class PtrRecordSetResource extends AzureResource {
             createPtrRecordSet.withMetadata(e.getKey(), e.getValue());
         }
 
-        createPtrRecordSet.attach().apply();
+        DnsZone.Update attach = createPtrRecordSet.attach();
+        attach.apply();
     }
 
     @Override
@@ -180,7 +181,8 @@ public class PtrRecordSetResource extends AzureResource {
             updatePtrRecordSet.withMetadata(ele.getKey(), disc.rightValue());
         }
 
-        updatePtrRecordSet.parent().apply();
+        DnsZone.Update parent = updatePtrRecordSet.parent();
+        parent.apply();
     }
 
     @Override

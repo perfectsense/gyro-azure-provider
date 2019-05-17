@@ -182,7 +182,8 @@ public class AaaaRecordSetResource extends AzureResource {
             updateAaaaRecordSet.withMetadata(ele.getKey(), disc.rightValue());
         }
 
-        updateAaaaRecordSet.parent().apply();
+        DnsZone.Update parent = updateAaaaRecordSet.parent();
+        parent.apply();
     }
 
     @Override

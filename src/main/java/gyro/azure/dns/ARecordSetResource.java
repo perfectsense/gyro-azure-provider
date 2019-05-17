@@ -132,7 +132,8 @@ public class ARecordSetResource extends AzureResource {
             createARecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
         }
 
-        createARecordSet.attach().apply();
+        DnsZone.Update attach = createARecordSet.attach();
+        attach.apply();
     }
 
     @Override
@@ -179,7 +180,8 @@ public class ARecordSetResource extends AzureResource {
             updateARecordSet.withMetadata(ele.getKey(), disc.rightValue());
         }
 
-        updateARecordSet.parent().apply();
+        DnsZone.Update parent = updateARecordSet.parent();
+        parent.apply();
     }
 
     @Override

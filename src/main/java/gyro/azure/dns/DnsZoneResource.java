@@ -387,7 +387,9 @@ public class DnsZoneResource extends AzureResource {
             withCreate.withPublicAccess();
         }
 
-        DnsZone dnsZone = withCreate.withTags(getTags()).create();
+        withCreate.withTags(getTags());
+
+        DnsZone dnsZone = withCreate.create();
 
         setId(dnsZone.id());
     }
@@ -408,7 +410,8 @@ public class DnsZoneResource extends AzureResource {
             update.withPublicAccess();
         }
 
-        update.withTags(getTags()).apply();
+        update.withTags(getTags());
+        update.apply();
     }
 
     @Override

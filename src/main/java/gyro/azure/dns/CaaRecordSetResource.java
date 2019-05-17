@@ -145,7 +145,8 @@ public class CaaRecordSetResource extends AzureResource {
             createCaaRecordSet.withMetadata(e.getKey(), e.getValue());
         }
 
-        createCaaRecordSet.attach().apply();
+        DnsZone.Update attach = createCaaRecordSet.attach();
+        attach.apply();
     }
 
     @Override
@@ -190,7 +191,8 @@ public class CaaRecordSetResource extends AzureResource {
             updateCaaRecordSet.withoutRecord(removeRecord.getFlags(), removeRecord.getTag(), removeRecord.getValue());
         }
 
-        updateCaaRecordSet.parent().apply();
+        DnsZone.Update parent = updateCaaRecordSet.parent();
+        parent.apply();
     }
 
     @Override

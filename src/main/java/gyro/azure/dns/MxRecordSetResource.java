@@ -144,7 +144,8 @@ public class MxRecordSetResource extends AzureResource {
             createMXRecordSet.withMetadata(e.getKey(), e.getValue());
         }
 
-        createMXRecordSet.attach().apply();
+        DnsZone.Update attach = createMXRecordSet.attach();
+        attach.apply();
     }
 
     @Override
@@ -202,7 +203,8 @@ public class MxRecordSetResource extends AzureResource {
             updateMXRecordSet.withoutMailExchange(removeRecord.getExchange(), removeRecord.getPreference());
         }
 
-        updateMXRecordSet.parent().apply();
+        DnsZone.Update parent = updateMXRecordSet.parent();
+        parent.apply();
     }
 
     @Override

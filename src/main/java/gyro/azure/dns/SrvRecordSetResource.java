@@ -136,7 +136,8 @@ public class SrvRecordSetResource extends AzureResource {
             createSrvRecordSet.withMetadata(e.getKey(), e.getValue());
         }
 
-        createSrvRecordSet.attach().apply();
+        DnsZone.Update attach = createSrvRecordSet.attach();
+        attach.apply();
     }
 
     @Override
@@ -181,7 +182,8 @@ public class SrvRecordSetResource extends AzureResource {
             updateSrvRecordSet.withoutRecord(removeRecord.getTarget(), removeRecord.getPort(), removeRecord.getPriority(), removeRecord.getWeight());
         }
 
-        updateSrvRecordSet.parent().apply();
+        DnsZone.Update parent = updateSrvRecordSet.parent();
+        parent.apply();
     }
 
     @Override
