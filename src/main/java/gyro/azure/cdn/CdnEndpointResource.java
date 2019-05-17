@@ -46,9 +46,9 @@ import java.util.Set;
  *             end
  *
  *             host-header: "my.host.com"
- *             http-allowed: true
+ *             http-enabled: true
  *             http-port: 81
- *             https-allowed: true
+ *             https-enabled: true
  *             https-port: 8443
  *             name: "test-endpoint-cdn"
  *             origin-hostname: "origin.hostname.com"
@@ -69,9 +69,9 @@ public class CdnEndpointResource extends AzureResource {
     private Set<String> customDomains;
     private List<GeoFilter> geoFilter;
     private String hostHeader;
-    private Boolean httpAllowed;
+    private Boolean httpEnabled;
     private Integer httpPort;
-    private Boolean httpsAllowed;
+    private Boolean httpsEnabled;
     private Integer httpsPort;
     private String name;
     private String originHostname;
@@ -164,19 +164,19 @@ public class CdnEndpointResource extends AzureResource {
     }
 
     /**
-     * Determines whether http protocol is allowed. (Optional)
+     * Determines whether http protocol is enabled. (Optional)
      */
     @ResourceUpdatable
-    public Boolean getHttpAllowed() {
-        return httpAllowed;
+    public Boolean getHttpEnabled() {
+        return httpEnabled;
     }
 
-    public void setHttpAllowed(Boolean httpAllowed) {
-        this.httpAllowed = httpAllowed;
+    public void setHttpEnabled(Boolean httpEnabled) {
+        this.httpEnabled = httpEnabled;
     }
 
     /**
-     * The http port. Used if http port is allowed. (Conditional)
+     * The http port. Required if http protocol is enabled. (Optional)
      */
     @ResourceUpdatable
     public Integer getHttpPort() {
@@ -188,19 +188,19 @@ public class CdnEndpointResource extends AzureResource {
     }
 
     /**
-     * Determines whether https protocol is allowed. (Optional)
+     * Determines whether https protocol is enabled. (Optional)
      */
     @ResourceUpdatable
-    public Boolean getHttpsAllowed() {
-        return httpsAllowed;
+    public Boolean getHttpsEnabled() {
+        return httpsEnabled;
     }
 
-    public void setHttpsAllowed(Boolean httpsAllowed) {
-        this.httpsAllowed = httpsAllowed;
+    public void setHttpsEnabled(Boolean httpsEnabled) {
+        this.httpsEnabled = httpsEnabled;
     }
 
     /**
-     * The https port. Used if https port is allowed. (Conditional)
+     * The https port. Required if https port is allowed. (Optional)
      */
     @ResourceUpdatable
     public Integer getHttpsPort() {
@@ -275,7 +275,7 @@ public class CdnEndpointResource extends AzureResource {
     }
 
     /**
-     * The type of the endpoint. Values are Standard and Premium. (Required)
+     * The type of the endpoint. Values are ``Standard`` and ``Premium``. (Required)
      */
     public String getType() {
         return type;
@@ -300,9 +300,9 @@ public class CdnEndpointResource extends AzureResource {
         setCustomDomains(cdnEndpoint.customDomains());
         cdnEndpoint.geoFilters().forEach(geo -> getGeoFilter().add(new GeoFilter(geo)));
         setHostHeader(cdnEndpoint.originHostHeader());
-        setHttpAllowed(cdnEndpoint.isHttpAllowed());
+        setHttpEnabled(cdnEndpoint.isHttpAllowed());
         setHttpPort(cdnEndpoint.httpPort());
-        setHttpsAllowed(cdnEndpoint.isHttpsAllowed());
+        setHttpsEnabled(cdnEndpoint.isHttpsAllowed());
         setHttpsPort(cdnEndpoint.httpsPort());
         setName(cdnEndpoint.name());
         setOriginHostname(cdnEndpoint.originHostName());
@@ -328,18 +328,16 @@ public class CdnEndpointResource extends AzureResource {
                 createPremiumEndpoint.withHostHeader(getHostHeader());
             }
 
-            if (getHttpAllowed() != null && getHttpPort() != null) {
-                createPremiumEndpoint.
-                        withHttpAllowed(getHttpAllowed());
-                if (getHttpAllowed()) {
+            if (getHttpEnabled() != null && getHttpPort() != null) {
+                createPremiumEndpoint.withHttpAllowed(getHttpEnabled());
+                if (getHttpEnabled()) {
                     createPremiumEndpoint.withHttpPort(getHttpPort());
                 }
             }
 
-            if (getHttpsAllowed() != null && getHttpsPort() != null) {
-                createPremiumEndpoint
-                        .withHttpsAllowed(getHttpsAllowed());
-                if (getHttpsAllowed()) {
+            if (getHttpsEnabled() != null && getHttpsPort() != null) {
+                createPremiumEndpoint.withHttpsAllowed(getHttpsEnabled());
+                if (getHttpsEnabled()) {
                     createPremiumEndpoint.withHttpsPort(getHttpsPort());
                 }
             }
@@ -373,18 +371,16 @@ public class CdnEndpointResource extends AzureResource {
                 createStandardEndpoint.withHostHeader(getHostHeader());
             }
 
-            if (getHttpAllowed() != null && getHttpPort() != null) {
-                createStandardEndpoint.
-                        withHttpAllowed(getHttpAllowed());
-                if (getHttpAllowed()) {
+            if (getHttpEnabled() != null && getHttpPort() != null) {
+                createStandardEndpoint.withHttpAllowed(getHttpEnabled());
+                if (getHttpEnabled()) {
                     createStandardEndpoint.withHttpPort(getHttpPort());
                 }
             }
 
-            if (getHttpsAllowed() != null && getHttpsPort() != null) {
-                createStandardEndpoint
-                        .withHttpsAllowed(getHttpsAllowed());
-                if (getHttpsAllowed()) {
+            if (getHttpsEnabled() != null && getHttpsPort() != null) {
+                createStandardEndpoint.withHttpsAllowed(getHttpsEnabled());
+                if (getHttpsEnabled()) {
                     createStandardEndpoint.withHttpsPort(getHttpsPort());
                 }
             }
@@ -425,18 +421,16 @@ public class CdnEndpointResource extends AzureResource {
                 updatePremiumEndpoint.withHostHeader(getHostHeader());
             }
 
-            if (getHttpAllowed() != null && getHttpPort() != null) {
-                updatePremiumEndpoint.
-                        withHttpAllowed(getHttpAllowed());
-                if (getHttpAllowed()) {
+            if (getHttpEnabled() != null && getHttpPort() != null) {
+                updatePremiumEndpoint.withHttpAllowed(getHttpEnabled());
+                if (getHttpEnabled()) {
                     updatePremiumEndpoint.withHttpPort(getHttpPort());
                 }
             }
 
-            if (getHttpsAllowed() != null && getHttpsPort() != null) {
-                updatePremiumEndpoint
-                        .withHttpsAllowed(getHttpsAllowed());
-                if (getHttpsAllowed()) {
+            if (getHttpsEnabled() != null && getHttpsPort() != null) {
+                updatePremiumEndpoint.withHttpsAllowed(getHttpsEnabled());
+                if (getHttpsEnabled()) {
                     updatePremiumEndpoint.withHttpsPort(getHttpsPort());
                 }
             }
@@ -470,18 +464,16 @@ public class CdnEndpointResource extends AzureResource {
                 updateStandardEndpoint.withHostHeader(getHostHeader());
             }
 
-            if (getHttpAllowed() != null && getHttpPort() != null) {
-                updateStandardEndpoint.
-                        withHttpAllowed(getHttpAllowed());
-                if (getHttpAllowed()) {
+            if (getHttpEnabled() != null && getHttpPort() != null) {
+                updateStandardEndpoint.withHttpAllowed(getHttpEnabled());
+                if (getHttpEnabled()) {
                     updateStandardEndpoint.withHttpPort(getHttpPort());
                 }
             }
 
-            if (getHttpsAllowed() != null && getHttpsPort() != null) {
-                updateStandardEndpoint
-                        .withHttpsAllowed(getHttpsAllowed());
-                if (getHttpsAllowed()) {
+            if (getHttpsEnabled() != null && getHttpsPort() != null) {
+                updateStandardEndpoint.withHttpsAllowed(getHttpsEnabled());
+                if (getHttpsEnabled()) {
                     updateStandardEndpoint.withHttpsPort(getHttpsPort());
                 }
             }
