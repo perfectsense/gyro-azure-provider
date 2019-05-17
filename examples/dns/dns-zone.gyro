@@ -1,0 +1,90 @@
+azure::resource-group resource-group-dns-zone-example
+    resource-group-name: "resource-group-dns-zone-example"
+
+    tags: {
+        Name: "resource-group-dns-zone-example"
+    }
+end
+
+azure::dns-zone dns-zone-example-zones
+    name: "zones.example.com"
+    public-access: false
+    resource-group-name: $(azure::resource-group resource-group-dns-zone-example | resource-group-name)
+    tags: {
+       Name: "resource-group-dns-zone-example"
+    }
+
+    a-record-set
+        name: "arecexample"
+        dns-zone: $(azure::dns-zone dns-zone-example-zones)
+        time-to-live: "3"
+        ipv4-addresses: ["10.0.0.1"]
+    end
+
+    aaaa-record-set
+        name: "aaaarecexample"
+        ipv6-addresses: ["2001:0db8:85a3:0000:0000:8a2e:0370:7334", "2001:0db8:85a3:0000:0000:8a2e:0370:7335"]
+    end
+
+    caa-record-set
+        name: "caaexample"
+        time-to-live: "3"
+
+        caa-record
+            flags: 1
+            tag: "tag1"
+            value: "val1"
+        end
+
+        caa-record
+            flags: 2
+            tag: "tag2"
+            value: "val2"
+        end
+    end
+
+    cname-record-set
+        name: "cnamerecexample"
+        time-to-live: "5"
+        alias: "cnamerecalias"
+    end
+
+    mx-record-set
+        name: "mxrecexample"
+        time-to-live: "4"
+
+        mx-record
+            exchange: "mail.cont.com"
+            preference: 1
+        end
+
+        mx-record
+            exchange: "mail.conto.com"
+            preference: 2
+        end
+    end
+
+    ptr-record-set
+        name: "ptrrecexample"
+        target-domain-names: ["domain1.com", "domain2.com"]
+        time-to-live: "3"
+    end
+
+    srv-record-set
+        name: "srvrecexample"
+        time-to-live: "4"
+
+        srv-record
+            port: 80
+            priority: 1
+            target: "hi.com"
+            weight: 100
+        end
+    end
+
+    txt-record-set
+        name: "txtrecexample"
+        txt-records: ["record1", "record2"]
+        time-to-live: "3"
+    end
+end
