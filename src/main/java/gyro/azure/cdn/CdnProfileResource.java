@@ -143,7 +143,8 @@ public class CdnProfileResource extends AzureResource {
     public void update(Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
-        client.cdnProfiles().getById(getId()).update().withTags(getTags()).apply();
+        CdnProfile.Update update = client.cdnProfiles().getById(getId()).update().withTags(getTags());
+        update.apply();
     }
 
     @Override

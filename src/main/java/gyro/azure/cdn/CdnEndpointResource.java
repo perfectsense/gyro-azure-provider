@@ -321,8 +321,7 @@ public class CdnEndpointResource extends AzureResource {
 
         if (TYPE_PREMIUM.equalsIgnoreCase(getType())) {
             WithPremiumAttach<CdnProfile.Update> createPremiumEndpoint =
-                    cdnProfile.update()
-                    .defineNewPremiumEndpoint(getName(), getOriginHostname());
+                    cdnProfile.update().defineNewPremiumEndpoint(getName(), getOriginHostname());
 
             if (getHostHeader() != null) {
                 createPremiumEndpoint.withHostHeader(getHostHeader());
@@ -350,16 +349,15 @@ public class CdnEndpointResource extends AzureResource {
                 createPremiumEndpoint.withCustomDomain(customDomain);
             }
 
-            createPremiumEndpoint.attach().apply();
+            CdnProfile.Update attach = createPremiumEndpoint.attach();
+            attach.apply();
 
         } else if (TYPE_STANDARD.equalsIgnoreCase(getType())) {
             WithStandardAttach<CdnProfile.Update> createStandardEndpoint =
-                    cdnProfile.update()
-                    .defineNewEndpoint(getName(), getOriginHostname());
+                    cdnProfile.update().defineNewEndpoint(getName(), getOriginHostname());
 
             if (getCompressionEnabled() != null && getContentTypesToCompress() != null) {
-                createStandardEndpoint
-                        .withCompressionEnabled(getCompressionEnabled())
+                createStandardEndpoint.withCompressionEnabled(getCompressionEnabled())
                         .withContentTypesToCompress(getContentTypesToCompress());
             }
 
@@ -399,7 +397,8 @@ public class CdnEndpointResource extends AzureResource {
                 createStandardEndpoint.withCustomDomain(customDomain);
             }
 
-            createStandardEndpoint.attach().apply();
+            CdnProfile.Update attach = createStandardEndpoint.attach();
+            attach.apply();
 
         } else {
             throw new GyroException("Invalid endpoint type. Valid values are Premium and Standard");
@@ -414,8 +413,7 @@ public class CdnEndpointResource extends AzureResource {
 
         if (TYPE_PREMIUM.equalsIgnoreCase(getType())) {
             CdnEndpoint.UpdatePremiumEndpoint updatePremiumEndpoint =
-                    cdnProfile
-                    .update().updatePremiumEndpoint(getName());
+                    cdnProfile.update().updatePremiumEndpoint(getName());
 
             if (getHostHeader() != null) {
                 updatePremiumEndpoint.withHostHeader(getHostHeader());
@@ -443,7 +441,8 @@ public class CdnEndpointResource extends AzureResource {
                 updatePremiumEndpoint.withCustomDomain(customDomain);
             }
 
-            updatePremiumEndpoint.parent().apply();
+            CdnProfile.Update parent = updatePremiumEndpoint.parent();
+            parent.apply();
 
         } else if (TYPE_STANDARD.equalsIgnoreCase(getType())) {
             CdnEndpoint.UpdateStandardEndpoint updateStandardEndpoint =
@@ -451,8 +450,7 @@ public class CdnEndpointResource extends AzureResource {
                     .update().updateEndpoint(getName());
 
             if (getCompressionEnabled() != null && getContentTypesToCompress() != null) {
-                updateStandardEndpoint
-                        .withCompressionEnabled(getCompressionEnabled())
+                updateStandardEndpoint.withCompressionEnabled(getCompressionEnabled())
                         .withContentTypesToCompress(getContentTypesToCompress());
             }
 
@@ -496,7 +494,8 @@ public class CdnEndpointResource extends AzureResource {
                 updateStandardEndpoint.withCustomDomain(customDomain);
             }
 
-            updateStandardEndpoint.parent().apply();
+            CdnProfile.Update parent = updateStandardEndpoint.parent();
+            parent.apply();
         }
     }
 
@@ -506,7 +505,8 @@ public class CdnEndpointResource extends AzureResource {
 
         CdnProfile cdnProfile = client.cdnProfiles().getById(getCdnProfile().getId());
 
-        cdnProfile.update().withoutEndpoint(getName()).apply();
+        CdnProfile.Update update = cdnProfile.update().withoutEndpoint(getName());
+        update.apply();
     }
 
     @Override
