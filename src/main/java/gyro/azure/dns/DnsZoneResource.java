@@ -151,7 +151,6 @@ public class DnsZoneResource extends AzureResource {
     /**
      * Determines if the dns zone is public or private. Defaults to public (true). (Optional)
      */
-    @ResourceUpdatable
     public Boolean getPublicAccess() {
         if (publicAccess == null) {
             publicAccess = true;
@@ -399,16 +398,6 @@ public class DnsZoneResource extends AzureResource {
         Azure client = createClient();
 
         DnsZone.Update update = getDnsZone(client);
-
-        if (!getPublicAccess()) {
-            if (getRegistrationVirtualNetworkIds() != null && getResolutionVirtualNetworkIds() != null) {
-                update.withPrivateAccess(getRegistrationVirtualNetworkIds(), getResolutionVirtualNetworkIds());
-            } else {
-                update.withPrivateAccess();
-            }
-        } else {
-            update.withPublicAccess();
-        }
 
         update.withTags(getTags());
         update.apply();
