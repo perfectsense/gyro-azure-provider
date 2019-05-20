@@ -3,6 +3,7 @@ package gyro.azure.dns;
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceUpdatable;
 
 import com.google.common.collect.MapDifference;
@@ -28,9 +29,10 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *     caa-record-set
+ *     azure::caa-record-set caa-record-set
  *         name: "caaexample"
  *         time-to-live: "3"
+ *         dns-zone-id: $(azure::dns-zone dns-zone-example-zones | id)
  *
  *         caa-record
  *             flags: 1
@@ -45,21 +47,14 @@ import java.util.Set;
  *         end
  *     end
  */
+@ResourceType("caa-record-set")
 public class CaaRecordSetResource extends AzureResource {
 
     private List<CaaRecord> caaRecord;
+    private String dnsZoneId;
     private Map<String, String> metadata;
     private String name;
     private String timeToLive;
-
-    public CaaRecordSetResource() {}
-
-    public CaaRecordSetResource(CaaRecordSet caaRecordSet) {
-        caaRecordSet.records().forEach(record -> getCaaRecord().add(new CaaRecord(record)));
-        setMetadata(caaRecordSet.metadata());
-        setName(caaRecordSet.name());
-        setTimeToLive(Long.toString(caaRecordSet.timeToLive()));
-    }
 
     /**
      * The Caa records associated with the record. (Required)
@@ -75,6 +70,17 @@ public class CaaRecordSetResource extends AzureResource {
 
     public void setCaaRecord(List<CaaRecord> caaRecord) {
         this.caaRecord = caaRecord;
+    }
+
+    /**
+     * The dns zone where the record resides. (Required)
+     */
+    public String getDnsZoneId() {
+        return dnsZoneId;
+    }
+
+    public void setDnsZoneId(String dnsZoneId) {
+        this.dnsZoneId = dnsZoneId;
     }
 
     /**
@@ -118,7 +124,17 @@ public class CaaRecordSetResource extends AzureResource {
 
     @Override
     public boolean refresh() {
-        return false;
+        Azure client = createClient();
+
+        CaaRecordSet caaRecordSet = client.dnsZones().getById(getDnsZoneId()).caaRecordSets().getByName(getName());
+
+        getCaaRecord().clear();
+        caaRecordSet.records().forEach(record -> getCaaRecord().add(new CaaRecord(record)));
+        setMetadata(caaRecordSet.metadata());
+        setName(caaRecordSet.name());
+        setTimeToLive(Long.toString(caaRecordSet.timeToLive()));
+
+        return true;
     }
 
     @Override
@@ -130,7 +146,7 @@ public class CaaRecordSetResource extends AzureResource {
         Azure client = createClient();
 
         CaaRecordSetBlank<DnsZone.Update> defineCaaRecordSet =
-                ((DnsZoneResource) parentResource()).getDnsZone(client).defineCaaRecordSet(getName());
+                client.dnsZones().getById(getDnsZoneId()).update().defineCaaRecordSet(getName());
 
         WithCaaRecordEntryOrAttachable<DnsZone.Update> createCaaRecordSet = null;
         for (CaaRecord caaRecord : getCaaRecord()) {
@@ -154,7 +170,7 @@ public class CaaRecordSetResource extends AzureResource {
         Azure client = createClient();
 
         DnsRecordSet.UpdateCaaRecordSet updateCaaRecordSet =
-                ((DnsZoneResource) parentResource()).getDnsZone(client).updateCaaRecordSet(getName());
+                client.dnsZones().getById(getDnsZoneId()).update().updateCaaRecordSet(getName());
 
         if (getTimeToLive() != null) {
             updateCaaRecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
@@ -199,17 +215,12 @@ public class CaaRecordSetResource extends AzureResource {
     public void delete() {
         Azure client = createClient();
 
-        ((DnsZoneResource) parentResource()).getDnsZone(client).withoutCaaRecordSet(getName()).apply();
+        client.dnsZones().getById(getDnsZoneId()).update().withoutCaaRecordSet(getName()).apply();
     }
 
     @Override
     public String toDisplayString() {
         return "caa record set " + getName();
-    }
-
-    @Override
-    public String primaryKey() {
-        return name;
     }
 
     private List<CaaRecord> comparator(List<CaaRecord> original, List<CaaRecord> compareTo) {

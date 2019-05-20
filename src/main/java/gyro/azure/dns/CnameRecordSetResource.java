@@ -3,6 +3,7 @@ package gyro.azure.dns;
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceUpdatable;
 
 import com.google.common.collect.MapDifference;
@@ -25,27 +26,21 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *     cname-record-set
- *         name: "cname-rec-example"
+ *     azure::cname-record-set
+ *         name: "cnamerecexample"
  *         time-to-live: "5"
- *         alias: "cname-rec-alias"
+ *         alias: "cnamerecalias"
+ *         dns-zone-id: $(azure::dns-zone dns-zone-example-zones | id)
  *     end
  */
+@ResourceType("cname-record-set")
 public class CnameRecordSetResource extends AzureResource {
 
     private String alias;
+    private String dnsZoneId;
     private Map<String, String> metadata;
     private String name;
     private String timeToLive;
-
-    public CnameRecordSetResource() {}
-
-    public CnameRecordSetResource(CNameRecordSet cNameRecordSet) {
-        setAlias(cNameRecordSet.canonicalName());
-        setMetadata(cNameRecordSet.metadata());
-        setName(cNameRecordSet.name());
-        setTimeToLive(Long.toString(cNameRecordSet.timeToLive()));
-    }
 
     /**
      * The alias for the record. (Required)
@@ -57,6 +52,17 @@ public class CnameRecordSetResource extends AzureResource {
 
     public void setAlias(String alias) {
         this.alias = alias;
+    }
+
+    /**
+     * The dns zone where the record resides. (Required)
+     */
+    public String getDnsZoneId() {
+        return dnsZoneId;
+    }
+
+    public void setDnsZoneId(String dnsZoneId) {
+        this.dnsZoneId = dnsZoneId;
     }
 
     /**
@@ -100,7 +106,20 @@ public class CnameRecordSetResource extends AzureResource {
 
     @Override
     public boolean refresh() {
-        return false;
+        Azure client = createClient();
+
+        CNameRecordSet cnameRecordSet = client.dnsZones().getById(getDnsZoneId()).cNameRecordSets().getByName(getName());
+
+        if (cnameRecordSet == null) {
+            return false;
+        }
+
+        setAlias(cnameRecordSet.canonicalName());
+        setMetadata(cnameRecordSet.metadata());
+        setName(cnameRecordSet.name());
+        setTimeToLive(Long.toString(cnameRecordSet.timeToLive()));
+
+        return true;
     }
 
     @Override
@@ -112,8 +131,8 @@ public class CnameRecordSetResource extends AzureResource {
         Azure client = createClient();
 
         WithCNameRecordSetAttachable<DnsZone.Update> createCNameRecordSet =
-                ((DnsZoneResource) parentResource()).getDnsZone(client)
-                        .defineCNameRecordSet(getName()).withAlias(getAlias());
+                client.dnsZones().getById(getDnsZoneId()).update().
+                        defineCNameRecordSet(getName()).withAlias(getAlias());
 
         if (getTimeToLive() != null) {
             createCNameRecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
@@ -132,7 +151,7 @@ public class CnameRecordSetResource extends AzureResource {
         Azure client = createClient();
 
         DnsRecordSet.UpdateCNameRecordSet updateCNameRecordSet =
-                ((DnsZoneResource) parentResource()).getDnsZone(client).updateCNameRecordSet(getName());
+                client.dnsZones().getById(getDnsZoneId()).update().updateCNameRecordSet(getName());
 
         if (getAlias() != null) {
             updateCNameRecordSet.withAlias(getAlias());
@@ -169,16 +188,11 @@ public class CnameRecordSetResource extends AzureResource {
     public void delete() {
         Azure client = createClient();
 
-        ((DnsZoneResource) parentResource()).getDnsZone(client).withoutCaaRecordSet(getName()).apply();
+        client.dnsZones().getById(getDnsZoneId()).update().withoutCaaRecordSet(getName()).apply();
     }
 
     @Override
     public String toDisplayString() {
         return "cname record set " + getName();
-    }
-
-    @Override
-    public String primaryKey() {
-        return String.format("%s", getName());
     }
 }

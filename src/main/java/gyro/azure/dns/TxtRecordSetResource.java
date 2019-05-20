@@ -3,6 +3,7 @@ package gyro.azure.dns;
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceUpdatable;
 
 import com.google.common.collect.MapDifference;
@@ -27,26 +28,31 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *     txt-record-set
- *         name: "txtexample"
+ *     azure::txt-record-set txt-record-set
+ *         name: "txtrecexample"
  *         txt-records: ["record1", "record2"]
  *         time-to-live: "3"
+ *         dns-zone-id: $(azure::dns-zone dns-zone-example-zones | id)
  *     end
  */
+@ResourceType("txt-record-set")
 public class TxtRecordSetResource extends AzureResource {
 
+    private String dnsZoneId;
     private Map<String, String> metadata;
     private String name;
     private List<String> txtRecords;
     private String timeToLive;
 
-    public TxtRecordSetResource() {}
+    /**
+     * The dns zone where the record resides. (Required)
+     */
+    public String getDnsZoneId() {
+        return dnsZoneId;
+    }
 
-    public TxtRecordSetResource(TxtRecordSet txtRecordSet) {
-        txtRecordSet.records().forEach(rec -> getTxtRecords().add(rec.value().get(0)));
-        setMetadata(txtRecordSet.metadata());
-        setName(txtRecordSet.name());
-        setTimeToLive(Long.toString(txtRecordSet.timeToLive()));
+    public void setDnsZoneId(String dnsZoneId) {
+        this.dnsZoneId = dnsZoneId;
     }
 
     /**
@@ -106,7 +112,21 @@ public class TxtRecordSetResource extends AzureResource {
 
     @Override
     public boolean refresh() {
-        return false;
+        Azure client = createClient();
+
+        TxtRecordSet txtRecordSet = client.dnsZones().getById(getDnsZoneId()).txtRecordSets().getByName(getName());
+
+        if (txtRecordSet == null) {
+            return false;
+        }
+
+        getTxtRecords().clear();
+        txtRecordSet.records().forEach(rec -> getTxtRecords().add(rec.value().get(0)));
+        setMetadata(txtRecordSet.metadata());
+        setName(txtRecordSet.name());
+        setTimeToLive(Long.toString(txtRecordSet.timeToLive()));
+
+        return true;
     }
 
     @Override
@@ -118,7 +138,7 @@ public class TxtRecordSetResource extends AzureResource {
         Azure client = createClient();
 
         DnsRecordSet.UpdateDefinitionStages.TxtRecordSetBlank<DnsZone.Update> defineTxtRecordSet =
-                ((DnsZoneResource) parentResource()).getDnsZone(client).defineTxtRecordSet(getName());
+                client.dnsZones().getById(getDnsZoneId()).update().defineTxtRecordSet(getName());
 
         WithTxtRecordTextValueOrAttachable<DnsZone.Update> createTxtRecordSet = null;
         for (String txtRecord : getTxtRecords()) {
@@ -142,7 +162,7 @@ public class TxtRecordSetResource extends AzureResource {
         Azure client = createClient();
 
         DnsRecordSet.UpdateTxtRecordSet updateTxtRecordSet =
-                ((DnsZoneResource) parentResource()).getDnsZone(client).updateTxtRecordSet(getName());
+                client.dnsZones().getById(getDnsZoneId()).update().updateTxtRecordSet(getName());
 
         if (getTimeToLive() != null) {
             updateTxtRecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
@@ -189,16 +209,11 @@ public class TxtRecordSetResource extends AzureResource {
     public void delete() {
         Azure client = createClient();
 
-        ((DnsZoneResource) parentResource()).getDnsZone(client).withoutTxtRecordSet(getName()).apply();
+        client.dnsZones().getById(getDnsZoneId()).update().withoutTxtRecordSet(getName()).apply();
     }
 
     @Override
     public String toDisplayString() {
         return "txt record set " + getName();
-    }
-
-    @Override
-    public String primaryKey() {
-        return name;
     }
 }

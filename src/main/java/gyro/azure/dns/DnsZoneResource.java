@@ -39,102 +39,18 @@ import java.util.Set;
  *         tags: {
  *            Name: "resource-group-dns-zone-example"
  *         }
- *
- *         a-record-set
- *             name: "arecexample"
- *             time-to-live: "3"
- *             ipv4-addresses: ["10.0.0.1"]
- *         end
- *
- *         aaaa-record-set
- *             name: "aaaarecexample"
- *             ipv6-addresses: ["2001:0db8:85a3:0000:0000:8a2e:0370:7334", "2001:0db8:85a3:0000:0000:8a2e:0370:7335"]
- *         end
  *     end
  */
 @ResourceType("dns-zone")
 public class DnsZoneResource extends AzureResource {
 
-    private List<ARecordSetResource> aRecordSet;
-    private List<AaaaRecordSetResource> aaaaRecordSet;
-    private List<CaaRecordSetResource> caaRecordSet;
-    private List<CnameRecordSetResource> cnameRecordSet;
-    private DnsZone.Update dnsZone;
     private String id;
     private Boolean publicAccess;
-    private List<MxRecordSetResource> mxRecordSet;
     private String name;
-    private List<PtrRecordSetResource> ptrRecordSet;
     private List<String> registrationVirtualNetworkIds;
     private List<String> resolutionVirtualNetworkIds;
     private String resourceGroupName;
-    private List<SrvRecordSetResource> srvRecordSet;
     private Map<String, String> tags;
-    private List<TxtRecordSetResource> txtRecordSet;
-
-    /**
-     * The list of a record sets. (Optional)
-     */
-    @ResourceUpdatable
-    public List<ARecordSetResource> getaRecordSet() {
-        if (aRecordSet == null) {
-            aRecordSet = new ArrayList<>();
-        }
-
-        return aRecordSet;
-    }
-
-    public void setaRecordSet(List<ARecordSetResource> aRecordSet) {
-        this.aRecordSet = aRecordSet;
-    }
-
-    /**
-     * The list of aaaa record sets. (Optional)
-     */
-    @ResourceUpdatable
-    public List<AaaaRecordSetResource> getAaaaRecordSet() {
-        if (aaaaRecordSet == null) {
-            aaaaRecordSet = new ArrayList<>();
-        }
-
-        return aaaaRecordSet;
-    }
-
-    public void setAaaaRecordSet(List<AaaaRecordSetResource> aaaaRecordSet) {
-        this.aaaaRecordSet = aaaaRecordSet;
-    }
-
-    /**
-     * The list of caa record sets. (Optional)
-     */
-    @ResourceUpdatable
-    public List<CaaRecordSetResource> getCaaRecordSet() {
-        if (caaRecordSet == null) {
-            caaRecordSet = new ArrayList<>();
-        }
-
-        return caaRecordSet;
-    }
-
-    public void setCaaRecordSet(List<CaaRecordSetResource> caaRecordSet) {
-        this.caaRecordSet = caaRecordSet;
-    }
-
-    /**
-     * The list of cname record sets. (Optional)
-     */
-    @ResourceUpdatable
-    public List<CnameRecordSetResource> getCnameRecordSet() {
-        if (cnameRecordSet == null) {
-            cnameRecordSet = new ArrayList<>();
-        }
-
-        return cnameRecordSet;
-    }
-
-    public void setCnameRecordSet(List<CnameRecordSetResource> cnameRecordSet) {
-        this.cnameRecordSet = cnameRecordSet;
-    }
 
     /**
      * The id of the dns zone.
@@ -164,22 +80,6 @@ public class DnsZoneResource extends AzureResource {
     }
 
     /**
-     * The list of mx record sets. (Optional)
-     */
-    @ResourceUpdatable
-    public List<MxRecordSetResource> getMxRecordSet() {
-        if (mxRecordSet == null) {
-            mxRecordSet = new ArrayList<>();
-        }
-
-        return mxRecordSet;
-    }
-
-    public void setMxRecordSet(List<MxRecordSetResource> mxRecordSet) {
-        this.mxRecordSet = mxRecordSet;
-    }
-
-    /**
      * The name of the dns zone. (Required)
      */
     public String getName() {
@@ -188,22 +88,6 @@ public class DnsZoneResource extends AzureResource {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    /**
-     * The list of ptr record sets. (Optional)
-     */
-    @ResourceUpdatable
-    public List<PtrRecordSetResource> getPtrRecordSet() {
-        if (ptrRecordSet == null) {
-            ptrRecordSet = new ArrayList<>();
-        }
-
-        return ptrRecordSet;
-    }
-
-    public void setPtrRecordSet(List<PtrRecordSetResource> ptrRecordSet) {
-        this.ptrRecordSet = ptrRecordSet;
     }
 
     /**
@@ -252,22 +136,6 @@ public class DnsZoneResource extends AzureResource {
     }
 
     /**
-     * The list of srv record sets. (Optional)
-     */
-    @ResourceUpdatable
-    public List<SrvRecordSetResource> getSrvRecordSet() {
-        if (srvRecordSet == null) {
-            srvRecordSet = new ArrayList<>();
-        }
-
-        return srvRecordSet;
-    }
-
-    public void setSrvRecordSet(List<SrvRecordSetResource> srvRecordSet) {
-        this.srvRecordSet = srvRecordSet;
-    }
-
-    /**
      * The tags associated with the dns zone. (Optional)
      */
     @ResourceUpdatable
@@ -283,22 +151,6 @@ public class DnsZoneResource extends AzureResource {
         this.tags = tags;
     }
 
-    /**
-     * The list of txt record sets. (Optional)
-     */
-    @ResourceUpdatable
-    public List<TxtRecordSetResource> getTxtRecordSet() {
-        if (txtRecordSet == null) {
-            txtRecordSet = new ArrayList<>();
-        }
-
-        return txtRecordSet;
-    }
-
-    public void setTxtRecordSet(List<TxtRecordSetResource> txtRecordSet) {
-        this.txtRecordSet = txtRecordSet;
-    }
-
     @Override
     public boolean refresh() {
         Azure client = createClient();
@@ -307,54 +159,6 @@ public class DnsZoneResource extends AzureResource {
 
         if (dnsZone == null) {
             return false;
-        }
-
-        getaRecordSet().clear();
-        for (ARecordSet aRecordSet : dnsZone.aRecordSets().list()) {
-            ARecordSetResource aRecordSetResource = new ARecordSetResource(aRecordSet);
-            getaRecordSet().add(aRecordSetResource);
-        }
-
-        getAaaaRecordSet().clear();
-        for (AaaaRecordSet aaaaRecordSet : dnsZone.aaaaRecordSets().list()) {
-            AaaaRecordSetResource aaaaRecordSetResource = new AaaaRecordSetResource(aaaaRecordSet);
-            getAaaaRecordSet().add(aaaaRecordSetResource);
-        }
-
-        getCaaRecordSet().clear();
-        for (CaaRecordSet caaRecordSet : dnsZone.caaRecordSets().list()) {
-            CaaRecordSetResource caaRecordSetResource = new CaaRecordSetResource(caaRecordSet);
-            getCaaRecordSet().add(caaRecordSetResource);
-        }
-
-        getCnameRecordSet().clear();
-        for (CNameRecordSet cNameRecordSet : dnsZone.cNameRecordSets().list()) {
-            CnameRecordSetResource cnameRecordSetResource = new CnameRecordSetResource(cNameRecordSet);
-            getCnameRecordSet().add(cnameRecordSetResource);
-        }
-
-        getMxRecordSet().clear();
-        for (MXRecordSet mxRecordSet : dnsZone.mxRecordSets().list()) {
-            MxRecordSetResource mxRecordSetResource = new MxRecordSetResource(mxRecordSet);
-            getMxRecordSet().add(mxRecordSetResource);
-        }
-
-        getPtrRecordSet().clear();
-        for (PtrRecordSet ptrRecordSet : dnsZone.ptrRecordSets().list()) {
-            PtrRecordSetResource ptrRecordSetResource = new PtrRecordSetResource(ptrRecordSet);
-            getPtrRecordSet().add(ptrRecordSetResource);
-        }
-
-        getSrvRecordSet().clear();
-        for (SrvRecordSet srvRecordSet : dnsZone.srvRecordSets().list()) {
-            SrvRecordSetResource srvRecordSetResource = new SrvRecordSetResource(srvRecordSet);
-            getSrvRecordSet().add(srvRecordSetResource);
-        }
-
-        getTxtRecordSet().clear();
-        for (TxtRecordSet txtRecordSet : dnsZone.txtRecordSets().list()) {
-            TxtRecordSetResource txtRecordSetResource = new TxtRecordSetResource(txtRecordSet);
-            getTxtRecordSet().add(txtRecordSetResource);
         }
 
         setId(dnsZone.id());
@@ -397,7 +201,7 @@ public class DnsZoneResource extends AzureResource {
     public void update(Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
-        DnsZone.Update update = getDnsZone(client);
+        DnsZone.Update update = client.dnsZones().getById(getId()).update();
 
         update.withTags(getTags());
         update.apply();
@@ -413,13 +217,5 @@ public class DnsZoneResource extends AzureResource {
     @Override
     public String toDisplayString() {
         return "dns zone " + getName();
-    }
-
-    public DnsZone.Update getDnsZone(Azure client) {
-        if (dnsZone == null) {
-            dnsZone = client.dnsZones().getByResourceGroup(getResourceGroupName(), getName()).update();
-        }
-
-        return dnsZone;
     }
 }

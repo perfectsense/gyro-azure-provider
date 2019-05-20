@@ -3,6 +3,7 @@ package gyro.azure.dns;
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
+import gyro.core.resource.ResourceType;
 import gyro.core.resource.ResourceUpdatable;
 
 import com.google.common.collect.MapDifference;
@@ -29,24 +30,30 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *     aaaa-record-set
+ *     azure::aaaa-record-set aaaa-record-set
+ *         dns-zone-id: $(azure::dns-zone dns-zone-example-zones | id)
  *         name: "aaaarecexample"
  *         ipv6-addresses: ["2001:0db8:85a3:0000:0000:8a2e:0370:7334", "2001:0db8:85a3:0000:0000:8a2e:0370:7335"]
  *     end
  */
+@ResourceType("aaaa-record-set")
 public class AaaaRecordSetResource extends AzureResource {
+
+    private String dnsZoneId;
     private List<String> ipv6Addresses;
     private Map<String, String> metadata;
     private String name;
     private String timeToLive;
 
-    public AaaaRecordSetResource() {}
+    /**
+     * The dns zone where the record resides. (Required)
+     */
+    public String getDnsZoneId() {
+        return dnsZoneId;
+    }
 
-    public AaaaRecordSetResource (AaaaRecordSet aaaaRecordSet) {
-        setIpv6Addresses(aaaaRecordSet.ipv6Addresses());
-        setMetadata(aaaaRecordSet.metadata());
-        setName(aaaaRecordSet.name());
-        setTimeToLive(Long.toString(aaaaRecordSet.timeToLive()));
+    public void setDnsZoneId(String dnsZoneId) {
+        this.dnsZoneId = dnsZoneId;
     }
 
     /**
@@ -107,7 +114,21 @@ public class AaaaRecordSetResource extends AzureResource {
 
     @Override
     public boolean refresh() {
-        return false;
+        Azure client = createClient();
+
+        AaaaRecordSet aaaaRecordSet = client.dnsZones().getById(getDnsZoneId()).aaaaRecordSets().getByName(getName());
+
+        if (aaaaRecordSet == null) {
+            return false;
+        }
+
+        getIpv6Addresses().clear();
+        setIpv6Addresses(aaaaRecordSet.ipv6Addresses());
+        setMetadata(aaaaRecordSet.metadata());
+        setName(aaaaRecordSet.name());
+        setTimeToLive(Long.toString(aaaaRecordSet.timeToLive()));
+
+        return true;
     }
 
     @Override
@@ -119,7 +140,7 @@ public class AaaaRecordSetResource extends AzureResource {
         Azure client = createClient();
 
         AaaaRecordSetBlank<DnsZone.Update> defineAaaaRecordSet =
-                ((DnsZoneResource) parentResource()).getDnsZone(client).defineAaaaRecordSet(getName());
+                client.dnsZones().getById(getDnsZoneId()).update().defineAaaaRecordSet(getName());
 
         WithAaaaRecordIPv6AddressOrAttachable<DnsZone.Update> createAaaaRecordSet = null;
         for (String ip : getIpv6Addresses()) {
@@ -143,7 +164,7 @@ public class AaaaRecordSetResource extends AzureResource {
         Azure client = createClient();
 
         DnsRecordSet.UpdateAaaaRecordSet updateAaaaRecordSet =
-                ((DnsZoneResource) parentResource()).getDnsZone(client).updateAaaaRecordSet(getName());
+                client.dnsZones().getById(getDnsZoneId()).update().updateAaaaRecordSet(getName());
 
         if (getTimeToLive() != null) {
             updateAaaaRecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
@@ -190,17 +211,12 @@ public class AaaaRecordSetResource extends AzureResource {
     public void delete() {
         Azure client = createClient();
 
-        ((DnsZoneResource) parentResource()).getDnsZone(client).withoutAaaaRecordSet(getName()).apply();
+        client.dnsZones().getById(getDnsZoneId()).update().withoutAaaaRecordSet(getName()).apply();
     }
 
     @Override
     public String toDisplayString() {
         return "aaaa record set " + getName();
-    }
-
-    @Override
-    public String primaryKey() {
-        return name;
     }
 
     private List<String> expandIps(List<String> addresses) {
