@@ -204,13 +204,13 @@ public class AaaaRecordSetResource extends AzureResource {
     }
 
     private List<String> expandIps(List<String> addresses) {
-        List<String> results = new ArrayList<>();
+        List<String> expandedIps = new ArrayList<>();
 
         for (String ip : addresses) {
-            adjustIp(ip);
+            expandedIps.add(adjustIp(ip));
         }
 
-        return results;
+        return expandedIps;
     }
 
     private String adjustIp(String ip) {
@@ -218,23 +218,24 @@ public class AaaaRecordSetResource extends AzureResource {
         String [] splitDouble = ip.split("::");
 
         if (splitDouble.length == 1) {
-            return expandSegments(expandedIp, splitDouble[0].split(":")).toString();
+            expandedIp = expandSegments(expandedIp, splitDouble[0].split(":"));
+        } else {
+
+            String[] firstHalf = splitDouble[0].split(":");
+            String[] secondHalf = splitDouble[1].split(":");
+
+            // take the first half and format
+            expandedIp = expandSegments(expandedIp, firstHalf);
+
+            //add the zeros to the place the double colon was found
+            int addZeros = 8 - firstHalf.length - secondHalf.length;
+            for (int i = 0; i < addZeros; i++) {
+                expandedIp.append("0000");
+            }
+
+            // take the second half and format
+            expandedIp = expandSegments(expandedIp, secondHalf);
         }
-
-        String[] firstHalf = splitDouble[0].split(":");
-        String[] secondHalf = splitDouble[1].split(":");
-
-        // take the first half and format
-        expandedIp = expandSegments(expandedIp, firstHalf);
-
-        //add the zeros to the place the double colon was found
-        int addZeros = 8 - firstHalf.length - secondHalf.length;
-        for (int i  = 0; i < addZeros ; i++) {
-            expandedIp.append("0000");
-        }
-
-        // take the second half and format
-        expandedIp = expandSegments(expandedIp, secondHalf);
 
         int count = 0, offset = 4;
         while (count < 7) {
