@@ -58,7 +58,7 @@ public class AaaaRecordSetResource extends AzureResource {
             ipv6Addresses = new ArrayList<>();
         }
 
-        ipv6Addresses = addLeadingZeros(ipv6Addresses);
+        ipv6Addresses = expandIps(ipv6Addresses);
         return ipv6Addresses;
     }
 
@@ -113,7 +113,7 @@ public class AaaaRecordSetResource extends AzureResource {
     @Override
     public void create() {
         if (getIpv6Addresses().isEmpty()) {
-            throw new GyroException("At least one ipv4 address must be provided.");
+            throw new GyroException("At least one ipv6 address must be provided.");
         }
 
         Azure client = createClient();
@@ -203,14 +203,74 @@ public class AaaaRecordSetResource extends AzureResource {
         return name;
     }
 
-    private List<String> addLeadingZeros(List<String> addresses) {
+    private List<String> expandIps(List<String> addresses) {
         List<String> results = new ArrayList<>();
 
         for (String ip : addresses) {
-            IPAddressString addressString = new IPAddressString(ip);
-            results.add(addressString.getAddress().toFullString());
+            adjustIp(ip);
         }
 
         return results;
+    }
+
+    private String adjustIp(String ip) {
+        StringBuilder expandedIp = new StringBuilder();
+        String [] splitDouble = ip.split("::");
+
+        if (splitDouble.length == 1) {
+            return expandSegments(expandedIp, splitDouble[0].split(":")).toString();
+        }
+
+        String[] firstHalf = splitDouble[0].split(":");
+        String[] secondHalf = splitDouble[1].split(":");
+
+        // take the first half and format
+        expandedIp = expandSegments(expandedIp, firstHalf);
+
+        //add the zeros to the place the double colon was found
+        int addZeros = 8 - firstHalf.length - secondHalf.length;
+        for (int i  = 0; i < addZeros ; i++) {
+            expandedIp.append("0000");
+        }
+
+        // take the second half and format
+        expandedIp = expandSegments(expandedIp, secondHalf);
+
+        int count = 0, offset = 4;
+        while (count < 7) {
+            expandedIp.insert(offset, ":");
+            count++;
+            offset+=5;
+        }
+
+        return expandedIp.toString();
+    }
+
+
+
+    private StringBuilder expandSegments(StringBuilder builder, String[] segments){
+        for (String first : segments) {
+            if (first.length() < 4) {
+                builder.append(addLeadingZeros(first));
+            } else {
+                builder.append(first);
+            }
+        }
+
+        return builder;
+    }
+
+    private String addLeadingZeros(String bitBlock) {
+        StringBuilder zeros = new StringBuilder();
+
+        int offset = 4 - bitBlock.length();
+
+        for (int i = 0; i < offset; i++) {
+            zeros.insert(0, "0");
+        }
+
+        zeros.append(bitBlock);
+
+        return zeros.toString();
     }
 }
