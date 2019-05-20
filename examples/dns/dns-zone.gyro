@@ -13,77 +13,85 @@ azure::dns-zone dns-zone-example-zones
     tags: {
        Name: "resource-group-dns-zone-example"
     }
+end
 
-    a-record-set
-        name: "arecexample"
-        time-to-live: "3"
-        ipv4-addresses: ["10.0.0.1"]
+azure::aaaa-record-set aaaa-record-set
+    dns-zone-id: $(azure::dns-zone dns-zone-example-zones | id)
+    name: "aaaarecexample"
+    ipv6-addresses: ["2001:0db8:85a3:0000:0000:8a2e:0370:7334", "2001:0db8:85a3:0000:0000:8a2e:0370:7335"]
+end
+
+azure::a-record-set a-record-set
+    dns-zone-id: $(azure::dns-zone dns-zone-example-zones | id)
+    name: "arecexample"
+    time-to-live: "3"
+    ipv4-addresses: ["10.0.0.1"]
+end
+
+azure::caa-record-set caa-record-set
+    name: "caaexample"
+    time-to-live: "3"
+    dns-zone-id: $(azure::dns-zone dns-zone-example-zones | id)
+
+    caa-record
+        flags: 1
+        tag: "tag1"
+        value: "val1"
     end
 
-    aaaa-record-set
-        name: "aaaarecexample"
-        ipv6-addresses: ["2001:0db8:85a3:0000:0000:8a2e:0370:7334", "2001:0db8:85a3:0000:0000:8a2e:0370:7335"]
+    caa-record
+        flags: 2
+        tag: "tag2"
+        value: "val2"
+    end
+end
+
+azure::cname-record-set cname-record-set
+    name: "cnamerecexample"
+    time-to-live: "5"
+    alias: "cnamerecalias"
+    dns-zone-id: $(azure::dns-zone dns-zone-example-zones | id)
+end
+
+azure::mx-record-set mx-record-set
+    name: "mxrecexample"
+    time-to-live: "4"
+    dns-zone-id: $(azure::dns-zone dns-zone-example-zones | id)
+
+    mx-record
+        exchange: "mail.cont.com"
+        preference: 1
     end
 
-    caa-record-set
-        name: "caaexample"
-        time-to-live: "3"
-
-        caa-record
-            flags: 1
-            tag: "tag1"
-            value: "val1"
-        end
-
-        caa-record
-            flags: 2
-            tag: "tag2"
-            value: "val2"
-        end
+    mx-record
+        exchange: "mail.conto.com"
+        preference: 2
     end
+end
 
-    cname-record-set
-        name: "cnamerecexample"
-        time-to-live: "5"
-        alias: "cnamerecalias"
+azure::ptr-record-set ptr-record-set
+    name: "ptrrecexample"
+    target-domain-names: ["domain1.com", "domain2.com"]
+    time-to-live: "3"
+    dns-zone-id: $(azure::dns-zone dns-zone-example-zones | id)
+end
+
+azure::srv-record-set srv-record-set
+    name: "srvrecexample"
+    time-to-live: "4"
+    dns-zone-id: $(azure::dns-zone dns-zone-example-zones | id)
+
+    srv-record
+        port: 80
+        priority: 1
+        target: "hi.com"
+        weight: 100
     end
+end
 
-    mx-record-set
-        name: "mxrecexample"
-        time-to-live: "4"
-
-        mx-record
-            exchange: "mail.cont.com"
-            preference: 1
-        end
-
-        mx-record
-            exchange: "mail.conto.com"
-            preference: 2
-        end
-    end
-
-    ptr-record-set
-        name: "ptrrecexample"
-        target-domain-names: ["domain1.com", "domain2.com"]
-        time-to-live: "3"
-    end
-
-    srv-record-set
-        name: "srvrecexample"
-        time-to-live: "4"
-
-        srv-record
-            port: 80
-            priority: 1
-            target: "hi.com"
-            weight: 100
-        end
-    end
-
-    txt-record-set
-        name: "txtrecexample"
-        txt-records: ["record1", "record2"]
-        time-to-live: "3"
-    end
+azure::txt-record-set txt-record-set
+    name: "txtrecexample"
+    txt-records: ["record1", "record2"]
+    time-to-live: "3"
+    dns-zone-id: $(azure::dns-zone dns-zone-example-zones | id)
 end
