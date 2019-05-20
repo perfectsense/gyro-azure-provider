@@ -1,0 +1,45 @@
+azure::resource-group resource-group-cdn-profile-example
+    resource-group-name: "resource-group-cdn-profile-example"
+
+    tags: {
+        Name: "resource-group-cdn-profile-example"
+    }
+end
+
+azure::cdn-profile cdn-profile-example
+    name: "cdn-profile-example"
+    resource-group-name: $(azure::resource-group resource-group-cdn-profile-example | resource-group-name)
+    sku: "Standard_Akamai"
+    tags: {
+        Name: "cdn-profile-example"
+    }
+end
+
+azure::cdn-endpoint standard-cdn-endpoint-example
+    cdn-profile: $(azure::cdn-profile cdn-profile-example)
+    compression-enabled: false
+    content-types-to-compress: ["application/eot", "application/json", "text/html"]
+
+    geo-filter
+        action: "ALLOW"
+        country-codes: ["CA", "CL"]
+        relative-path: "/"
+    end
+
+    geo-filter
+        action: "BLOCK"
+        country-codes: ["CA"]
+        relative-path: "/relpath"
+    end
+
+    host-header: "my.host.com"
+    http-enabled: true
+    http-port: 81
+    https-enabled: true
+    https-port: 8443
+    name: "test-endpoint-cdn"
+    origin-hostname: "origin.hostname.com"
+    origin-path: "/examples/path"
+    query-caching-behavior: "BYPASS_CACHING"
+    type: "Standard"
+end
