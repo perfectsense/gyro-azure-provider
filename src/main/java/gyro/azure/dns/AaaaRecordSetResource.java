@@ -194,11 +194,13 @@ public class AaaaRecordSetResource extends AzureResource {
     }
 
     @Override
-    public String toDisplayString() { return "aaaa record set " + getName(); }
+    public String toDisplayString() {
+        return "aaaa record set " + getName();
+    }
 
     @Override
     public String primaryKey() {
-        return String.format("%s", getName());
+        return name;
     }
 
     private List<String> addLeadingZeros(List<String> addresses) {

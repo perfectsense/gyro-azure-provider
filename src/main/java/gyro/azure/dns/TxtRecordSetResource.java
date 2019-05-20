@@ -193,10 +193,12 @@ public class TxtRecordSetResource extends AzureResource {
     }
 
     @Override
-    public String toDisplayString() { return "txt record set " + getName(); }
+    public String toDisplayString() {
+        return "txt record set " + getName();
+    }
 
     @Override
     public String primaryKey() {
-        return String.format("%s", getName());
+        return name;
     }
 }

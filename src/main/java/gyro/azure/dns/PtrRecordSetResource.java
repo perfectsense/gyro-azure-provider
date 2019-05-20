@@ -193,10 +193,12 @@ public class PtrRecordSetResource extends AzureResource {
     }
 
     @Override
-    public String toDisplayString() { return "ptr record set " + getName(); }
+    public String toDisplayString() {
+        return "ptr record set " + getName();
+    }
 
     @Override
     public String primaryKey() {
-        return String.format("%s", getName());
+        return name;
     }
 }

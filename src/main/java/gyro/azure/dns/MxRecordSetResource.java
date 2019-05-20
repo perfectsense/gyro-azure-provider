@@ -215,10 +215,12 @@ public class MxRecordSetResource extends AzureResource {
     }
 
     @Override
-    public String toDisplayString() { return "mx record set " + getName(); }
+    public String toDisplayString() {
+        return "mx record set " + getName();
+    }
 
     @Override
     public String primaryKey() {
-        return String.format("%s", getName());
+        return name;
     }
 }

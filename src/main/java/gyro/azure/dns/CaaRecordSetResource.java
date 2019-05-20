@@ -203,11 +203,13 @@ public class CaaRecordSetResource extends AzureResource {
     }
 
     @Override
-    public String toDisplayString() { return "caa record set " + getName(); }
+    public String toDisplayString() {
+        return "caa record set " + getName();
+    }
 
     @Override
     public String primaryKey() {
-        return String.format("%s", getName());
+        return name;
     }
 
     private List<CaaRecord> comparator(List<CaaRecord> original, List<CaaRecord> compareTo) {

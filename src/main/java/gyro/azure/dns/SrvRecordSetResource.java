@@ -194,11 +194,13 @@ public class SrvRecordSetResource extends AzureResource {
     }
 
     @Override
-    public String toDisplayString() { return "srv record set " + getName(); }
+    public String toDisplayString() {
+        return "srv record set " + getName();
+    }
 
     @Override
     public String primaryKey() {
-        return String.format("%s", getName());
+        return name;
     }
 
     private List<SrvRecord> comparator(List<SrvRecord> original, List<SrvRecord> compareTo) {

@@ -411,7 +411,9 @@ public class DnsZoneResource extends AzureResource {
     }
 
     @Override
-    public String toDisplayString() { return "dns zone " + getName(); }
+    public String toDisplayString() {
+        return "dns zone " + getName();
+    }
 
     public DnsZone.Update getDnsZone(Azure client) {
         if (dnsZone == null) {

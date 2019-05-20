@@ -63,7 +63,7 @@ public class MxRecord extends Diffable {
 
     @Override
     public String primaryKey() {
-        return String.format("%s", getExchange());
+        return exchange;
     }
 
     @Override
