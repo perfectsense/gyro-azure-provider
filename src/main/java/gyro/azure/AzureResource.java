@@ -6,11 +6,11 @@ import com.microsoft.azure.management.Azure;
 public abstract class AzureResource extends Resource {
 
     protected Azure createClient() {
-        return ((AzureCredentials) credentials()).createClient();
+        return credentials(AzureCredentials.class).createClient();
     }
 
     protected String getRegion() {
-        return ((AzureCredentials) credentials()).getRegion();
+        return credentials(AzureCredentials.class).getRegion();
     }
 
 }
