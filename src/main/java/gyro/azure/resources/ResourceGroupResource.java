@@ -1,7 +1,7 @@
 package gyro.azure.resources;
 
 import gyro.azure.AzureResource;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 import com.microsoft.azure.management.Azure;
@@ -56,7 +56,7 @@ public class ResourceGroupResource extends AzureResource {
         this.resourceGroupId = resourceGroupId;
     }
 
-    @ResourceUpdatable
+    @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();

@@ -2,7 +2,7 @@ package gyro.azure.storage;
 
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 
@@ -43,7 +43,7 @@ public class CloudFileResource extends AzureResource {
     /**
      * The directory path for the file. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getCloudFileDirectoryPath() {
         return cloudFileDirectoryPath;
     }

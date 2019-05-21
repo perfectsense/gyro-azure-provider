@@ -27,9 +27,9 @@ import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 
 import java.util.ArrayList;
@@ -180,7 +180,7 @@ public class VirtualMachineResource extends AzureResource {
         this.adminPassword = adminPassword;
     }
 
-    @ResourceOutput
+    @Output
     public String getVirtualMachineId() {
         return virtualMachineId;
     }
@@ -189,7 +189,7 @@ public class VirtualMachineResource extends AzureResource {
         this.virtualMachineId = virtualMachineId;
     }
 
-    @ResourceOutput
+    @Output
     public String getVmId() {
         return vmId;
     }
@@ -448,7 +448,7 @@ public class VirtualMachineResource extends AzureResource {
         this.secondaryNetworkInterfaceNames = secondaryNetworkInterfaceNames;
     }
 
-    @ResourceUpdatable
+    @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();

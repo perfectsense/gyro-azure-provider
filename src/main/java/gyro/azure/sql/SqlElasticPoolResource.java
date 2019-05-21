@@ -4,9 +4,9 @@ import com.microsoft.azure.management.sql.SqlElasticPoolOperations;
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Output;
 import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.sql.SqlElasticPool;
@@ -22,9 +22,6 @@ import com.microsoft.azure.management.sql.SqlElasticPoolStandardMaxEDTUs;
 import com.microsoft.azure.management.sql.SqlElasticPoolStandardMinEDTUs;
 import com.microsoft.azure.management.sql.SqlElasticPoolStandardStorage;
 import com.microsoft.azure.management.sql.SqlElasticPoolOperations.DefinitionStages.WithEdition;
-import com.microsoft.azure.management.sql.SqlElasticPoolOperations.DefinitionStages.WithBasicEdition;
-import com.microsoft.azure.management.sql.SqlElasticPoolOperations.DefinitionStages.WithPremiumEdition;
-import com.microsoft.azure.management.sql.SqlElasticPoolOperations.DefinitionStages.WithStandardEdition;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -74,7 +71,7 @@ public class SqlElasticPoolResource extends AzureResource {
     /**
      * The databases within the elastic pool. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getDatabaseNames() {
         if (databaseNames == null) {
             databaseNames = new ArrayList<>();
@@ -90,7 +87,7 @@ public class SqlElasticPoolResource extends AzureResource {
     /**
      * The maximum eDTU for the each database in the pool. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getDtuMax() {
         return dtuMax;
     }
@@ -102,7 +99,7 @@ public class SqlElasticPoolResource extends AzureResource {
     /**
      * The minimum of eDTU for each database in the pool. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getDtuMin() {
         return dtuMin;
     }
@@ -114,7 +111,7 @@ public class SqlElasticPoolResource extends AzureResource {
     /**
      * The total shared eDTU for the elastic pool. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getDtuReserved() {
         return dtuReserved;
     }
@@ -126,7 +123,7 @@ public class SqlElasticPoolResource extends AzureResource {
     /**
      * The edition of the elastic pool. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getEdition() {
         return edition;
     }
@@ -138,7 +135,7 @@ public class SqlElasticPoolResource extends AzureResource {
     /**
      * The id of the elastic pool.
      */
-    @ResourceOutput
+    @Output
     public String getId() {
         return id;
     }
@@ -161,7 +158,7 @@ public class SqlElasticPoolResource extends AzureResource {
     /**
      * The storage limit for the database elastic pool. Required when used with ``Standard`` and ``Premium`` editions. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getStorageCapacity() {
         return storageCapacity;
     }
@@ -184,7 +181,7 @@ public class SqlElasticPoolResource extends AzureResource {
     /**
      * The tags associated with the elastic pool. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();

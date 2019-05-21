@@ -4,7 +4,7 @@ import gyro.azure.AzureResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
@@ -14,7 +14,6 @@ import com.microsoft.azure.management.dns.DnsRecordSet;
 import com.microsoft.azure.management.dns.DnsZone;
 import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.AaaaRecordSetBlank;
 import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.WithAaaaRecordIPv6AddressOrAttachable;
-import inet.ipaddr.IPAddressString;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,7 +58,7 @@ public class AaaaRecordSetResource extends AzureResource {
     /**
      * The ipv6 addresses associated with the record set. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getIpv6Addresses() {
         if (ipv6Addresses == null) {
             ipv6Addresses = new ArrayList<>();
@@ -76,7 +75,7 @@ public class AaaaRecordSetResource extends AzureResource {
     /**
      * The metadata for the record. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public Map<String, String> getMetadata() {
         if (metadata == null) {
             metadata = new HashMap<>();
@@ -103,7 +102,7 @@ public class AaaaRecordSetResource extends AzureResource {
     /**
      * The Time To Live for the records in the set. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getTimeToLive() {
         return timeToLive;
     }

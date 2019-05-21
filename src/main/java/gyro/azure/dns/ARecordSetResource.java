@@ -4,7 +4,7 @@ import gyro.azure.AzureResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
@@ -59,7 +59,7 @@ public class ARecordSetResource extends AzureResource {
     /**
      * The ipv4 addresses associated with the record set. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getIpv4Addresses() {
         if (ipv4Addresses == null) {
             ipv4Addresses = new ArrayList<>();
@@ -75,7 +75,7 @@ public class ARecordSetResource extends AzureResource {
     /**
      * The metadata for the record. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public Map<String, String> getMetadata() {
         if (metadata == null) {
             metadata = new HashMap<>();
@@ -100,7 +100,7 @@ public class ARecordSetResource extends AzureResource {
     /**
      * The Time To Live for the records in the set. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getTimeToLive() {
         return timeToLive;
     }

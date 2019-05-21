@@ -3,9 +3,9 @@ package gyro.azure.sql;
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Output;
 import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.sql.SqlFirewallRule;
@@ -41,7 +41,7 @@ public class SqlFirewallRuleResource extends AzureResource {
     /**
      * The id of the firewall rule. (Required)
      */
-    @ResourceOutput
+    @Output
     public String getId() {
         return id;
     }
@@ -53,7 +53,7 @@ public class SqlFirewallRuleResource extends AzureResource {
     /**
      * The starting or only ip address of the firewall rule. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getStartIpAddress() {
         return startIpAddress;
     }
@@ -65,7 +65,7 @@ public class SqlFirewallRuleResource extends AzureResource {
     /**
      * The ending ip address of the firewall rule. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getEndIpAddress() {
         return endIpAddress;
     }

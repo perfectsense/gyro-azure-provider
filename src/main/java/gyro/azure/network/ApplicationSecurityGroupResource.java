@@ -2,9 +2,9 @@ package gyro.azure.network;
 
 import gyro.azure.AzureResource;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Output;
 import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.network.ApplicationSecurityGroup;
@@ -41,7 +41,7 @@ public class ApplicationSecurityGroupResource extends AzureResource {
     /**
      * The id of the application security group.
      */
-    @ResourceOutput
+    @Output
     public String getId() {
         return id;
     }
@@ -75,7 +75,7 @@ public class ApplicationSecurityGroupResource extends AzureResource {
     /**
      * The tags associated with the application security group. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();

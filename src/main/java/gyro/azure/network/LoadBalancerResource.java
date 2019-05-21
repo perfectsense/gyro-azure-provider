@@ -1,9 +1,9 @@
 package gyro.azure.network;
 
 import gyro.azure.AzureResource;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 
 import com.microsoft.azure.management.Azure;
@@ -102,7 +102,7 @@ public class LoadBalancerResource extends AzureResource {
     private Boolean skuBasic;
     private Map<String, String> tags;
 
-    @ResourceUpdatable
+    @Updatable
     public Map<String, Frontend> frontends() {
         if (frontends == null) {
             frontends = new HashMap<>();
@@ -121,7 +121,7 @@ public class LoadBalancerResource extends AzureResource {
     /**
      * The http probes associated with the load balancer. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public List<HealthCheckProbeHttp> getHealthCheckProbeHttp() {
         if (healthCheckProbeHttp == null) {
             healthCheckProbeHttp = new ArrayList<>();
@@ -137,7 +137,7 @@ public class LoadBalancerResource extends AzureResource {
     /**
      * The tcp probes associated with the load balancer. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public List<HealthCheckProbeTcp> getHealthCheckProbeTcp() {
         if (healthCheckProbeTcp == null) {
             healthCheckProbeTcp = new ArrayList<>();
@@ -153,7 +153,7 @@ public class LoadBalancerResource extends AzureResource {
     /**
      * The id of the load balancer.
      */
-    @ResourceOutput
+    @Output
     public String getId() {
         return id;
     }
@@ -176,7 +176,7 @@ public class LoadBalancerResource extends AzureResource {
     /**
      * The load balancer rules associated with the load balancer. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public List<LoadBalancerRule> getLoadBalancerRule() {
         if (loadBalancerRule == null) {
             loadBalancerRule = new ArrayList<>();
@@ -230,7 +230,7 @@ public class LoadBalancerResource extends AzureResource {
     /**
      * Specifies if the sku type is basic or standard. Defaults to true. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getSkuBasic() {
         if (skuBasic == null) {
             skuBasic = true;
@@ -246,7 +246,7 @@ public class LoadBalancerResource extends AzureResource {
     /**
      * The tags associated with the load balancer. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();

@@ -8,7 +8,7 @@ import com.microsoft.azure.management.network.ApplicationGateway.DefinitionStage
 import com.microsoft.azure.management.network.ApplicationGateway.DefinitionStages.WithRequestRoutingRule;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.resource.Diffable;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 
 /**
  * Creates a Request Routing Rule.
@@ -58,7 +58,7 @@ public class RequestRoutingRule extends Diffable {
     /**
      * Name of the listener to associated with the rule. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getListener() {
         return listener;
     }
@@ -70,7 +70,7 @@ public class RequestRoutingRule extends Diffable {
     /**
      * Name of the backend to be associated with the rule. Required if redirection not present.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getBackend() {
         return backend;
     }
@@ -82,7 +82,7 @@ public class RequestRoutingRule extends Diffable {
     /**
      * Name of the backend http configuration to be associated with the rule. Required if redirection not present.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getBackendHttpConfiguration() {
         return backendHttpConfiguration;
     }
@@ -94,7 +94,7 @@ public class RequestRoutingRule extends Diffable {
     /**
      * Name of the redirect configuration to be associated with the rule. Required if backend bot present.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getRedirectConfiguration() {
         return redirectConfiguration;
     }

@@ -2,20 +2,12 @@ package gyro.azure.dns;
 
 import gyro.azure.AzureResource;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Output;
 import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 
 import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.dns.ARecordSet;
-import com.microsoft.azure.management.dns.AaaaRecordSet;
-import com.microsoft.azure.management.dns.CNameRecordSet;
-import com.microsoft.azure.management.dns.CaaRecordSet;
 import com.microsoft.azure.management.dns.DnsZone;
-import com.microsoft.azure.management.dns.MXRecordSet;
-import com.microsoft.azure.management.dns.PtrRecordSet;
-import com.microsoft.azure.management.dns.SrvRecordSet;
-import com.microsoft.azure.management.dns.TxtRecordSet;
 import com.microsoft.azure.management.dns.ZoneType;
 
 import java.util.ArrayList;
@@ -55,7 +47,7 @@ public class DnsZoneResource extends AzureResource {
     /**
      * The id of the dns zone.
      */
-    @ResourceOutput
+    @Output
     public String getId() {
         return id;
     }
@@ -94,7 +86,7 @@ public class DnsZoneResource extends AzureResource {
      * A list of virtual network id's that register hostnames in a private dns zone.
      * Can be used when the access is private. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getRegistrationVirtualNetworkIds() {
         if (registrationVirtualNetworkIds == null) {
             registrationVirtualNetworkIds = new ArrayList<>();
@@ -111,7 +103,7 @@ public class DnsZoneResource extends AzureResource {
      * A list of virtual network id's that resolve records in a private dns zone.
      * Can be used when the access is private. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getResolutionVirtualNetworkIds() {
         if (resolutionVirtualNetworkIds == null) {
             resolutionVirtualNetworkIds = new ArrayList<>();
@@ -138,7 +130,7 @@ public class DnsZoneResource extends AzureResource {
     /**
      * The tags associated with the dns zone. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();

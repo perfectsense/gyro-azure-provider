@@ -2,7 +2,7 @@ package gyro.azure.storage;
 
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import gyro.core.resource.ResourceType;
 import gyro.core.resource.Resource;
 
@@ -51,7 +51,7 @@ public class CloudFileShareResource extends AzureResource {
     /**
      * The limit on the size of files in GB. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getShareQuota() {
         return shareQuota;
     }

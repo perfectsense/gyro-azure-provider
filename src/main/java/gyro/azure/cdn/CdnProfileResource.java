@@ -3,9 +3,9 @@ package gyro.azure.cdn;
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Output;
 import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.cdn.CdnProfile;
@@ -45,7 +45,7 @@ public class CdnProfileResource extends AzureResource {
     /**
      * The id of the profile.
      */
-    @ResourceOutput
+    @Output
     public String getId() {
         return id;
     }
@@ -90,7 +90,7 @@ public class CdnProfileResource extends AzureResource {
     /**
      * The tags associated with the profile. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();

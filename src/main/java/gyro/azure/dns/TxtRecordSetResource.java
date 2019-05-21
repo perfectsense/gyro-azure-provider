@@ -4,7 +4,7 @@ import gyro.azure.AzureResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
@@ -58,7 +58,7 @@ public class TxtRecordSetResource extends AzureResource {
     /**
      * The metadata for the record. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public Map<String, String> getMetadata() {
         if (metadata == null) {
             metadata = new HashMap<>();
@@ -85,7 +85,7 @@ public class TxtRecordSetResource extends AzureResource {
     /**
      * The list of txt records. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getTxtRecords() {
         if (txtRecords == null) {
             txtRecords = new ArrayList<>();
@@ -101,7 +101,7 @@ public class TxtRecordSetResource extends AzureResource {
     /**
      * The Time To Live for the records in the set. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getTimeToLive() {
         return timeToLive;
     }

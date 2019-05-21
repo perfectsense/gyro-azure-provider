@@ -4,7 +4,7 @@ import gyro.azure.AzureResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
@@ -59,7 +59,7 @@ public class PtrRecordSetResource extends AzureResource {
     /**
      * The metadata for the record. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public Map<String, String> getMetadata() {
         if (metadata == null) {
             metadata = new HashMap<>();
@@ -86,7 +86,7 @@ public class PtrRecordSetResource extends AzureResource {
     /**
      * The domain names associated with the record. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getTargetDomainNames() {
         if (targetDomainNames == null) {
             targetDomainNames = new ArrayList<>();
@@ -102,7 +102,7 @@ public class PtrRecordSetResource extends AzureResource {
     /**
      * The Time To Live for the records in the set. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getTimeToLive() {
         return timeToLive;
     }

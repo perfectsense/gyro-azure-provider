@@ -8,7 +8,7 @@ import com.microsoft.azure.management.network.ApplicationGatewayProtocol;
 import com.microsoft.azure.management.network.ApplicationGateway.DefinitionStages.WithCreate;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.resource.Diffable;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -77,7 +77,7 @@ public class Probe extends Diffable {
     /**
      * Host name associated with this probe. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getHostName() {
         return hostName;
     }
@@ -89,7 +89,7 @@ public class Probe extends Diffable {
     /**
      * Path associated with this probe. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getPath() {
         return path;
     }
@@ -101,7 +101,7 @@ public class Probe extends Diffable {
     /**
      * Interval for the probe. Defaults to 30 sec.
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getInterval() {
         if (interval == null) {
             interval = 30;
@@ -117,7 +117,7 @@ public class Probe extends Diffable {
     /**
      * Timeout for the probe. Defaults to 30 sec.
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getTimeout() {
         if (timeout == null) {
             timeout = 30;
@@ -133,7 +133,7 @@ public class Probe extends Diffable {
     /**
      * Threshold for unhealthy instances before it triggers the probe. Defaults to 3.
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getUnhealthyThreshold() {
         if (unhealthyThreshold == null) {
             unhealthyThreshold = 3;
@@ -149,7 +149,7 @@ public class Probe extends Diffable {
     /**
      * Enable https protocol. Defaults to false.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getHttpsProtocol() {
         if (httpsProtocol == null) {
             httpsProtocol = false;
@@ -165,7 +165,7 @@ public class Probe extends Diffable {
     /**
      * List of https response codes.
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getHttpResponseCodes() {
         if (httpResponseCodes == null) {
             httpResponseCodes = new ArrayList<>();
@@ -181,7 +181,7 @@ public class Probe extends Diffable {
     /**
      * String to match with the request body.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getHttpResponseBodyMatch() {
         return httpResponseBodyMatch;
     }

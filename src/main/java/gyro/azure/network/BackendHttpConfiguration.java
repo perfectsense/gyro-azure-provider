@@ -6,7 +6,7 @@ import com.microsoft.azure.management.network.ApplicationGateway.DefinitionStage
 import com.microsoft.azure.management.network.ApplicationGatewayBackendHttpConfiguration.DefinitionStages.WithAttach;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.resource.Diffable;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 
 /**
  * Creates a Backend Http Configuration.
@@ -69,7 +69,7 @@ public class BackendHttpConfiguration extends Diffable {
     /**
      * Port for the backend http configuration. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getPort() {
         return port;
     }
@@ -81,7 +81,7 @@ public class BackendHttpConfiguration extends Diffable {
     /**
      * Cookie name for the backend http configuration.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getCookieName() {
         return cookieName;
     }
@@ -93,7 +93,7 @@ public class BackendHttpConfiguration extends Diffable {
     /**
      * Enable cookie based affinity for the backend http configuration. Defaults to false.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getEnableAffinityCookie() {
         if (enableAffinityCookie == null) {
             enableAffinityCookie = false;
@@ -109,7 +109,7 @@ public class BackendHttpConfiguration extends Diffable {
     /**
      * Connection draining timeout for the backend http configuration. defaults to 0.
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getConnectionDrainingTimeout() {
         if (connectionDrainingTimeout == null) {
             connectionDrainingTimeout = 0;
@@ -125,7 +125,7 @@ public class BackendHttpConfiguration extends Diffable {
     /**
      * Name of a probe to be associated with the backend http configuration.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getProbe() {
         return probe;
     }
@@ -137,7 +137,7 @@ public class BackendHttpConfiguration extends Diffable {
     /**
      * Override hostname for the backend http configuration.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getHostHeader() {
         return hostHeader;
     }
@@ -149,7 +149,7 @@ public class BackendHttpConfiguration extends Diffable {
     /**
      * Get host header from the backend for the backend http configuration. Defaults to false.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getHostHeaderFromBackend() {
         if (hostHeaderFromBackend == null) {
             hostHeaderFromBackend = false;
@@ -165,7 +165,7 @@ public class BackendHttpConfiguration extends Diffable {
     /**
      * Override backend path for the backend http configuration.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getBackendPath() {
         if (!ObjectUtils.isBlank(backendPath)) {
             backendPath = (!backendPath.startsWith("/") ? "/" : "") + backendPath;

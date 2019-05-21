@@ -8,9 +8,9 @@ import com.microsoft.azure.management.resources.fluentcore.arm.AvailabilityZoneI
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 
 import java.util.HashMap;
@@ -104,7 +104,7 @@ public class PublicIpAddressResource extends AzureResource {
     /**
      * Specify the idle time in minutes before time out. Valid values [ Integer from 4 - 30]. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getIdleTimeoutInMinute() {
         return idleTimeoutInMinute;
     }
@@ -113,7 +113,7 @@ public class PublicIpAddressResource extends AzureResource {
         this.idleTimeoutInMinute = idleTimeoutInMinute;
     }
 
-    @ResourceOutput
+    @Output
     public String getPublicIpAddressId() {
         return publicIpAddressId;
     }
@@ -122,7 +122,7 @@ public class PublicIpAddressResource extends AzureResource {
         this.publicIpAddressId = publicIpAddressId;
     }
 
-    @ResourceOutput
+    @Output
     public String getIpAddress() {
         return ipAddress;
     }
@@ -145,7 +145,7 @@ public class PublicIpAddressResource extends AzureResource {
     /**
      * Specify the domain prefix.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getDomainLabel() {
         return domainLabel;
     }
@@ -154,7 +154,7 @@ public class PublicIpAddressResource extends AzureResource {
         this.domainLabel = domainLabel;
     }
 
-    @ResourceUpdatable
+    @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();

@@ -10,7 +10,7 @@ import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlobDirectory;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Output;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -103,7 +103,7 @@ public class CloudBlobResource extends AzureResource {
         this.storageAccount = storageAccount;
     }
 
-    @ResourceOutput
+    @Output
     public String getUri() {
         return uri;
     }

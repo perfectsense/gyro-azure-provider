@@ -4,7 +4,7 @@ import gyro.azure.AzureResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.cdn.CdnProfile;
@@ -94,7 +94,7 @@ public class CdnEndpointResource extends AzureResource {
     /**
      * Determines whether compression is enabled. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getCompressionEnabled() {
         return compressionEnabled;
     }
@@ -106,7 +106,7 @@ public class CdnEndpointResource extends AzureResource {
     /**
      * Determines what content types to be compressed. Used if compression is enabled. (Conditional)
      */
-    @ResourceUpdatable
+    @Updatable
     public Set<String> getContentTypesToCompress() {
         if (contentTypesToCompress == null) {
             contentTypesToCompress = new HashSet<>();
@@ -122,7 +122,7 @@ public class CdnEndpointResource extends AzureResource {
     /**
      * Determines what custom domains are associated with the endpoint. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public Set<String> getCustomDomains() {
         if (customDomains == null) {
             customDomains = new HashSet<>();
@@ -138,7 +138,7 @@ public class CdnEndpointResource extends AzureResource {
     /**
      * The list of geo-filters associated with the endpoint. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public List<GeoFilter> getGeoFilter() {
         if (geoFilter == null) {
             geoFilter = new ArrayList<>();
@@ -154,7 +154,7 @@ public class CdnEndpointResource extends AzureResource {
     /**
      * The host header of the endpoint. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getHostHeader() {
         return hostHeader;
     }
@@ -166,7 +166,7 @@ public class CdnEndpointResource extends AzureResource {
     /**
      * Determines whether http protocol is enabled. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getHttpEnabled() {
         return httpEnabled;
     }
@@ -178,7 +178,7 @@ public class CdnEndpointResource extends AzureResource {
     /**
      * The http port. Required if http protocol is enabled. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getHttpPort() {
         return httpPort;
     }
@@ -190,7 +190,7 @@ public class CdnEndpointResource extends AzureResource {
     /**
      * Determines whether https protocol is enabled. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getHttpsEnabled() {
         return httpsEnabled;
     }
@@ -202,7 +202,7 @@ public class CdnEndpointResource extends AzureResource {
     /**
      * The https port. Required if https port is allowed. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getHttpsPort() {
         return httpsPort;
     }
@@ -214,7 +214,7 @@ public class CdnEndpointResource extends AzureResource {
     /**
      * The origin path. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getOriginPath() {
         return originPath;
     }
@@ -249,7 +249,7 @@ public class CdnEndpointResource extends AzureResource {
      * Determines the query caching behavior. Values are ``IGNORE_QUERY_STRING``, ``BYPASS_CACHING``,
      * and ``USE_QUERY_STRING``. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getQueryCachingBehavior() {
         return queryCachingBehavior;
     }
@@ -261,7 +261,7 @@ public class CdnEndpointResource extends AzureResource {
     /**
      * The tags associated with the endpoint. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();

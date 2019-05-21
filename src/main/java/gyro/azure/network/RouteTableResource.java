@@ -1,9 +1,9 @@
 package gyro.azure.network;
 
 import gyro.azure.AzureResource;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 
 import com.microsoft.azure.management.Azure;
@@ -55,7 +55,7 @@ public class RouteTableResource extends AzureResource {
     /**
      * Determines whether to disable the routes learned by border gateway protocol on the route table. Defaults to true. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getBgpRoutePropagationDisabled() {
         if (bgpRoutePropagationDisabled == null) {
             bgpRoutePropagationDisabled = true;
@@ -71,7 +71,7 @@ public class RouteTableResource extends AzureResource {
     /**
      * The id of the route table. (Required)
      */
-    @ResourceOutput
+    @Output
     public String getId() {
         return id;
     }
@@ -102,7 +102,7 @@ public class RouteTableResource extends AzureResource {
     /**
      * The routes of the route table. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public List<gyro.azure.network.Route> getRoute() {
         if (route == null) {
             route = new ArrayList<>();
@@ -118,7 +118,7 @@ public class RouteTableResource extends AzureResource {
     /**
      * The tags associated with the route table. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();

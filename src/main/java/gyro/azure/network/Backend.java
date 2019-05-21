@@ -8,7 +8,7 @@ import com.microsoft.azure.management.network.ApplicationGateway.DefinitionStage
 import com.microsoft.azure.management.network.ApplicationGatewayBackendAddress;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.resource.Diffable;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +60,7 @@ public class Backend extends Diffable {
     /**
      * List of ip addresses. Required if no fqdns are present.
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getIpAddresses() {
         if (ipAddresses == null) {
             ipAddresses = new ArrayList<>();
@@ -76,7 +76,7 @@ public class Backend extends Diffable {
     /**
      * List of fqdns. Required if no ip addresses are present.
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getFqdns() {
         if (fqdns == null) {
             fqdns = new ArrayList<>();

@@ -3,7 +3,7 @@ package gyro.azure.dns;
 import gyro.azure.AzureResource;
 import gyro.core.resource.Resource;
 import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
@@ -64,7 +64,7 @@ public class SrvRecordSetResource extends AzureResource {
     /**
      * The metadata for the record. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public Map<String, String> getMetadata() {
         if (metadata == null) {
             metadata = new HashMap<>();
@@ -91,7 +91,7 @@ public class SrvRecordSetResource extends AzureResource {
     /**
      * The list of srv records. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public List<SrvRecord> getSrvRecord() {
         if (srvRecord == null) {
             srvRecord = new ArrayList<>();
@@ -107,7 +107,7 @@ public class SrvRecordSetResource extends AzureResource {
     /**
      * The Time To Live for the records in the set. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getTimeToLive() {
         return timeToLive;
     }
