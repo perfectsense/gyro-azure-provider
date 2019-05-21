@@ -11,7 +11,7 @@ public abstract class AzureResource extends Resource {
 
     protected Azure createClient() {
         if (client == null) {
-            AzureCredentials azureCredentials = (AzureCredentials) resourceCredentials();
+            AzureCredentials azureCredentials = (AzureCredentials) credentials();
             Azure.Authenticated authenticated = azureCredentials.findCredentials(true);
 
             try {
@@ -27,7 +27,7 @@ public abstract class AzureResource extends Resource {
     }
 
     protected String getRegion() {
-        AzureCredentials azureCredentials = (AzureCredentials) resourceCredentials();
+        AzureCredentials azureCredentials = (AzureCredentials) credentials();
         return azureCredentials.getRegion();
     }
 }

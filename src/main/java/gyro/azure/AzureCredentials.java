@@ -5,14 +5,12 @@ import com.microsoft.azure.credentials.ApplicationTokenCredentials;
 import com.microsoft.azure.credentials.AzureTokenCredentials;
 import com.microsoft.azure.management.Azure;
 import com.microsoft.rest.LogLevel;
-import gyro.core.Credentials;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceType;
+import gyro.core.auth.Credentials;
 
 import java.io.InputStream;
 import java.util.Properties;
 
-@ResourceType("credentials")
 public class AzureCredentials extends Credentials<Azure.Authenticated> {
 
     private String region;
@@ -43,11 +41,6 @@ public class AzureCredentials extends Credentials<Azure.Authenticated> {
 
     public void setLogLevel(String logLevel) {
         this.logLevel = logLevel;
-    }
-
-    @Override
-    public String getCloudName() {
-        return "azure";
     }
 
     @Override
