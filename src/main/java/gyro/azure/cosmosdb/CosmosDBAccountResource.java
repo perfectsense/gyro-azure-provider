@@ -4,7 +4,7 @@ import gyro.azure.AzureResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Updatable;
 
 import com.microsoft.azure.management.Azure;
@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
  *             write-replication-region: "Canada East"
  *         end
  */
-@ResourceType("cosmos-db")
+@Type("cosmos-db")
 public class CosmosDBAccountResource extends AzureResource {
 
     private static final String KIND_AZURETABLE = "AzureTable";

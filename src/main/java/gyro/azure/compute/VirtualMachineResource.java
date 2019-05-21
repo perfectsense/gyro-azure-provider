@@ -28,7 +28,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Updatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 
@@ -68,7 +68,7 @@ import java.util.Set;
  *          }
  *     end
  */
-@ResourceType("virtual-machine")
+@Type("virtual-machine")
 public class VirtualMachineResource extends AzureResource {
     private String virtualMachineName;
     private String resourceGroupName;

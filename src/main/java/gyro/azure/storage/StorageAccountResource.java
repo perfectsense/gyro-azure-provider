@@ -11,7 +11,7 @@ import com.microsoft.azure.storage.table.CloudTableClient;
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Updatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 
@@ -45,7 +45,7 @@ import java.util.Set;
  *         }
  *     end
  */
-@ResourceType("storage-account")
+@Type("storage-account")
 public class StorageAccountResource extends AzureResource {
 
     private List<Cors> corsRule;

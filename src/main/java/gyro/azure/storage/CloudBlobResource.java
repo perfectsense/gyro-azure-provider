@@ -2,7 +2,7 @@ package gyro.azure.storage;
 
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.StorageException;
@@ -38,7 +38,7 @@ import java.io.File;
  *         storage-account: $(azure::storage-account blob-storage-account-example)
  *     end
  */
-@ResourceType("cloud-blob")
+@Type("cloud-blob")
 public class CloudBlobResource extends AzureResource {
 
     private String blobName;

@@ -3,7 +3,7 @@ package gyro.azure.dns;
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Updatable;
 
 import com.google.common.collect.MapDifference;
@@ -33,7 +33,7 @@ import java.util.Set;
  *         dns-zone-id: $(azure::dns-zone dns-zone-example-zones | id)
  *     end
  */
-@ResourceType("cname-record-set")
+@Type("cname-record-set")
 public class CnameRecordSetResource extends AzureResource {
 
     private String alias;

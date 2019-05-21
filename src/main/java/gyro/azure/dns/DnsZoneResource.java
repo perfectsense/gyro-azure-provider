@@ -3,7 +3,7 @@ package gyro.azure.dns;
 import gyro.azure.AzureResource;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Updatable;
 
 import com.microsoft.azure.management.Azure;
@@ -33,7 +33,7 @@ import java.util.Set;
  *         }
  *     end
  */
-@ResourceType("dns-zone")
+@Type("dns-zone")
 public class DnsZoneResource extends AzureResource {
 
     private String id;

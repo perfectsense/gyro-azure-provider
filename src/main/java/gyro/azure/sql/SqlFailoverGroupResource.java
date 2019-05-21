@@ -4,7 +4,7 @@ import gyro.azure.AzureResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Updatable;
 
 import com.microsoft.azure.management.Azure;
@@ -39,7 +39,7 @@ import java.util.Set;
  *        read-only-policy-enabled: false
  *     end
  */
-@ResourceType("sql-failover-group")
+@Type("sql-failover-group")
 public class SqlFailoverGroupResource extends AzureResource {
 
     private List<String> databaseIds;

@@ -3,7 +3,7 @@ package gyro.azure.dns;
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Updatable;
 
 import com.google.common.collect.MapDifference;
@@ -47,7 +47,7 @@ import java.util.Set;
  *         end
  *     end
  */
-@ResourceType("caa-record-set")
+@Type("caa-record-set")
 public class CaaRecordSetResource extends AzureResource {
 
     private List<CaaRecord> caaRecord;

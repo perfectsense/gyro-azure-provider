@@ -3,7 +3,7 @@ package gyro.azure.storage;
 import gyro.azure.AzureResource;
 
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Resource;
 
 import com.microsoft.azure.storage.CloudStorageAccount;
@@ -28,7 +28,7 @@ import java.util.Set;
  *         storage-account: $(azure::storage-account queue-storage-account-example)
  *     end
  */
-@ResourceType("cloud-queue")
+@Type("cloud-queue")
 public class CloudQueueResource extends AzureResource {
 
     private String cloudQueueName;

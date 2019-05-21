@@ -2,7 +2,7 @@ package gyro.azure.compute;
 
 import gyro.azure.AzureResource;
 import gyro.core.resource.Updatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 
@@ -34,7 +34,7 @@ import java.util.Set;
  *             update-domain-count: 20
  *         end
  */
-@ResourceType("availability-set")
+@Type("availability-set")
 public class AvailabilitySetResource extends AzureResource {
 
     private Integer faultDomainCount;

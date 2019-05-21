@@ -3,7 +3,7 @@ package gyro.azure.cdn;
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Updatable;
 
 import com.microsoft.azure.management.Azure;
@@ -57,7 +57,7 @@ import java.util.Set;
  *             type: "Standard"
  *         end
  */
-@ResourceType("cdn-endpoint")
+@Type("cdn-endpoint")
 public class CdnEndpointResource extends AzureResource {
 
     private static final String TYPE_PREMIUM = "Premium";

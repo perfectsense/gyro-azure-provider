@@ -4,7 +4,7 @@ import gyro.azure.AzureResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Updatable;
 
 import com.microsoft.azure.management.Azure;
@@ -28,7 +28,7 @@ import java.util.Set;
  *         sql-server: $(azure::sql-server sql-server-example)
  *     end
  */
-@ResourceType("sql-firewall-rule")
+@Type("sql-firewall-rule")
 public class SqlFirewallRuleResource extends AzureResource {
 
     private String id;

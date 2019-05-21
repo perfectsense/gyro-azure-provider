@@ -9,7 +9,7 @@ import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
 import gyro.core.resource.Updatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 
@@ -36,7 +36,7 @@ import java.util.Set;
  *          }
  *     end
  */
-@ResourceType("disk")
+@Type("disk")
 public class DiskResource extends AzureResource {
     private String diskName;
     private String diskId;

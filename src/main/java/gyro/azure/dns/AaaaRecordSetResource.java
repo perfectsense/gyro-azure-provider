@@ -3,7 +3,7 @@ package gyro.azure.dns;
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Updatable;
 
 import com.google.common.collect.MapDifference;
@@ -35,7 +35,7 @@ import java.util.Set;
  *         ipv6-addresses: ["2001:0db8:85a3:0000:0000:8a2e:0370:7334", "2001:0db8:85a3:0000:0000:8a2e:0370:7335"]
  *     end
  */
-@ResourceType("aaaa-record-set")
+@Type("aaaa-record-set")
 public class AaaaRecordSetResource extends AzureResource {
 
     private String dnsZoneId;

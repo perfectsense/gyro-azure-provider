@@ -5,7 +5,7 @@ import gyro.azure.storage.StorageAccountResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Updatable;
 
 import com.microsoft.azure.management.Azure;
@@ -46,7 +46,7 @@ import java.util.Set;
  *          }
  *     end
  */
-@ResourceType("sql-database")
+@Type("sql-database")
 public class SqlDatabaseResource extends AzureResource {
 
     private static final String BASIC_EDITION = "Basic";

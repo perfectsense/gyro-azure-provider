@@ -2,7 +2,7 @@ package gyro.azure.network;
 
 import gyro.azure.AzureResource;
 import gyro.core.resource.Updatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 
@@ -42,7 +42,7 @@ import java.util.Set;
  *          }
  *     end
  */
-@ResourceType("route-table")
+@Type("route-table")
 public class RouteTableResource extends AzureResource {
 
     private Boolean bgpRoutePropagationDisabled;

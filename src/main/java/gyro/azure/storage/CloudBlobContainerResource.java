@@ -3,7 +3,7 @@ package gyro.azure.storage;
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Updatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Resource;
 
 import com.microsoft.azure.storage.blob.BlobContainerPermissions;
@@ -31,7 +31,7 @@ import java.util.Set;
  *         storage-account: $(azure::storage-account blob-storage-account-example)
  *     end
  */
-@ResourceType("cloud-blob-container")
+@Type("cloud-blob-container")
 public class CloudBlobContainerResource extends AzureResource {
 
     private String containerName;

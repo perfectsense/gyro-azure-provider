@@ -7,7 +7,7 @@ import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
 import gyro.core.resource.Updatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 
@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
  *          }
  *     end
  */
-@ResourceType("network")
+@Type("network")
 public class NetworkResource extends AzureResource {
     private String networkName;
     private String resourceGroupName;

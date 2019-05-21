@@ -5,7 +5,7 @@ import gyro.azure.AzureResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Updatable;
 
 import com.microsoft.azure.management.Azure;
@@ -49,7 +49,7 @@ import java.util.Set;
  *         }
  *     end
  */
-@ResourceType("sql-elastic-pool")
+@Type("sql-elastic-pool")
 public class SqlElasticPoolResource extends AzureResource {
 
     private static final String EDITION_BASIC = "Basic";

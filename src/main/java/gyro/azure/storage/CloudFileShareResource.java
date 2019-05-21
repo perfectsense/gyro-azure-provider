@@ -3,7 +3,7 @@ package gyro.azure.storage;
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Updatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Resource;
 
 import com.microsoft.azure.storage.file.CloudFileClient;
@@ -30,7 +30,7 @@ import java.util.Set;
  *         storage-account: $(azure::storage-account blob-storage-account-example)
  *     end
  */
-@ResourceType("cloud-file-share")
+@Type("cloud-file-share")
 public class CloudFileShareResource extends AzureResource {
 
     private String cloudFileShareName;

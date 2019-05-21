@@ -8,7 +8,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
 
 import gyro.core.resource.Updatable;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 
@@ -48,7 +48,7 @@ import java.util.Set;
  *          }
  *     end
  */
-@ResourceType("network-interface")
+@Type("network-interface")
 public class NetworkInterfaceResource extends AzureResource {
     private String networkInterfaceName;
     private String resourceGroupName;
