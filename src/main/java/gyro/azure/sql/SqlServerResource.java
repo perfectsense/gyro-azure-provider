@@ -2,9 +2,9 @@ package gyro.azure.sql;
 
 import gyro.azure.AzureResource;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceOutput;
-import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Output;
+import gyro.core.Type;
+import gyro.core.resource.Updatable;
 
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
@@ -34,7 +34,7 @@ import java.util.Set;
  *         }
  *     end
  */
-@ResourceType("sql-server")
+@Type("sql-server")
 public class SqlServerResource extends AzureResource {
 
     private Boolean withAccessFromAzureServices;
@@ -76,7 +76,7 @@ public class SqlServerResource extends AzureResource {
     /**
      * The administrator password. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getAdministratorPassword() {
         return administratorPassword;
     }
@@ -88,7 +88,7 @@ public class SqlServerResource extends AzureResource {
     /**
      * The id of the server.
      */
-    @ResourceOutput
+    @Output
     public String getId() {
         return id;
     }
@@ -134,7 +134,7 @@ public class SqlServerResource extends AzureResource {
     /**
      * Determines if the system will set a local Managed Service Identity (MSI) for the server. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getSystemAssignedMsi() {
         if (systemAssignedMsi == null) {
             systemAssignedMsi = false;
@@ -149,7 +149,7 @@ public class SqlServerResource extends AzureResource {
     /**
      * The tags for the sql server. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();

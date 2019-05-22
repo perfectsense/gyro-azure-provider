@@ -14,9 +14,9 @@ import com.microsoft.azure.management.network.ApplicationGatewaySkuName;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
-import gyro.core.resource.ResourceUpdatable;
-import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Updatable;
+import gyro.core.Type;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 
 import java.util.ArrayList;
@@ -119,7 +119,7 @@ import java.util.stream.Collectors;
  *
  *     end
  */
-@ResourceType("application-gateway")
+@Type("application-gateway")
 public class ApplicationGatewayResource extends AzureResource {
     private String resourceGroupName;
     private String networkId;
@@ -200,7 +200,7 @@ public class ApplicationGatewayResource extends AzureResource {
      *
      * @subresource gyro.azure.network.RequestRoutingRule
      */
-    @ResourceUpdatable
+    @Updatable
     public List<RequestRoutingRule> getRequestRoutingRule() {
         if (requestRoutingRule == null) {
             requestRoutingRule = new ArrayList<>();
@@ -218,7 +218,7 @@ public class ApplicationGatewayResource extends AzureResource {
      *
      * @subresource gyro.azure.network.Listener
      */
-    @ResourceUpdatable
+    @Updatable
     public List<Listener> getListener() {
         if (listener == null) {
             listener = new ArrayList<>();
@@ -236,7 +236,7 @@ public class ApplicationGatewayResource extends AzureResource {
      *
      * @subresource gyro.azure.network.Backend
      */
-    @ResourceUpdatable
+    @Updatable
     public List<Backend> getBackend() {
         if (backend == null) {
             backend = new ArrayList<>();
@@ -254,7 +254,7 @@ public class ApplicationGatewayResource extends AzureResource {
      *
      * @subresource gyro.azure.network.BackendHttpConfiguration
      */
-    @ResourceUpdatable
+    @Updatable
     public List<BackendHttpConfiguration> getBackendHttpConfiguration() {
         if (backendHttpConfiguration == null) {
             backendHttpConfiguration = new ArrayList<>();
@@ -272,7 +272,7 @@ public class ApplicationGatewayResource extends AzureResource {
      *
      * @subresource gyro.azure.network.RedirectConfiguration
      */
-    @ResourceUpdatable
+    @Updatable
     public List<RedirectConfiguration> getRedirectConfiguration() {
         if (redirectConfiguration == null) {
             redirectConfiguration = new ArrayList<>();
@@ -290,7 +290,7 @@ public class ApplicationGatewayResource extends AzureResource {
      *
      * @subresource gyro.azure.network.Probe
      */
-    @ResourceUpdatable
+    @Updatable
     public List<Probe> getProbe() {
         if (probe == null) {
             probe = new ArrayList<>();
@@ -303,7 +303,7 @@ public class ApplicationGatewayResource extends AzureResource {
         this.probe = probe;
     }
 
-    @ResourceUpdatable
+    @Updatable
     public String getSkuSize() {
         return skuSize != null ? skuSize.toUpperCase() : null;
     }
@@ -315,7 +315,7 @@ public class ApplicationGatewayResource extends AzureResource {
     /**
      * Number of instances to scale. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getInstanceCount() {
         return instanceCount;
     }
@@ -327,7 +327,7 @@ public class ApplicationGatewayResource extends AzureResource {
     /**
      * Tags for the application gateway.
      */
-    @ResourceUpdatable
+    @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();
@@ -342,7 +342,7 @@ public class ApplicationGatewayResource extends AzureResource {
     /**
      * Enable http2. Defaults to false.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getEnableHttp2() {
         if (enableHttp2 == null) {
             enableHttp2 = false;
@@ -373,7 +373,7 @@ public class ApplicationGatewayResource extends AzureResource {
     /**
      * The id of the application gateway.
      */
-    @ResourceOutput
+    @Output
     public String getApplicationGatewayId() {
         return applicationGatewayId;
     }

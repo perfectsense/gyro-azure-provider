@@ -10,7 +10,7 @@ import com.microsoft.azure.management.network.LoadBalancerInboundNatRule;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
 
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ public class NicIpConfigurationResource extends AzureResource {
     /**
      * Public ip address name to be associated with the ip config.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getPublicIpAddressName() {
         return publicIpAddressName;
     }
@@ -62,7 +62,7 @@ public class NicIpConfigurationResource extends AzureResource {
     /**
      * Private ip address to be associated with the ip config.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getPrivateIpAddressStatic() {
         return privateIpAddressStatic;
     }
@@ -74,7 +74,7 @@ public class NicIpConfigurationResource extends AzureResource {
     /**
      * Set ip allocation type to be static or dynamic. Defaults to false i.e dynamic.
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getIpAllocationStatic() {
         if (ipAllocationStatic == null) {
             ipAllocationStatic = false;
@@ -105,7 +105,7 @@ public class NicIpConfigurationResource extends AzureResource {
     /**
      * The load balancer backends associated with the configuration.
      */
-    @ResourceUpdatable
+    @Updatable
     public List<NicBackend> getNicBackend() {
         if (nicBackend == null) {
             nicBackend = new ArrayList<>();
@@ -121,7 +121,7 @@ public class NicIpConfigurationResource extends AzureResource {
     /**
      * The load balancer nat rules associated with the configuration.
      */
-    @ResourceUpdatable
+    @Updatable
     public List<NicNatRule> getNicNatRule() {
         if (nicNatRule == null) {
             nicNatRule = new ArrayList<>();

@@ -5,9 +5,9 @@ import com.microsoft.azure.management.network.NetworkSecurityGroup;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
-import gyro.core.resource.ResourceUpdatable;
-import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Updatable;
+import gyro.core.Type;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 
 import java.util.ArrayList;
@@ -54,7 +54,7 @@ import java.util.Set;
  *          }
  *     end
  */
-@ResourceType("network-security-group")
+@Type("network-security-group")
 public class NetworkSecurityGroupResource extends AzureResource {
     private String networkSecurityGroupName;
     private String resourceGroupName;
@@ -84,7 +84,7 @@ public class NetworkSecurityGroupResource extends AzureResource {
         this.resourceGroupName = resourceGroupName;
     }
 
-    @ResourceOutput
+    @Output
     public String getNetworkSecurityGroupId() {
         return networkSecurityGroupId;
     }
@@ -98,7 +98,7 @@ public class NetworkSecurityGroupResource extends AzureResource {
      *
      * @subresource gyro.azure.network.NetworkSecurityGroupRuleResource
      */
-    @ResourceUpdatable
+    @Updatable
     public List<NetworkSecurityGroupRuleResource> getRule() {
         if (rule == null) {
             rule = new ArrayList<>();
@@ -111,7 +111,7 @@ public class NetworkSecurityGroupResource extends AzureResource {
         this.rule = rule;
     }
 
-    @ResourceUpdatable
+    @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();

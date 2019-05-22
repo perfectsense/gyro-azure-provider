@@ -6,9 +6,9 @@ import com.microsoft.azure.management.network.Subnet;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
-import gyro.core.resource.ResourceUpdatable;
-import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Updatable;
+import gyro.core.Type;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 
 import java.util.ArrayList;
@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
  *          }
  *     end
  */
-@ResourceType("network")
+@Type("network")
 public class NetworkResource extends AzureResource {
     private String networkName;
     private String resourceGroupName;
@@ -85,7 +85,7 @@ public class NetworkResource extends AzureResource {
     /**
      * Address spaces for the network. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public List<String> getAddressSpaces() {
         if (addressSpaces == null) {
             addressSpaces = new ArrayList<>();
@@ -115,7 +115,7 @@ public class NetworkResource extends AzureResource {
         this.subnet = subnet;
     }
 
-    @ResourceUpdatable
+    @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();
@@ -128,7 +128,7 @@ public class NetworkResource extends AzureResource {
         this.tags = tags;
     }
 
-    @ResourceOutput
+    @Output
     public String getNetworkId() {
         return networkId;
     }

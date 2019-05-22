@@ -7,9 +7,9 @@ import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
 
-import gyro.core.resource.ResourceUpdatable;
-import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Updatable;
+import gyro.core.Type;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 
 import java.util.ArrayList;
@@ -48,7 +48,7 @@ import java.util.Set;
  *          }
  *     end
  */
-@ResourceType("network-interface")
+@Type("network-interface")
 public class NetworkInterfaceResource extends AzureResource {
     private String networkInterfaceName;
     private String resourceGroupName;
@@ -85,7 +85,7 @@ public class NetworkInterfaceResource extends AzureResource {
     /**
      * The id of the virtual network the interface is going be assigned with. (Required)
      */
-    @ResourceOutput
+    @Output
     public String getNetworkId() {
         return networkId;
     }
@@ -119,7 +119,7 @@ public class NetworkInterfaceResource extends AzureResource {
     /**
      * The id of a security group to be assigned with the interface.
      */
-    @ResourceUpdatable
+    @Updatable
     public String getSecurityGroupId() {
         return securityGroupId;
     }
@@ -136,7 +136,7 @@ public class NetworkInterfaceResource extends AzureResource {
         this.networkInterfaceId = networkInterfaceId;
     }
 
-    @ResourceUpdatable
+    @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();
@@ -154,7 +154,7 @@ public class NetworkInterfaceResource extends AzureResource {
      *
      * @subresource gyro.azure.network.NicIpConfigurationResource
      */
-    @ResourceUpdatable
+    @Updatable
     public List<NicIpConfigurationResource> getNicIpConfiguration() {
         if (nicIpConfiguration == null) {
             nicIpConfiguration = new ArrayList<>();

@@ -1,7 +1,7 @@
 package gyro.azure.network;
 
 import gyro.core.resource.Diffable;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,7 +17,7 @@ public abstract class Frontend extends Diffable {
     /**
      * The inbound nat pools associated with the frontend. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public List<InboundNatPool> getInboundNatPool() {
         if (inboundNatPool == null) {
             inboundNatPool = new ArrayList<>();
@@ -34,7 +34,7 @@ public abstract class Frontend extends Diffable {
      * The inbound nat rules associated with the frontend. Nat rules may not be
      * associated with a frontend if a nat pool is associated. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public List<InboundNatRule> getInboundNatRule() {
         if (inboundNatRule == null) {
             inboundNatRule = new ArrayList<>();
@@ -47,7 +47,7 @@ public abstract class Frontend extends Diffable {
         this.inboundNatRule = inboundNatRule;
     }
 
-    @ResourceUpdatable
+    @Updatable
     public Map<String, InboundNatRule> rules() {
         if (rules == null) {
             rules = new HashMap<>();

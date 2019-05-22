@@ -1,6 +1,6 @@
 package gyro.azure.network;
 
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 
 import com.microsoft.azure.management.network.LoadBalancerPublicFrontend;
 
@@ -56,7 +56,7 @@ public class PublicFrontend extends Frontend {
     /**
      * The name of the public ip address associated with the frontend. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getPublicIpAddressName() {
         return publicIpAddressName;
     }

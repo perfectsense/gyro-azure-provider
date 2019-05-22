@@ -1,7 +1,7 @@
 package gyro.azure.network;
 
 import gyro.core.resource.Diffable;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 
 import com.microsoft.azure.management.network.LoadBalancingRule;
 import com.microsoft.azure.management.network.TransportProtocol;
@@ -66,7 +66,7 @@ public class LoadBalancerRule extends Diffable {
     /**
      * The backend port that receives network traffic. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getBackendPort() {
         return backendPort;
     }
@@ -78,7 +78,7 @@ public class LoadBalancerRule extends Diffable {
     /**
      * Determines whether floating ip support is enabled. Defaults to false (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public Boolean getFloatingIp() {
         if (floatingIp == null) {
             floatingIp = false;
@@ -94,7 +94,7 @@ public class LoadBalancerRule extends Diffable {
     /**
      * The name of the frontend associated with the load balancer rule (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getFrontendName() {
         return frontendName;
     }
@@ -106,7 +106,7 @@ public class LoadBalancerRule extends Diffable {
     /**
      * The frontend port that receives network traffic. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getFrontendPort() {
         return frontendPort;
     }
@@ -118,7 +118,7 @@ public class LoadBalancerRule extends Diffable {
     /**
      * The number of minutes before an unresponsive connection is closed. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getIdleTimeoutInMinutes() {
         return idleTimeoutInMinutes;
     }
@@ -141,7 +141,7 @@ public class LoadBalancerRule extends Diffable {
     /**
      * The health check probe associated with the load balancer rule. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getHealthCheckProbeName() {
         return healthCheckProbeName;
     }
@@ -153,7 +153,7 @@ public class LoadBalancerRule extends Diffable {
     /**
      * The protocol used by the load balancer rule. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getProtocol() {
         return protocol;
     }

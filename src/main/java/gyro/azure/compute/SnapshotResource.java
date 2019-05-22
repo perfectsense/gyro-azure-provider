@@ -3,9 +3,9 @@ package gyro.azure.compute;
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceUpdatable;
-import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Updatable;
+import gyro.core.Type;
+import gyro.core.resource.Output;
 
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.compute.Snapshot;
@@ -39,7 +39,7 @@ import java.util.Set;
  *            }
  *        end
  */
-@ResourceType("snapshot")
+@Type("snapshot")
 public class SnapshotResource extends AzureResource {
 
     private static final String SOURCE_DATA = "Data";
@@ -75,7 +75,7 @@ public class SnapshotResource extends AzureResource {
     /**
      * Id associated with the snapshot.
      */
-    @ResourceOutput
+    @Output
     public String getId() {
         return id;
     }
@@ -120,7 +120,7 @@ public class SnapshotResource extends AzureResource {
     /**
      * Specifies the sku type. Options include Premium_LRS, Standard_LRS, Standard_ZRS. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getSku() {
         return sku;
     }
@@ -165,7 +165,7 @@ public class SnapshotResource extends AzureResource {
     /**
      * The tags associated with the snapshot. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();

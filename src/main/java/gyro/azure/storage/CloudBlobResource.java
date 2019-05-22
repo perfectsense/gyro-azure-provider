@@ -2,7 +2,7 @@ package gyro.azure.storage;
 
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceType;
+import gyro.core.Type;
 import gyro.core.resource.Resource;
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.StorageException;
@@ -10,7 +10,7 @@ import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlobDirectory;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Output;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -38,7 +38,7 @@ import java.io.File;
  *         storage-account: $(azure::storage-account blob-storage-account-example)
  *     end
  */
-@ResourceType("cloud-blob")
+@Type("cloud-blob")
 public class CloudBlobResource extends AzureResource {
 
     private String blobName;
@@ -103,7 +103,7 @@ public class CloudBlobResource extends AzureResource {
         this.storageAccount = storageAccount;
     }
 
-    @ResourceOutput
+    @Output
     public String getUri() {
         return uri;
     }

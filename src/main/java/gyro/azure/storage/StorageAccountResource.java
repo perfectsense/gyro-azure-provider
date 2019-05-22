@@ -10,9 +10,9 @@ import com.microsoft.azure.storage.queue.CloudQueueClient;
 import com.microsoft.azure.storage.table.CloudTableClient;
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceUpdatable;
-import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Updatable;
+import gyro.core.Type;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 
 import com.microsoft.azure.management.Azure;
@@ -45,7 +45,7 @@ import java.util.Set;
  *         }
  *     end
  */
-@ResourceType("storage-account")
+@Type("storage-account")
 public class StorageAccountResource extends AzureResource {
 
     private List<Cors> corsRule;
@@ -58,7 +58,7 @@ public class StorageAccountResource extends AzureResource {
     /**
      * The cors rules associated with the storage account. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public List<Cors> getCorsRule() {
         if (corsRule == null) {
             corsRule = new ArrayList<>();
@@ -71,7 +71,7 @@ public class StorageAccountResource extends AzureResource {
         this.corsRule = corsRule;
     }
 
-    @ResourceOutput
+    @Output
     public Map<String, String> getKeys() {
         if (keys == null) {
             keys = new HashMap<>();
@@ -92,7 +92,7 @@ public class StorageAccountResource extends AzureResource {
         this.resourceGroupName = resourceGroupName;
     }
 
-    @ResourceOutput
+    @Output
     public String getId() {
         return id;
     }
@@ -115,7 +115,7 @@ public class StorageAccountResource extends AzureResource {
     /**
      * The tags for the storage account. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();

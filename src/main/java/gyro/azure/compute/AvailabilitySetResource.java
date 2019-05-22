@@ -1,9 +1,9 @@
 package gyro.azure.compute;
 
 import gyro.azure.AzureResource;
-import gyro.core.resource.ResourceUpdatable;
-import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceOutput;
+import gyro.core.resource.Updatable;
+import gyro.core.Type;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 
 import com.microsoft.azure.management.Azure;
@@ -34,7 +34,7 @@ import java.util.Set;
  *             update-domain-count: 20
  *         end
  */
-@ResourceType("availability-set")
+@Type("availability-set")
 public class AvailabilitySetResource extends AzureResource {
 
     private Integer faultDomainCount;
@@ -59,7 +59,7 @@ public class AvailabilitySetResource extends AzureResource {
     /**
      * The id of the availability set.
      */
-    @ResourceOutput
+    @Output
     public String getId() {
         return id;
     }
@@ -93,7 +93,7 @@ public class AvailabilitySetResource extends AzureResource {
     /**
      * The availability set sku. Options are Aligned and Classic. Defaults to Classic. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getSku() {
         if (sku == null) {
             sku = "Classic";
@@ -109,7 +109,7 @@ public class AvailabilitySetResource extends AzureResource {
     /**
      * The tags associated with the availability set. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();

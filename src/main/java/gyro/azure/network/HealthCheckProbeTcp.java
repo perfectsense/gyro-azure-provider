@@ -1,7 +1,7 @@
 package gyro.azure.network;
 
 import gyro.core.resource.Diffable;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 
 import com.microsoft.azure.management.network.LoadBalancerTcpProbe;
 
@@ -52,7 +52,7 @@ public class HealthCheckProbeTcp extends Diffable {
     /**
      * The amount of time between probes. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getInterval() {
         return interval;
     }
@@ -64,7 +64,7 @@ public class HealthCheckProbeTcp extends Diffable {
     /**
      * The destination port used for a probe. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getPort() {
         return port;
     }
@@ -76,7 +76,7 @@ public class HealthCheckProbeTcp extends Diffable {
     /**
      * Health probe failures required by an unhealthy target to be considered unhealthy (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getProbes() {
         return probes;
     }

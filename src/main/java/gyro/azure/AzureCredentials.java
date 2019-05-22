@@ -5,20 +5,17 @@ import com.microsoft.azure.credentials.ApplicationTokenCredentials;
 import com.microsoft.azure.credentials.AzureTokenCredentials;
 import com.microsoft.azure.management.Azure;
 import com.microsoft.rest.LogLevel;
-import gyro.core.Credentials;
 import gyro.core.GyroException;
-import gyro.core.resource.ResourceType;
+import gyro.core.auth.Credentials;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-@ResourceType("credentials")
-public class AzureCredentials extends Credentials<Azure.Authenticated> {
+public class AzureCredentials extends Credentials {
 
     private String region;
-
     private String credentialFilePath;
-
     private String logLevel;
 
     public String getRegion() {
@@ -45,44 +42,34 @@ public class AzureCredentials extends Credentials<Azure.Authenticated> {
         this.logLevel = logLevel;
     }
 
-    @Override
-    public String getCloudName() {
-        return "azure";
-    }
-
-    @Override
-    public Azure.Authenticated findCredentials(boolean refresh) {
+    public Azure createClient() {
         AzureEnvironment environment = AzureEnvironment.AZURE;
-        Properties credentialsProperties = loadProperties();
+        Properties properties;
+
+        try (InputStream input = openInput(getCredentialFilePath())) {
+            properties = new Properties();
+
+            properties.load(input);
+
+        } catch (IOException error) {
+            throw new GyroException(error.getMessage());
+        }
+
         AzureTokenCredentials credentials = new ApplicationTokenCredentials(
-            (String) credentialsProperties.get("client"),
-            (String) credentialsProperties.get("tenant"),
-            (String) credentialsProperties.get("key"),
-            environment
-        );
+            (String) properties.get("client"),
+            (String) properties.get("tenant"),
+            (String) properties.get("key"),
+            environment);
 
-        return Azure.configure()
-            .withLogLevel(LogLevel.valueOf(getLogLevel()))
-            .authenticate(credentials);
-    }
+        try {
+            return Azure.configure()
+                .withLogLevel(LogLevel.valueOf(getLogLevel()))
+                .authenticate(credentials)
+                .withDefaultSubscription();
 
-    @Override
-    public Azure.Authenticated findCredentials(boolean refresh, boolean extended) {
-        return findCredentials(refresh);
-    }
-
-    private Properties loadProperties() {
-        try (InputStream input = getRelativeCredentialsPath()) {
-            Properties props = new Properties();
-            props.load(input);
-
-            return props;
-        } catch (Exception ex) {
-            throw new GyroException(ex.getMessage());
+        } catch (IOException error) {
+            throw new GyroException(error.getMessage(), error);
         }
     }
 
-    private InputStream getRelativeCredentialsPath() throws Exception {
-        return openInput(getCredentialFilePath());
-    }
 }

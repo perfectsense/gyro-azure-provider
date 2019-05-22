@@ -1,7 +1,7 @@
 package gyro.azure.network;
 
 import gyro.core.resource.Diffable;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 
 /**
  * Creates a route in a route table.
@@ -39,7 +39,7 @@ public class Route extends Diffable {
     /**
      * The destination address prefix to which the route applies. Expressed in CIDR notation. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getDestinationAddressPrefix() {
         return destinationAddressPrefix;
     }
@@ -62,7 +62,7 @@ public class Route extends Diffable {
     /**
      * The IP address of the next hop. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getNextHopIpAddress() {
         return nextHopIpAddress;
     }
@@ -74,7 +74,7 @@ public class Route extends Diffable {
     /**
      * The type of the next hop. Options are: Internet, VirtualAppliance, VnetLocal, VirtualNetworkGateway, None (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getNextHopType() {
         return nextHopType;
     }

@@ -3,8 +3,8 @@ package gyro.azure.dns;
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.Type;
+import gyro.core.resource.Updatable;
 
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
@@ -33,7 +33,7 @@ import java.util.Set;
  *         dns-zone-id: $(azure::dns-zone dns-zone-example-zones | id)
  *     end
  */
-@ResourceType("cname-record-set")
+@Type("cname-record-set")
 public class CnameRecordSetResource extends AzureResource {
 
     private String alias;
@@ -45,7 +45,7 @@ public class CnameRecordSetResource extends AzureResource {
     /**
      * The alias for the record. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getAlias() {
         return alias;
     }
@@ -68,7 +68,7 @@ public class CnameRecordSetResource extends AzureResource {
     /**
      * The metadata for the record. (Optional)
      */
-    @ResourceUpdatable
+    @Updatable
     public Map<String, String> getMetadata() {
         if (metadata == null) {
             metadata = new HashMap<>();
@@ -95,7 +95,7 @@ public class CnameRecordSetResource extends AzureResource {
     /**
      * The Time To Live for the records in the set. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getTimeToLive() {
         return timeToLive;
     }

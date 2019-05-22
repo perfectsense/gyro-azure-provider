@@ -3,9 +3,9 @@ package gyro.azure.sql;
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
 import gyro.core.resource.Resource;
-import gyro.core.resource.ResourceOutput;
-import gyro.core.resource.ResourceType;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Output;
+import gyro.core.Type;
+import gyro.core.resource.Updatable;
 
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.sql.SqlVirtualNetworkRule;
@@ -28,7 +28,7 @@ import java.util.Set;
  *         sql-server: $(azure::sql-server sql-server-example)
  *     end
  */
-@ResourceType("sql-virtual-network-rule")
+@Type("sql-virtual-network-rule")
 public class SqlVirtualNetworkRuleResource extends AzureResource {
 
     private String id;
@@ -41,7 +41,7 @@ public class SqlVirtualNetworkRuleResource extends AzureResource {
     /**
      * The id of the virtual network rule.
      */
-    @ResourceOutput
+    @Output
     public String getId() {
         return id;
     }
@@ -64,7 +64,7 @@ public class SqlVirtualNetworkRuleResource extends AzureResource {
     /**
      * The network id where the subnet is found. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getNetworkId() {
         return networkId;
     }
@@ -87,7 +87,7 @@ public class SqlVirtualNetworkRuleResource extends AzureResource {
     /**
      * The name of a subnet within the specified network. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getSubnetName() {
         return subnetName;
     }

@@ -1,7 +1,7 @@
 package gyro.azure.network;
 
 import gyro.core.resource.Diffable;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 
 import com.microsoft.azure.management.network.LoadBalancerInboundNatPool;
 import com.microsoft.azure.management.network.TransportProtocol;
@@ -46,7 +46,7 @@ public class InboundNatPool extends Diffable {
     /**
      * The port number that network traffic is sent to. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getBackendPort() {
         return backendPort;
     }
@@ -58,7 +58,7 @@ public class InboundNatPool extends Diffable {
     /**
      * The name of the frontend that this nat pool is associated with. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getFrontendName() {
         return frontendName;
     }
@@ -70,7 +70,7 @@ public class InboundNatPool extends Diffable {
     /**
      * The starting number of the frontend port. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getFrontendPortRangeStart() {
         return frontendPortRangeStart;
     }
@@ -82,7 +82,7 @@ public class InboundNatPool extends Diffable {
     /**
      * The ending number of the frontend port. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getFrontendPortRangeEnd() {
         return frontendPortRangeEnd;
     }
@@ -105,7 +105,7 @@ public class InboundNatPool extends Diffable {
     /**
      * The protocol used by the nat pool. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public String getProtocol() {
         return protocol;
     }

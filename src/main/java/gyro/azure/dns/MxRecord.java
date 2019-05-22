@@ -1,7 +1,7 @@
 package gyro.azure.dns;
 
 import gyro.core.resource.Diffable;
-import gyro.core.resource.ResourceUpdatable;
+import gyro.core.resource.Updatable;
 
 /**
  * Creates an MX Record.
@@ -52,7 +52,7 @@ public class MxRecord extends Diffable {
     /**
      * The priority for the mail exchange host. The lower the value, the higher the priority. (Required)
      */
-    @ResourceUpdatable
+    @Updatable
     public Integer getPreference() {
         return preference;
     }
