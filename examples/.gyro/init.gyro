@@ -3,7 +3,7 @@
 @repository 'https://repo.gradle.org/gradle/libs-releases/'
 @repository 'https://artifactory.psdops.com/public'
 @repository 'https://artifactory.psdops.com/gyro-snapshots'
-@plugin 'gyro:gyro-azure-provider:0.14-SNAPSHOT'
+@plugin 'gyro:gyro-azure-provider:0.15-SNAPSHOT'
 
 @credentials 'azure::credentials' {
     region: "westus",
