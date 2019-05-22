@@ -10,7 +10,7 @@ if (System.getenv('TRAVIS_BRANCH') && System.getenv('TRAVIS_PULL_REQUEST') == 'f
 }
 
 group = 'gyro'
-version = '0.14-SNAPSHOT'
+version = '0.15-SNAPSHOT'
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
@@ -37,7 +37,7 @@ configurations {
 def azureSdkVersion = '1.21.0'
 
 dependencies {
-    api 'gyro:gyro-core:0.14-SNAPSHOT'
+    api 'gyro:gyro-core:0.15-SNAPSHOT'
 
     implementation 'com.psddev:dari-util:3.3.607-xe0f27a'
     implementation 'com.google.guava:guava:23.0'
@@ -50,7 +50,7 @@ dependencies {
     implementation 'com.microsoft.azure:azure-storage:8.0.0'
     implementation 'com.github.seancfoley:ipaddress:5.0.2'
 
-    gyroDoclet 'gyro:gyro-doclet:0.14-SNAPSHOT'
+    gyroDoclet 'gyro:gyro-doclet:0.15-SNAPSHOT'
 }
 
 task referenceDocs(type: Javadoc) {
