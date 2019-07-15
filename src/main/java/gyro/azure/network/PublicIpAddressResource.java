@@ -12,6 +12,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.scope.State;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -182,7 +183,7 @@ public class PublicIpAddressResource extends AzureResource {
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         Azure client = createClient();
 
         WithCreate withCreate = client.publicIPAddresses()
@@ -223,7 +224,7 @@ public class PublicIpAddressResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(State state, Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         PublicIPAddress publicIpAddress = client.publicIPAddresses().getByResourceGroup(getResourceGroupName(), getPublicIpAddressName());
@@ -249,7 +250,7 @@ public class PublicIpAddressResource extends AzureResource {
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         Azure client = createClient();
 
         client.publicIPAddresses().deleteByResourceGroup(getResourceGroupName(), getPublicIpAddressName());

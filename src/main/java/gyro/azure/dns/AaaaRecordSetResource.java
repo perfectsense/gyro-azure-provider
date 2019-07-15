@@ -14,6 +14,7 @@ import com.microsoft.azure.management.dns.DnsRecordSet;
 import com.microsoft.azure.management.dns.DnsZone;
 import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.AaaaRecordSetBlank;
 import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.WithAaaaRecordIPv6AddressOrAttachable;
+import gyro.core.scope.State;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -131,7 +132,7 @@ public class AaaaRecordSetResource extends AzureResource {
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         if (getIpv6Addresses().isEmpty()) {
             throw new GyroException("At least one ipv6 address must be provided.");
         }
@@ -159,7 +160,7 @@ public class AaaaRecordSetResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
         DnsRecordSet.UpdateAaaaRecordSet updateAaaaRecordSet =
@@ -207,7 +208,7 @@ public class AaaaRecordSetResource extends AzureResource {
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         Azure client = createClient();
 
         client.dnsZones().getById(getDnsZoneId()).update().withoutAaaaRecordSet(getName()).apply();

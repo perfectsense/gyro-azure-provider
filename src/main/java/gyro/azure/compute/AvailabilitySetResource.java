@@ -10,6 +10,7 @@ import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.compute.AvailabilitySet;
 import com.microsoft.azure.management.compute.AvailabilitySetSkuTypes;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
+import gyro.core.scope.State;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -153,7 +154,7 @@ public class AvailabilitySetResource extends AzureResource {
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         Azure client = createClient();
 
         AvailabilitySet availabilitySet = client.availabilitySets().define(getName())
@@ -169,7 +170,7 @@ public class AvailabilitySetResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(State state, Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         client.availabilitySets().getById(getId()).update()
@@ -179,7 +180,7 @@ public class AvailabilitySetResource extends AzureResource {
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         Azure client = createClient();
 
         client.availabilitySets().deleteById(getId());

@@ -14,6 +14,7 @@ import com.microsoft.azure.management.dns.DnsRecordSet;
 import com.microsoft.azure.management.dns.DnsZone;
 import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.ARecordSetBlank;
 import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.WithARecordIPv4AddressOrAttachable;
+import gyro.core.scope.State;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -129,7 +130,7 @@ public class ARecordSetResource extends AzureResource {
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         if (getIpv4Addresses().isEmpty()) {
             throw new GyroException("At least one ipv4 address must be provided.");
         }
@@ -157,7 +158,7 @@ public class ARecordSetResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
         DnsRecordSet.UpdateARecordSet updateARecordSet =
@@ -205,7 +206,7 @@ public class ARecordSetResource extends AzureResource {
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         Azure client = createClient();
 
         client.dnsZones().getById(getDnsZoneId()).update().withoutARecordSet(getName()).apply();

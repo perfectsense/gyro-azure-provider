@@ -9,6 +9,7 @@ import gyro.core.resource.Resource;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.file.CloudFile;
 import com.microsoft.azure.storage.file.CloudFileDirectory;
+import gyro.core.scope.State;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -109,7 +110,7 @@ public class CloudFileResource extends AzureResource {
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         try {
             CloudFile file = cloudFile();
             file.uploadFromFile(getFilePath());
@@ -119,10 +120,10 @@ public class CloudFileResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {}
+    public void update(State state, Resource current, Set<String> changedFieldNames) {}
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         try {
             CloudFile file = cloudFile();
             file.delete();

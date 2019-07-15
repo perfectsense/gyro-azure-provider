@@ -13,6 +13,7 @@ import com.microsoft.azure.management.dns.CNameRecordSet;
 import com.microsoft.azure.management.dns.DnsRecordSet;
 import com.microsoft.azure.management.dns.DnsZone;
 import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.WithCNameRecordSetAttachable;
+import gyro.core.scope.State;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -123,7 +124,7 @@ public class CnameRecordSetResource extends AzureResource {
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         if (getAlias() == null) {
             throw new GyroException("An alias must be provided.");
         }
@@ -147,7 +148,7 @@ public class CnameRecordSetResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
         DnsRecordSet.UpdateCNameRecordSet updateCNameRecordSet =
@@ -185,7 +186,7 @@ public class CnameRecordSetResource extends AzureResource {
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         Azure client = createClient();
 
         client.dnsZones().getById(getDnsZoneId()).update().withoutCaaRecordSet(getName()).apply();

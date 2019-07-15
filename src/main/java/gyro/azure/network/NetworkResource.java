@@ -10,6 +10,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.scope.State;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -159,7 +160,7 @@ public class NetworkResource extends AzureResource {
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         Azure client = createClient();
 
         Network.DefinitionStages.WithCreate networkDefWithoutAddress = client.networks()
@@ -191,7 +192,7 @@ public class NetworkResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(State state, Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         Network network = client.networks().getById(getNetworkId());
@@ -229,7 +230,7 @@ public class NetworkResource extends AzureResource {
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         Azure client = createClient();
 
         client.networks().deleteById(getNetworkId());

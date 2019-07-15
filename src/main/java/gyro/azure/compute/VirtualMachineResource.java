@@ -31,6 +31,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.scope.State;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -475,7 +476,7 @@ public class VirtualMachineResource extends AzureResource {
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         Azure client = createClient();
 
         WithNetwork withNetwork = client.virtualMachines().define(getVirtualMachineName())
@@ -688,7 +689,7 @@ public class VirtualMachineResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(State state, Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         VirtualMachine virtualMachine = client.virtualMachines().getById(getVirtualMachineId());
@@ -702,7 +703,7 @@ public class VirtualMachineResource extends AzureResource {
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         Azure client = createClient();
 
         client.virtualMachines().deleteById(getVirtualMachineId());

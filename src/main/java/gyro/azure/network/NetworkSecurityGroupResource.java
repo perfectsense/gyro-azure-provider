@@ -9,6 +9,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.scope.State;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -145,7 +146,7 @@ public class NetworkSecurityGroupResource extends AzureResource {
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         Azure client = createClient();
 
         NetworkSecurityGroup networkSecurityGroup = client.networkSecurityGroups()
@@ -159,7 +160,7 @@ public class NetworkSecurityGroupResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(State state, Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         NetworkSecurityGroup networkSecurityGroup = client.networkSecurityGroups().getById(getNetworkSecurityGroupId());
@@ -168,7 +169,7 @@ public class NetworkSecurityGroupResource extends AzureResource {
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         Azure client = createClient();
 
         client.networkSecurityGroups().deleteById(getNetworkSecurityGroupId());

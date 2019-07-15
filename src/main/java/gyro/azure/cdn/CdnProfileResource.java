@@ -11,6 +11,7 @@ import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.cdn.CdnProfile;
 import com.microsoft.azure.management.cdn.CdnProfile.DefinitionStages.WithSku;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
+import gyro.core.scope.State;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -123,7 +124,7 @@ public class CdnProfileResource extends AzureResource {
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         Azure client = createClient();
 
         WithSku withSku = client.cdnProfiles().define(getName())
@@ -146,7 +147,7 @@ public class CdnProfileResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
         CdnProfile.Update update = client.cdnProfiles().getById(getId()).update().withTags(getTags());
@@ -154,7 +155,7 @@ public class CdnProfileResource extends AzureResource {
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         Azure client = createClient();
 
         client.cdnProfiles().deleteById(getId());

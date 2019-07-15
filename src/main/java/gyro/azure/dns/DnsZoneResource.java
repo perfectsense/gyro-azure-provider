@@ -9,6 +9,7 @@ import gyro.core.resource.Updatable;
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.dns.DnsZone;
 import com.microsoft.azure.management.dns.ZoneType;
+import gyro.core.scope.State;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -165,7 +166,7 @@ public class DnsZoneResource extends AzureResource {
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         Azure client = createClient();
 
         DnsZone.DefinitionStages.WithCreate withCreate;
@@ -190,7 +191,7 @@ public class DnsZoneResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
         DnsZone.Update update = client.dnsZones().getById(getId()).update();
@@ -200,7 +201,7 @@ public class DnsZoneResource extends AzureResource {
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         Azure client = createClient();
 
         client.dnsZones().deleteById(getId());

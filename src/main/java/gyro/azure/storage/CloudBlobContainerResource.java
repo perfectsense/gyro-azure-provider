@@ -12,6 +12,7 @@ import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.BlobContainerPublicAccessType;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
+import gyro.core.scope.State;
 
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
@@ -87,7 +88,7 @@ public class CloudBlobContainerResource extends AzureResource {
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         try {
             CloudBlobContainer container = cloudBlobContainer();
             container.create();
@@ -100,7 +101,7 @@ public class CloudBlobContainerResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(State state, Resource current, Set<String> changedFieldNames) {
         try {
             CloudBlobContainer container = cloudBlobContainer();
             BlobContainerPermissions permissions = new BlobContainerPermissions();
@@ -112,7 +113,7 @@ public class CloudBlobContainerResource extends AzureResource {
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         try {
             CloudBlobContainer container = cloudBlobContainer();
             container.delete();

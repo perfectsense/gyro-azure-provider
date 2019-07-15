@@ -9,6 +9,7 @@ import gyro.core.resource.Updatable;
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.microsoft.azure.management.sql.SqlServer;
+import gyro.core.scope.State;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -182,7 +183,7 @@ public class SqlServerResource extends AzureResource {
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         Azure client = createClient();
 
         SqlServer.DefinitionStages.WithCreate withCreate = client.sqlServers().define(getName())
@@ -206,7 +207,7 @@ public class SqlServerResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
         SqlServer.Update update = client.sqlServers().getById(getId()).update();
@@ -221,7 +222,7 @@ public class SqlServerResource extends AzureResource {
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         Azure client = createClient();
 
         client.sqlServers().deleteById(getId());

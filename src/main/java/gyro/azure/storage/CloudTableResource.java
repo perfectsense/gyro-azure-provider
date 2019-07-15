@@ -10,6 +10,7 @@ import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.table.CloudTable;
 import com.microsoft.azure.storage.table.CloudTableClient;
+import gyro.core.scope.State;
 
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
@@ -72,7 +73,7 @@ public class CloudTableResource extends AzureResource {
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         try {
             CloudTable cloudTable = cloudTable();
             cloudTable.create();
@@ -82,10 +83,10 @@ public class CloudTableResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {}
+    public void update(State state, Resource current, Set<String> changedFieldNames) {}
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         try {
             CloudTable cloudTable = cloudTable();
             cloudTable.delete();

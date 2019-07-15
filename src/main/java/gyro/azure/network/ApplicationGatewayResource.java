@@ -18,6 +18,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.scope.State;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -394,7 +395,7 @@ public class ApplicationGatewayResource extends AzureResource {
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         Azure client = createClient();
 
         ApplicationGateway.DefinitionStages.WithRequestRoutingRule withRequestRoutingRule = client.applicationGateways()
@@ -447,7 +448,7 @@ public class ApplicationGatewayResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource resource, Set<String> changedFieldNames) {
+    public void update(State state, Resource resource, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         ApplicationGateway applicationGateway = client.applicationGateways().getById(getApplicationGatewayId());
@@ -476,7 +477,7 @@ public class ApplicationGatewayResource extends AzureResource {
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         Azure client = createClient();
 
         client.applicationGateways().deleteById(getApplicationGatewayId());

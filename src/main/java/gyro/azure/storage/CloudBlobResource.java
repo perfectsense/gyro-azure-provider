@@ -11,6 +11,7 @@ import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlobDirectory;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import gyro.core.resource.Output;
+import gyro.core.scope.State;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -128,7 +129,7 @@ public class CloudBlobResource extends AzureResource {
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         try {
             CloudBlockBlob blob = cloudBlobBlob();
             File file = new File(getFilePath());
@@ -140,10 +141,10 @@ public class CloudBlobResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {}
+    public void update(State state, Resource current, Set<String> changedFieldNames) {}
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         try {
             CloudBlockBlob blob = cloudBlobBlob();
             blob.delete();

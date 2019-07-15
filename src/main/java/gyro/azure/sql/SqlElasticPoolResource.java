@@ -22,6 +22,7 @@ import com.microsoft.azure.management.sql.SqlElasticPoolStandardMaxEDTUs;
 import com.microsoft.azure.management.sql.SqlElasticPoolStandardMinEDTUs;
 import com.microsoft.azure.management.sql.SqlElasticPoolStandardStorage;
 import com.microsoft.azure.management.sql.SqlElasticPoolOperations.DefinitionStages.WithEdition;
+import gyro.core.scope.State;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -219,7 +220,7 @@ public class SqlElasticPoolResource extends AzureResource {
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         if (getSqlServer() == null) {
             throw new GyroException("You must provide a sql server resource.");
         }
@@ -263,7 +264,7 @@ public class SqlElasticPoolResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
         SqlElasticPool.Update update = sqlElasticPool(client).update();
@@ -294,7 +295,7 @@ public class SqlElasticPoolResource extends AzureResource {
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         Azure client = createClient();
 
         sqlElasticPool(client).delete();

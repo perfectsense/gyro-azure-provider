@@ -13,6 +13,7 @@ import com.microsoft.azure.management.compute.SnapshotSkuType;
 import com.microsoft.azure.management.compute.SnapshotStorageAccountTypes;
 import com.microsoft.azure.management.compute.Snapshot.DefinitionStages.WithCreate;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
+import gyro.core.scope.State;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -209,7 +210,7 @@ public class SnapshotResource extends AzureResource {
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         Azure client = createClient();
 
         Snapshot.DefinitionStages.WithSnapshotSource withSnapshotSource = client.snapshots().define(getName())
@@ -270,7 +271,7 @@ public class SnapshotResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(State state, Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         client.snapshots().getById(getId())
@@ -281,7 +282,7 @@ public class SnapshotResource extends AzureResource {
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         Azure client = createClient();
 
         client.snapshots().deleteById(getId());

@@ -11,6 +11,7 @@ import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.sql.SqlFirewallRule;
 import com.microsoft.azure.management.sql.SqlFirewallRuleOperations.DefinitionStages.WithIPAddressRange;
 import com.microsoft.azure.management.sql.SqlFirewallRuleOperations.DefinitionStages.WithCreate;
+import gyro.core.scope.State;
 
 import java.util.Set;
 
@@ -115,7 +116,7 @@ public class SqlFirewallRuleResource extends AzureResource {
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         if (getSqlServer() == null) {
             throw new GyroException("You must provide a sql server resource.");
         }
@@ -137,7 +138,7 @@ public class SqlFirewallRuleResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
         SqlFirewallRule.Update update = sqlFirewallRule(client).update();
@@ -152,7 +153,7 @@ public class SqlFirewallRuleResource extends AzureResource {
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         Azure client = createClient();
 
         sqlFirewallRule(client).delete();

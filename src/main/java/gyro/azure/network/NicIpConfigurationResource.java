@@ -12,6 +12,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
+import gyro.core.scope.State;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -159,7 +160,7 @@ public class NicIpConfigurationResource extends AzureResource {
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         if (getPrimary()) {
             return;
         }
@@ -208,7 +209,7 @@ public class NicIpConfigurationResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(State state, Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         NetworkInterfaceResource parent = (NetworkInterfaceResource) parent();
@@ -255,7 +256,7 @@ public class NicIpConfigurationResource extends AzureResource {
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         if (getPrimary()) {
             return;
         }

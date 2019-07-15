@@ -11,6 +11,7 @@ import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.file.CloudFileClient;
 import com.microsoft.azure.storage.file.CloudFileDirectory;
 import com.microsoft.azure.storage.file.CloudFileShare;
+import gyro.core.scope.State;
 
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
@@ -109,7 +110,7 @@ public class CloudFileDirectoryResource extends AzureResource {
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         try {
             CloudFileDirectory directory = cloudFileDirectory();
             directory.create();
@@ -119,10 +120,10 @@ public class CloudFileDirectoryResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {}
+    public void update(State state, Resource current, Set<String> changedFieldNames) {}
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         try {
             CloudFileDirectory directory = cloudFileDirectory();
             directory.delete();

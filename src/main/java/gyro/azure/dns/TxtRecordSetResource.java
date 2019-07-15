@@ -13,6 +13,7 @@ import com.microsoft.azure.management.dns.DnsRecordSet;
 import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.WithTxtRecordTextValueOrAttachable;
 import com.microsoft.azure.management.dns.DnsZone;
 import com.microsoft.azure.management.dns.TxtRecordSet;
+import gyro.core.scope.State;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -130,7 +131,7 @@ public class TxtRecordSetResource extends AzureResource {
     }
 
     @Override
-    public void create() {
+    public void create(State state) {
         if (getTxtRecords().isEmpty()) {
             throw new GyroException("At least one record must be provided.");
         }
@@ -158,7 +159,7 @@ public class TxtRecordSetResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
         DnsRecordSet.UpdateTxtRecordSet updateTxtRecordSet =
@@ -206,7 +207,7 @@ public class TxtRecordSetResource extends AzureResource {
     }
 
     @Override
-    public void delete() {
+    public void delete(State state) {
         Azure client = createClient();
 
         client.dnsZones().getById(getDnsZoneId()).update().withoutTxtRecordSet(getName()).apply();
