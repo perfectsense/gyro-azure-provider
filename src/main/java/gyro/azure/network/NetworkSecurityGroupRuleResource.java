@@ -9,6 +9,7 @@ import com.microsoft.azure.management.network.SecurityRuleDirection;
 import com.microsoft.azure.management.network.SecurityRuleProtocol;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
+import gyro.core.GyroUI;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
@@ -269,7 +270,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource {
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         Azure client = createClient();
 
         NetworkSecurityGroupResource parent = (NetworkSecurityGroupResource) parent();
@@ -335,7 +336,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource {
     }
 
     @Override
-    public void update(State state, Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         NetworkSecurityGroupResource parent = (NetworkSecurityGroupResource) parent();
@@ -390,7 +391,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource {
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
         NetworkSecurityGroupResource parent = (NetworkSecurityGroupResource) parent();

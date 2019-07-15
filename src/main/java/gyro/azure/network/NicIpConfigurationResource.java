@@ -10,6 +10,7 @@ import com.microsoft.azure.management.network.LoadBalancerInboundNatRule;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
+import gyro.core.GyroUI;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
@@ -160,7 +161,7 @@ public class NicIpConfigurationResource extends AzureResource {
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         if (getPrimary()) {
             return;
         }
@@ -209,7 +210,7 @@ public class NicIpConfigurationResource extends AzureResource {
     }
 
     @Override
-    public void update(State state, Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         NetworkInterfaceResource parent = (NetworkInterfaceResource) parent();
@@ -256,7 +257,7 @@ public class NicIpConfigurationResource extends AzureResource {
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         if (getPrimary()) {
             return;
         }

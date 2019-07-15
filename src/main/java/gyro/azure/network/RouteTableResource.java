@@ -1,6 +1,7 @@
 package gyro.azure.network;
 
 import gyro.azure.AzureResource;
+import gyro.core.GyroUI;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
@@ -150,7 +151,7 @@ public class RouteTableResource extends AzureResource {
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         Azure client = createClient();
 
         RouteTable.DefinitionStages.WithCreate withCreate;
@@ -180,7 +181,7 @@ public class RouteTableResource extends AzureResource {
     }
 
     @Override
-    public void update(State state, Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         RouteTableResource currentResource = (RouteTableResource) current;
@@ -230,7 +231,7 @@ public class RouteTableResource extends AzureResource {
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
         client.routeTables().deleteById(getId());

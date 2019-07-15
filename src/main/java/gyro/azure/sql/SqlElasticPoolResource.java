@@ -3,6 +3,7 @@ package gyro.azure.sql;
 import com.microsoft.azure.management.sql.SqlElasticPoolOperations;
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.Type;
@@ -220,7 +221,7 @@ public class SqlElasticPoolResource extends AzureResource {
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         if (getSqlServer() == null) {
             throw new GyroException("You must provide a sql server resource.");
         }
@@ -264,7 +265,7 @@ public class SqlElasticPoolResource extends AzureResource {
     }
 
     @Override
-    public void update(State state, Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
         SqlElasticPool.Update update = sqlElasticPool(client).update();
@@ -295,7 +296,7 @@ public class SqlElasticPoolResource extends AzureResource {
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
         sqlElasticPool(client).delete();

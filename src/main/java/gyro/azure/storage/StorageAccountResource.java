@@ -10,6 +10,7 @@ import com.microsoft.azure.storage.queue.CloudQueueClient;
 import com.microsoft.azure.storage.table.CloudTableClient;
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
@@ -174,7 +175,7 @@ public class StorageAccountResource extends AzureResource {
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         Azure client = createClient();
 
         StorageAccount storageAccount = client.storageAccounts()
@@ -195,7 +196,7 @@ public class StorageAccountResource extends AzureResource {
     }
 
     @Override
-    public void update(State state, Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         StorageAccount storageAccount = client.storageAccounts().getById(getId());
@@ -205,7 +206,7 @@ public class StorageAccountResource extends AzureResource {
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
         client.storageAccounts().deleteById(getId());

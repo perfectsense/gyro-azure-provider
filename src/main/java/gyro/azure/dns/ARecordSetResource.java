@@ -2,6 +2,7 @@ package gyro.azure.dns;
 
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
@@ -130,7 +131,7 @@ public class ARecordSetResource extends AzureResource {
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         if (getIpv4Addresses().isEmpty()) {
             throw new GyroException("At least one ipv4 address must be provided.");
         }
@@ -158,7 +159,7 @@ public class ARecordSetResource extends AzureResource {
     }
 
     @Override
-    public void update(State state, Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
         DnsRecordSet.UpdateARecordSet updateARecordSet =
@@ -206,7 +207,7 @@ public class ARecordSetResource extends AzureResource {
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
         client.dnsZones().getById(getDnsZoneId()).update().withoutARecordSet(getName()).apply();

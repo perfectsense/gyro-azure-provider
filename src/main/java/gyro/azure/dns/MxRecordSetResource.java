@@ -2,6 +2,7 @@ package gyro.azure.dns;
 
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
@@ -142,7 +143,7 @@ public class MxRecordSetResource extends AzureResource {
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         if (getMxRecord() == null || getMxRecord().size() == 0) {
             throw new GyroException("At least one mx record must be provided.");
         }
@@ -170,7 +171,7 @@ public class MxRecordSetResource extends AzureResource {
     }
 
     @Override
-    public void update(State state, Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
         DnsRecordSet.UpdateMXRecordSet updateMXRecordSet =
@@ -229,7 +230,7 @@ public class MxRecordSetResource extends AzureResource {
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
         client.dnsZones().getById(getDnsZoneId()).update().withoutMXRecordSet(getName()).apply();

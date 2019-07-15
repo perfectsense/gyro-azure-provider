@@ -7,6 +7,7 @@ import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
 
+import gyro.core.GyroUI;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
@@ -192,7 +193,7 @@ public class NetworkInterfaceResource extends AzureResource {
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         Azure client = createClient();
 
         NetworkInterface.DefinitionStages.WithPrimaryPrivateIP withPrimaryPrivateIP = client.networkInterfaces()
@@ -241,7 +242,7 @@ public class NetworkInterfaceResource extends AzureResource {
     }
 
     @Override
-    public void update(State state, Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         NetworkInterface networkInterface = getNetworkInterface(client);
@@ -260,7 +261,7 @@ public class NetworkInterfaceResource extends AzureResource {
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
         client.networkInterfaces().deleteByResourceGroup(getResourceGroupName(), getNetworkInterfaceName());

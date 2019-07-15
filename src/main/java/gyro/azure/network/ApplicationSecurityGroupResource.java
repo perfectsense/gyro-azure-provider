@@ -1,6 +1,7 @@
 package gyro.azure.network;
 
 import gyro.azure.AzureResource;
+import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.Type;
@@ -107,7 +108,7 @@ public class ApplicationSecurityGroupResource extends AzureResource {
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         Azure client = createClient();
 
         ApplicationSecurityGroup applicationSecurityGroup = client.applicationSecurityGroups().define(getName())
@@ -120,14 +121,14 @@ public class ApplicationSecurityGroupResource extends AzureResource {
     }
 
     @Override
-    public void update(State state, Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
         client.applicationSecurityGroups().getById(getId()).update().withTags(getTags()).apply();
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
         client.applicationSecurityGroups().deleteById(getId());

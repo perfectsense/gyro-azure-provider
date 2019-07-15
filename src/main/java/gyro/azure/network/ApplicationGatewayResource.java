@@ -14,6 +14,7 @@ import com.microsoft.azure.management.network.ApplicationGatewaySkuName;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
+import gyro.core.GyroUI;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
@@ -395,7 +396,7 @@ public class ApplicationGatewayResource extends AzureResource {
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         Azure client = createClient();
 
         ApplicationGateway.DefinitionStages.WithRequestRoutingRule withRequestRoutingRule = client.applicationGateways()
@@ -448,7 +449,7 @@ public class ApplicationGatewayResource extends AzureResource {
     }
 
     @Override
-    public void update(State state, Resource resource, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource resource, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         ApplicationGateway applicationGateway = client.applicationGateways().getById(getApplicationGatewayId());
@@ -477,7 +478,7 @@ public class ApplicationGatewayResource extends AzureResource {
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
         client.applicationGateways().deleteById(getApplicationGatewayId());

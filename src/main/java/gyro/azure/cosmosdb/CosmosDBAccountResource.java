@@ -2,6 +2,7 @@ package gyro.azure.cosmosdb;
 
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.Type;
@@ -270,7 +271,7 @@ public class CosmosDBAccountResource extends AzureResource {
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         if (getDatabaseAccountKind() == null && getConsistencyLevel() == null) {
             throw new GyroException("Database account kind and consistency level must be configured");
         }
@@ -335,7 +336,7 @@ public class CosmosDBAccountResource extends AzureResource {
     }
 
     @Override
-    public void update(State state, Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
         CosmosDBAccount.Update update = client.cosmosDBAccounts()
@@ -406,7 +407,7 @@ public class CosmosDBAccountResource extends AzureResource {
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
         client.cosmosDBAccounts().deleteById(getId());

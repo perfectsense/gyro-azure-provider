@@ -2,6 +2,7 @@ package gyro.azure.dns;
 
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
@@ -139,7 +140,7 @@ public class CaaRecordSetResource extends AzureResource {
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         if (getCaaRecord().isEmpty()) {
             throw new GyroException("At least one caa record must be provided.");
         }
@@ -167,7 +168,7 @@ public class CaaRecordSetResource extends AzureResource {
     }
 
     @Override
-    public void update(State state, Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
         DnsRecordSet.UpdateCaaRecordSet updateCaaRecordSet =
@@ -213,7 +214,7 @@ public class CaaRecordSetResource extends AzureResource {
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
         client.dnsZones().getById(getDnsZoneId()).update().withoutCaaRecordSet(getName()).apply();

@@ -1,6 +1,7 @@
 package gyro.azure.sql;
 
 import gyro.azure.AzureResource;
+import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.Type;
@@ -183,7 +184,7 @@ public class SqlServerResource extends AzureResource {
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         Azure client = createClient();
 
         SqlServer.DefinitionStages.WithCreate withCreate = client.sqlServers().define(getName())
@@ -207,7 +208,7 @@ public class SqlServerResource extends AzureResource {
     }
 
     @Override
-    public void update(State state, Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
         SqlServer.Update update = client.sqlServers().getById(getId()).update();
@@ -222,7 +223,7 @@ public class SqlServerResource extends AzureResource {
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
         client.sqlServers().deleteById(getId());

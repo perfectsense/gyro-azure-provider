@@ -2,6 +2,7 @@ package gyro.azure.cdn;
 
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.Type;
@@ -124,7 +125,7 @@ public class CdnProfileResource extends AzureResource {
     }
 
     @Override
-    public void create(State state) {
+    public void create(GyroUI ui, State state) {
         Azure client = createClient();
 
         WithSku withSku = client.cdnProfiles().define(getName())
@@ -147,7 +148,7 @@ public class CdnProfileResource extends AzureResource {
     }
 
     @Override
-    public void update(State state, Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
         CdnProfile.Update update = client.cdnProfiles().getById(getId()).update().withTags(getTags());
@@ -155,7 +156,7 @@ public class CdnProfileResource extends AzureResource {
     }
 
     @Override
-    public void delete(State state) {
+    public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
         client.cdnProfiles().deleteById(getId());
