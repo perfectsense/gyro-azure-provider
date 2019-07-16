@@ -8,10 +8,12 @@ import com.microsoft.azure.management.compute.OperatingSystemTypes;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
+import gyro.core.GyroUI;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.scope.State;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -169,7 +171,7 @@ public class DiskResource extends AzureResource {
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         Azure client = createClient();
 
         Disk.DefinitionStages.WithDiskSource diskDefWithoutData = client.disks()
@@ -222,7 +224,7 @@ public class DiskResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         Disk disk = client.disks().getById(getDiskId());
@@ -249,7 +251,7 @@ public class DiskResource extends AzureResource {
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
         client.disks().deleteById(getDiskId());

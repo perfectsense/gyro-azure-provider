@@ -3,6 +3,7 @@ package gyro.azure.sql;
 import gyro.azure.AzureResource;
 import gyro.azure.storage.StorageAccountResource;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.Type;
@@ -21,6 +22,7 @@ import com.microsoft.azure.management.sql.SqlDatabaseStandardStorage;
 import com.microsoft.azure.management.sql.SqlDatabaseOperations.DefinitionStages.WithAllDifferentOptions;
 import com.microsoft.azure.management.sql.SqlDatabaseOperations.DefinitionStages.WithExistingDatabaseAfterElasticPool;
 import com.microsoft.azure.management.storage.StorageAccount;
+import gyro.core.scope.State;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.HashMap;
@@ -303,7 +305,7 @@ public class SqlDatabaseResource extends AzureResource {
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         if (getSqlServer() == null) {
             throw new GyroException("You must provide a sql server resource.");
         }
@@ -398,7 +400,7 @@ public class SqlDatabaseResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
         SqlDatabase.Update update = sqlDatabase(client).update();
@@ -436,7 +438,7 @@ public class SqlDatabaseResource extends AzureResource {
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
         sqlDatabase(client).delete();

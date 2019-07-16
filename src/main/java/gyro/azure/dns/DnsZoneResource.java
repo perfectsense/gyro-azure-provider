@@ -1,6 +1,7 @@
 package gyro.azure.dns;
 
 import gyro.azure.AzureResource;
+import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.Type;
@@ -9,6 +10,7 @@ import gyro.core.resource.Updatable;
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.dns.DnsZone;
 import com.microsoft.azure.management.dns.ZoneType;
+import gyro.core.scope.State;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -165,7 +167,7 @@ public class DnsZoneResource extends AzureResource {
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         Azure client = createClient();
 
         DnsZone.DefinitionStages.WithCreate withCreate;
@@ -190,7 +192,7 @@ public class DnsZoneResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
         DnsZone.Update update = client.dnsZones().getById(getId()).update();
@@ -200,7 +202,7 @@ public class DnsZoneResource extends AzureResource {
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
         client.dnsZones().deleteById(getId());

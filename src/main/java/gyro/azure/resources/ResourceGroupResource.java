@@ -1,6 +1,7 @@
 package gyro.azure.resources;
 
 import gyro.azure.AzureResource;
+import gyro.core.GyroUI;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
@@ -8,6 +9,7 @@ import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.resources.ResourceGroup;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.scope.State;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -85,7 +87,7 @@ public class ResourceGroupResource extends AzureResource {
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         Azure client = createClient();
 
         ResourceGroup resourceGroup = client.resourceGroups()
@@ -98,7 +100,7 @@ public class ResourceGroupResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         ResourceGroup resourceGroup = client.resourceGroups().getByName(getResourceGroupName());
@@ -107,7 +109,7 @@ public class ResourceGroupResource extends AzureResource {
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
         client.resourceGroups().deleteByName(getResourceGroupName());

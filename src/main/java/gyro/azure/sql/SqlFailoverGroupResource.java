@@ -2,6 +2,7 @@ package gyro.azure.sql;
 
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.Type;
@@ -13,6 +14,7 @@ import com.microsoft.azure.management.sql.SqlFailoverGroupOperations.DefinitionS
 import com.microsoft.azure.management.sql.ReadOnlyEndpointFailoverPolicy;
 import com.microsoft.azure.management.sql.ReadWriteEndpointFailoverPolicy;
 import com.microsoft.azure.management.sql.SqlFailoverGroupOperations.DefinitionStages.WithPartnerServer;
+import gyro.core.scope.State;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -195,7 +197,7 @@ public class SqlFailoverGroupResource extends AzureResource {
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         if (getSqlServer() == null) {
             throw new GyroException("You must provide a sql server resource.");
         }
@@ -235,7 +237,7 @@ public class SqlFailoverGroupResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
         SqlFailoverGroup.Update update = sqlFailoverGroup(client).update();
@@ -277,7 +279,7 @@ public class SqlFailoverGroupResource extends AzureResource {
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
         sqlFailoverGroup(client).delete();

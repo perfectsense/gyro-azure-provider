@@ -1,6 +1,7 @@
 package gyro.azure.network;
 
 import gyro.azure.AzureResource;
+import gyro.core.GyroUI;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
@@ -21,6 +22,7 @@ import com.microsoft.azure.management.network.TransportProtocol;
 import com.microsoft.azure.management.network.model.HasNetworkInterfaces;
 import com.microsoft.azure.management.network.LoadBalancer.DefinitionStages.WithCreate;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
+import gyro.core.scope.State;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -311,7 +313,7 @@ public class LoadBalancerResource extends AzureResource {
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         Azure client = createClient();
 
         LoadBalancer.DefinitionStages.WithLBRuleOrNat lb = client.loadBalancers()
@@ -421,7 +423,7 @@ public class LoadBalancerResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         LoadBalancer loadBalancer = client.loadBalancers().getById(getId());
@@ -648,7 +650,7 @@ public class LoadBalancerResource extends AzureResource {
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
         client.loadBalancers()

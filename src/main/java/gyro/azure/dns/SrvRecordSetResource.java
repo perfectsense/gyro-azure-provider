@@ -1,6 +1,7 @@
 package gyro.azure.dns;
 
 import gyro.azure.AzureResource;
+import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
@@ -13,6 +14,7 @@ import com.microsoft.azure.management.dns.DnsZone;
 import com.microsoft.azure.management.dns.SrvRecordSet;
 import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.WithSrvRecordEntryOrAttachable;
 import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.SrvRecordSetBlank;
+import gyro.core.scope.State;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -136,7 +138,7 @@ public class SrvRecordSetResource extends AzureResource {
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         Azure client = createClient();
 
         SrvRecordSetBlank<DnsZone.Update> defineSrvRecordSet =
@@ -161,7 +163,7 @@ public class SrvRecordSetResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
         DnsRecordSet.UpdateSrvRecordSet updateSrvRecordSet =
@@ -207,7 +209,7 @@ public class SrvRecordSetResource extends AzureResource {
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
         client.dnsZones().getById(getDnsZoneId()).update().withoutSrvRecordSet(getName()).apply();

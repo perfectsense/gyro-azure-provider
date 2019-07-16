@@ -3,6 +3,7 @@ package gyro.azure.storage;
 import gyro.azure.AzureResource;
 
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
 
@@ -10,6 +11,7 @@ import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.queue.CloudQueueClient;
 import com.microsoft.azure.storage.queue.CloudQueue;
+import gyro.core.scope.State;
 
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
@@ -71,7 +73,7 @@ public class CloudQueueResource extends AzureResource {
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         try {
             CloudQueue queue = cloudQueue();
             queue.create();
@@ -81,10 +83,10 @@ public class CloudQueueResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {}
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {}
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         try {
             CloudQueue queue = cloudQueue();
             queue.delete();

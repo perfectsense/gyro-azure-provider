@@ -2,6 +2,7 @@ package gyro.azure.network;
 
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
+import gyro.core.GyroUI;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
 
@@ -10,6 +11,7 @@ import com.microsoft.azure.management.network.Network;
 import com.microsoft.azure.management.network.ServiceEndpointType;
 import com.microsoft.azure.management.network.Subnet;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
+import gyro.core.scope.State;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -122,7 +124,7 @@ public class SubnetResource extends AzureResource {
     }
 
     @Override
-    public void create() {
+    public void create(GyroUI ui, State state) {
         Azure client = createClient();
 
         NetworkResource parent = (NetworkResource) parent();
@@ -151,7 +153,7 @@ public class SubnetResource extends AzureResource {
     }
 
     @Override
-    public void update(Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         NetworkResource parent = (NetworkResource) parent();
@@ -198,7 +200,7 @@ public class SubnetResource extends AzureResource {
     }
 
     @Override
-    public void delete() {
+    public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
         NetworkResource parent = (NetworkResource) parent();
