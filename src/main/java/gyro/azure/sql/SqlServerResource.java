@@ -229,8 +229,4 @@ public class SqlServerResource extends AzureResource {
         client.sqlServers().deleteById(getId());
     }
 
-    @Override
-    public String toDisplayString() {
-        return "sql server " + getName();
-    }
 }

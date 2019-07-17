@@ -413,11 +413,6 @@ public class CosmosDBAccountResource extends AzureResource {
         client.cosmosDBAccounts().deleteById(getId());
     }
 
-    @Override
-    public String toDisplayString() {
-        return "cosmos database " + getName();
-    }
-
     private List<VirtualNetworkRule> toVirtualNetworkRules() {
         List<VirtualNetworkRule> virtualNetworkRules = new ArrayList<>();
         for (String vnRule : getVirtualNetworkRules()) {

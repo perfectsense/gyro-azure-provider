@@ -211,11 +211,6 @@ public class SubnetResource extends AzureResource {
     }
 
     @Override
-    public String toDisplayString() {
-        return "subnet " + getName();
-    }
-
-    @Override
     public String primaryKey() {
         return String.format("%s", getName());
     }

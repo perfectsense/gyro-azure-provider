@@ -289,8 +289,4 @@ public class SnapshotResource extends AzureResource {
         client.snapshots().deleteById(getId());
     }
 
-    @Override
-    public String toDisplayString() {
-        return "snapshot " + getName();
-    }
 }

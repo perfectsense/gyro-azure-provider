@@ -215,11 +215,6 @@ public class AaaaRecordSetResource extends AzureResource {
         client.dnsZones().getById(getDnsZoneId()).update().withoutAaaaRecordSet(getName()).apply();
     }
 
-    @Override
-    public String toDisplayString() {
-        return "aaaa record set " + getName();
-    }
-
     private List<String> expandIps(List<String> addresses) {
         List<String> expandedIps = new ArrayList<>();
 

@@ -215,11 +215,6 @@ public class SrvRecordSetResource extends AzureResource {
         client.dnsZones().getById(getDnsZoneId()).update().withoutSrvRecordSet(getName()).apply();
     }
 
-    @Override
-    public String toDisplayString() {
-        return "srv record set " + getName();
-    }
-
     private List<SrvRecord> comparator(List<SrvRecord> original, List<SrvRecord> compareTo) {
         List<SrvRecord> differences = new ArrayList<>(original);
 

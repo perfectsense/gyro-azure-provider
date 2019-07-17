@@ -68,8 +68,4 @@ public class CaaRecord extends Diffable {
         return String.format("%d/%s/%s", getFlags(), getTag(), getValue());
     }
 
-    @Override
-    public String toDisplayString() {
-        return "caa record with flag " + getFlags() + ", tag " + getTag() + ", and value " + getValue();
-    }
 }

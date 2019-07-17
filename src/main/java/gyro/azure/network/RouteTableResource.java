@@ -237,6 +237,4 @@ public class RouteTableResource extends AzureResource {
         client.routeTables().deleteById(getId());
     }
 
-    @Override
-    public String toDisplayString() {return "route table " + getName();}
 }

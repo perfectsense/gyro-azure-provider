@@ -710,20 +710,4 @@ public class VirtualMachineResource extends AzureResource {
         client.virtualMachines().deleteById(getVirtualMachineId());
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("virtual machine");
-
-        if (!ObjectUtils.isBlank(getVirtualMachineName())) {
-            sb.append(" - ").append(getVirtualMachineName());
-        }
-
-        if (!ObjectUtils.isBlank(getVirtualMachineId())) {
-            sb.append(" - ").append(getVirtualMachineId());
-        }
-
-        return sb.toString();
-    }
 }

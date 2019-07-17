@@ -61,14 +61,6 @@ public class GeoFilter extends Diffable {
         return String.format("%s/%s/%s", getAction(), getCountryCodes(), getRelativePath());
     }
 
-    public String toDisplayString() {
-        String displayString = String.format("action: %s and country code %s", getAction(), getCountryCodes());
-        if (getCountryCodes().size() > 1) {
-            displayString = String.format("action: %s and country codes %s", getAction(), getCountryCodes());
-        }
-        return displayString;
-    }
-
     public com.microsoft.azure.management.cdn.GeoFilter toGeoFilter() {
         com.microsoft.azure.management.cdn.GeoFilter geoFilter = new com.microsoft.azure.management.cdn.GeoFilter();
 

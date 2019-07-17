@@ -184,19 +184,6 @@ public class BackendHttpConfiguration extends Diffable {
         return getBackendHttpConfigurationName();
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("backend http configuration");
-
-        if (!ObjectUtils.isBlank(getBackendHttpConfigurationName())) {
-            sb.append(" - ").append(getBackendHttpConfigurationName());
-        }
-
-        return sb.toString();
-    }
-
     WithCreate createBackendHttpConfiguration(WithCreate attach) {
         WithAttach<WithCreate> withCreateWithAttach = attach.defineBackendHttpConfiguration(getBackendHttpConfigurationName())
             .withPort(getPort());

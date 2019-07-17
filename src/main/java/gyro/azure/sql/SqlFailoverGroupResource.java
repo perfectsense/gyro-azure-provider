@@ -285,11 +285,6 @@ public class SqlFailoverGroupResource extends AzureResource {
         sqlFailoverGroup(client).delete();
     }
 
-    @Override
-    public String toDisplayString() {
-        return "failover group " + getName();
-    }
-
     private SqlFailoverGroup sqlFailoverGroup(Azure client) {
         if (sqlFailoverGroup == null) {
             sqlFailoverGroup = client.sqlServers().getById(getSqlServer().getId()).failoverGroups().get(getName());

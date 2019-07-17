@@ -220,11 +220,6 @@ public class CaaRecordSetResource extends AzureResource {
         client.dnsZones().getById(getDnsZoneId()).update().withoutCaaRecordSet(getName()).apply();
     }
 
-    @Override
-    public String toDisplayString() {
-        return "caa record set " + getName();
-    }
-
     private List<CaaRecord> comparator(List<CaaRecord> original, List<CaaRecord> compareTo) {
         List<CaaRecord> differences = new ArrayList<>(original);
 

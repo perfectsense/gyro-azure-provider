@@ -133,11 +133,6 @@ public class CloudFileResource extends AzureResource {
         }
     }
 
-    @Override
-    public String toDisplayString() {
-        return "cloud file " + getFileName();
-    }
-
     private CloudFile cloudFile() {
         try {
             String name = Paths.get(getFilePath()).getFileName().toString();

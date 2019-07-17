@@ -236,8 +236,4 @@ public class MxRecordSetResource extends AzureResource {
         client.dnsZones().getById(getDnsZoneId()).update().withoutMXRecordSet(getName()).apply();
     }
 
-    @Override
-    public String toDisplayString() {
-        return "mx record set " + getName();
-    }
 }

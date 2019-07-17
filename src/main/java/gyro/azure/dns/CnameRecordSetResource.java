@@ -193,8 +193,4 @@ public class CnameRecordSetResource extends AzureResource {
         client.dnsZones().getById(getDnsZoneId()).update().withoutCaaRecordSet(getName()).apply();
     }
 
-    @Override
-    public String toDisplayString() {
-        return "cname record set " + getName();
-    }
 }

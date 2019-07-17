@@ -123,11 +123,6 @@ public class CloudBlobContainerResource extends AzureResource {
         }
     }
 
-    @Override
-    public String toDisplayString() {
-        return "container " + getContainerName();
-    }
-
     private CloudBlobContainer cloudBlobContainer() {
         try {
             CloudStorageAccount account = CloudStorageAccount.parse(getStorageAccount().getConnection());

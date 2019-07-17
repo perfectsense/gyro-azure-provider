@@ -272,19 +272,6 @@ public class NicIpConfigurationResource extends AzureResource {
     }
 
     @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("nic ip config");
-
-        if (!ObjectUtils.isBlank(getIpConfigurationName())) {
-            sb.append(" - ").append(getIpConfigurationName());
-        }
-
-        return sb.toString();
-    }
-
-    @Override
     public String primaryKey() {
         return String.format("%s", getIpConfigurationName());
     }

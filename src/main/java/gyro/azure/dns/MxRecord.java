@@ -66,8 +66,4 @@ public class MxRecord extends Diffable {
         return exchange;
     }
 
-    @Override
-    public String toDisplayString() {
-        return "mx record with exchange " + getExchange() + " and preference " + getPreference();
-    }
 }

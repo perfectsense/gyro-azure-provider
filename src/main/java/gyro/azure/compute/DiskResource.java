@@ -257,20 +257,4 @@ public class DiskResource extends AzureResource {
         client.disks().deleteById(getDiskId());
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("disk");
-
-        if (!ObjectUtils.isBlank(getDiskName())) {
-            sb.append(" - ").append(getDiskName());
-        }
-
-        if (!ObjectUtils.isBlank(getSize())) {
-            sb.append(" [ ").append(getSize()).append("Gb ]");
-        }
-
-        return sb.toString();
-    }
 }

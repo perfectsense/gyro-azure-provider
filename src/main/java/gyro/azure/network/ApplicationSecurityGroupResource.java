@@ -134,8 +134,4 @@ public class ApplicationSecurityGroupResource extends AzureResource {
         client.applicationSecurityGroups().deleteById(getId());
     }
 
-    @Override
-    public String toDisplayString() {
-        return "application security group " + getName();
-    }
 }

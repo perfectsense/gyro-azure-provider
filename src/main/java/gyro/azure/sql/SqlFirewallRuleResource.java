@@ -160,11 +160,6 @@ public class SqlFirewallRuleResource extends AzureResource {
         sqlFirewallRule(client).delete();
     }
 
-    @Override
-    public String toDisplayString() {
-        return "sql firewall rule " + getName();
-    }
-
     private SqlFirewallRule sqlFirewallRule(Azure client) {
         if (sqlFirewallRule == null) {
             sqlFirewallRule = client.sqlServers().getById(getSqlServer().getId()).firewallRules().get(getName());

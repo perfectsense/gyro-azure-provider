@@ -4,7 +4,6 @@ import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.network.Network;
 import com.microsoft.azure.management.network.Subnet;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
-import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
 import gyro.core.GyroUI;
 import gyro.core.resource.Updatable;
@@ -235,23 +234,6 @@ public class NetworkResource extends AzureResource {
         Azure client = createClient();
 
         client.networks().deleteById(getNetworkId());
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("network");
-
-        if (!ObjectUtils.isBlank(getNetworkName())) {
-            sb.append(" - ").append(getNetworkName());
-        }
-
-        if (!ObjectUtils.isBlank(getNetworkId())) {
-            sb.append(" - ").append(getNetworkId());
-        }
-
-        return sb.toString();
     }
 
     Network getNetwork(Azure client) {

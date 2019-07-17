@@ -95,11 +95,6 @@ public class CloudQueueResource extends AzureResource {
         }
     }
 
-    @Override
-    public String toDisplayString() {
-        return "queue " + getCloudQueueName();
-    }
-
     private CloudQueue cloudQueue() {
         try {
             CloudStorageAccount storageAccount = CloudStorageAccount.parse(getStorageAccount().getConnection());

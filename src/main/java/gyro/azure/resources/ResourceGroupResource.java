@@ -8,7 +8,6 @@ import gyro.core.resource.Resource;
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.resources.ResourceGroup;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
-import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
 
 import java.util.HashMap;
@@ -115,16 +114,4 @@ public class ResourceGroupResource extends AzureResource {
         client.resourceGroups().deleteByName(getResourceGroupName());
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("resource group");
-
-        if (!ObjectUtils.isBlank(getResourceGroupName())) {
-            sb.append(" - ").append(getResourceGroupName());
-        }
-
-        return sb.toString();
-    }
 }

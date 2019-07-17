@@ -154,11 +154,6 @@ public class CloudBlobResource extends AzureResource {
         }
     }
 
-    @Override
-    public String toDisplayString() {
-        return "cloud blob " + getBlobName();
-    }
-
     private CloudBlockBlob cloudBlobBlob() {
         try {
             CloudStorageAccount account = CloudStorageAccount.parse(getStorageAccount().getConnection());

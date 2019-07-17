@@ -96,11 +96,6 @@ public class CloudTableResource extends AzureResource {
         }
     }
 
-    @Override
-    public String toDisplayString() {
-        return "cloud table " + getCloudTableName();
-    }
-
     private CloudTable cloudTable() {
         try {
             CloudStorageAccount account = CloudStorageAccount.parse(getStorageAccount().getConnection());

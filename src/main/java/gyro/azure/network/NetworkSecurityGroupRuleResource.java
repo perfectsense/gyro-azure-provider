@@ -402,21 +402,6 @@ public class NetworkSecurityGroupRuleResource extends AzureResource {
     }
 
     @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("Security group ");
-
-        sb.append(getInboundRule() ? "inbound rule" : "outbound rule");
-
-        if (!ObjectUtils.isBlank(getSecurityGroupRuleName())) {
-            sb.append(" - ").append(getSecurityGroupRuleName());
-        }
-
-        return sb.toString();
-    }
-
-    @Override
     public String primaryKey() {
         return String.format("%s", getSecurityGroupRuleName());
     }
