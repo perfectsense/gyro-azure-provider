@@ -166,9 +166,4 @@ public class LoadBalancerRule extends Diffable {
         return String.format("%s", getName());
     }
 
-    @Override
-    public String toDisplayString() {
-        return "load balancer rule " + getName();
-    }
-
 }

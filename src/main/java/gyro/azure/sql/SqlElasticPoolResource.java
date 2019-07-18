@@ -302,11 +302,6 @@ public class SqlElasticPoolResource extends AzureResource {
         sqlElasticPool(client).delete();
     }
 
-    @Override
-    public String toDisplayString() {
-        return "sql elastic pool " + getName();
-    }
-
     private SqlElasticPool sqlElasticPool(Azure client) {
         if (sqlElasticPool == null) {
             sqlElasticPool = client.sqlServers().getById(getSqlServer().getId()).elasticPools().get(getName());

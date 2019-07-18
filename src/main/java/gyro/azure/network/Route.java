@@ -87,9 +87,4 @@ public class Route extends Diffable {
         return String.format("%s", getName());
     }
 
-    @Override
-    public String toDisplayString() {
-        return "route " + getName();
-    }
-
 }

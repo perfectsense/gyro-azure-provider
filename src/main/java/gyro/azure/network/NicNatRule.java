@@ -55,10 +55,4 @@ public class NicNatRule extends Diffable {
         return String.format("%s/%s", getLoadBalancerName(), getNatRuleName());
     }
 
-    public String toDisplayString() {
-        return "attachment of nic ip configuration to nat rule "
-                + getNatRuleName()
-                + " associated with load balancer "
-                + getLoadBalancerName();
-    }
 }

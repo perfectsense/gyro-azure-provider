@@ -119,11 +119,6 @@ public class CloudFileShareResource extends AzureResource {
         }
     }
 
-    @Override
-    public String toDisplayString() {
-        return "cloud file share " + getCloudFileShareName();
-    }
-
     private CloudFileShare cloudFileShare() {
         try {
             CloudStorageAccount storageAccount = CloudStorageAccount.parse(getStorageAccount().getConnection());

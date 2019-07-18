@@ -118,9 +118,4 @@ public class InboundNatPool extends Diffable {
         return String.format("%s", getName());
     }
 
-    @Override
-    public String toDisplayString() {
-        return "inbound nat pool " + getName();
-    }
-
 }

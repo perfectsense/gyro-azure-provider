@@ -6,7 +6,6 @@ import com.microsoft.azure.management.network.ApplicationGatewayProbe.UpdateDefi
 import com.microsoft.azure.management.network.ApplicationGatewayProbe.UpdateDefinitionStages.WithAttach;
 import com.microsoft.azure.management.network.ApplicationGatewayProtocol;
 import com.microsoft.azure.management.network.ApplicationGateway.DefinitionStages.WithCreate;
-import com.psddev.dari.util.ObjectUtils;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 
@@ -193,19 +192,6 @@ public class Probe extends Diffable {
     @Override
     public String primaryKey() {
         return getProbeName();
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("probe");
-
-        if (!ObjectUtils.isBlank(getProbeName())) {
-            sb.append(" - ").append(getProbeName());
-        }
-
-        return sb.toString();
     }
 
     WithCreate createProbe(WithCreate attach) {

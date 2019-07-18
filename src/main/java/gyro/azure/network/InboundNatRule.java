@@ -120,9 +120,4 @@ public class InboundNatRule extends Diffable {
         return String.format("%s", getName());
     }
 
-    @Override
-    public String toDisplayString() {
-        return "inbound nat rule " + getName();
-    }
-
 }

@@ -187,8 +187,4 @@ public class AvailabilitySetResource extends AzureResource {
         client.availabilitySets().deleteById(getId());
     }
 
-    @Override
-    public String toDisplayString() {
-        return "availability set " + getName();
-    }
 }

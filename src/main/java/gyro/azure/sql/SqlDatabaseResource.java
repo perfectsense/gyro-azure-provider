@@ -444,11 +444,6 @@ public class SqlDatabaseResource extends AzureResource {
         sqlDatabase(client).delete();
     }
 
-    @Override
-    public String toDisplayString() {
-        return "sql database " + getName();
-    }
-
     private String findMaxCapacity(Long storage) {
         for (SqlDatabasePremiumStorage val : SqlDatabasePremiumStorage.values()) {
             if (storage.equals(val.capacity())) {

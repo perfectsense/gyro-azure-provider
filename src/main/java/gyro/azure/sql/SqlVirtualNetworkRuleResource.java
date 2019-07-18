@@ -150,11 +150,6 @@ public class SqlVirtualNetworkRuleResource extends AzureResource {
         virtualNetworkRule(client).delete();
     }
 
-    @Override
-    public String toDisplayString() {
-        return "sql virtual network rule " + getName();
-    }
-
     private SqlVirtualNetworkRule virtualNetworkRule(Azure client) {
         if (sqlVirtualNetworkRule == null) {
             sqlVirtualNetworkRule = client.sqlServers().getById(getSqlServer().getId()).virtualNetworkRules().get(getName());

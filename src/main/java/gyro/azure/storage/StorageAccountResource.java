@@ -212,11 +212,6 @@ public class StorageAccountResource extends AzureResource {
         client.storageAccounts().deleteById(getId());
     }
 
-    @Override
-    public String toDisplayString() {
-        return "storage account " + getName();
-    }
-
     private void updateCorsRules() {
         try {
             CloudStorageAccount cloudStorageAccount = CloudStorageAccount.parse(getConnection());

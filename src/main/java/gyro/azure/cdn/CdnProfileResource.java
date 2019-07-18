@@ -162,8 +162,4 @@ public class CdnProfileResource extends AzureResource {
         client.cdnProfiles().deleteById(getId());
     }
 
-    @Override
-    public String toDisplayString() {
-        return "cdn profile " + getName();
-    }
 }

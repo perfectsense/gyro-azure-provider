@@ -55,10 +55,4 @@ public class NicBackend extends Diffable {
         return String.format("%s/%s", getLoadBalancerName(), getBackendPoolName());
     }
 
-    public String toDisplayString() {
-        return "attachment of nic ip configuration to backend pool "
-                + getBackendPoolName()
-                + " associated with load balancer "
-                + getLoadBalancerName();
-    }
 }

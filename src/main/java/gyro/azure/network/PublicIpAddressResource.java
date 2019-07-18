@@ -257,20 +257,4 @@ public class PublicIpAddressResource extends AzureResource {
         client.publicIPAddresses().deleteByResourceGroup(getResourceGroupName(), getPublicIpAddressName());
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("public ip address");
-
-        if (!ObjectUtils.isBlank(getPublicIpAddressName())) {
-            sb.append(" - ").append(getPublicIpAddressName());
-        }
-
-        if (!ObjectUtils.isBlank(getIpAddress())) {
-            sb.append(" - ").append(getIpAddress());
-        }
-
-        return sb.toString();
-    }
 }

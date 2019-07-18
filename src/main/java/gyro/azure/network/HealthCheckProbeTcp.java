@@ -89,9 +89,4 @@ public class HealthCheckProbeTcp extends Diffable {
         return String.format("%s", getName());
     }
 
-    @Override
-    public String toDisplayString() {
-        return "health check probe tcp " + getName();
-    }
-
 }

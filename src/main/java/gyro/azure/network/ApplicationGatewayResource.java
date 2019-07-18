@@ -12,7 +12,6 @@ import com.microsoft.azure.management.network.ApplicationGatewayRequestRoutingRu
 import com.microsoft.azure.management.network.ApplicationGatewayRequestRoutingRuleType;
 import com.microsoft.azure.management.network.ApplicationGatewaySkuName;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
-import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
 import gyro.core.GyroUI;
 import gyro.core.resource.Updatable;
@@ -482,23 +481,6 @@ public class ApplicationGatewayResource extends AzureResource {
         Azure client = createClient();
 
         client.applicationGateways().deleteById(getApplicationGatewayId());
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("application gateway");
-
-        if (!ObjectUtils.isBlank(getApplicationGatewayName())) {
-            sb.append(" - ").append(getApplicationGatewayName());
-        }
-
-        if (!ObjectUtils.isBlank(getApplicationGatewayId())) {
-            sb.append(" - ").append(getApplicationGatewayId());
-        }
-
-        return sb.toString();
     }
 
     private void loadApplicationGateway(ApplicationGateway applicationGateway) {

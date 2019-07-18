@@ -100,9 +100,4 @@ public class PrivateFrontend extends Frontend {
         return String.format("%s", getName());
     }
 
-    @Override
-    public String toDisplayString() {
-        return "private frontend " + getName();
-    }
-
 }

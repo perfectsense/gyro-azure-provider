@@ -139,10 +139,6 @@ public class Cors extends Diffable {
                 getAllowedOrigins(), getExposedHeaders(), getMaxAge(), getType());
     }
 
-    public String toDisplayString() {
-        return String.format("%s cors rule %s from %s, header %s", getType(), getAllowedMethods(), getAllowedOrigins(), getAllowedHeaders());
-    }
-
     public CorsRule toCors() {
         CorsRule rule = new CorsRule();
 

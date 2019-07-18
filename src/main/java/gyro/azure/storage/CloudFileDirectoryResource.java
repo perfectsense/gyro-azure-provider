@@ -133,11 +133,6 @@ public class CloudFileDirectoryResource extends AzureResource {
         }
     }
 
-    @Override
-    public String toDisplayString() {
-        return "cloud file directory " + Paths.get(getCloudFileDirectoryPath()).getFileName().toString();
-    }
-
     public CloudFileDirectory cloudFileDirectory() {
         try {
             CloudStorageAccount storageAccount = CloudStorageAccount.parse(getStorageAccount().getConnection());

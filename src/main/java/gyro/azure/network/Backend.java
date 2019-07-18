@@ -6,7 +6,6 @@ import com.microsoft.azure.management.network.ApplicationGatewayBackend;
 import com.microsoft.azure.management.network.ApplicationGatewayBackend.UpdateDefinitionStages.WithAttach;
 import com.microsoft.azure.management.network.ApplicationGateway.DefinitionStages.WithCreate;
 import com.microsoft.azure.management.network.ApplicationGatewayBackendAddress;
-import com.psddev.dari.util.ObjectUtils;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 
@@ -92,19 +91,6 @@ public class Backend extends Diffable {
     @Override
     public String primaryKey() {
         return getBackendName();
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("backend");
-
-        if (!ObjectUtils.isBlank(getBackendName())) {
-            sb.append(" - ").append(getBackendName());
-        }
-
-        return sb.toString();
     }
 
     WithCreate createBackend(WithCreate attach) {

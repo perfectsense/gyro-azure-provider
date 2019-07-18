@@ -214,8 +214,4 @@ public class TxtRecordSetResource extends AzureResource {
         client.dnsZones().getById(getDnsZoneId()).update().withoutTxtRecordSet(getName()).apply();
     }
 
-    @Override
-    public String toDisplayString() {
-        return "txt record set " + getName();
-    }
 }

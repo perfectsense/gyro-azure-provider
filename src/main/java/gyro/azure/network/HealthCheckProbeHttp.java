@@ -50,9 +50,4 @@ public class HealthCheckProbeHttp extends HealthCheckProbeTcp {
         return String.format("%s", getName());
     }
 
-    @Override
-    public String toDisplayString() {
-        return "health check probe http " + getName();
-    }
-
 }

@@ -208,8 +208,4 @@ public class DnsZoneResource extends AzureResource {
         client.dnsZones().deleteById(getId());
     }
 
-    @Override
-    public String toDisplayString() {
-        return "dns zone " + getName();
-    }
 }

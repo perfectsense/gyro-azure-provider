@@ -213,8 +213,4 @@ public class PtrRecordSetResource extends AzureResource {
         client.dnsZones().getById(getDnsZoneId()).update().withoutPtrRecordSet(getName()).apply();
     }
 
-    @Override
-    public String toDisplayString() {
-        return "ptr record set " + getName();
-    }
 }

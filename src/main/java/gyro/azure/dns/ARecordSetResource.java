@@ -213,8 +213,4 @@ public class ARecordSetResource extends AzureResource {
         client.dnsZones().getById(getDnsZoneId()).update().withoutARecordSet(getName()).apply();
     }
 
-    @Override
-    public String toDisplayString() {
-        return "a record set " + getName();
-    }
 }

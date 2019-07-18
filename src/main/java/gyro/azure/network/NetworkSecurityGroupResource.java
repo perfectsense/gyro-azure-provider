@@ -3,7 +3,6 @@ package gyro.azure.network;
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.network.NetworkSecurityGroup;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
-import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
 import gyro.core.GyroUI;
 import gyro.core.resource.Updatable;
@@ -176,20 +175,4 @@ public class NetworkSecurityGroupResource extends AzureResource {
         client.networkSecurityGroups().deleteById(getNetworkSecurityGroupId());
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("network security group");
-
-        if (!ObjectUtils.isBlank(getNetworkSecurityGroupName())) {
-            sb.append(" - ").append(getNetworkSecurityGroupName());
-        }
-
-        if (!ObjectUtils.isBlank(getNetworkSecurityGroupId())) {
-            sb.append(" - ").append(getNetworkSecurityGroupId());
-        }
-
-        return sb.toString();
-    }
 }

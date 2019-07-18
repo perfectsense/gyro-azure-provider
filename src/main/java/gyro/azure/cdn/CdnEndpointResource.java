@@ -505,11 +505,6 @@ public class CdnEndpointResource extends AzureResource {
         update.apply();
     }
 
-    @Override
-    public String toDisplayString() {
-        return getType().toLowerCase() + " cdn endpoint " + getName();
-    }
-
     private List<com.microsoft.azure.management.cdn.GeoFilter> toGeoFilters() {
         List<com.microsoft.azure.management.cdn.GeoFilter> geoFilters = new ArrayList<>();
 

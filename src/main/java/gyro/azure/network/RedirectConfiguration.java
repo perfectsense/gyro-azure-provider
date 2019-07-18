@@ -138,19 +138,6 @@ public class RedirectConfiguration extends Diffable {
         return getRedirectConfigurationName();
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("redirect configuration");
-
-        if (!ObjectUtils.isBlank(getRedirectConfigurationName())) {
-            sb.append(" - ").append(getRedirectConfigurationName());
-        }
-
-        return sb.toString();
-    }
-
     WithCreate createRedirectConfiguration(WithCreate attach) {
         DefinitionStages.WithTarget<WithCreate> withCreateWithTarget = attach.defineRedirectConfiguration(getRedirectConfigurationName())
             .withType(ApplicationGatewayRedirectType.fromString(getType()));

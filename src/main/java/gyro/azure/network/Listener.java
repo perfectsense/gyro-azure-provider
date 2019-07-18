@@ -3,7 +3,6 @@ package gyro.azure.network;
 import com.microsoft.azure.management.network.ApplicationGateway.DefinitionStages.WithCreate;
 import com.microsoft.azure.management.network.ApplicationGateway.Update;
 import com.microsoft.azure.management.network.ApplicationGatewayListener;
-import com.psddev.dari.util.ObjectUtils;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 
@@ -77,19 +76,6 @@ public class Listener extends Diffable {
     @Override
     public String primaryKey() {
         return getListenerName();
-    }
-
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("listener");
-
-        if (!ObjectUtils.isBlank(getListenerName())) {
-            sb.append(" - ").append(getListenerName());
-        }
-
-        return sb.toString();
     }
 
     WithCreate createListener(WithCreate attach) {

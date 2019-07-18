@@ -267,23 +267,6 @@ public class NetworkInterfaceResource extends AzureResource {
         client.networkInterfaces().deleteByResourceGroup(getResourceGroupName(), getNetworkInterfaceName());
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("network interface");
-
-        if (!ObjectUtils.isBlank(getNetworkInterfaceName())) {
-            sb.append(" - ").append(getNetworkInterfaceName());
-        }
-
-        if (!ObjectUtils.isBlank(getNetworkInterfaceId())) {
-            sb.append(" - ").append(getNetworkInterfaceId());
-        }
-
-        return sb.toString();
-    }
-
     NetworkInterface getNetworkInterface(Azure client) {
         return client.networkInterfaces().getByResourceGroup(getResourceGroupName(), getNetworkInterfaceName());
     }

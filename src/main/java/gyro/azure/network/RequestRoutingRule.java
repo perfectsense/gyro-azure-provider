@@ -108,19 +108,6 @@ public class RequestRoutingRule extends Diffable {
         return getRuleName();
     }
 
-    @Override
-    public String toDisplayString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("Request routing rule");
-
-        if (!ObjectUtils.isBlank(getRuleName())) {
-            sb.append(" - ").append(getRuleName());
-        }
-
-        return sb.toString();
-    }
-
     WithRequestRoutingRuleOrCreate createRequestRoutingRule(WithRequestRoutingRule preAttach, WithRequestRoutingRuleOrCreate attach) {
         DefinitionStages.WithBackendHttpConfigOrRedirect<WithRequestRoutingRuleOrCreate> partialAttach;
         if (attach == null) {
