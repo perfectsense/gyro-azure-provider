@@ -34,7 +34,7 @@ configurations {
     gyroDoclet
 }
 
-def azureSdkVersion = '1.21.0'
+def azureSdkVersion = '1.24.1'
 
 dependencies {
     api 'gyro:gyro-core:0.15-SNAPSHOT'
