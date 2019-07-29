@@ -1,5 +1,5 @@
 azure::resource-group resource-group-public-ip-address-example
-    resource-group-name: "resource-group-public-ip-address-example"
+    name: "resource-group-public-ip-address-example"
 
     tags: {
         Name: "resource-group-public-ip-address-example"

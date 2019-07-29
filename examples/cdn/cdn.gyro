@@ -1,5 +1,5 @@
 azure::resource-group resource-group-cdn-profile-example
-    resource-group-name: "resource-group-cdn-profile-example"
+    name: "resource-group-cdn-profile-example"
 
     tags: {
         Name: "resource-group-cdn-profile-example"

@@ -1,5 +1,5 @@
 azure::resource-group storage-account-example
-    resource-group-name: "storage-account-example"
+    name: "storage-account-example"
 
     tags: {
         Name: "storage-account-example"

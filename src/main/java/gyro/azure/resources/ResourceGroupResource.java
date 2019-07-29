@@ -1,7 +1,9 @@
 package gyro.azure.resources;
 
 import gyro.azure.AzureResource;
+import gyro.azure.Copyable;
 import gyro.core.GyroUI;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
@@ -23,7 +25,7 @@ import java.util.Set;
  * .. code-block:: gyro
  *
  *     azure::resource-group resource-group-example
- *         resource-group-name: "resource-group-example"
+ *         name: "resource-group-example"
  *
  *         tags: {
  *             Name: "resource-group-example"
@@ -31,30 +33,33 @@ import java.util.Set;
  *     end
  */
 @Type("resource-group")
-public class ResourceGroupResource extends AzureResource {
-
-    private String resourceGroupName;
-    private String resourceGroupId;
+public class ResourceGroupResource extends AzureResource implements Copyable<ResourceGroup> {
+    private String name;
+    private String id;
 
     private Map<String, String> tags;
 
     /**
      * The name of the resource group. (Required)
      */
-    public String getResourceGroupName() {
-        return resourceGroupName;
+    @Id
+    public String getName() {
+        return name;
     }
 
-    public void setResourceGroupName(String resourceGroupName) {
-        this.resourceGroupName = resourceGroupName;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getResourceGroupId() {
-        return resourceGroupId;
+    /**
+     * The ID of the Resource Group.
+     */
+    public String getId() {
+        return id;
     }
 
-    public void setResourceGroupId(String resourceGroupId) {
-        this.resourceGroupId = resourceGroupId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Updatable
@@ -71,16 +76,22 @@ public class ResourceGroupResource extends AzureResource {
     }
 
     @Override
+    public void copyFrom(ResourceGroup resourceGroup) {
+        setName(resourceGroup.name());
+        setId(resourceGroup.id());
+        setTags(resourceGroup.tags());
+    }
+
+    @Override
     public boolean refresh() {
         Azure client = createClient();
 
-        if (!client.resourceGroups().contain(getResourceGroupName())) {
+        if (!client.resourceGroups().contain(getName())) {
             return false;
         }
 
-        ResourceGroup resourceGroup = client.resourceGroups().getByName(getResourceGroupName());
-        setResourceGroupId(resourceGroup.id());
-        setTags(resourceGroup.tags());
+        ResourceGroup resourceGroup = client.resourceGroups().getByName(getName());
+        copyFrom(resourceGroup);
 
         return true;
     }
@@ -90,19 +101,19 @@ public class ResourceGroupResource extends AzureResource {
         Azure client = createClient();
 
         ResourceGroup resourceGroup = client.resourceGroups()
-            .define(getResourceGroupName())
+            .define(getName())
             .withRegion(Region.fromName(getRegion()))
             .withTags(getTags())
             .create();
 
-        setResourceGroupId(resourceGroup.id());
+        setId(resourceGroup.id());
     }
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
-        ResourceGroup resourceGroup = client.resourceGroups().getByName(getResourceGroupName());
+        ResourceGroup resourceGroup = client.resourceGroups().getByName(getName());
 
         resourceGroup.update().withTags(getTags()).apply();
     }
@@ -111,7 +122,6 @@ public class ResourceGroupResource extends AzureResource {
     public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
-        client.resourceGroups().deleteByName(getResourceGroupName());
+        client.resourceGroups().deleteByName(getName());
     }
-
 }

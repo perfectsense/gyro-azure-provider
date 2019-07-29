@@ -1,5 +1,5 @@
 azure::resource-group queue-resource-group
-    resource-group-name: "queue-resource-group"
+    name: "queue-resource-group"
 
     tags: {
         Name: "queue-resource-group"

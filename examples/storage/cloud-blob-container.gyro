@@ -1,5 +1,5 @@
 azure::resource-group blob-resource-group
-    resource-group-name: "blob-resource-group"
+    name: "blob-resource-group"
 
     tags: {
         Name: "blob-resource-group"
