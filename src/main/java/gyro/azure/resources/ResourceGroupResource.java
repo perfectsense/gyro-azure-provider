@@ -2,6 +2,7 @@ package gyro.azure.resources;
 
 import gyro.azure.AzureResource;
 import gyro.core.GyroUI;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
@@ -41,6 +42,7 @@ public class ResourceGroupResource extends AzureResource {
     /**
      * The name of the resource group. (Required)
      */
+    @Id
     public String getResourceGroupName() {
         return resourceGroupName;
     }

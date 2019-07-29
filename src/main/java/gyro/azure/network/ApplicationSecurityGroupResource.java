@@ -1,6 +1,8 @@
 package gyro.azure.network;
 
 import gyro.azure.AzureResource;
+import gyro.azure.Copyable;
+import gyro.azure.resources.ResourceGroupResource;
 import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
@@ -24,24 +26,28 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *     azure::application-security-group application-security-group-example
- *         name: "application-security-group-example"
- *         resource-group-name: $(azure::resource-group resource-group-app-security-group-example | resource-group-name)
- *         tags: {
- *                Name: "application-security-group-example"
- *         }
- *     end
+ *    azure::application-security-group application-security-group-example
+ *        name: "application-security-group-example"
+ *        resource-group: $(azure::resource-group resource-group-app-security-group-example)
+ *        tags: {
+ *            Name: "application-security-group-example"
+ *        }
+ *    end
  */
 @Type("application-security-group")
-public class ApplicationSecurityGroupResource extends AzureResource {
-
+public class ApplicationSecurityGroupResource extends AzureResource implements Copyable<ApplicationSecurityGroup> {
     private String id;
     private String name;
-    private String resourceGroupName;
+    private ResourceGroupResource resourceGroup;
     private Map<String, String> tags;
 
+    private String provisioningState;
+    private String resourceGuid;
+    private String etag;
+    private String type;
+
     /**
-     * The id of the application security group.
+     * The ID of the Application Security Group.
      */
     @Output
     public String getId() {
@@ -53,7 +59,7 @@ public class ApplicationSecurityGroupResource extends AzureResource {
     }
 
     /**
-     * The name of the application security group. (Required)
+     * The name of the Application Security Group. (Required)
      */
     public String getName() {
         return name;
@@ -64,18 +70,18 @@ public class ApplicationSecurityGroupResource extends AzureResource {
     }
 
     /**
-     * The name of the resource group where the the application security group is found. (Required)
+     * The Resource Group where the the Application Security Group is found. (Required)
      */
-    public String getResourceGroupName() {
-        return resourceGroupName;
+    public ResourceGroupResource getResourceGroup() {
+        return resourceGroup;
     }
 
-    public void setResourceGroupName(String resourceGroupName) {
-        this.resourceGroupName = resourceGroupName;
+    public void setResourceGroup(ResourceGroupResource resourceGroup) {
+        this.resourceGroup = resourceGroup;
     }
 
     /**
-     * The tags associated with the application security group. (Optional)
+     * The tags associated with the Application Security Group. (Optional)
      */
     @Updatable
     public Map<String, String> getTags() {
@@ -90,6 +96,66 @@ public class ApplicationSecurityGroupResource extends AzureResource {
         this.tags = tags;
     }
 
+    /**
+     * The provisioning state of the Application Security Group.
+     */
+    @Output
+    public String getProvisioningState() {
+        return provisioningState;
+    }
+
+    public void setProvisioningState(String provisioningState) {
+        this.provisioningState = provisioningState;
+    }
+
+    /**
+     * A shortened ID of the Application Security Group.
+     */
+    @Output
+    public String getResourceGuid() {
+        return resourceGuid;
+    }
+
+    public void setResourceGuid(String resourceGuid) {
+        this.resourceGuid = resourceGuid;
+    }
+
+    /**
+     * The etag value of the Application Security Group.
+     */
+    @Output
+    public String getEtag() {
+        return etag;
+    }
+
+    public void setEtag(String etag) {
+        this.etag = etag;
+    }
+
+    /**
+     * The resource type of the Application Security Group.
+     */
+    @Output
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    @Override
+    public void copyFrom(ApplicationSecurityGroup applicationSecurityGroup) {
+        setId(applicationSecurityGroup.id());
+        setName(applicationSecurityGroup.name());
+        setResourceGroup(findById(ResourceGroupResource.class, applicationSecurityGroup.resourceGroupName()));
+        setTags(applicationSecurityGroup.tags());
+
+        applicationSecurityGroup.provisioningState();
+        applicationSecurityGroup.resourceGuid();
+        applicationSecurityGroup.inner().etag();
+        applicationSecurityGroup.type();
+    }
 
     @Override
     public boolean refresh() {
@@ -101,9 +167,8 @@ public class ApplicationSecurityGroupResource extends AzureResource {
             return false;
         }
 
-        setId(applicationSecurityGroup.id());
-        setName(applicationSecurityGroup.name());
-        setResourceGroupName(applicationSecurityGroup.resourceGroupName());
+        copyFrom(applicationSecurityGroup);
+
         return true;
     }
 
@@ -113,11 +178,11 @@ public class ApplicationSecurityGroupResource extends AzureResource {
 
         ApplicationSecurityGroup applicationSecurityGroup = client.applicationSecurityGroups().define(getName())
                 .withRegion(Region.fromName(getRegion()))
-                .withExistingResourceGroup(getResourceGroupName())
+                .withExistingResourceGroup(getResourceGroup().getResourceGroupName())
                 .withTags(getTags())
                 .create();
 
-        setId(applicationSecurityGroup.id());
+        copyFrom(applicationSecurityGroup);
     }
 
     @Override
@@ -133,5 +198,4 @@ public class ApplicationSecurityGroupResource extends AzureResource {
 
         client.applicationSecurityGroups().deleteById(getId());
     }
-
 }

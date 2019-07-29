@@ -8,7 +8,7 @@ end
 
 azure::application-security-group application-security-group-example
     name: "application-security-group-example"
-    resource-group-name: $(azure::resource-group resource-group-app-security-group-example | resource-group-name)
+    resource-group: $(azure::resource-group resource-group-app-security-group-example)
     tags: {
         Name: "application-security-group-example"
     }
