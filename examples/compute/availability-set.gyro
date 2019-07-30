@@ -9,7 +9,7 @@ end
 azure::availability-set availability-set-example
     fault-domain-count: 2
     name: "availability-set-example"
-    resource-group-name: $(azure::resource-group resource-group-availability-set-example | resource-group-name)
+    resource-group: $(azure::resource-group resource-group-availability-set-example)
     sku: "Aligned"
     tags: {
             Name: "availability-set-example"

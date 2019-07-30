@@ -1,7 +1,11 @@
 package gyro.azure.compute;
 
 import gyro.azure.AzureResource;
+import gyro.azure.Copyable;
+import gyro.azure.resources.ResourceGroupResource;
+import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
@@ -28,7 +32,7 @@ import java.util.Set;
  *         azure::availability-set availability-set-example
  *             fault-domain-count: 2
  *             name: "availability-set-example"
- *             resource-group-name: $(azure::resource-group load-balancer-rg-example | resource-group-name)
+ *             resource-group: $(azure::resource-group load-balancer-rg-example)
  *             sku: "Aligned"
  *             tags: {
  *                   Name: "availability-set-example"
@@ -37,18 +41,18 @@ import java.util.Set;
  *         end
  */
 @Type("availability-set")
-public class AvailabilitySetResource extends AzureResource {
+public class AvailabilitySetResource extends AzureResource implements Copyable<AvailabilitySet> {
 
     private Integer faultDomainCount;
     private String id;
     private String name;
-    private String resourceGroupName;
+    private ResourceGroupResource resourceGroup;
     private String sku;
     private Map<String, String> tags;
     private Integer updateDomainCount;
 
     /**
-     * The fault domain count of the availability set.
+     * The fault domain count of the Availability Set.
      */
     public Integer getFaultDomainCount() {
         return faultDomainCount;
@@ -59,8 +63,9 @@ public class AvailabilitySetResource extends AzureResource {
     }
 
     /**
-     * The id of the availability set.
+     * The id of the Availability Set.
      */
+    @Id
     @Output
     public String getId() {
         return id;
@@ -71,7 +76,7 @@ public class AvailabilitySetResource extends AzureResource {
     }
 
     /**
-     * The name of the availability set.
+     * The name of the Availability Set.
      */
     public String getName() {
         return name;
@@ -82,18 +87,18 @@ public class AvailabilitySetResource extends AzureResource {
     }
 
     /**
-     * The input resource group name where the availability set is found.
+     * The input resource group name where the Availability Set is found.
      */
-    public String getResourceGroupName() {
-        return resourceGroupName;
+    public ResourceGroupResource getResourceGroup() {
+        return resourceGroup;
     }
 
-    public void setResourceGroupName(String resourceGroupName) {
-        this.resourceGroupName = resourceGroupName;
+    public void setResourceGroup(ResourceGroupResource resourceGroup) {
+        this.resourceGroup = resourceGroup;
     }
 
     /**
-     * The availability set sku. Options are Aligned and Classic. Defaults to Classic. (Optional)
+     * The Availability Set sku. Valid values are ``Aligned`` or ``Classic``. Defaults to ``Classic``. (Optional)
      */
     @Updatable
     public String getSku() {
@@ -109,7 +114,7 @@ public class AvailabilitySetResource extends AzureResource {
     }
 
     /**
-     * The tags associated with the availability set. (Optional)
+     * The tags associated with the Availability Set. (Optional)
      */
     @Updatable
     public Map<String, String> getTags() {
@@ -136,6 +141,16 @@ public class AvailabilitySetResource extends AzureResource {
     }
 
     @Override
+    public void copyFrom(AvailabilitySet availabilitySet) {
+        setFaultDomainCount(availabilitySet.faultDomainCount());
+        setId(availabilitySet.id());
+        setName(availabilitySet.name());
+        setSku(availabilitySet.sku().toString());
+        setUpdateDomainCount(availabilitySet.updateDomainCount());
+        setResourceGroup(findById(ResourceGroupResource.class, availabilitySet.resourceGroupName()));
+    }
+
+    @Override
     public boolean refresh() {
         Azure client = createClient();
 
@@ -145,11 +160,7 @@ public class AvailabilitySetResource extends AzureResource {
             return false;
         }
 
-        setFaultDomainCount(availabilitySet.faultDomainCount());
-        setId(availabilitySet.id());
-        setName(availabilitySet.name());
-        setSku(availabilitySet.sku().toString());
-        setUpdateDomainCount(availabilitySet.updateDomainCount());
+        copyFrom(availabilitySet);
 
         return true;
     }
@@ -160,24 +171,30 @@ public class AvailabilitySetResource extends AzureResource {
 
         AvailabilitySet availabilitySet = client.availabilitySets().define(getName())
                 .withRegion(Region.fromName(getRegion()))
-                .withExistingResourceGroup(getResourceGroupName())
+                .withExistingResourceGroup(getResourceGroup().getResourceGroupName())
                 .withFaultDomainCount(getFaultDomainCount())
                 .withSku(AvailabilitySetSkuTypes.fromString(getSku()))
                 .withUpdateDomainCount(getUpdateDomainCount())
                 .withTags(getTags())
                 .create();
 
-        setId(availabilitySet.id());
+        copyFrom(availabilitySet);
     }
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
-        client.availabilitySets().getById(getId()).update()
-                .withSku(AvailabilitySetSkuTypes.fromString(getSku()))
-                .withTags(getTags())
-                .apply();
+        if (changedFieldNames.contains("sku") && AvailabilitySetSkuTypes.fromString(getSku()).equals(AvailabilitySetSkuTypes.CLASSIC)) {
+            throw new GyroException("Changing param SKU from 'Aligned' to 'Classic' is not allowed");
+        }
+
+        AvailabilitySet availabilitySet = client.availabilitySets().getById(getId()).update()
+            .withSku(AvailabilitySetSkuTypes.fromString(getSku()))
+            .withTags(getTags())
+            .apply();
+
+        copyFrom(availabilitySet);
     }
 
     @Override
@@ -186,5 +203,4 @@ public class AvailabilitySetResource extends AzureResource {
 
         client.availabilitySets().deleteById(getId());
     }
-
 }
