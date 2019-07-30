@@ -1,8 +1,14 @@
 package gyro.azure.compute;
 
+import com.microsoft.azure.management.compute.CreationSourceType;
+import com.microsoft.azure.management.compute.DiskCreateOption;
+import com.microsoft.azure.management.compute.OperatingSystemTypes;
 import gyro.azure.AzureResource;
+import gyro.azure.Copyable;
+import gyro.azure.resources.ResourceGroupResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
@@ -15,7 +21,9 @@ import com.microsoft.azure.management.compute.SnapshotStorageAccountTypes;
 import com.microsoft.azure.management.compute.Snapshot.DefinitionStages.WithCreate;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import gyro.core.scope.State;
+import org.joda.time.DateTime;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -28,22 +36,21 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *        azure::snapshot snapshot-example
- *            provider: "Disk"
- *            disk-id: $(azure::disk disk-example | disk-id)
- *            name: "snapshot-name"
- *            resource-group-name: $(azure::resource-group resource-group-snapshot-example | resource-group-name)
- *            size: 10
- *            sku: "Standard_LRS"
- *            source: "Data"
- *            tags: {
- *                 Name: "snapshot-example"
- *            }
- *        end
+ *    azure::snapshot snapshot-example
+ *        provider: "Disk"
+ *        disk: $(azure::disk disk-example)
+ *        name: "snapshot-name"
+ *        resource-group: $(azure::resource-group resource-group-snapshot-example)
+ *        size: 10
+ *        sku: "Standard_LRS"
+ *        source: "Data"
+ *        tags: {
+ *             Name: "snapshot-example"
+ *        }
+ *    end
  */
 @Type("snapshot")
-public class SnapshotResource extends AzureResource {
-
+public class SnapshotResource extends AzureResource implements Copyable<Snapshot> {
     private static final String SOURCE_DATA = "Data";
     private static final String SOURCE_LINUX = "Linux";
     private static final String SOURCE_WINDOWS = "Windows";
@@ -51,32 +58,34 @@ public class SnapshotResource extends AzureResource {
     private static final String SNAPSHOT = "Snapshot";
     private static final String VHD = "Vhd";
 
-    private String diskId;
+    private DiskResource disk;
     private String id;
     private String name;
     private String provider;
-    private String resourceGroupName;
+    private ResourceGroupResource resourceGroup;
     private String sku;
     private Integer size;
-    private String snapshotId;
+    private SnapshotResource snapshot;
     private String source;
     private Map<String, String> tags;
     private String vhdUrl;
+    private Date creationTime;
 
     /**
-     * Input disk id from existing disk. Used when "Disk" is the provider. (Conditional)
+     * Input disk from existing disk. Used when "Disk" is the provider. (Conditional)
      */
-    public String getDiskId() {
-        return diskId;
+    public DiskResource getDisk() {
+        return disk;
     }
 
-    public void setDiskId(String diskId) {
-        this.diskId = diskId;
+    public void setDisk(DiskResource disk) {
+        this.disk = disk;
     }
 
     /**
-     * Id associated with the snapshot.
+     * Id associated with the Snapshot.
      */
+    @Id
     @Output
     public String getId() {
         return id;
@@ -87,7 +96,7 @@ public class SnapshotResource extends AzureResource {
     }
 
     /**
-     * The name of the snapshot. (Required)
+     * The name of the Snapshot. (Required)
      */
     public String getName() {
         return name;
@@ -109,14 +118,14 @@ public class SnapshotResource extends AzureResource {
     }
 
     /**
-     * The input resource group name. (Required)
+     * The input resource group. (Required)
      */
-    public String getResourceGroupName() {
-        return resourceGroupName;
+    public ResourceGroupResource getResourceGroup() {
+        return resourceGroup;
     }
 
-    public void setResourceGroupName(String resourceGroupName) {
-        this.resourceGroupName = resourceGroupName;
+    public void setResourceGroup(ResourceGroupResource resourceGroup) {
+        this.resourceGroup = resourceGroup;
     }
 
     /**
@@ -143,14 +152,14 @@ public class SnapshotResource extends AzureResource {
     }
 
     /**
-     * The id of the source data managed snapshot. Used when "Snapshot" is the provider. (Conditional)
+     * The source data managed snapshot. Used when "Snapshot" is the provider. (Conditional)
      */
-    public String getSnapshotId() {
-        return snapshotId;
+    public SnapshotResource getSnapshot() {
+        return snapshot;
     }
 
-    public void setSnapshotId(String snapshotId) {
-        this.snapshotId = snapshotId;
+    public void setSnapshot(SnapshotResource snapshot) {
+        this.snapshot = snapshot;
     }
 
     /**
@@ -165,7 +174,7 @@ public class SnapshotResource extends AzureResource {
     }
 
     /**
-     * The tags associated with the snapshot. (Optional)
+     * The tags associated with the Snapshot. (Optional)
      */
     @Updatable
     public Map<String, String> getTags() {
@@ -181,7 +190,7 @@ public class SnapshotResource extends AzureResource {
     }
 
     /**
-     * The url of the vhd. Used when "Vhd" is the provider. (Conditional)
+     * The url of the vhd. Used when "Vhd" as the provider. (Conditional)
      */
     public String getVhdUrl() {
         return vhdUrl;
@@ -189,6 +198,36 @@ public class SnapshotResource extends AzureResource {
 
     public void setVhdUrl(String vhdUrl) {
         this.vhdUrl = vhdUrl;
+    }
+
+    /**
+     * Creation time of the Snapshot.
+     */
+    @Output
+    public Date getCreationTime() {
+        return creationTime;
+    }
+
+    public void setCreationTime(Date creationTime) {
+        this.creationTime = creationTime;
+    }
+
+    @Override
+    public void copyFrom(Snapshot snapshot) {
+        setId(snapshot.id());
+        setName(snapshot.name());
+        setResourceGroup(findById(ResourceGroupResource.class, snapshot.resourceGroupName()));
+        setSku(snapshot.skuType().toString());
+        setTags(snapshot.tags());
+        setSize(snapshot.sizeInGB());
+        setDisk(null);
+        setSnapshot(null);
+        if (snapshot.source().type().equals(CreationSourceType.COPIED_FROM_DISK)) {
+            setDisk(findById(DiskResource.class, snapshot.inner().creationData().sourceResourceId()));
+        } else if (snapshot.source().type().equals(CreationSourceType.COPIED_FROM_SNAPSHOT)) {
+            setSnapshot(findById(SnapshotResource.class, snapshot.inner().creationData().sourceResourceId()));
+        }
+        setCreationTime(snapshot.inner().timeCreated().toDate());
     }
 
     @Override
@@ -201,11 +240,7 @@ public class SnapshotResource extends AzureResource {
             return false;
         }
 
-        setId(snapshot.id());
-        setName(snapshot.name());
-        setResourceGroupName(snapshot.resourceGroupName());
-        setSku(snapshot.skuType().toString());
-        setTags(snapshot.tags());
+        copyFrom(snapshot);
 
         return true;
     }
@@ -216,7 +251,7 @@ public class SnapshotResource extends AzureResource {
 
         Snapshot.DefinitionStages.WithSnapshotSource withSnapshotSource = client.snapshots().define(getName())
                 .withRegion(Region.fromName(getRegion()))
-                .withExistingResourceGroup(getResourceGroupName());
+                .withExistingResourceGroup(getResourceGroup().getResourceGroupName());
 
         WithCreate withCreate = null;
 
@@ -224,25 +259,25 @@ public class SnapshotResource extends AzureResource {
 
         if (SOURCE_DATA.equalsIgnoreCase(getSource())) {
             if (DISK.equalsIgnoreCase(getProvider())) {
-                withCreate = withSnapshotSource.withDataFromDisk(getDiskId());
+                withCreate = withSnapshotSource.withDataFromDisk(getDisk().getId());
             } else if (SNAPSHOT.equalsIgnoreCase(getProvider())) {
-                withCreate = withSnapshotSource.withDataFromSnapshot(getSnapshotId());
+                withCreate = withSnapshotSource.withDataFromSnapshot(getSnapshot().getId());
             } else if (VHD.equalsIgnoreCase(getProvider())) {
                 withCreate = withSnapshotSource.withDataFromVhd(getVhdUrl());
             }
         } else if (SOURCE_LINUX.equalsIgnoreCase(getSource())) {
             if (DISK.equalsIgnoreCase(getProvider())) {
-                withCreate = withSnapshotSource.withLinuxFromDisk(getDiskId());
+                withCreate = withSnapshotSource.withLinuxFromDisk(getDisk().getId());
             } else if (SNAPSHOT.equalsIgnoreCase(getProvider())) {
-                withCreate = withSnapshotSource.withLinuxFromSnapshot(getSnapshotId());
+                withCreate = withSnapshotSource.withLinuxFromSnapshot(getSnapshot().getId());
             } else if (VHD.equalsIgnoreCase(getProvider())) {
                 withCreate = withSnapshotSource.withLinuxFromVhd(getVhdUrl());
             }
         } else if (SOURCE_WINDOWS.equalsIgnoreCase(getSource())) {
             if (DISK.equalsIgnoreCase(getProvider())) {
-                withCreate = withSnapshotSource.withWindowsFromDisk(getDiskId());
+                withCreate = withSnapshotSource.withWindowsFromDisk(getDisk().getId());
             } else if (SNAPSHOT.equalsIgnoreCase(getProvider())) {
-                withCreate = withSnapshotSource.withWindowsFromSnapshot(getSnapshotId());
+                withCreate = withSnapshotSource.withWindowsFromSnapshot(getSnapshot().getId());
             } else if (VHD.equalsIgnoreCase(getProvider())) {
                 withCreate = withSnapshotSource.withWindowsFromVhd(getVhdUrl());
             }
@@ -268,7 +303,7 @@ public class SnapshotResource extends AzureResource {
         Snapshot snapshot = withCreate.withTags(getTags())
                 .create();
 
-        setId(snapshot.id());
+        copyFrom(snapshot);
     }
 
     @Override
@@ -288,5 +323,4 @@ public class SnapshotResource extends AzureResource {
 
         client.snapshots().deleteById(getId());
     }
-
 }
