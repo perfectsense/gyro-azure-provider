@@ -1,1 +1,2 @@
 disk: $(external-query azure::disk {} )
+snapshot: $(external-query azure::snapshot {} )
