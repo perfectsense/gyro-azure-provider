@@ -7,25 +7,23 @@ azure::resource-group resource-group-disk-example
 end
 
 azure::disk disk-example
-    disk-name: "disk-example"
-    disk-type: "Standard_LRS"
+    name: "disk-example"
+    type: "Standard_LRS"
     os-type: "LINUX"
     size: 10
-    resource-group-name: $(azure::resource-group resource-group-disk-example | resource-group-name)
+    resource-group: $(azure::resource-group resource-group-disk-example)
     tags: {
         Name: "disk-example"
     }
 end
 
-
-
 azure::disk disk-example-from-disk
-    disk-name: "disk-example-from-disk"
-    disk-type: "Standard_LRS"
+    name: "disk-example-from-disk"
+    type: "Standard_LRS"
     os-type: "LINUX"
-    data-load-source: $(azure::disk disk-example | disk-id)
+    data-load-source: $(azure::disk disk-example).id
     size: 10
-    resource-group-name: $(azure::resource-group resource-group-disk-example | resource-group-name)
+    resource-group: $(azure::resource-group resource-group-disk-example)
     tags: {
         Name: "disk-example-from-disk"
     }
