@@ -72,7 +72,7 @@ public class SnapshotResource extends AzureResource implements Copyable<Snapshot
     private Date creationTime;
 
     /**
-     * Input disk from existing disk. Used when "Disk" is the provider. (Conditional)
+     * Input disk from existing disk. Used when ``Disk`` is the provider. (Conditional)
      */
     public DiskResource getDisk() {
         return disk;
@@ -107,7 +107,7 @@ public class SnapshotResource extends AzureResource implements Copyable<Snapshot
     }
 
     /**
-     * Determines what data type is used. Options include disk, snapshot, or vhd. (Required)
+     * Determines what data type is used. Valid values are ``disk`` or ``snapshot`` or ``vhd``. (Required)
      */
     public String getProvider() {
         return provider;
@@ -118,7 +118,7 @@ public class SnapshotResource extends AzureResource implements Copyable<Snapshot
     }
 
     /**
-     * The input resource group. (Required)
+     * The input Resource Group. (Required)
      */
     public ResourceGroupResource getResourceGroup() {
         return resourceGroup;
@@ -129,7 +129,7 @@ public class SnapshotResource extends AzureResource implements Copyable<Snapshot
     }
 
     /**
-     * Specifies the sku type. Options include Premium_LRS, Standard_LRS, Standard_ZRS. (Optional)
+     * Specifies the sku type. Valid values are ``Premium_LRS`` or ``Standard_LRS`` or ``Standard_ZRS``. (Optional)
      */
     @Updatable
     public String getSku() {
@@ -152,7 +152,7 @@ public class SnapshotResource extends AzureResource implements Copyable<Snapshot
     }
 
     /**
-     * The source data managed snapshot. Used when "Snapshot" is the provider. (Conditional)
+     * The source data managed snapshot. Used when ``Snapshot`` is the provider. (Conditional)
      */
     public SnapshotResource getSnapshot() {
         return snapshot;
@@ -163,7 +163,7 @@ public class SnapshotResource extends AzureResource implements Copyable<Snapshot
     }
 
     /**
-     * The type of the disk, snapshot, or vhd used. Options include Linux, Windows, or Data. (Required)
+     * The type of the disk, snapshot, or vhd used. Valid values are ``Linux`` or ``Windows`` or ``Data``. (Required)
      */
     public String getSource() {
         return source;
@@ -190,7 +190,7 @@ public class SnapshotResource extends AzureResource implements Copyable<Snapshot
     }
 
     /**
-     * The url of the vhd. Used when "Vhd" as the provider. (Conditional)
+     * The url of the vhd. Used when ``Vhd`` is the provider. (Conditional)
      */
     public String getVhdUrl() {
         return vhdUrl;
