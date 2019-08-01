@@ -18,7 +18,7 @@ import java.util.Map;
  *    disk: $(external-query azure::disk {} )
  */
 @Type("disk")
-public class DiskResourceFinder extends AzureFinder<Disk, DiskResource> {
+public class DiskFinder extends AzureFinder<Disk, DiskResource> {
     private String id;
 
     /**

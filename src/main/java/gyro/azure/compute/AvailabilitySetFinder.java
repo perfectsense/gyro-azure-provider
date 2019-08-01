@@ -18,7 +18,7 @@ import java.util.Map;
  *    availability-set: $(external-query azure::availability-set {} )
  */
 @Type("availability-set")
-public class AvailabilitySetResourceFinder extends AzureFinder<AvailabilitySet, AvailabilitySetResource> {
+public class AvailabilitySetFinder extends AzureFinder<AvailabilitySet, AvailabilitySetResource> {
     private String id;
 
     /**

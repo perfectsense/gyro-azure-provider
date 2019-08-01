@@ -18,7 +18,7 @@ import java.util.Map;
  *    snapshot: $(external-query azure::snapshot {} )
  */
 @Type("snapshot")
-public class SnapshotResourceFinder extends AzureFinder<Snapshot, SnapshotResource> {
+public class SnapshotFinder extends AzureFinder<Snapshot, SnapshotResource> {
     private String id;
 
     /**
