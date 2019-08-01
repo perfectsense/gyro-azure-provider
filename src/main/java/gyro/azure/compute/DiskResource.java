@@ -30,16 +30,16 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *     azure::disk disk-example
- *          name: "disk-example"
- *          type: "Standard_LRS"
- *          os-type: "LINUX"
- *          size: 10
- *          resource-group: $(azure::resource-group resource-group-disk-example)
- *          tags: {
- *              Name: "disk-example"
- *          }
- *     end
+ *    azure::disk disk-example
+ *         name: "disk-example"
+ *         type: "Standard_LRS"
+ *         os-type: "LINUX"
+ *         size: 10
+ *         resource-group: $(azure::resource-group resource-group-disk-example)
+ *         tags: {
+ *             Name: "disk-example"
+ *         }
+ *    end
  */
 @Type("disk")
 public class DiskResource extends AzureResource implements Copyable<Disk> {

@@ -29,16 +29,16 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *         azure::availability-set availability-set-example
- *             fault-domain-count: 2
- *             name: "availability-set-example"
- *             resource-group: $(azure::resource-group load-balancer-rg-example)
- *             sku: "Aligned"
- *             tags: {
- *                   Name: "availability-set-example"
- *             }
- *             update-domain-count: 20
- *         end
+ *    azure::availability-set availability-set-example
+ *        fault-domain-count: 2
+ *        name: "availability-set-example"
+ *        resource-group: $(azure::resource-group load-balancer-rg-example)
+ *        sku: "Aligned"
+ *        tags: {
+ *              Name: "availability-set-example"
+ *        }
+ *        update-domain-count: 20
+ *    end
  */
 @Type("availability-set")
 public class AvailabilitySetResource extends AzureResource implements Copyable<AvailabilitySet> {

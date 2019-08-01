@@ -54,27 +54,27 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *     azure::virtual-machine virtual-machine-example
- *          name: "virtual-machine-example"
- *          resource-group: $(azure::resource-group resource-group-example-VM)
- *          network: $(azure::network network-example-VM)
- *          subnet: "subnet1"
- *          os-type: "linux"
- *          disk: $(azure::disk disk-example-VM)
- *          network-interface: $(azure::network-interface network-interface-example-VM)
- *          vm-image-type: "popular"
- *          known-virtual-image: "UBUNTU_SERVER_14_04_LTS"
- *          admin-user-name: "qwerty@123"
- *          admin-password: "qwerty@123"
- *          caching-type: "NONE"
- *          vm-size-type: "STANDARD_G1"
- *          storage-account-type-data-disk: "STANDARD_LRS"
- *          storage-account-type-os-disk: "STANDARD_LRS"
+ *    azure::virtual-machine virtual-machine-example
+ *         name: "virtual-machine-example"
+ *         resource-group: $(azure::resource-group resource-group-example-VM)
+ *         network: $(azure::network network-example-VM)
+ *         subnet: "subnet1"
+ *         os-type: "linux"
+ *         disk: $(azure::disk disk-example-VM)
+ *         network-interface: $(azure::network-interface network-interface-example-VM)
+ *         vm-image-type: "popular"
+ *         known-virtual-image: "UBUNTU_SERVER_14_04_LTS"
+ *         admin-user-name: "qwerty@123"
+ *         admin-password: "qwerty@123"
+ *         caching-type: "NONE"
+ *         vm-size-type: "STANDARD_G1"
+ *         storage-account-type-data-disk: "STANDARD_LRS"
+ *         storage-account-type-os-disk: "STANDARD_LRS"
  *
- *          tags: {
- *              Name: "virtual-machine-example"
- *          }
- *     end
+ *         tags: {
+ *             Name: "virtual-machine-example"
+ *         }
+ *    end
  */
 @Type("virtual-machine")
 public class VirtualMachineResource extends AzureResource implements Copyable<VirtualMachine> {
