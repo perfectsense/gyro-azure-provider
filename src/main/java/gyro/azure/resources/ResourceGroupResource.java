@@ -6,6 +6,7 @@ import gyro.core.GyroUI;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.resources.ResourceGroup;
@@ -54,6 +55,7 @@ public class ResourceGroupResource extends AzureResource implements Copyable<Res
     /**
      * The ID of the Resource Group.
      */
+    @Output
     public String getId() {
         return id;
     }
