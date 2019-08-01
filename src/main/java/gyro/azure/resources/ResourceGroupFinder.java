@@ -1,6 +1,5 @@
 package gyro.azure.resources;
 
-import com.microsoft.azure.PagedList;
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.resources.ResourceGroup;
 import gyro.azure.AzureFinder;
@@ -27,9 +26,7 @@ public class ResourceGroupFinder extends AzureFinder<ResourceGroup, ResourceGrou
 
     @Override
     protected List<ResourceGroup> findAllAzure(Azure client) {
-        PagedList<ResourceGroup> list = client.resourceGroups().list();
-        list.loadAll();
-        return list;
+        return client.resourceGroups().list();
     }
 
     @Override
