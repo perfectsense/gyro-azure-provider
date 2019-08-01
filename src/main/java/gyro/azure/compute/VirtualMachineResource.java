@@ -330,6 +330,7 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
     /**
      * The caching type for the Virtual Machine.
      */
+    @Updatable
     public String getCachingType() {
         return cachingType;
     }
@@ -341,6 +342,7 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
     /**
      * The data disk storage account type for the Virtual Machine. Valid values are ``STANDARD_LRS`` or ``PREMIUM_LRS`` or ``STANDARD_SSD_LRS``.
      */
+    @Updatable
     public String getStorageAccountTypeDataDisk() {
         return storageAccountTypeDataDisk;
     }
@@ -363,6 +365,7 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
     /**
      * The size of the Virtual Machine.
      */
+    @Updatable
     public String getVmSizeType() {
         return vmSizeType != null ? vmSizeType.toUpperCase() : null;
     }
