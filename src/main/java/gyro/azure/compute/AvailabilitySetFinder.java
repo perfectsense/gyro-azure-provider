@@ -1,6 +1,5 @@
 package gyro.azure.compute;
 
-import com.microsoft.azure.PagedList;
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.compute.AvailabilitySet;
 import gyro.azure.AzureFinder;
@@ -26,9 +25,7 @@ public class AvailabilitySetFinder extends AzureFinder<AvailabilitySet, Availabi
     }
     @Override
     protected List<AvailabilitySet> findAllAzure(Azure client) {
-        PagedList<AvailabilitySet> list = client.availabilitySets().list();
-        list.loadAll();
-        return list;
+        return client.availabilitySets().list();
     }
 
     @Override

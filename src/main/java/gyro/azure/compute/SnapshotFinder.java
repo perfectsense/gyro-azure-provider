@@ -1,6 +1,5 @@
 package gyro.azure.compute;
 
-import com.microsoft.azure.PagedList;
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.compute.Snapshot;
 import gyro.azure.AzureFinder;
@@ -27,9 +26,7 @@ public class SnapshotFinder extends AzureFinder<Snapshot, SnapshotResource> {
 
     @Override
     protected List<Snapshot> findAllAzure(Azure client) {
-        PagedList<Snapshot> list =  client.snapshots().list();
-        list.loadAll();
-        return list;
+        return client.snapshots().list();
     }
 
     @Override

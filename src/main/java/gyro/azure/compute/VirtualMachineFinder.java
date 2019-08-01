@@ -1,6 +1,5 @@
 package gyro.azure.compute;
 
-import com.microsoft.azure.PagedList;
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.compute.VirtualMachine;
 import gyro.azure.AzureFinder;
@@ -26,9 +25,7 @@ public class VirtualMachineFinder extends AzureFinder<VirtualMachine, VirtualMac
     }
     @Override
     protected List<VirtualMachine> findAllAzure(Azure client) {
-        PagedList<VirtualMachine> list =  client.virtualMachines().list();
-        list.loadAll();
-        return list;
+        return client.virtualMachines().list();
     }
 
     @Override
