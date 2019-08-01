@@ -34,7 +34,9 @@ public class ResourceGroupFinder extends AzureFinder<ResourceGroup, ResourceGrou
 
     @Override
     protected List<ResourceGroup> findAllAzure(Azure client) {
-        return client.resourceGroups().list();
+        PagedList<ResourceGroup> list = client.resourceGroups().list();
+        list.loadAll();
+        return list;
     }
 
     @Override
