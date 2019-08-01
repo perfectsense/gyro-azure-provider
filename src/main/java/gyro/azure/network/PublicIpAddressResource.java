@@ -9,6 +9,7 @@ import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
 import gyro.core.GyroUI;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
@@ -54,6 +55,7 @@ public class PublicIpAddressResource extends AzureResource {
     /**
      * Name of the public ip address. (Required)
      */
+    @Id
     public String getPublicIpAddressName() {
         return publicIpAddressName;
     }

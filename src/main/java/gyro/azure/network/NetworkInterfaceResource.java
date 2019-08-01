@@ -8,6 +8,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
 
 import gyro.core.GyroUI;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
@@ -65,6 +66,7 @@ public class NetworkInterfaceResource extends AzureResource {
     /**
      * Name of the network interface. (Required)
      */
+    @Id
     public String getNetworkInterfaceName() {
         return networkInterfaceName;
     }

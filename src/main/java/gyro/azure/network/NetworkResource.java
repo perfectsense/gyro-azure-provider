@@ -6,6 +6,7 @@ import com.microsoft.azure.management.network.Subnet;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import gyro.azure.AzureResource;
 import gyro.core.GyroUI;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
@@ -129,6 +130,7 @@ public class NetworkResource extends AzureResource {
         this.tags = tags;
     }
 
+    @Id
     @Output
     public String getNetworkId() {
         return networkId;
