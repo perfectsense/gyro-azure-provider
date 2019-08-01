@@ -1,5 +1,6 @@
 package gyro.azure.compute;
 
+import com.microsoft.azure.PagedList;
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.compute.Disk;
 import gyro.azure.AzureFinder;
@@ -33,7 +34,9 @@ public class DiskResourceFinder extends AzureFinder<Disk, DiskResource> {
 
     @Override
     protected List<Disk> findAllAzure(Azure client) {
-        return client.disks().list();
+        PagedList<Disk> list = client.disks().list();
+        list.loadAll();
+        return list;
     }
 
     @Override
