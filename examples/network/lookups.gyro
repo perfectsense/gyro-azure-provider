@@ -1,0 +1,1 @@
+application-security-group: $(external-query azure::application-security-group {} )
