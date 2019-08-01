@@ -64,6 +64,9 @@ public class ResourceGroupResource extends AzureResource implements Copyable<Res
         this.id = id;
     }
 
+    /**
+     * Tags for the Resource Group.
+     */
     @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
