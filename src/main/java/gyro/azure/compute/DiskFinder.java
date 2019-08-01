@@ -10,13 +10,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Query Disk.
- *
- * .. code-block:: gyro
- *
- *    disk: $(external-query azure::disk {} )
- */
 @Type("disk")
 public class DiskFinder extends AzureFinder<Disk, DiskResource> {
     private String id;

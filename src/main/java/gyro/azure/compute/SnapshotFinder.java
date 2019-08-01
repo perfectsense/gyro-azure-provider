@@ -10,13 +10,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Query Snapshot.
- *
- * .. code-block:: gyro
- *
- *    snapshot: $(external-query azure::snapshot {} )
- */
 @Type("snapshot")
 public class SnapshotFinder extends AzureFinder<Snapshot, SnapshotResource> {
     private String id;
