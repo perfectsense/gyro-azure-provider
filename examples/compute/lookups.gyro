@@ -1,3 +1,4 @@
 disk: $(external-query azure::disk {} )
 snapshot: $(external-query azure::snapshot {} )
 availability-set: $(external-query azure::availability-set {} )
+virtual-machine: $(external-query azure::virtual-machine {} )
