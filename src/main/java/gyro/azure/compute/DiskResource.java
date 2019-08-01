@@ -65,7 +65,7 @@ public class DiskResource extends AzureResource implements Copyable<Disk> {
     }
 
     /**
-     * The of the the Disk.
+     * The ID of the the Disk.
      */
     @Id
     @Output
@@ -78,7 +78,7 @@ public class DiskResource extends AzureResource implements Copyable<Disk> {
     }
 
     /**
-     * The resource group under which this would reside. (Required)
+     * The resource group under which the Disk would reside. (Required)
      */
     public ResourceGroupResource getResourceGroup() {
         return resourceGroup;
@@ -101,7 +101,7 @@ public class DiskResource extends AzureResource implements Copyable<Disk> {
     }
 
     /**
-     * Type of OS. Valid options include ``LINUX`` or ``WINDOWS``.
+     * Type of OS. Valid values are ``LINUX`` or ``WINDOWS``.
      */
     @Updatable
     public String getOsType() {
@@ -113,7 +113,7 @@ public class DiskResource extends AzureResource implements Copyable<Disk> {
     }
 
     /**
-     * Type of Disk. Valid options are ``STANDARD_LRS`` or ``PREMIUM_LRS`` or ``STANDARD_SSD_LRS``.
+     * Type of Disk. Valid values are ``STANDARD_LRS`` or ``PREMIUM_LRS`` or ``STANDARD_SSD_LRS``.
      */
     @Updatable
     public String getType() {
@@ -125,7 +125,7 @@ public class DiskResource extends AzureResource implements Copyable<Disk> {
     }
 
     /**
-     * Type of data source. Defaults to ``disk``. Valid options are ``disk`` or ``vhd`` or ``snapshot``.
+     * Type of data source. Defaults to ``disk``. Valid values are ``disk`` or ``vhd`` or ``snapshot``.
      */
     public String getDataLoadSourceType() {
         if (dataLoadSourceType == null) {
@@ -150,7 +150,7 @@ public class DiskResource extends AzureResource implements Copyable<Disk> {
     }
 
     /**
-     * Tag for the Disk.
+     * Tags for the Disk.
      */
     @Updatable
     public Map<String, String> getTags() {

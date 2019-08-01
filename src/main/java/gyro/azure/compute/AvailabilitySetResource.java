@@ -87,7 +87,7 @@ public class AvailabilitySetResource extends AzureResource implements Copyable<A
     }
 
     /**
-     * The input resource group name where the Availability Set is found.
+     * The Resource Group under which the Availability Set would reside.
      */
     public ResourceGroupResource getResourceGroup() {
         return resourceGroup;

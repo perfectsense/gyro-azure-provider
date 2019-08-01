@@ -57,7 +57,7 @@ import java.util.stream.Collectors;
  *     azure::virtual-machine virtual-machine-example
  *          name: "virtual-machine-example"
  *          resource-group: $(azure::resource-group resource-group-example-VM)
- *          network: $(azure::network network-example-VM | network-id)
+ *          network: $(azure::network network-example-VM)
  *          subnet: "subnet1"
  *          os-type: "linux"
  *          disk: $(azure::disk disk-example-VM)
@@ -123,7 +123,7 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
     }
 
     /**
-     * Name of the resource group under which this would reside. (Required)
+     * The resource group under which this would reside. (Required)
      */
     public ResourceGroupResource getResourceGroup() {
         return resourceGroup;
@@ -134,7 +134,7 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
     }
 
     /**
-     * Id of the virtual network which would be associated with this. (Required)
+     * The virtual network which would be associated with this. (Required)
      */
     public NetworkResource getNetwork() {
         return network;
@@ -145,7 +145,7 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
     }
 
     /**
-     * Name of the network interface that the Virtual Machine would use.
+     * The network interface that the Virtual Machine would use.
      */
     public NetworkInterfaceResource getNetworkInterface() {
         return networkInterface;
@@ -201,6 +201,9 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
         this.id = id;
     }
 
+    /**
+     * Shortened ID for the Virtual Machine.
+     */
     @Output
     public String getVmId() {
         return vmId;
@@ -211,7 +214,7 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
     }
 
     /**
-     * The name of the public ip address associated with the Virtual Machine.
+     * The Public ip address associated with the Virtual Machine.
      */
     public PublicIpAddressResource getPublicIpAddress() {
         return publicIpAddress;
@@ -244,7 +247,7 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
     }
 
     /**
-     * The ID of a disk to be attached to the Virtual Machine.
+     * The Disk to be attached to the Virtual Machine.
      */
     public DiskResource getDisk() {
         return disk;
@@ -281,7 +284,7 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
     }
 
     /**
-     * The ssh to be used to log in to the Virtual Machine.
+     * The ssh public key to be associated to the Virtual Machine.
      */
     public String getSsh() {
         return ssh;
