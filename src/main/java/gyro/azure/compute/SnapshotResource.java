@@ -1,8 +1,6 @@
 package gyro.azure.compute;
 
 import com.microsoft.azure.management.compute.CreationSourceType;
-import com.microsoft.azure.management.compute.DiskCreateOption;
-import com.microsoft.azure.management.compute.OperatingSystemTypes;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.azure.resources.ResourceGroupResource;
@@ -21,7 +19,6 @@ import com.microsoft.azure.management.compute.SnapshotStorageAccountTypes;
 import com.microsoft.azure.management.compute.Snapshot.DefinitionStages.WithCreate;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import gyro.core.scope.State;
-import org.joda.time.DateTime;
 
 import java.util.Date;
 import java.util.HashMap;
