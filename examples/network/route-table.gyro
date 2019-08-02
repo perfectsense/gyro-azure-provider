@@ -9,7 +9,7 @@ end
 azure::route-table route-table-example
     bgp-route-propagation-disabled: true
     name: "route-table-example"
-    resource-group-name: $(azure::resource-group resource-group-route-table-example | resource-group-name)
+    resource-group: $(azure::resource-group resource-group-route-table-example)
 
     route
         destination-address-prefix: "10.0.1.0/24"
