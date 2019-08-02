@@ -4,6 +4,7 @@ import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.azure.resources.ResourceGroupResource;
 import gyro.core.GyroUI;
+import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.Type;
@@ -49,6 +50,7 @@ public class ApplicationSecurityGroupResource extends AzureResource implements C
     /**
      * The ID of the Application Security Group.
      */
+    @Id
     @Output
     public String getId() {
         return id;
