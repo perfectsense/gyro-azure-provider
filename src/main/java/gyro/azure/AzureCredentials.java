@@ -60,9 +60,10 @@ public class AzureCredentials extends Credentials {
             throw new GyroException(error.getMessage());
         }
 
+        String tenant = (String) properties.get("tenant");
         AzureTokenCredentials credentials = new ApplicationTokenCredentials(
             (String) properties.get("client"),
-            (String) properties.get("tenant"),
+            tenant,
             (String) properties.get("key"),
             environment);
 
@@ -77,7 +78,7 @@ public class AzureCredentials extends Credentials {
             .build();
 
         try {
-            return Azure.authenticate(restClient, (String) properties.get("tenant")).withDefaultSubscription();
+            return Azure.authenticate(restClient, tenant).withDefaultSubscription();
 
         } catch (IOException error) {
             throw new GyroException(error.getMessage(), error);
