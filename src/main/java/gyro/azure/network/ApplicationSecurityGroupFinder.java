@@ -14,7 +14,7 @@ public class ApplicationSecurityGroupFinder extends AzureFinder<ApplicationSecur
     private String id;
 
     /**
-     * The ID of the Application Security Groups.
+     * The ID of the Application Security Group.
      */
     public String getId() {
         return id;
