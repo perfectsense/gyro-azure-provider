@@ -5,12 +5,13 @@ import com.microsoft.azure.management.Azure;
 
 public abstract class AzureResource extends Resource {
 
-    protected static Azure createClient(AzureCredentials credentials) {
+    protected static AzureClient createClient(AzureCredentials credentials) {
         return credentials.createClient();
     }
 
     protected Azure createClient() {
-        return AzureResource.createClient(credentials(AzureCredentials.class));
+        AzureClient azureClient = AzureResource.createClient(credentials(AzureCredentials.class));
+        return azureClient.getClient();
     }
 
     protected String getRegion() {

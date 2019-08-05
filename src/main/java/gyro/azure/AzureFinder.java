@@ -14,19 +14,23 @@ public abstract class AzureFinder<M, R extends AzureResource> extends Finder<R> 
 
     @Override
     public List<R> find(Map<String, String> filters) {
-        return findAzure(newClient(), filters).stream()
+        AzureClient client = newClient();
+        List<R> resources = findAzure(client.getClient(), filters).stream()
             .map(this::newResource)
             .collect(Collectors.toList());
+        return resources;
     }
 
     @Override
     public List<R> findAll() {
-        return findAllAzure(newClient()).stream()
+        AzureClient client = newClient();
+        List<R> resources = findAllAzure(client.getClient()).stream()
             .map(this::newResource)
             .collect(Collectors.toList());
+        return resources;
     }
 
-    private Azure newClient() {
+    private AzureClient newClient() {
         return AzureResource.createClient(credentials(AzureCredentials.class));
     }
 

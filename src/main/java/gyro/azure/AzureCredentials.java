@@ -47,7 +47,7 @@ public class AzureCredentials extends Credentials {
         this.logLevel = logLevel;
     }
 
-    public Azure createClient() {
+    public AzureClient createClient() {
         AzureEnvironment environment = AzureEnvironment.AZURE;
         Properties properties;
 
@@ -78,7 +78,8 @@ public class AzureCredentials extends Credentials {
             .build();
 
         try {
-            return Azure.authenticate(restClient, tenant).withDefaultSubscription();
+            Azure client = Azure.authenticate(restClient, tenant).withDefaultSubscription();
+            return new AzureClient(client, restClient);
 
         } catch (IOException error) {
             throw new GyroException(error.getMessage(), error);
