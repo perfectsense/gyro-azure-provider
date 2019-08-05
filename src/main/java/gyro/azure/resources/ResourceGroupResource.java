@@ -92,12 +92,14 @@ public class ResourceGroupResource extends AzureResource implements Copyable<Res
         Azure client = createClient();
 
         if (!client.resourceGroups().contain(getName())) {
+            closeRestClients();
             return false;
         }
 
         ResourceGroup resourceGroup = client.resourceGroups().getByName(getName());
         copyFrom(resourceGroup);
 
+        closeRestClients();
         return true;
     }
 
@@ -112,6 +114,7 @@ public class ResourceGroupResource extends AzureResource implements Copyable<Res
             .create();
 
         setId(resourceGroup.id());
+        closeRestClients();
     }
 
     @Override
@@ -121,6 +124,7 @@ public class ResourceGroupResource extends AzureResource implements Copyable<Res
         ResourceGroup resourceGroup = client.resourceGroups().getByName(getName());
 
         resourceGroup.update().withTags(getTags()).apply();
+        closeRestClients();
     }
 
     @Override
@@ -128,5 +132,6 @@ public class ResourceGroupResource extends AzureResource implements Copyable<Res
         Azure client = createClient();
 
         client.resourceGroups().deleteByName(getName());
+        closeRestClients();
     }
 }
