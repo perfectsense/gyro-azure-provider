@@ -25,4 +25,9 @@ public abstract class AzureResource extends Resource {
         return credentials(AzureCredentials.class).getRegion();
     }
 
+    protected void closeRestClients() {
+        restClients.forEach(RestClient::close);
+        restClients.clear();
+    }
+
 }
