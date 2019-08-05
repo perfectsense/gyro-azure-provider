@@ -1,6 +1,8 @@
 package gyro.azure.network;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
+import gyro.azure.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.resource.Updatable;
@@ -35,25 +37,13 @@ import java.util.stream.Collectors;
  *         name: "subnet1"
  *     end
  */
-public class SubnetResource extends AzureResource {
+public class SubnetResource extends AzureResource implements Copyable<Subnet> {
 
     private String addressPrefix;
     private String name;
-    private String networkSecurityGroupId;
-    private String routeTableId;
+    private NetworkSecurityGroupResource networkSecurityGroup;
+    private RouteTableResource routeTable;
     private Map<String, List<String>> serviceEndpoints;
-
-    public SubnetResource() {
-
-    }
-
-    public SubnetResource(Subnet subnet) {
-        setAddressPrefix(subnet.addressPrefix());
-        setName(subnet.name());
-        setNetworkSecurityGroupId(subnet.networkSecurityGroupId());
-        setRouteTableId(subnet.routeTableId());
-        setServiceEndpoints(toServiceEndpoints(subnet.servicesWithAccess()));
-    }
 
     /**
      * The address prefix in CIDR notation. (Required)
@@ -68,7 +58,7 @@ public class SubnetResource extends AzureResource {
     }
 
     /**
-     * The name of the subnet. (Required)
+     * The name of the Subnet. (Required)
      */
     public String getName() {
         return name;
@@ -79,31 +69,31 @@ public class SubnetResource extends AzureResource {
     }
 
     /**
-     * The resource id of the associated network security group. (Optional)
+     * The associated Network Security Group. (Optional)
      */
     @Updatable
-    public String getNetworkSecurityGroupId() {
-        return networkSecurityGroupId;
+    public NetworkSecurityGroupResource getNetworkSecurityGroup() {
+        return networkSecurityGroup;
     }
 
-    public void setNetworkSecurityGroupId(String networkSecurityGroupId) {
-        this.networkSecurityGroupId = networkSecurityGroupId;
+    public void setNetworkSecurityGroup(NetworkSecurityGroupResource networkSecurityGroup) {
+        this.networkSecurityGroup = networkSecurityGroup;
     }
 
     /**
-     * The resource id of the associated route table. (Optional)
+     * The associated Route Table. (Optional)
      */
     @Updatable
-    public String getRouteTableId() {
-        return routeTableId;
+    public RouteTableResource getRouteTable() {
+        return routeTable;
     }
 
-    public void setRouteTableId(String routeTableId) {
-        this.routeTableId = routeTableId;
+    public void setRouteTable(RouteTableResource routeTable) {
+        this.routeTable = routeTable;
     }
 
     /**
-     * The service endpoints associated with the subnet. (Optional)
+     * The service endpoints associated with the Subnet. (Optional)
      */
     @Updatable
     public Map<String, List<String>> getServiceEndpoints() {
@@ -116,6 +106,15 @@ public class SubnetResource extends AzureResource {
 
     public void setServiceEndpoints(Map<String, List<String>> serviceEndpoints) {
         this.serviceEndpoints = serviceEndpoints;
+    }
+
+    @Override
+    public void copyFrom(Subnet subnet) {
+        setAddressPrefix(subnet.addressPrefix());
+        setName(subnet.name());
+        setNetworkSecurityGroup(!ObjectUtils.isBlank(subnet.networkSecurityGroupId()) ? findById(NetworkSecurityGroupResource.class, subnet.networkSecurityGroupId()) : null);
+        setRouteTable(!ObjectUtils.isBlank(subnet.routeTableId()) ? findById(RouteTableResource.class, subnet.routeTableId()) : null);
+        setServiceEndpoints(toServiceEndpoints(subnet.servicesWithAccess()));
     }
 
     @Override
@@ -135,12 +134,12 @@ public class SubnetResource extends AzureResource {
         updateWithAttach = network.update().defineSubnet(getName())
                 .withAddressPrefix(getAddressPrefix());
 
-        if (getNetworkSecurityGroupId() != null) {
-            updateWithAttach.withExistingNetworkSecurityGroup(getNetworkSecurityGroupId());
+        if (getNetworkSecurityGroup() != null) {
+            updateWithAttach.withExistingNetworkSecurityGroup(getNetworkSecurityGroup().getId());
         }
 
-        if (getRouteTableId() != null) {
-            updateWithAttach.withExistingRouteTable(getRouteTableId());
+        if (getRouteTable() != null) {
+            updateWithAttach.withExistingRouteTable(getRouteTable().getId());
         }
 
         if (getServiceEndpoints() != null) {
@@ -163,21 +162,20 @@ public class SubnetResource extends AzureResource {
         Subnet.Update update = network.update().updateSubnet(getName())
                 .withAddressPrefix(getAddressPrefix());
 
-        if (getNetworkSecurityGroupId() != null) {
-            update.withExistingNetworkSecurityGroup(getNetworkSecurityGroupId());
+        if (getNetworkSecurityGroup() != null) {
+            update.withExistingNetworkSecurityGroup(getNetworkSecurityGroup().getId());
         } else {
             update.withoutNetworkSecurityGroup();
         }
 
-        if (getRouteTableId() != null) {
-            update.withExistingRouteTable(getRouteTableId());
+        if (getRouteTable() != null) {
+            update.withExistingRouteTable(getRouteTable().getId());
         } else {
             update.withoutRouteTable();
         }
 
-        SubnetResource oldResource = (SubnetResource) current;
-
-        if (getServiceEndpoints() != null || changedFieldNames.contains("service-endpoints")) {
+        if (changedFieldNames.contains("service-endpoints")) {
+            SubnetResource oldResource = (SubnetResource) current;
 
             List<String> addServiceEndpoints = getServiceEndpoints().keySet().stream()
                     .filter(((Predicate<String>) new HashSet<>(oldResource.getServiceEndpoints().keySet())::contains).negate())
