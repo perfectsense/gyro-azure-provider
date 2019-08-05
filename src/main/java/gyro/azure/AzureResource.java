@@ -27,7 +27,7 @@ public abstract class AzureResource extends Resource {
         return credentials(AzureCredentials.class).getRegion();
     }
 
-    protected void closeRestClients() {
+    protected void closeClients() {
         clients.forEach(AzureClient::close);
         clients.clear();
     }
@@ -37,7 +37,7 @@ public abstract class AzureResource extends Resource {
     @Override
     public final boolean refresh() {
         boolean isRefreshed = doRefresh();
-        closeRestClients();
+        closeClients();
         return isRefreshed;
     }
 
@@ -46,7 +46,7 @@ public abstract class AzureResource extends Resource {
     @Override
     public final void create(GyroUI gyroUI, State state) {
         doCreate(gyroUI, state);
-        closeRestClients();
+        closeClients();
     }
 
     protected abstract void doUpdate(GyroUI gyroUI, State state, Resource resource, Set<String> set);
@@ -54,7 +54,7 @@ public abstract class AzureResource extends Resource {
     @Override
     public final void update(GyroUI gyroUI, State state, Resource resource, Set<String> set) {
         doUpdate(gyroUI, state, resource, set);
-        closeRestClients();
+        closeClients();
     }
 
     protected abstract void doDelete(GyroUI gyroUI, State state);
@@ -62,7 +62,7 @@ public abstract class AzureResource extends Resource {
     @Override
     public final void delete(GyroUI gyroUI, State state) {
         doDelete(gyroUI, state);
-        closeRestClients();
+        closeClients();
     }
 
 }
