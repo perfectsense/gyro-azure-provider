@@ -20,7 +20,7 @@ public abstract class AzureFinder<M, R extends AzureResource> extends Finder<R> 
             .map(this::newResource)
             .collect(Collectors.toList());
 
-        client.getRestClient().close();
+        client.close();
         return resources;
     }
 
@@ -31,7 +31,7 @@ public abstract class AzureFinder<M, R extends AzureResource> extends Finder<R> 
             .map(this::newResource)
             .collect(Collectors.toList());
 
-        client.getRestClient().close();
+        client.close();
         return resources;
     }
 

@@ -17,7 +17,8 @@ public class AzureClient {
         return client;
     }
 
-    public RestClient getRestClient() {
-        return restClient;
+    public void close() {
+        restClient.close();
     }
+
 }
