@@ -1,3 +1,4 @@
 application-security-group: $(external-query azure::application-security-group {} )
 route-table: $(external-query azure::route-table {} )
 network-security-group: $(external-query azure::network-security-group {} )
+network: $(external-query azure::network {} )
