@@ -18,6 +18,8 @@ public abstract class AzureFinder<M, R extends AzureResource> extends Finder<R> 
         List<R> resources = findAzure(client.getClient(), filters).stream()
             .map(this::newResource)
             .collect(Collectors.toList());
+
+        client.getRestClient().close();
         return resources;
     }
 
@@ -27,6 +29,8 @@ public abstract class AzureFinder<M, R extends AzureResource> extends Finder<R> 
         List<R> resources = findAllAzure(client.getClient()).stream()
             .map(this::newResource)
             .collect(Collectors.toList());
+
+        client.getRestClient().close();
         return resources;
     }
 
