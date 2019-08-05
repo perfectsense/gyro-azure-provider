@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public abstract class AzureFinder<M, R extends AzureResource> extends Finder<R> {
+
     protected abstract List<M> findAllAzure(Azure client);
 
     protected abstract List<M> findAzure(Azure client, Map<String, String> filters);
@@ -48,4 +49,5 @@ public abstract class AzureFinder<M, R extends AzureResource> extends Finder<R> 
 
         return resource;
     }
+
 }
