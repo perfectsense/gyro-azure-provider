@@ -115,7 +115,7 @@ public class CloudBlobResource extends AzureResource {
     }
 
     @Override
-    public boolean refresh() {
+    public boolean doRefresh() {
         try {
             CloudBlockBlob blob = cloudBlobBlob();
             if (blob.exists()) {
@@ -130,7 +130,7 @@ public class CloudBlobResource extends AzureResource {
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void doCreate(GyroUI ui, State state) {
         try {
             CloudBlockBlob blob = cloudBlobBlob();
             File file = new File(getFilePath());
@@ -142,10 +142,10 @@ public class CloudBlobResource extends AzureResource {
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {}
+    public void doUpdate(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {}
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void doDelete(GyroUI ui, State state) {
         try {
             CloudBlockBlob blob = cloudBlobBlob();
             blob.delete();

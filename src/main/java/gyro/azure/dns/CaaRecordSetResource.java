@@ -125,7 +125,7 @@ public class CaaRecordSetResource extends AzureResource {
     }
 
     @Override
-    public boolean refresh() {
+    public boolean doRefresh() {
         Azure client = createClient();
 
         CaaRecordSet caaRecordSet = client.dnsZones().getById(getDnsZoneId()).caaRecordSets().getByName(getName());
@@ -140,7 +140,7 @@ public class CaaRecordSetResource extends AzureResource {
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void doCreate(GyroUI ui, State state) {
         if (getCaaRecord().isEmpty()) {
             throw new GyroException("At least one caa record must be provided.");
         }
@@ -168,7 +168,7 @@ public class CaaRecordSetResource extends AzureResource {
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
+    public void doUpdate(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
         DnsRecordSet.UpdateCaaRecordSet updateCaaRecordSet =
@@ -214,7 +214,7 @@ public class CaaRecordSetResource extends AzureResource {
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void doDelete(GyroUI ui, State state) {
         Azure client = createClient();
 
         client.dnsZones().getById(getDnsZoneId()).update().withoutCaaRecordSet(getName()).apply();

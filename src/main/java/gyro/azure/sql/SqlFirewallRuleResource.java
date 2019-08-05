@@ -99,7 +99,7 @@ public class SqlFirewallRuleResource extends AzureResource {
     }
 
     @Override
-    public boolean refresh() {
+    public boolean doRefresh() {
         Azure client = createClient();
 
         SqlFirewallRule firewallRule = sqlFirewallRule(client);
@@ -117,7 +117,7 @@ public class SqlFirewallRuleResource extends AzureResource {
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void doCreate(GyroUI ui, State state) {
         if (getSqlServer() == null) {
             throw new GyroException("You must provide a sql server resource.");
         }
@@ -139,7 +139,7 @@ public class SqlFirewallRuleResource extends AzureResource {
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
+    public void doUpdate(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
         SqlFirewallRule.Update update = sqlFirewallRule(client).update();
@@ -154,7 +154,7 @@ public class SqlFirewallRuleResource extends AzureResource {
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void doDelete(GyroUI ui, State state) {
         Azure client = createClient();
 
         sqlFirewallRule(client).delete();

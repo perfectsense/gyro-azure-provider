@@ -97,7 +97,7 @@ public class CloudFileResource extends AzureResource {
     }
 
     @Override
-    public boolean refresh() {
+    public boolean doRefresh() {
         try {
             CloudFile file = cloudFile();
             if (file.exists()) {
@@ -111,7 +111,7 @@ public class CloudFileResource extends AzureResource {
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void doCreate(GyroUI ui, State state) {
         try {
             CloudFile file = cloudFile();
             file.uploadFromFile(getFilePath());
@@ -121,10 +121,10 @@ public class CloudFileResource extends AzureResource {
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {}
+    public void doUpdate(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {}
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void doDelete(GyroUI ui, State state) {
         try {
             CloudFile file = cloudFile();
             file.delete();

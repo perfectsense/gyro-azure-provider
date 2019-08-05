@@ -464,7 +464,7 @@ public class VirtualMachineResource extends AzureResource {
     }
 
     @Override
-    public boolean refresh() {
+    public boolean doRefresh() {
         Azure client = createClient();
 
         VirtualMachine virtualMachine = client.virtualMachines().getById(getVirtualMachineId());
@@ -477,7 +477,7 @@ public class VirtualMachineResource extends AzureResource {
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void doCreate(GyroUI ui, State state) {
         Azure client = createClient();
 
         WithNetwork withNetwork = client.virtualMachines().define(getVirtualMachineName())
@@ -690,7 +690,7 @@ public class VirtualMachineResource extends AzureResource {
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
+    public void doUpdate(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         VirtualMachine virtualMachine = client.virtualMachines().getById(getVirtualMachineId());
@@ -704,7 +704,7 @@ public class VirtualMachineResource extends AzureResource {
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void doDelete(GyroUI ui, State state) {
         Azure client = createClient();
 
         client.virtualMachines().deleteById(getVirtualMachineId());

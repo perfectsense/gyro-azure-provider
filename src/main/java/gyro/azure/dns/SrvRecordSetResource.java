@@ -119,7 +119,7 @@ public class SrvRecordSetResource extends AzureResource {
     }
 
     @Override
-    public boolean refresh() {
+    public boolean doRefresh() {
         Azure client = createClient();
 
         SrvRecordSet srvRecordSet = client.dnsZones().getById(getDnsZoneId()).srvRecordSets().getByName(getName());
@@ -138,7 +138,7 @@ public class SrvRecordSetResource extends AzureResource {
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void doCreate(GyroUI ui, State state) {
         Azure client = createClient();
 
         SrvRecordSetBlank<DnsZone.Update> defineSrvRecordSet =
@@ -163,7 +163,7 @@ public class SrvRecordSetResource extends AzureResource {
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
+    public void doUpdate(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
         DnsRecordSet.UpdateSrvRecordSet updateSrvRecordSet =
@@ -209,7 +209,7 @@ public class SrvRecordSetResource extends AzureResource {
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void doDelete(GyroUI ui, State state) {
         Azure client = createClient();
 
         client.dnsZones().getById(getDnsZoneId()).update().withoutSrvRecordSet(getName()).apply();

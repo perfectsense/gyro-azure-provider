@@ -92,7 +92,7 @@ public class ApplicationSecurityGroupResource extends AzureResource {
 
 
     @Override
-    public boolean refresh() {
+    public boolean doRefresh() {
         Azure client = createClient();
 
         ApplicationSecurityGroup applicationSecurityGroup = client.applicationSecurityGroups().getById(getId());
@@ -108,7 +108,7 @@ public class ApplicationSecurityGroupResource extends AzureResource {
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void doCreate(GyroUI ui, State state) {
         Azure client = createClient();
 
         ApplicationSecurityGroup applicationSecurityGroup = client.applicationSecurityGroups().define(getName())
@@ -121,14 +121,14 @@ public class ApplicationSecurityGroupResource extends AzureResource {
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
+    public void doUpdate(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
         client.applicationSecurityGroups().getById(getId()).update().withTags(getTags()).apply();
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void doDelete(GyroUI ui, State state) {
         Azure client = createClient();
 
         client.applicationSecurityGroups().deleteById(getId());

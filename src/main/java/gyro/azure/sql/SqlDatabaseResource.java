@@ -278,7 +278,7 @@ public class SqlDatabaseResource extends AzureResource {
     }
 
     @Override
-    public boolean refresh() {
+    public boolean doRefresh() {
         Azure client = createClient();
 
         SqlDatabase database = sqlDatabase(client);
@@ -305,7 +305,7 @@ public class SqlDatabaseResource extends AzureResource {
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void doCreate(GyroUI ui, State state) {
         if (getSqlServer() == null) {
             throw new GyroException("You must provide a sql server resource.");
         }
@@ -400,7 +400,7 @@ public class SqlDatabaseResource extends AzureResource {
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
+    public void doUpdate(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
         SqlDatabase.Update update = sqlDatabase(client).update();
@@ -438,7 +438,7 @@ public class SqlDatabaseResource extends AzureResource {
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void doDelete(GyroUI ui, State state) {
         Azure client = createClient();
 
         sqlDatabase(client).delete();

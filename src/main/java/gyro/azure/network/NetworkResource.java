@@ -139,7 +139,7 @@ public class NetworkResource extends AzureResource {
     }
 
     @Override
-    public boolean refresh() {
+    public boolean doRefresh() {
         Azure client = createClient();
 
         Network network = client.networks().getById(getNetworkId());
@@ -160,7 +160,7 @@ public class NetworkResource extends AzureResource {
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void doCreate(GyroUI ui, State state) {
         Azure client = createClient();
 
         Network.DefinitionStages.WithCreate networkDefWithoutAddress = client.networks()
@@ -192,7 +192,7 @@ public class NetworkResource extends AzureResource {
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
+    public void doUpdate(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         Network network = client.networks().getById(getNetworkId());
@@ -230,7 +230,7 @@ public class NetworkResource extends AzureResource {
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void doDelete(GyroUI ui, State state) {
         Azure client = createClient();
 
         client.networks().deleteById(getNetworkId());

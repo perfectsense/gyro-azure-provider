@@ -384,7 +384,7 @@ public class ApplicationGatewayResource extends AzureResource {
     }
 
     @Override
-    public boolean refresh() {
+    public boolean doRefresh() {
         Azure client = createClient();
 
         ApplicationGateway applicationGateway = client.applicationGateways().getById(getApplicationGatewayId());
@@ -395,7 +395,7 @@ public class ApplicationGatewayResource extends AzureResource {
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void doCreate(GyroUI ui, State state) {
         Azure client = createClient();
 
         ApplicationGateway.DefinitionStages.WithRequestRoutingRule withRequestRoutingRule = client.applicationGateways()
@@ -448,7 +448,7 @@ public class ApplicationGatewayResource extends AzureResource {
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource resource, Set<String> changedFieldNames) {
+    public void doUpdate(GyroUI ui, State state, Resource resource, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         ApplicationGateway applicationGateway = client.applicationGateways().getById(getApplicationGatewayId());
@@ -477,7 +477,7 @@ public class ApplicationGatewayResource extends AzureResource {
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void doDelete(GyroUI ui, State state) {
         Azure client = createClient();
 
         client.applicationGateways().deleteById(getApplicationGatewayId());

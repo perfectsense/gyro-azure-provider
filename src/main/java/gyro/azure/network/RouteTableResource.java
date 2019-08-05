@@ -134,7 +134,7 @@ public class RouteTableResource extends AzureResource {
     }
 
     @Override
-    public boolean refresh() {
+    public boolean doRefresh() {
         Azure client = createClient();
 
         RouteTable routeTable = client.routeTables().getById(getId());
@@ -151,7 +151,7 @@ public class RouteTableResource extends AzureResource {
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void doCreate(GyroUI ui, State state) {
         Azure client = createClient();
 
         RouteTable.DefinitionStages.WithCreate withCreate;
@@ -181,7 +181,7 @@ public class RouteTableResource extends AzureResource {
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
+    public void doUpdate(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         RouteTableResource currentResource = (RouteTableResource) current;
@@ -231,7 +231,7 @@ public class RouteTableResource extends AzureResource {
     }
 
     @Override
-    public void delete(GyroUI ui, State state) {
+    public void doDelete(GyroUI ui, State state) {
         Azure client = createClient();
 
         client.routeTables().deleteById(getId());
