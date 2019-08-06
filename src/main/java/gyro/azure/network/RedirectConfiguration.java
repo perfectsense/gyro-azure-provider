@@ -7,6 +7,7 @@ import com.microsoft.azure.management.network.ApplicationGatewayRedirectType;
 import com.microsoft.azure.management.network.ApplicationGateway.DefinitionStages.WithCreate;
 import com.microsoft.azure.management.network.ApplicationGatewayRedirectConfiguration.DefinitionStages;
 import com.psddev.dari.util.ObjectUtils;
+import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 
@@ -19,44 +20,30 @@ import gyro.core.resource.Updatable;
  * .. code-block:: gyro
  *
  *     redirect-configuration
- *         redirect-configuration-name: "redirect-configuration-example"
+ *         name: "redirect-configuration-example"
  *         type: "Temporary"
  *         target-listener: "listener-example"
  *         include-query-string: true
  *         include-path: true
  *     end
  */
-public class RedirectConfiguration extends Diffable {
-    private String redirectConfigurationName;
+public class RedirectConfiguration extends Diffable implements Copyable<ApplicationGatewayRedirectConfiguration> {
+    private String name;
     private String type;
     private String targetListener;
     private String targetUrl;
     private Boolean includeQueryString;
     private Boolean includePath;
 
-    public RedirectConfiguration() {
-
-    }
-
-    public RedirectConfiguration(ApplicationGatewayRedirectConfiguration redirectConfiguration) {
-        setRedirectConfigurationName(redirectConfiguration.name());
-        setType(redirectConfiguration.type().toString());
-        setTargetListener(redirectConfiguration.targetListener() != null ? redirectConfiguration.targetListener().name() : null);
-        setTargetUrl(redirectConfiguration.targetUrl());
-        setIncludePath(redirectConfiguration.isPathIncluded());
-        setIncludeQueryString(redirectConfiguration.isQueryStringIncluded());
-
-    }
-
     /**
      * Name of the redirect configuration. (Required)
      */
-    public String getRedirectConfigurationName() {
-        return redirectConfigurationName;
+    public String getName() {
+        return name;
     }
 
-    public void setRedirectConfigurationName(String redirectConfigurationName) {
-        this.redirectConfigurationName = redirectConfigurationName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -134,12 +121,23 @@ public class RedirectConfiguration extends Diffable {
     }
 
     @Override
+    public void copyFrom(ApplicationGatewayRedirectConfiguration redirectConfiguration) {
+        setName(redirectConfiguration.name());
+        setType(redirectConfiguration.type().toString());
+        setTargetListener(redirectConfiguration.targetListener() != null ? redirectConfiguration.targetListener().name() : null);
+        setTargetUrl(redirectConfiguration.targetUrl());
+        setIncludePath(redirectConfiguration.isPathIncluded());
+        setIncludeQueryString(redirectConfiguration.isQueryStringIncluded());
+
+    }
+
+    @Override
     public String primaryKey() {
-        return getRedirectConfigurationName();
+        return getName();
     }
 
     WithCreate createRedirectConfiguration(WithCreate attach) {
-        DefinitionStages.WithTarget<WithCreate> withCreateWithTarget = attach.defineRedirectConfiguration(getRedirectConfigurationName())
+        DefinitionStages.WithTarget<WithCreate> withCreateWithTarget = attach.defineRedirectConfiguration(getName())
             .withType(ApplicationGatewayRedirectType.fromString(getType()));
 
         if (!ObjectUtils.isBlank(getTargetListener())) {
@@ -175,7 +173,7 @@ public class RedirectConfiguration extends Diffable {
     }
 
     Update createRedirectConfiguration(Update update) {
-        WithTarget<Update> updateWithTarget = update.defineRedirectConfiguration(getRedirectConfigurationName())
+        WithTarget<Update> updateWithTarget = update.defineRedirectConfiguration(getName())
             .withType(ApplicationGatewayRedirectType.fromString(getType()));
 
         if (!ObjectUtils.isBlank(getTargetListener())) {
@@ -212,7 +210,7 @@ public class RedirectConfiguration extends Diffable {
 
     Update updateRedirectConfiguration(Update update) {
         ApplicationGatewayRedirectConfiguration.Update partialUpdate = update
-            .updateRedirectConfiguration(getRedirectConfigurationName())
+            .updateRedirectConfiguration(getName())
             .withType(ApplicationGatewayRedirectType.fromString(getType()));
 
         if (!ObjectUtils.isBlank(getTargetListener())) {
