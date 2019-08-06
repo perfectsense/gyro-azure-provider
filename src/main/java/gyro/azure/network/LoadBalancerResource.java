@@ -304,7 +304,9 @@ public class LoadBalancerResource extends AzureResource {
         //load balancing rules
         getLoadBalancerRule().clear();
         for (Map.Entry<String, LoadBalancingRule> rule  : loadBalancer.loadBalancingRules().entrySet()) {
-            getLoadBalancerRule().add(new LoadBalancerRule(rule.getValue()));
+            LoadBalancerRule loadBalancerRule = newSubresource(LoadBalancerRule.class);
+            loadBalancerRule.copyFrom(rule.getValue());
+            getLoadBalancerRule().add(loadBalancerRule);
         }
 
         setId(loadBalancer.id());
