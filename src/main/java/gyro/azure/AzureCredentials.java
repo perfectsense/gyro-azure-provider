@@ -12,9 +12,13 @@ import com.microsoft.rest.LogLevel;
 import com.microsoft.rest.RestClient;
 import gyro.core.GyroException;
 import gyro.core.auth.Credentials;
+import okhttp3.OkHttpClient;
+import okhttp3.Protocol;
+import retrofit2.Retrofit;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.Properties;
 
 public class AzureCredentials extends Credentials {
@@ -67,7 +71,8 @@ public class AzureCredentials extends Credentials {
             (String) properties.get("key"),
             environment);
 
-        RestClient restClient = new RestClient.Builder()
+        OkHttpClient.Builder httpBuilder = new OkHttpClient.Builder().protocols(Collections.singletonList(Protocol.HTTP_1_1));
+        RestClient restClient = new RestClient.Builder(httpBuilder, new Retrofit.Builder())
             .withBaseUrl(credentials.environment(), AzureEnvironment.Endpoint.RESOURCE_MANAGER)
             .withCredentials(credentials)
             .withSerializerAdapter(new AzureJacksonAdapter())
