@@ -144,7 +144,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
     private String id;
 
     /**
-     * Name of the resource group under which this would reside. (Required)
+     * The resource group under which this would reside. (Required)
      */
     public ResourceGroupResource getResourceGroup() {
         return resourceGroup;
@@ -155,7 +155,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
     }
 
     /**
-     * Id of the virtual network which would be associated with this. (Required)
+     * The Network which would be associated with this. (Required)
      */
     public NetworkResource getNetwork() {
         return network;
@@ -166,7 +166,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
     }
 
     /**
-     * The name of the public ip address associated with the application gateway. (Required)
+     * The Public IP Address associated with the application gateway. (Required)
      */
     public PublicIpAddressResource getPublicIpAddress() {
         return publicIpAddress;
@@ -289,7 +289,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
     }
 
     /**
-     * probe for the application gateway
+     * Probe for the application gateway
      *
      * @subresource gyro.azure.network.Probe
      */
@@ -306,6 +306,9 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
         this.probe = probe;
     }
 
+    /**
+     * Teh SKU for the Application Gateway. Valid values are ``Standard_Small`` or ``Standard_Medium`` or ``Standard_Large`` or ``WAF_Medium`` or ``WAF_Large`` or ``Standard_v2`` or ``WAF_v2``. (Required)
+     */
     @Updatable
     public String getSkuSize() {
         return skuSize != null ? skuSize.toUpperCase() : null;
@@ -359,7 +362,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
     }
 
     /**
-     * Private front end for teh application gateway. Defaults to false.
+     * Private front end for the application gateway. Defaults to false.
      */
     public Boolean getPrivateFrontEnd() {
         if (privateFrontEnd == null) {
@@ -374,7 +377,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
     }
 
     /**
-     * The id of the application gateway.
+     * The ID of the application gateway.
      */
     @Output
     public String getId() {
@@ -394,6 +397,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
         setPrivateFrontEnd(applicationGateway.isPrivate());
         setTags(applicationGateway.tags());
         setName(applicationGateway.name());
+        setResourceGroup(findById(ResourceGroupResource.class, applicationGateway.resourceGroupName()));
 
         getBackend().clear();
         for (ApplicationGatewayBackend applicationGatewayBackend : applicationGateway.backends().values()) {

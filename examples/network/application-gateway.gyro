@@ -122,5 +122,4 @@ azure::application-gateway application-gateway-example
         ]
         http-response-body-match: "body"
     end
-
 end
