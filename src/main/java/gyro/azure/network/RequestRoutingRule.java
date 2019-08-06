@@ -20,14 +20,14 @@ import gyro.core.resource.Updatable;
  * .. code-block:: gyro
  *
  *     request-routing-rule
- *         rule-name: "request-routing-rule-example"
+ *         name: "request-routing-rule-example"
  *         listener: "listener-example"
  *         backend: "backend-example"
  *         backend-http-configuration: "backend-http-configuration-example"
  *     end
  */
 public class RequestRoutingRule extends Diffable implements Copyable<ApplicationGatewayRequestRoutingRule> {
-    private String ruleName;
+    private String name;
     private String listener;
     private String backend;
     private String backendHttpConfiguration;
@@ -39,18 +39,18 @@ public class RequestRoutingRule extends Diffable implements Copyable<Application
         setListener(rule.listener() != null ? rule.listener().name() : null);
         setBackendHttpConfiguration(rule.backendHttpConfiguration() != null ? rule.backendHttpConfiguration().name() : null);
         setRedirectConfiguration(rule.redirectConfiguration() != null ? rule.redirectConfiguration().name() : null);
-        setRuleName(rule.name());
+        setName(rule.name());
     }
 
     /**
      * Name of the rule. (Required)
      */
-    public String getRuleName() {
-        return ruleName;
+    public String getName() {
+        return name;
     }
 
-    public void setRuleName(String ruleName) {
-        this.ruleName = ruleName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -103,15 +103,15 @@ public class RequestRoutingRule extends Diffable implements Copyable<Application
 
     @Override
     public String primaryKey() {
-        return getRuleName();
+        return getName();
     }
 
     WithRequestRoutingRuleOrCreate createRequestRoutingRule(WithRequestRoutingRule preAttach, WithRequestRoutingRuleOrCreate attach) {
         DefinitionStages.WithBackendHttpConfigOrRedirect<WithRequestRoutingRuleOrCreate> partialAttach;
         if (attach == null) {
-            partialAttach = preAttach.defineRequestRoutingRule(getRuleName()).fromListener(getListener());
+            partialAttach = preAttach.defineRequestRoutingRule(getName()).fromListener(getListener());
         } else {
-            partialAttach = attach.defineRequestRoutingRule(getRuleName())
+            partialAttach = attach.defineRequestRoutingRule(getName())
                 .fromListener(getListener());
         }
 
@@ -128,7 +128,7 @@ public class RequestRoutingRule extends Diffable implements Copyable<Application
     }
 
     Update createRequestRoutingRule(Update update) {
-        WithBackendHttpConfigOrRedirect<Update> partialUpdate = update.defineRequestRoutingRule(getRuleName())
+        WithBackendHttpConfigOrRedirect<Update> partialUpdate = update.defineRequestRoutingRule(getName())
             .fromListener(getListener());
 
         if (!ObjectUtils.isBlank(getRedirectConfiguration())) {
@@ -144,7 +144,7 @@ public class RequestRoutingRule extends Diffable implements Copyable<Application
     }
 
     Update updateRequestRoutingRule(Update update) {
-        ApplicationGatewayRequestRoutingRule.Update partialUpdate = update.updateRequestRoutingRule(getRuleName())
+        ApplicationGatewayRequestRoutingRule.Update partialUpdate = update.updateRequestRoutingRule(getName())
             .fromListener(getListener());
 
         if (!ObjectUtils.isBlank(getRedirectConfiguration())) {
