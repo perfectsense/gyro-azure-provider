@@ -1,5 +1,6 @@
 package gyro.azure.network;
 
+import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 
@@ -21,7 +22,7 @@ import com.microsoft.azure.management.network.TransportProtocol;
  *             protocol: "TCP"
  *         end
  */
-public class InboundNatRule extends Diffable {
+public class InboundNatRule extends Diffable implements Copyable<LoadBalancerInboundNatRule> {
 
     private Integer backendPort;
     private Boolean floatingIp;
@@ -29,17 +30,6 @@ public class InboundNatRule extends Diffable {
     private Integer frontendPort;
     private String name;
     private String protocol;
-
-    public InboundNatRule() {}
-
-    public InboundNatRule(LoadBalancerInboundNatRule natRule) {
-        setBackendPort(natRule.backendPort());
-        setFloatingIp(natRule.floatingIPEnabled());
-        setFrontendName(natRule.frontend() != null ? natRule.frontend().name() : null);
-        setFrontendPort(natRule.frontendPort());
-        setName(natRule.name());
-        setProtocol(natRule.protocol() == TransportProtocol.TCP ? "TCP" : "UDP");
-    }
 
     /**
      * The backend port that receives network traffic. (Required)
@@ -114,6 +104,16 @@ public class InboundNatRule extends Diffable {
 
     public void setProtocol(String protocol) {
         this.protocol = protocol;
+    }
+
+    @Override
+    public void copyFrom(LoadBalancerInboundNatRule natRule) {
+        setBackendPort(natRule.backendPort());
+        setFloatingIp(natRule.floatingIPEnabled());
+        setFrontendName(natRule.frontend() != null ? natRule.frontend().name() : null);
+        setFrontendPort(natRule.frontendPort());
+        setName(natRule.name());
+        setProtocol(natRule.protocol() == TransportProtocol.TCP ? "TCP" : "UDP");
     }
 
     public String primaryKey() {

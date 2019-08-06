@@ -89,11 +89,15 @@ public class PrivateFrontend extends Frontend implements Copyable<LoadBalancerPr
         setPrivateIpAddress(privateFrontend.privateIPAddress());
         setSubnetName(privateFrontend.subnetName());
         setNetworkId(findById(NetworkResource.class, privateFrontend.networkId()));
-        privateFrontend.inboundNatRules().forEach((key, value) -> getInboundNatRule().add(new InboundNatRule(value)));
         setInboundNatPool(privateFrontend.inboundNatPools().values().stream().map(o -> {
             InboundNatPool inboundNatPool = newSubresource(InboundNatPool.class);
             inboundNatPool.copyFrom(o);
             return inboundNatPool;
+        }).collect(Collectors.toSet()));
+        setInboundNatRule(privateFrontend.inboundNatRules().values().stream().map(o -> {
+            InboundNatRule inboundNatRule = newSubresource(InboundNatRule.class);
+            inboundNatRule.copyFrom(o);
+            return inboundNatRule;
         }).collect(Collectors.toSet()));
     }
 

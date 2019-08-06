@@ -59,11 +59,15 @@ public class PublicFrontend extends Frontend implements Copyable<LoadBalancerPub
     public void copyFrom(LoadBalancerPublicFrontend publicFrontend) {
         setName(publicFrontend.name());
         setPublicIpAddress(findById(PublicIpAddressResource.class, publicFrontend.getPublicIPAddress().id()));
-        publicFrontend.inboundNatRules().forEach((key, value) -> getInboundNatRule().add(new InboundNatRule(value)));
         setInboundNatPool(publicFrontend.inboundNatPools().values().stream().map(o -> {
             InboundNatPool inboundNatPool = newSubresource(InboundNatPool.class);
             inboundNatPool.copyFrom(o);
             return inboundNatPool;
+        }).collect(Collectors.toSet()));
+        setInboundNatRule(publicFrontend.inboundNatRules().values().stream().map(o -> {
+            InboundNatRule inboundNatRule = newSubresource(InboundNatRule.class);
+            inboundNatRule.copyFrom(o);
+            return inboundNatRule;
         }).collect(Collectors.toSet()));
     }
 
