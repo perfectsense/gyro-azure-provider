@@ -274,15 +274,17 @@ public class LoadBalancerResource extends AzureResource {
         //http probes
         getHealthCheckProbeHttp().clear();
         for (Map.Entry<String, LoadBalancerHttpProbe> httpProbe : loadBalancer.httpProbes().entrySet()) {
-            getHealthCheckProbeHttp()
-                    .add(new HealthCheckProbeHttp(httpProbe.getValue()));
+            HealthCheckProbeHttp probeHttp = newSubresource(HealthCheckProbeHttp.class);
+            probeHttp.copyFrom(httpProbe.getValue());
+            getHealthCheckProbeHttp().add(probeHttp);
         }
 
         //tcp probes
         getHealthCheckProbeTcp().clear();
         for (Map.Entry<String, LoadBalancerTcpProbe> tcpProbe : loadBalancer.tcpProbes().entrySet()) {
-            getHealthCheckProbeTcp()
-                    .add(new HealthCheckProbeTcp(tcpProbe.getValue()));
+            HealthCheckProbeTcp probeTcp = newSubresource(HealthCheckProbeTcp.class);
+            probeTcp.copyFrom(tcpProbe.getValue());
+            getHealthCheckProbeTcp().add(probeTcp);
         }
 
         //public frontends
