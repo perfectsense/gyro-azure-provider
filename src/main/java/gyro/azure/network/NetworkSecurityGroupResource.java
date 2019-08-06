@@ -171,7 +171,7 @@ public class NetworkSecurityGroupResource extends AzureResource implements Copya
         NetworkSecurityGroup networkSecurityGroup = client.networkSecurityGroups()
             .define(getName())
             .withRegion(Region.fromName(getRegion()))
-            .withExistingResourceGroup(getResourceGroup().getResourceGroupName())
+            .withExistingResourceGroup(getResourceGroup().getName())
             .withTags(getTags())
             .create();
 

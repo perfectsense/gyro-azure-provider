@@ -178,7 +178,7 @@ public class RouteTableResource extends AzureResource implements Copyable<RouteT
         RouteTable.DefinitionStages.WithCreate withCreate;
         withCreate = client.routeTables().define(getName())
                 .withRegion(Region.fromName(getRegion()))
-                .withExistingResourceGroup(getResourceGroup().getResourceGroupName());
+                .withExistingResourceGroup(getResourceGroup().getName());
 
 
         if (getBgpRoutePropagationDisabled()) {

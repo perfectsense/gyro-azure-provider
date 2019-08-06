@@ -245,7 +245,7 @@ public class NetworkResource extends AzureResource implements Copyable<Network> 
         Network.DefinitionStages.WithCreate networkDefWithoutAddress = client.networks()
             .define(getName())
             .withRegion(Region.fromName(getRegion()))
-            .withExistingResourceGroup(getResourceGroup().getResourceGroupName());
+            .withExistingResourceGroup(getResourceGroup().getName());
 
         Network.DefinitionStages.WithCreateAndSubnet withAddressSpace = null;
 

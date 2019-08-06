@@ -180,7 +180,7 @@ public class ApplicationSecurityGroupResource extends AzureResource implements C
 
         ApplicationSecurityGroup applicationSecurityGroup = client.applicationSecurityGroups().define(getName())
                 .withRegion(Region.fromName(getRegion()))
-                .withExistingResourceGroup(getResourceGroup().getResourceGroupName())
+                .withExistingResourceGroup(getResourceGroup().getName())
                 .withTags(getTags())
                 .create();
 

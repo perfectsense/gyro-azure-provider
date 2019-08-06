@@ -312,7 +312,7 @@ public class PublicIpAddressResource extends AzureResource implements Copyable<P
         WithCreate withCreate = client.publicIPAddresses()
             .define(getName())
             .withRegion(Region.fromName(getRegion()))
-            .withExistingResourceGroup(getResourceGroup().getResourceGroupName())
+            .withExistingResourceGroup(getResourceGroup().getName())
             .withSku(getIsSkuBasic() ? PublicIPSkuType.BASIC : PublicIPSkuType.STANDARD);
 
         if (!ObjectUtils.isBlank(getReverseFqdn())) {
