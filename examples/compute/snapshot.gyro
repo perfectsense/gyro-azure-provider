@@ -1,7 +1,7 @@
 @import ../init as _
 
 azure::resource-group resource-group-snapshot-example
-    resource-group-name: "resource-group-snapshot-example"
+    name: "resource-group-snapshot-example"
 
     tags: {
         Name: "resource-group-snapshot-example"

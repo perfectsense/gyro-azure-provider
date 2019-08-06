@@ -1,5 +1,5 @@
 azure::resource-group resource-group-sql-server-example
-    resource-group-name: "resource-group-sql-server-example"
+    name: "resource-group-sql-server-example"
 
     tags: {
         Name: "resource-group-sql-server-example"

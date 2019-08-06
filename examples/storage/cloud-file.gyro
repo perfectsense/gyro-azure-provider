@@ -1,5 +1,5 @@
 azure::resource-group file-resource-group
-    resource-group-name: "file-resource-group"
+    name: "file-resource-group"
 
     tags: {
         Name: "file-resource-group"

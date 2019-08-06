@@ -1,5 +1,5 @@
 azure::resource-group resource-group-route-table-example
-    resource-group-name: "resource-group-route-table-example"
+    name: "resource-group-route-table-example"
 
     tags: {
         Name: "resource-group-route-table-example"
