@@ -1,5 +1,6 @@
 package gyro.azure.network;
 
+import gyro.azure.Copyable;
 import gyro.core.resource.Updatable;
 
 import com.microsoft.azure.management.network.LoadBalancerPrivateFrontend;
@@ -12,42 +13,26 @@ import com.microsoft.azure.management.network.LoadBalancerPrivateFrontend;
  *
  * .. code-block:: gyro
  *
- *         private-frontend
- *             name: "private-frontend"
- *             network-id: $(azure::network load-balancer-network-example | network-id)
- *             subnet-name: "subnet2"
+ *    private-frontend
+ *        name: "private-frontend"
+ *        network: $(azure::network load-balancer-network-example)
+ *        subnet-name: "subnet2"
  *
- *             inbound-nat-pool
- *                 name: "test-nat-pool"
- *                 frontend-name: "test-frontend"
- *                 backend-port: 80
- *                 protocol: "TCP"
- *                 frontend-port-range-start: 80
- *                 frontend-port-range-end: 89
- *             end
- *         end
+ *        inbound-nat-pool
+ *            name: "test-nat-pool"
+ *            frontend-name: "test-frontend"
+ *            backend-port: 80
+ *            protocol: "TCP"
+ *            frontend-port-range-start: 80
+ *            frontend-port-range-end: 89
+ *        end
+ *    end
  */
-public class PrivateFrontend extends Frontend {
-
+public class PrivateFrontend extends Frontend implements Copyable<LoadBalancerPrivateFrontend> {
     private String name;
     private String privateIpAddress;
     private String subnetName;
-    private String networkId;
-
-    public PrivateFrontend() {
-
-    }
-
-    public PrivateFrontend(LoadBalancerPrivateFrontend privateFrontend) {
-        setName(privateFrontend.name());
-        setPrivateIpAddress(privateFrontend.privateIPAddress());
-        setSubnetName(privateFrontend.subnetName());
-        setNetworkId(privateFrontend.networkId());
-        privateFrontend.inboundNatPools().entrySet().stream()
-                .forEach(pool -> getInboundNatPool().add(new InboundNatPool(pool.getValue())));
-        privateFrontend.inboundNatRules().entrySet().stream()
-                .forEach(rule -> getInboundNatRule().add(new InboundNatRule(rule.getValue())));
-    }
+    private NetworkResource network;
 
     /**
      * The name of the private frontend. (Required)
@@ -76,12 +61,12 @@ public class PrivateFrontend extends Frontend {
      * The id of the network where the subnet is found. (Required)
      */
     @Updatable
-    public String getNetworkId() {
-        return networkId;
+    public NetworkResource getNetwork() {
+        return network;
     }
 
-    public void setNetworkId(String networkId) {
-        this.networkId = networkId;
+    public void setNetworkId(NetworkResource network) {
+        this.network = network;
     }
 
     /**
@@ -96,8 +81,17 @@ public class PrivateFrontend extends Frontend {
         this.subnetName = subnetName;
     }
 
+    @Override
+    public void copyFrom(LoadBalancerPrivateFrontend privateFrontend) {
+        setName(privateFrontend.name());
+        setPrivateIpAddress(privateFrontend.privateIPAddress());
+        setSubnetName(privateFrontend.subnetName());
+        setNetworkId(findById(NetworkResource.class, privateFrontend.networkId()));
+        privateFrontend.inboundNatPools().forEach((key, value) -> getInboundNatPool().add(new InboundNatPool(value)));
+        privateFrontend.inboundNatRules().forEach((key, value) -> getInboundNatRule().add(new InboundNatRule(value)));
+    }
+
     public String primaryKey() {
         return String.format("%s", getName());
     }
-
 }

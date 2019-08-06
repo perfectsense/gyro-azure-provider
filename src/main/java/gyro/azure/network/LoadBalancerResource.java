@@ -296,7 +296,9 @@ public class LoadBalancerResource extends AzureResource {
         //private frontends
         getPrivateFrontend().clear();
         for (Map.Entry<String, LoadBalancerPrivateFrontend> privateFrontend : loadBalancer.privateFrontends().entrySet()) {
-            getPrivateFrontend().add(new PrivateFrontend(privateFrontend.getValue()));
+            PrivateFrontend frontendPrivate = newSubresource(PrivateFrontend.class);
+            frontendPrivate.copyFrom(privateFrontend.getValue());
+            getPrivateFrontend().add(frontendPrivate);
         }
 
         //load balancing rules
@@ -377,8 +379,7 @@ public class LoadBalancerResource extends AzureResource {
         //define the public frontends
         for (PublicFrontend publicFrontend : getPublicFrontend()) {
 
-            PublicIPAddress ip = client.publicIPAddresses()
-                    .getByResourceGroup(getResourceGroupName(), publicFrontend.getPublicIpAddressName());
+            PublicIPAddress ip = client.publicIPAddresses().getById(publicFrontend.getPublicIpAddress().getId());
 
             buildLoadBalancer.definePublicFrontend(publicFrontend.getName())
                     .withExistingPublicIPAddress(ip)
@@ -389,7 +390,7 @@ public class LoadBalancerResource extends AzureResource {
         LoadBalancerPrivateFrontend.DefinitionStages.WithAttach withAttachPrivate;
         for (PrivateFrontend privateFrontend : getPrivateFrontend()) {
 
-            Network network = client.networks().getById(privateFrontend.getNetworkId());
+            Network network = client.networks().getById(privateFrontend.getNetwork().getId());
 
             withAttachPrivate = buildLoadBalancer.definePrivateFrontend(privateFrontend.getName())
                     .withExistingSubnet(network, privateFrontend.getSubnetName());
@@ -494,7 +495,7 @@ public class LoadBalancerResource extends AzureResource {
         LoadBalancerPrivateFrontend.UpdateDefinitionStages.WithAttach withAttachPrivate;
         for (PrivateFrontend privateFrontend : privateAdditions) {
 
-            Network network = client.networks().getById(privateFrontend.getNetworkId());
+            Network network = client.networks().getById(privateFrontend.getNetwork().getId());
 
             withAttachPrivate = updateLoadBalancer.definePrivateFrontend(privateFrontend.getName())
                     .withExistingSubnet(network, privateFrontend.getSubnetName());
@@ -596,7 +597,7 @@ public class LoadBalancerResource extends AzureResource {
         for (PrivateFrontend privateFrontend : getPrivateFrontend()) {
             if (!privateAdditions.contains(privateFrontend) && !privateSubtractions.contains(privateFrontend)) {
 
-                Network network = client.networks().getById(privateFrontend.getNetworkId());
+                Network network = client.networks().getById(privateFrontend.getNetwork().getId());
 
                 withAttachPrivateIp = updateLoadBalancer
                         .updatePrivateFrontend(privateFrontend.getName())
