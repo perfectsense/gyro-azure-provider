@@ -107,7 +107,7 @@ public class CnameRecordSetResource extends AzureResource {
     }
 
     @Override
-    public boolean doRefresh() {
+    public boolean refresh() {
         Azure client = createClient();
 
         CNameRecordSet cnameRecordSet = client.dnsZones().getById(getDnsZoneId()).cNameRecordSets().getByName(getName());
@@ -125,7 +125,7 @@ public class CnameRecordSetResource extends AzureResource {
     }
 
     @Override
-    public void doCreate(GyroUI ui, State state) {
+    public void create(GyroUI ui, State state) {
         if (getAlias() == null) {
             throw new GyroException("An alias must be provided.");
         }
@@ -149,7 +149,7 @@ public class CnameRecordSetResource extends AzureResource {
     }
 
     @Override
-    public void doUpdate(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
         DnsRecordSet.UpdateCNameRecordSet updateCNameRecordSet =
@@ -187,7 +187,7 @@ public class CnameRecordSetResource extends AzureResource {
     }
 
     @Override
-    public void doDelete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
         client.dnsZones().getById(getDnsZoneId()).update().withoutCaaRecordSet(getName()).apply();

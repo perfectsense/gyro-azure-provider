@@ -114,7 +114,7 @@ public class PtrRecordSetResource extends AzureResource {
     }
 
     @Override
-    public boolean doRefresh() {
+    public boolean refresh() {
         Azure client = createClient();
 
         PtrRecordSet ptrRecordSet = client.dnsZones().getById(getDnsZoneId()).ptrRecordSets().getByName(getName());
@@ -131,7 +131,7 @@ public class PtrRecordSetResource extends AzureResource {
         return true;
     }
 
-    public void doCreate(GyroUI ui, State state) {
+    public void create(GyroUI ui, State state) {
         if (getTargetDomainNames() == null || getTargetDomainNames().size() == 0) {
             throw new GyroException("At least one target domain name must be provided.");
         }
@@ -159,7 +159,7 @@ public class PtrRecordSetResource extends AzureResource {
     }
 
     @Override
-    public void doUpdate(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
         DnsRecordSet.UpdatePtrRecordSet updatePtrRecordSet =
@@ -207,7 +207,7 @@ public class PtrRecordSetResource extends AzureResource {
     }
 
     @Override
-    public void doDelete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
         client.dnsZones().getById(getDnsZoneId()).update().withoutPtrRecordSet(getName()).apply();

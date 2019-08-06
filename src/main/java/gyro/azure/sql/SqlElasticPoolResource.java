@@ -197,7 +197,7 @@ public class SqlElasticPoolResource extends AzureResource {
     }
 
     @Override
-    public boolean doRefresh() {
+    public boolean refresh() {
         Azure client = createClient();
 
         SqlElasticPool elasticPool = sqlElasticPool(client);
@@ -221,7 +221,7 @@ public class SqlElasticPoolResource extends AzureResource {
     }
 
     @Override
-    public void doCreate(GyroUI ui, State state) {
+    public void create(GyroUI ui, State state) {
         if (getSqlServer() == null) {
             throw new GyroException("You must provide a sql server resource.");
         }
@@ -265,7 +265,7 @@ public class SqlElasticPoolResource extends AzureResource {
     }
 
     @Override
-    public void doUpdate(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
         SqlElasticPool.Update update = sqlElasticPool(client).update();
@@ -296,7 +296,7 @@ public class SqlElasticPoolResource extends AzureResource {
     }
 
     @Override
-    public void doDelete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
         sqlElasticPool(client).delete();

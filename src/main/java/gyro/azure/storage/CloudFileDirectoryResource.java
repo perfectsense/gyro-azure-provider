@@ -97,7 +97,7 @@ public class CloudFileDirectoryResource extends AzureResource {
     }
 
     @Override
-    public boolean doRefresh() {
+    public boolean refresh() {
         try {
             CloudFileDirectory directory = cloudFileDirectory();
             if (directory.exists()) {
@@ -111,7 +111,7 @@ public class CloudFileDirectoryResource extends AzureResource {
     }
 
     @Override
-    public void doCreate(GyroUI ui, State state) {
+    public void create(GyroUI ui, State state) {
         try {
             CloudFileDirectory directory = cloudFileDirectory();
             directory.create();
@@ -121,10 +121,10 @@ public class CloudFileDirectoryResource extends AzureResource {
     }
 
     @Override
-    public void doUpdate(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {}
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {}
 
     @Override
-    public void doDelete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, State state) {
         try {
             CloudFileDirectory directory = cloudFileDirectory();
             directory.delete();

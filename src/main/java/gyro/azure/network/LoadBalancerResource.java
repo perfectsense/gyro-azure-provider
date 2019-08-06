@@ -262,7 +262,7 @@ public class LoadBalancerResource extends AzureResource {
     }
 
     @Override
-    public boolean doRefresh() {
+    public boolean refresh() {
         Azure client = createClient();
 
         LoadBalancer loadBalancer = client.loadBalancers().getById(getId());
@@ -313,7 +313,7 @@ public class LoadBalancerResource extends AzureResource {
     }
 
     @Override
-    public void doCreate(GyroUI ui, State state) {
+    public void create(GyroUI ui, State state) {
         Azure client = createClient();
 
         LoadBalancer.DefinitionStages.WithLBRuleOrNat lb = client.loadBalancers()
@@ -423,7 +423,7 @@ public class LoadBalancerResource extends AzureResource {
     }
 
     @Override
-    public void doUpdate(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         LoadBalancer loadBalancer = client.loadBalancers().getById(getId());
@@ -650,7 +650,7 @@ public class LoadBalancerResource extends AzureResource {
     }
 
     @Override
-    public void doDelete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
         client.loadBalancers()

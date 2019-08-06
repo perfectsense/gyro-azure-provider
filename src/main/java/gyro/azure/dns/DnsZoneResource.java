@@ -146,7 +146,7 @@ public class DnsZoneResource extends AzureResource {
     }
 
     @Override
-    public boolean doRefresh() {
+    public boolean refresh() {
         Azure client = createClient();
 
         DnsZone dnsZone = client.dnsZones().getById(getId());
@@ -167,7 +167,7 @@ public class DnsZoneResource extends AzureResource {
     }
 
     @Override
-    public void doCreate(GyroUI ui, State state) {
+    public void create(GyroUI ui, State state) {
         Azure client = createClient();
 
         DnsZone.DefinitionStages.WithCreate withCreate;
@@ -192,7 +192,7 @@ public class DnsZoneResource extends AzureResource {
     }
 
     @Override
-    public void doUpdate(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
         DnsZone.Update update = client.dnsZones().getById(getId()).update();
@@ -202,7 +202,7 @@ public class DnsZoneResource extends AzureResource {
     }
 
     @Override
-    public void doDelete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
         client.dnsZones().deleteById(getId());

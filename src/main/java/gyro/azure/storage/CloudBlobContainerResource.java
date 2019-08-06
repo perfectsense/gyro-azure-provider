@@ -75,7 +75,7 @@ public class CloudBlobContainerResource extends AzureResource {
     }
 
     @Override
-    public boolean doRefresh() {
+    public boolean refresh() {
         try {
             CloudBlobContainer container = cloudBlobContainer();
             if (container.exists()) {
@@ -89,7 +89,7 @@ public class CloudBlobContainerResource extends AzureResource {
     }
 
     @Override
-    public void doCreate(GyroUI ui, State state) {
+    public void create(GyroUI ui, State state) {
         try {
             CloudBlobContainer container = cloudBlobContainer();
             container.create();
@@ -102,7 +102,7 @@ public class CloudBlobContainerResource extends AzureResource {
     }
 
     @Override
-    public void doUpdate(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         try {
             CloudBlobContainer container = cloudBlobContainer();
             BlobContainerPermissions permissions = new BlobContainerPermissions();
@@ -114,7 +114,7 @@ public class CloudBlobContainerResource extends AzureResource {
     }
 
     @Override
-    public void doDelete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, State state) {
         try {
             CloudBlobContainer container = cloudBlobContainer();
             container.delete();

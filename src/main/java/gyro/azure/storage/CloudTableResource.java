@@ -59,7 +59,7 @@ public class CloudTableResource extends AzureResource {
     }
 
     @Override
-    public boolean doRefresh() {
+    public boolean refresh() {
 
         try {
             CloudTable cloudTable = cloudTable();
@@ -74,7 +74,7 @@ public class CloudTableResource extends AzureResource {
     }
 
     @Override
-    public void doCreate(GyroUI ui, State state) {
+    public void create(GyroUI ui, State state) {
         try {
             CloudTable cloudTable = cloudTable();
             cloudTable.create();
@@ -84,10 +84,10 @@ public class CloudTableResource extends AzureResource {
     }
 
     @Override
-    public void doUpdate(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {}
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {}
 
     @Override
-    public void doDelete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, State state) {
         try {
             CloudTable cloudTable = cloudTable();
             cloudTable.delete();

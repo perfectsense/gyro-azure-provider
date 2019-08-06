@@ -113,7 +113,7 @@ public class TxtRecordSetResource extends AzureResource {
     }
 
     @Override
-    public boolean doRefresh() {
+    public boolean refresh() {
         Azure client = createClient();
 
         TxtRecordSet txtRecordSet = client.dnsZones().getById(getDnsZoneId()).txtRecordSets().getByName(getName());
@@ -132,7 +132,7 @@ public class TxtRecordSetResource extends AzureResource {
     }
 
     @Override
-    public void doCreate(GyroUI ui, State state) {
+    public void create(GyroUI ui, State state) {
         if (getTxtRecords().isEmpty()) {
             throw new GyroException("At least one record must be provided.");
         }
@@ -160,7 +160,7 @@ public class TxtRecordSetResource extends AzureResource {
     }
 
     @Override
-    public void doUpdate(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
         DnsRecordSet.UpdateTxtRecordSet updateTxtRecordSet =
@@ -208,7 +208,7 @@ public class TxtRecordSetResource extends AzureResource {
     }
 
     @Override
-    public void doDelete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
         client.dnsZones().getById(getDnsZoneId()).update().withoutTxtRecordSet(getName()).apply();

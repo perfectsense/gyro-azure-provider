@@ -112,7 +112,7 @@ public class ARecordSetResource extends AzureResource {
     }
 
     @Override
-    public boolean doRefresh() {
+    public boolean refresh() {
         Azure client = createClient();
 
         ARecordSet aRecordSet = client.dnsZones().getById(getDnsZoneId()).aRecordSets().getByName(getName());
@@ -131,7 +131,7 @@ public class ARecordSetResource extends AzureResource {
     }
 
     @Override
-    public void doCreate(GyroUI ui, State state) {
+    public void create(GyroUI ui, State state) {
         if (getIpv4Addresses().isEmpty()) {
             throw new GyroException("At least one ipv4 address must be provided.");
         }
@@ -159,7 +159,7 @@ public class ARecordSetResource extends AzureResource {
     }
 
     @Override
-    public void doUpdate(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
         DnsRecordSet.UpdateARecordSet updateARecordSet =
@@ -207,7 +207,7 @@ public class ARecordSetResource extends AzureResource {
     }
 
     @Override
-    public void doDelete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
         client.dnsZones().getById(getDnsZoneId()).update().withoutARecordSet(getName()).apply();

@@ -165,7 +165,7 @@ public class SqlServerResource extends AzureResource {
     }
 
     @Override
-    public boolean doRefresh() {
+    public boolean refresh() {
         Azure client = createClient();
 
         SqlServer sqlServer = client.sqlServers().getById(getId());
@@ -184,7 +184,7 @@ public class SqlServerResource extends AzureResource {
     }
 
     @Override
-    public void doCreate(GyroUI ui, State state) {
+    public void create(GyroUI ui, State state) {
         Azure client = createClient();
 
         SqlServer.DefinitionStages.WithCreate withCreate = client.sqlServers().define(getName())
@@ -208,7 +208,7 @@ public class SqlServerResource extends AzureResource {
     }
 
     @Override
-    public void doUpdate(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
         SqlServer.Update update = client.sqlServers().getById(getId()).update();
@@ -223,7 +223,7 @@ public class SqlServerResource extends AzureResource {
     }
 
     @Override
-    public void doDelete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
         client.sqlServers().deleteById(getId());

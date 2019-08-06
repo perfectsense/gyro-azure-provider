@@ -288,7 +288,7 @@ public class CdnEndpointResource extends AzureResource {
     }
 
     @Override
-    public boolean doRefresh() {
+    public boolean refresh() {
         Azure client = createClient();
 
         CdnEndpoint cdnEndpoint = client.cdnProfiles().getById(getCdnProfile().getId()).endpoints().get(getName());
@@ -314,7 +314,7 @@ public class CdnEndpointResource extends AzureResource {
     }
 
     @Override
-    public void doCreate(GyroUI ui, State state) {
+    public void create(GyroUI ui, State state) {
         Azure client = createClient();
 
         CdnProfile cdnProfile = client.cdnProfiles().getById(getCdnProfile().getId());
@@ -406,7 +406,7 @@ public class CdnEndpointResource extends AzureResource {
     }
 
     @Override
-    public void doUpdate(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
         CdnProfile cdnProfile = client.cdnProfiles().getById(getCdnProfile().getId());
@@ -496,7 +496,7 @@ public class CdnEndpointResource extends AzureResource {
     }
 
     @Override
-    public void doDelete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
         CdnProfile cdnProfile = client.cdnProfiles().getById(getCdnProfile().getId());

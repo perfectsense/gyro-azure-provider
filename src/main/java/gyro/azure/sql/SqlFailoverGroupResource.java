@@ -174,7 +174,7 @@ public class SqlFailoverGroupResource extends AzureResource {
     }
 
     @Override
-    public boolean doRefresh() {
+    public boolean refresh() {
         Azure client = createClient();
 
         SqlFailoverGroup failoverGroup = sqlFailoverGroup(client);
@@ -197,7 +197,7 @@ public class SqlFailoverGroupResource extends AzureResource {
     }
 
     @Override
-    public void doCreate(GyroUI ui, State state) {
+    public void create(GyroUI ui, State state) {
         if (getSqlServer() == null) {
             throw new GyroException("You must provide a sql server resource.");
         }
@@ -237,7 +237,7 @@ public class SqlFailoverGroupResource extends AzureResource {
     }
 
     @Override
-    public void doUpdate(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
         SqlFailoverGroup.Update update = sqlFailoverGroup(client).update();
@@ -279,7 +279,7 @@ public class SqlFailoverGroupResource extends AzureResource {
     }
 
     @Override
-    public void doDelete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
         sqlFailoverGroup(client).delete();

@@ -265,12 +265,12 @@ public class NetworkSecurityGroupRuleResource extends AzureResource {
     }
 
     @Override
-    public boolean doRefresh() {
+    public boolean refresh() {
         return false;
     }
 
     @Override
-    public void doCreate(GyroUI ui, State state) {
+    public void create(GyroUI ui, State state) {
         Azure client = createClient();
 
         NetworkSecurityGroupResource parent = (NetworkSecurityGroupResource) parent();
@@ -336,7 +336,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource {
     }
 
     @Override
-    public void doUpdate(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         NetworkSecurityGroupResource parent = (NetworkSecurityGroupResource) parent();
@@ -391,7 +391,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource {
     }
 
     @Override
-    public void doDelete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
         NetworkSecurityGroupResource parent = (NetworkSecurityGroupResource) parent();

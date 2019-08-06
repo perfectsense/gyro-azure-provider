@@ -8,34 +8,25 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public abstract class AzureFinder<M, R extends AzureResource> extends Finder<R> {
-
     protected abstract List<M> findAllAzure(Azure client);
 
     protected abstract List<M> findAzure(Azure client, Map<String, String> filters);
 
     @Override
     public List<R> find(Map<String, String> filters) {
-        AzureClient client = newClient();
-        List<R> resources = findAzure(client.getClient(), filters).stream()
+        return findAzure(newClient(), filters).stream()
             .map(this::newResource)
             .collect(Collectors.toList());
-
-        client.close();
-        return resources;
     }
 
     @Override
     public List<R> findAll() {
-        AzureClient client = newClient();
-        List<R> resources = findAllAzure(client.getClient()).stream()
+        return findAllAzure(newClient()).stream()
             .map(this::newResource)
             .collect(Collectors.toList());
-
-        client.close();
-        return resources;
     }
 
-    private AzureClient newClient() {
+    private Azure newClient() {
         return AzureResource.createClient(credentials(AzureCredentials.class));
     }
 
@@ -49,5 +40,4 @@ public abstract class AzureFinder<M, R extends AzureResource> extends Finder<R> 
 
         return resource;
     }
-
 }

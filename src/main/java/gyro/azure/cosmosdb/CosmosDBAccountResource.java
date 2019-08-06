@@ -234,7 +234,7 @@ public class CosmosDBAccountResource extends AzureResource {
     }
 
     @Override
-    public boolean doRefresh() {
+    public boolean refresh() {
         Azure client = createClient();
 
         CosmosDBAccount cosmosAccount = client.cosmosDBAccounts().getById(getId());
@@ -271,7 +271,7 @@ public class CosmosDBAccountResource extends AzureResource {
     }
 
     @Override
-    public void doCreate(GyroUI ui, State state) {
+    public void create(GyroUI ui, State state) {
         if (getDatabaseAccountKind() == null && getConsistencyLevel() == null) {
             throw new GyroException("Database account kind and consistency level must be configured");
         }
@@ -336,7 +336,7 @@ public class CosmosDBAccountResource extends AzureResource {
     }
 
     @Override
-    public void doUpdate(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
         CosmosDBAccount.Update update = client.cosmosDBAccounts()
@@ -407,7 +407,7 @@ public class CosmosDBAccountResource extends AzureResource {
     }
 
     @Override
-    public void doDelete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
         client.cosmosDBAccounts().deleteById(getId());

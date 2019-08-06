@@ -74,7 +74,7 @@ public class CloudFileShareResource extends AzureResource {
     }
 
     @Override
-    public boolean doRefresh() {
+    public boolean refresh() {
         try {
             CloudFileShare share = cloudFileShare();
             if (share.exists()) {
@@ -89,7 +89,7 @@ public class CloudFileShareResource extends AzureResource {
     }
 
     @Override
-    public void doCreate(GyroUI ui, State state) {
+    public void create(GyroUI ui, State state) {
         try {
             CloudFileShare share = cloudFileShare();
             share.create();
@@ -102,7 +102,7 @@ public class CloudFileShareResource extends AzureResource {
     }
 
     @Override
-    public void doUpdate(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         CloudFileShare share = cloudFileShare();
         FileShareProperties fileShareProperties = new FileShareProperties();
         fileShareProperties.setShareQuota(getShareQuota());
@@ -110,7 +110,7 @@ public class CloudFileShareResource extends AzureResource {
     }
 
     @Override
-    public void doDelete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, State state) {
         try {
             CloudFileShare share = cloudFileShare();
             share.delete();

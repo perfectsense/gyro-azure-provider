@@ -170,7 +170,7 @@ public class PublicIpAddressResource extends AzureResource {
     }
 
     @Override
-    public boolean doRefresh() {
+    public boolean refresh() {
         Azure client = createClient();
 
         PublicIPAddress publicIpAddress = client.publicIPAddresses().getByResourceGroup(getResourceGroupName(), getPublicIpAddressName());
@@ -184,7 +184,7 @@ public class PublicIpAddressResource extends AzureResource {
     }
 
     @Override
-    public void doCreate(GyroUI ui, State state) {
+    public void create(GyroUI ui, State state) {
         Azure client = createClient();
 
         WithCreate withCreate = client.publicIPAddresses()
@@ -225,7 +225,7 @@ public class PublicIpAddressResource extends AzureResource {
     }
 
     @Override
-    public void doUpdate(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
         PublicIPAddress publicIpAddress = client.publicIPAddresses().getByResourceGroup(getResourceGroupName(), getPublicIpAddressName());
@@ -251,7 +251,7 @@ public class PublicIpAddressResource extends AzureResource {
     }
 
     @Override
-    public void doDelete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
         client.publicIPAddresses().deleteByResourceGroup(getResourceGroupName(), getPublicIpAddressName());

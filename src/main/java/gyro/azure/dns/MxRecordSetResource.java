@@ -124,7 +124,7 @@ public class MxRecordSetResource extends AzureResource {
     }
 
     @Override
-    public boolean doRefresh() {
+    public boolean refresh() {
         Azure client = createClient();
 
         MXRecordSet mxRecordSet = client.dnsZones().getById(getDnsZoneId()).mxRecordSets().getByName(getName());
@@ -143,7 +143,7 @@ public class MxRecordSetResource extends AzureResource {
     }
 
     @Override
-    public void doCreate(GyroUI ui, State state) {
+    public void create(GyroUI ui, State state) {
         if (getMxRecord() == null || getMxRecord().size() == 0) {
             throw new GyroException("At least one mx record must be provided.");
         }
@@ -171,7 +171,7 @@ public class MxRecordSetResource extends AzureResource {
     }
 
     @Override
-    public void doUpdate(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
         DnsRecordSet.UpdateMXRecordSet updateMXRecordSet =
@@ -230,7 +230,7 @@ public class MxRecordSetResource extends AzureResource {
     }
 
     @Override
-    public void doDelete(GyroUI ui, State state) {
+    public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
         client.dnsZones().getById(getDnsZoneId()).update().withoutMXRecordSet(getName()).apply();
