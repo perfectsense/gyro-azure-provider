@@ -288,7 +288,9 @@ public class LoadBalancerResource extends AzureResource {
         //public frontends
         getPublicFrontend().clear();
         for (Map.Entry<String, LoadBalancerPublicFrontend> publicFrontend : loadBalancer.publicFrontends().entrySet()) {
-            getPublicFrontend().add(new PublicFrontend(publicFrontend.getValue()));
+            PublicFrontend frontendPublic = newSubresource(PublicFrontend.class);
+            frontendPublic.copyFrom(publicFrontend.getValue());
+            getPublicFrontend().add(frontendPublic);
         }
 
         //private frontends
@@ -521,8 +523,7 @@ public class LoadBalancerResource extends AzureResource {
         publicSubtractions.removeAll(getPublicFrontend());
 
         for (PublicFrontend publicFrontend : publicAdditions) {
-            PublicIPAddress ip = client.publicIPAddresses()
-                    .getByResourceGroup(getResourceGroupName(), publicFrontend.getPublicIpAddressName());
+            PublicIPAddress ip = client.publicIPAddresses().getById(publicFrontend.getPublicIpAddress().getId());
 
             updateLoadBalancer
                     .definePublicFrontend(publicFrontend.getName())
@@ -615,8 +616,7 @@ public class LoadBalancerResource extends AzureResource {
         for (PublicFrontend publicFrontend : getPublicFrontend()) {
             if (!publicAdditions.contains(publicFrontend) && !publicSubtractions.contains(publicFrontend)) {
 
-                PublicIPAddress ip = client.publicIPAddresses()
-                        .getByResourceGroup(getResourceGroupName(), publicFrontend.getPublicIpAddressName());
+                PublicIPAddress ip = client.publicIPAddresses().getById(publicFrontend.getPublicIpAddress().getId());
 
                 updateLoadBalancer
                         .updatePublicFrontend(publicFrontend.getName())
