@@ -13,6 +13,8 @@ import com.microsoft.azure.management.network.ApplicationGatewayRequestRoutingRu
 import com.microsoft.azure.management.network.ApplicationGatewaySkuName;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import gyro.azure.AzureResource;
+import gyro.azure.Copyable;
+import gyro.azure.resources.ResourceGroupResource;
 import gyro.core.GyroUI;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
@@ -20,8 +22,8 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,11 +38,11 @@ import java.util.stream.Collectors;
  * .. code-block:: gyro
  *
  *     azure::application-gateway application-gateway-example
- *         application-gateway-name: "application-gateway-example"
- *         resource-group-name: $(azure::resource-group resource-group-example-AG | resource-group-name)
- *         network-id: $(azure::network network-example-AG | network-id)
+ *         name: "application-gateway-example"
+ *         resource-group: $(azure::resource-group resource-group-example-AG)
+ *         network: $(azure::network network-example-AG)
  *         subnet: "subnet1"
- *         public-ip-address-name: $(azure::public-ip-address public-ip-address-example-AG | public-ip-address-name)
+ *         public-ip-address: $(azure::public-ip-address public-ip-address-example-AG)
  *         sku-size: "STANDARD_SMALL"
  *         instance-count: 1
  *         enable-http2: true
@@ -49,20 +51,20 @@ import java.util.stream.Collectors;
  *         }
  *
  *         request-routing-rule
- *             rule-name: "request-routing-rule-example"
+ *             name: "request-routing-rule-example"
  *             listener: "listener-example"
  *             backend: "backend-example"
  *             backend-http-configuration: "backend-http-configuration-example"
  *         end
  *
  *         request-routing-rule
- *             rule-name: "request-routing-rule-2-example"
+ *             name: "request-routing-rule-2-example"
  *             listener: "listener-example-2"
  *             redirect-configuration: "redirect-configuration-example"
  *         end
  *
  *         redirect-configuration
- *             redirect-configuration-name: "redirect-configuration-example"
+ *             name: "redirect-configuration-example"
  *             type: "Temporary"
  *             target-listener: "listener-example-3"
  *             include-query-string: true
@@ -70,22 +72,22 @@ import java.util.stream.Collectors;
  *         end
  *
  *         listener
- *             listener-name: "listener-example"
+ *             name: "listener-example"
  *             port: 81
  *         end
  *
  *         listener
- *             listener-name: "listener-example-2"
+ *             name: "listener-example-2"
  *             port: 82
  *         end
  *
  *         listener
- *             listener-name: "listener-example-3"
+ *             name: "listener-example-3"
  *             port: 83
  *         end
  *
  *         backend
- *             backend-name: "backend-example"
+ *             name: "backend-example"
  *             ip-addresses: [
  *                 "10.0.0.2",
  *                 "10.0.0.3"
@@ -93,7 +95,7 @@ import java.util.stream.Collectors;
  *         end
  *
  *         backend-http-configuration
- *             backend-http-configuration-name: "backend-http-configuration-example"
+ *             name: "backend-http-configuration-example"
  *             port: 8080
  *             cookie-name: "something"
  *             enable-affinity-cookie: false
@@ -105,7 +107,7 @@ import java.util.stream.Collectors;
  *         end
  *
  *         probe
- *             probe-name: "probe-example"
+ *             name: "probe-example"
  *             host-name: "www.google.com"
  *             path: "/path"
  *             interval: 40
@@ -121,57 +123,57 @@ import java.util.stream.Collectors;
  *     end
  */
 @Type("application-gateway")
-public class ApplicationGatewayResource extends AzureResource {
-    private String resourceGroupName;
-    private String networkId;
-    private String publicIpAddressName;
+public class ApplicationGatewayResource extends AzureResource implements Copyable<ApplicationGateway> {
+    private ResourceGroupResource resourceGroup;
+    private NetworkResource network;
+    private PublicIpAddressResource publicIpAddress;
     private String subnet;
-    private String applicationGatewayName;
-    private List<RequestRoutingRule> requestRoutingRule;
-    private List<Listener> listener;
-    private List<Backend> backend;
-    private List<BackendHttpConfiguration> backendHttpConfiguration;
-    private List<RedirectConfiguration> redirectConfiguration;
-    private List<Probe> probe;
+    private String name;
+    private Set<RequestRoutingRule> requestRoutingRule;
+    private Set<Listener> listener;
+    private Set<Backend> backend;
+    private Set<BackendHttpConfiguration> backendHttpConfiguration;
+    private Set<RedirectConfiguration> redirectConfiguration;
+    private Set<Probe> probe;
     private String skuSize;
     private Integer instanceCount;
     private Map<String, String> tags;
     private Boolean enableHttp2;
     private Boolean privateFrontEnd;
 
-    private String applicationGatewayId;
+    private String id;
 
     /**
      * Name of the resource group under which this would reside. (Required)
      */
-    public String getResourceGroupName() {
-        return resourceGroupName;
+    public ResourceGroupResource getResourceGroup() {
+        return resourceGroup;
     }
 
-    public void setResourceGroupName(String resourceGroupName) {
-        this.resourceGroupName = resourceGroupName;
+    public void setResourceGroup(ResourceGroupResource resourceGroup) {
+        this.resourceGroup = resourceGroup;
     }
 
     /**
      * Id of the virtual network which would be associated with this. (Required)
      */
-    public String getNetworkId() {
-        return networkId;
+    public NetworkResource getNetwork() {
+        return network;
     }
 
-    public void setNetworkId(String networkId) {
-        this.networkId = networkId;
+    public void setNetwork(NetworkResource network) {
+        this.network = network;
     }
 
     /**
      * The name of the public ip address associated with the application gateway. (Required)
      */
-    public String getPublicIpAddressName() {
-        return publicIpAddressName;
+    public PublicIpAddressResource getPublicIpAddress() {
+        return publicIpAddress;
     }
 
-    public void setPublicIpAddressName(String publicIpAddressName) {
-        this.publicIpAddressName = publicIpAddressName;
+    public void setPublicIpAddress(PublicIpAddressResource publicIpAddress) {
+        this.publicIpAddress = publicIpAddress;
     }
 
     /**
@@ -188,12 +190,12 @@ public class ApplicationGatewayResource extends AzureResource {
     /**
      * Name of the application gateway. (Required)
      */
-    public String getApplicationGatewayName() {
-        return applicationGatewayName;
+    public String getName() {
+        return name;
     }
 
-    public void setApplicationGatewayName(String applicationGatewayName) {
-        this.applicationGatewayName = applicationGatewayName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -202,15 +204,15 @@ public class ApplicationGatewayResource extends AzureResource {
      * @subresource gyro.azure.network.RequestRoutingRule
      */
     @Updatable
-    public List<RequestRoutingRule> getRequestRoutingRule() {
+    public Set<RequestRoutingRule> getRequestRoutingRule() {
         if (requestRoutingRule == null) {
-            requestRoutingRule = new ArrayList<>();
+            requestRoutingRule = new HashSet<>();
         }
 
         return requestRoutingRule;
     }
 
-    public void setRequestRoutingRule(List<RequestRoutingRule> requestRoutingRule) {
+    public void setRequestRoutingRule(Set<RequestRoutingRule> requestRoutingRule) {
         this.requestRoutingRule = requestRoutingRule;
     }
 
@@ -220,15 +222,15 @@ public class ApplicationGatewayResource extends AzureResource {
      * @subresource gyro.azure.network.Listener
      */
     @Updatable
-    public List<Listener> getListener() {
+    public Set<Listener> getListener() {
         if (listener == null) {
-            listener = new ArrayList<>();
+            listener = new HashSet<>();
         }
 
         return listener;
     }
 
-    public void setListener(List<Listener> listener) {
+    public void setListener(Set<Listener> listener) {
         this.listener = listener;
     }
 
@@ -238,15 +240,15 @@ public class ApplicationGatewayResource extends AzureResource {
      * @subresource gyro.azure.network.Backend
      */
     @Updatable
-    public List<Backend> getBackend() {
+    public Set<Backend> getBackend() {
         if (backend == null) {
-            backend = new ArrayList<>();
+            backend = new HashSet<>();
         }
 
         return backend;
     }
 
-    public void setBackend(List<Backend> backend) {
+    public void setBackend(Set<Backend> backend) {
         this.backend = backend;
     }
 
@@ -256,15 +258,15 @@ public class ApplicationGatewayResource extends AzureResource {
      * @subresource gyro.azure.network.BackendHttpConfiguration
      */
     @Updatable
-    public List<BackendHttpConfiguration> getBackendHttpConfiguration() {
+    public Set<BackendHttpConfiguration> getBackendHttpConfiguration() {
         if (backendHttpConfiguration == null) {
-            backendHttpConfiguration = new ArrayList<>();
+            backendHttpConfiguration = new HashSet<>();
         }
 
         return backendHttpConfiguration;
     }
 
-    public void setBackendHttpConfiguration(List<BackendHttpConfiguration> backendHttpConfiguration) {
+    public void setBackendHttpConfiguration(Set<BackendHttpConfiguration> backendHttpConfiguration) {
         this.backendHttpConfiguration = backendHttpConfiguration;
     }
 
@@ -274,15 +276,15 @@ public class ApplicationGatewayResource extends AzureResource {
      * @subresource gyro.azure.network.RedirectConfiguration
      */
     @Updatable
-    public List<RedirectConfiguration> getRedirectConfiguration() {
+    public Set<RedirectConfiguration> getRedirectConfiguration() {
         if (redirectConfiguration == null) {
-            redirectConfiguration = new ArrayList<>();
+            redirectConfiguration = new HashSet<>();
         }
 
         return redirectConfiguration;
     }
 
-    public void setRedirectConfiguration(List<RedirectConfiguration> redirectConfiguration) {
+    public void setRedirectConfiguration(Set<RedirectConfiguration> redirectConfiguration) {
         this.redirectConfiguration = redirectConfiguration;
     }
 
@@ -292,15 +294,15 @@ public class ApplicationGatewayResource extends AzureResource {
      * @subresource gyro.azure.network.Probe
      */
     @Updatable
-    public List<Probe> getProbe() {
+    public Set<Probe> getProbe() {
         if (probe == null) {
-            probe = new ArrayList<>();
+            probe = new HashSet<>();
         }
 
         return probe;
     }
 
-    public void setProbe(List<Probe> probe) {
+    public void setProbe(Set<Probe> probe) {
         this.probe = probe;
     }
 
@@ -375,21 +377,80 @@ public class ApplicationGatewayResource extends AzureResource {
      * The id of the application gateway.
      */
     @Output
-    public String getApplicationGatewayId() {
-        return applicationGatewayId;
+    public String getId() {
+        return id;
     }
 
-    public void setApplicationGatewayId(String applicationGatewayId) {
-        this.applicationGatewayId = applicationGatewayId;
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    @Override
+    public void copyFrom(ApplicationGateway applicationGateway) {
+        setId(applicationGateway.id());
+        setInstanceCount(applicationGateway.instanceCount());
+        setEnableHttp2(applicationGateway.isHttp2Enabled());
+        setSkuSize(applicationGateway.sku().name().toString());
+        setPrivateFrontEnd(applicationGateway.isPrivate());
+        setTags(applicationGateway.tags());
+        setName(applicationGateway.name());
+
+        getBackend().clear();
+        for (ApplicationGatewayBackend applicationGatewayBackend : applicationGateway.backends().values()) {
+            Backend backend = newSubresource(Backend.class);
+            backend.copyFrom(applicationGatewayBackend);
+            getBackend().add(backend);
+        }
+
+        getListener().clear();
+        for (ApplicationGatewayListener applicationGatewayListener : applicationGateway.listeners().values()) {
+            Listener listener = newSubresource(Listener.class);
+            listener.copyFrom(applicationGatewayListener);
+            getListener().add(listener);
+        }
+
+        getBackendHttpConfiguration().clear();
+        for (ApplicationGatewayBackendHttpConfiguration backendHttpConfig : applicationGateway.backendHttpConfigurations().values()) {
+            BackendHttpConfiguration backendHttpConfiguration = newSubresource(BackendHttpConfiguration.class);
+            backendHttpConfiguration.copyFrom(backendHttpConfig);
+            getBackendHttpConfiguration().add(backendHttpConfiguration);
+        }
+
+        getRedirectConfiguration().clear();
+        for (ApplicationGatewayRedirectConfiguration applicationGatewayRedirectConfig: applicationGateway.redirectConfigurations().values()) {
+            RedirectConfiguration redirectConfiguration = newSubresource(RedirectConfiguration.class);
+            redirectConfiguration.copyFrom(applicationGatewayRedirectConfig);
+            getRedirectConfiguration().add(redirectConfiguration);
+        }
+
+        getProbe().clear();
+        for (ApplicationGatewayProbe applicationGatewayProbe : applicationGateway.probes().values()) {
+            Probe probe = newSubresource(Probe.class);
+            probe.copyFrom(applicationGatewayProbe);
+            getProbe().add(probe);
+        }
+
+        getRequestRoutingRule().clear();
+        for (ApplicationGatewayRequestRoutingRule applicationGatewayRequestRoutingRule: applicationGateway.requestRoutingRules().values()) {
+            if (applicationGatewayRequestRoutingRule.ruleType().equals(ApplicationGatewayRequestRoutingRuleType.BASIC)) {
+                RequestRoutingRule requestRoutingRule = newSubresource(RequestRoutingRule.class);
+                requestRoutingRule.copyFrom(applicationGatewayRequestRoutingRule);
+                getRequestRoutingRule().add(requestRoutingRule);
+            }
+        }
     }
 
     @Override
     public boolean refresh() {
         Azure client = createClient();
 
-        ApplicationGateway applicationGateway = client.applicationGateways().getById(getApplicationGatewayId());
+        ApplicationGateway applicationGateway = client.applicationGateways().getById(getId());
 
-        loadApplicationGateway(applicationGateway);
+        if (applicationGateway == null) {
+            return false;
+        }
+
+        copyFrom(applicationGateway);
 
         return true;
     }
@@ -399,8 +460,8 @@ public class ApplicationGatewayResource extends AzureResource {
         Azure client = createClient();
 
         ApplicationGateway.DefinitionStages.WithRequestRoutingRule withRequestRoutingRule = client.applicationGateways()
-            .define(getApplicationGatewayName()).withRegion(Region.fromName(getRegion()))
-            .withExistingResourceGroup(getResourceGroupName());
+            .define(getName()).withRegion(Region.fromName(getRegion()))
+            .withExistingResourceGroup(getResourceGroup().getName());
 
         ApplicationGateway.DefinitionStages.WithRequestRoutingRuleOrCreate attach = null;
 
@@ -436,22 +497,22 @@ public class ApplicationGatewayResource extends AzureResource {
         }
 
         ApplicationGateway applicationGateway = withCreate.withExistingPublicIPAddress(
-                client.publicIPAddresses().getByResourceGroup(getResourceGroupName(), getPublicIpAddressName())
+                client.publicIPAddresses().getById(getPublicIpAddress().getId())
             )
             .withInstanceCount(getInstanceCount())
             .withSize(ApplicationGatewaySkuName.fromString(getSkuSize()))
             .withTags(getTags())
-            .withExistingSubnet(getNetworkId(), getSubnet())
+            .withExistingSubnet(getNetwork().getId(), getSubnet())
             .create();
 
-        loadApplicationGateway(applicationGateway);
+        copyFrom(applicationGateway);
     }
 
     @Override
     public void update(GyroUI ui, State state, Resource resource, Set<String> changedFieldNames) {
         Azure client = createClient();
 
-        ApplicationGateway applicationGateway = client.applicationGateways().getById(getApplicationGatewayId());
+        ApplicationGateway applicationGateway = client.applicationGateways().getById(getId());
 
         ApplicationGateway.Update update = applicationGateway.update();
 
@@ -473,71 +534,23 @@ public class ApplicationGatewayResource extends AzureResource {
 
         applicationGateway = update.apply();
 
-        loadApplicationGateway(applicationGateway);
+        copyFrom(applicationGateway);
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
-        client.applicationGateways().deleteById(getApplicationGatewayId());
+        client.applicationGateways().deleteById(getId());
     }
 
-    private void loadApplicationGateway(ApplicationGateway applicationGateway) {
-        setApplicationGatewayId(applicationGateway.id());
-        setInstanceCount(applicationGateway.instanceCount());
-        setEnableHttp2(applicationGateway.isHttp2Enabled());
-        setSkuSize(applicationGateway.sku().name().toString());
-        setPrivateFrontEnd(applicationGateway.isPrivate());
-        setTags(applicationGateway.tags());
-
-        getBackend().clear();
-        for (ApplicationGatewayBackend applicationGatewayBackend : applicationGateway.backends().values()) {
-            Backend backend = new Backend(applicationGatewayBackend);
-            getBackend().add(backend);
-        }
-
-        getListener().clear();
-        for (ApplicationGatewayListener applicationGatewayListener : applicationGateway.listeners().values()) {
-            Listener listener = new Listener(applicationGatewayListener);
-            getListener().add(listener);
-        }
-
-        getBackendHttpConfiguration().clear();
-        for (ApplicationGatewayBackendHttpConfiguration backendHttpConfig : applicationGateway.backendHttpConfigurations().values()) {
-            BackendHttpConfiguration backendHttpConfiguration = new BackendHttpConfiguration(backendHttpConfig);
-            getBackendHttpConfiguration().add(backendHttpConfiguration);
-        }
-
-        getRedirectConfiguration().clear();
-        for (ApplicationGatewayRedirectConfiguration applicationGatewayRedirectConfig: applicationGateway.redirectConfigurations().values()) {
-            RedirectConfiguration redirectConfiguration = new RedirectConfiguration(applicationGatewayRedirectConfig);
-            getRedirectConfiguration().add(redirectConfiguration);
-        }
-
-        getProbe().clear();
-        for (ApplicationGatewayProbe applicationGatewayProbe : applicationGateway.probes().values()) {
-            Probe probe = new Probe(applicationGatewayProbe);
-            getProbe().add(probe);
-        }
-
-        getRequestRoutingRule().clear();
-        for (ApplicationGatewayRequestRoutingRule applicationGatewayRequestRoutingRule: applicationGateway.requestRoutingRules().values()) {
-            if (applicationGatewayRequestRoutingRule.ruleType().equals(ApplicationGatewayRequestRoutingRuleType.BASIC)) {
-                RequestRoutingRule requestRoutingRule = newSubresource(RequestRoutingRule.class);
-                requestRoutingRule.copyFrom(applicationGatewayRequestRoutingRule);
-                getRequestRoutingRule().add(requestRoutingRule);
-            }
-        }
-    }
-
-    private Update saveRequestRoutingRule(List<RequestRoutingRule> oldRequestRoutingRules, Update update) {
+    private Update saveRequestRoutingRule(Set<RequestRoutingRule> oldRequestRoutingRules, Update update) {
         Set<String> requestRoutingRuleNames = getRequestRoutingRule().stream()
-            .map(RequestRoutingRule::getRuleName).collect(Collectors.toSet());
+            .map(RequestRoutingRule::getName).collect(Collectors.toSet());
 
         List<String> requestRoutingRuleDeleteList = oldRequestRoutingRules.stream()
-            .filter(o -> !requestRoutingRuleNames.contains(o.getRuleName()))
-            .map(RequestRoutingRule::getRuleName)
+            .filter(o -> !requestRoutingRuleNames.contains(o.getName()))
+            .map(RequestRoutingRule::getName)
             .collect(Collectors.toList());
 
         for (String requestRoutingRuleName : requestRoutingRuleDeleteList) {
@@ -545,10 +558,10 @@ public class ApplicationGatewayResource extends AzureResource {
         }
 
         Set<String> oldRequestRoutingRuleNames = oldRequestRoutingRules.stream()
-            .map(RequestRoutingRule::getRuleName).collect(Collectors.toSet());
+            .map(RequestRoutingRule::getName).collect(Collectors.toSet());
 
         List<RequestRoutingRule> requestRoutingRuleModificationList = getRequestRoutingRule().stream()
-            .filter(o -> oldRequestRoutingRuleNames.contains(o.getRuleName()))
+            .filter(o -> oldRequestRoutingRuleNames.contains(o.getName()))
             .collect(Collectors.toList());
 
         for (RequestRoutingRule requestRoutingRule : requestRoutingRuleModificationList) {
@@ -556,7 +569,7 @@ public class ApplicationGatewayResource extends AzureResource {
         }
 
         List<RequestRoutingRule> requestRoutingRuleAdditionList = getRequestRoutingRule().stream()
-            .filter(o -> !oldRequestRoutingRuleNames.contains(o.getRuleName()))
+            .filter(o -> !oldRequestRoutingRuleNames.contains(o.getName()))
             .collect(Collectors.toList());
 
         for (RequestRoutingRule requestRoutingRule : requestRoutingRuleAdditionList) {
@@ -566,13 +579,13 @@ public class ApplicationGatewayResource extends AzureResource {
         return update;
     }
 
-    private Update saveListener(List<Listener> oldListeners, Update update) {
+    private Update saveListener(Set<Listener> oldListeners, Update update) {
         Set<String> listenerNames = getListener().stream()
-            .map(Listener::getListenerName).collect(Collectors.toSet());
+            .map(Listener::getName).collect(Collectors.toSet());
 
         List<String> listenerDeleteList = oldListeners.stream()
-            .filter(o -> !listenerNames.contains(o.getListenerName()))
-            .map(Listener::getListenerName)
+            .filter(o -> !listenerNames.contains(o.getName()))
+            .map(Listener::getName)
             .collect(Collectors.toList());
 
         for (String listenerName : listenerDeleteList) {
@@ -580,10 +593,10 @@ public class ApplicationGatewayResource extends AzureResource {
         }
 
         Set<String> oldListenerNames = oldListeners.stream()
-            .map(Listener::getListenerName).collect(Collectors.toSet());
+            .map(Listener::getName).collect(Collectors.toSet());
 
         List<Listener> listenerModificationList = getListener().stream()
-            .filter(o -> oldListenerNames.contains(o.getListenerName()))
+            .filter(o -> oldListenerNames.contains(o.getName()))
             .collect(Collectors.toList());
 
         for (Listener listener : listenerModificationList) {
@@ -591,7 +604,7 @@ public class ApplicationGatewayResource extends AzureResource {
         }
 
         List<Listener> listenerAdditionList = getListener().stream()
-            .filter(o -> !oldListenerNames.contains(o.getListenerName()))
+            .filter(o -> !oldListenerNames.contains(o.getName()))
             .collect(Collectors.toList());
 
         for (Listener listener : listenerAdditionList) {
@@ -601,13 +614,13 @@ public class ApplicationGatewayResource extends AzureResource {
         return update;
     }
 
-    private Update saveRedirectConfiguration(List<RedirectConfiguration> oldRedirectConfigurations, Update update) {
+    private Update saveRedirectConfiguration(Set<RedirectConfiguration> oldRedirectConfigurations, Update update) {
         Set<String> redirectConfigurationNames = getRedirectConfiguration().stream()
-            .map(RedirectConfiguration::getRedirectConfigurationName).collect(Collectors.toSet());
+            .map(RedirectConfiguration::getName).collect(Collectors.toSet());
 
         List<String> redirectConfigurationDeleteList = oldRedirectConfigurations.stream()
-            .filter(o -> !redirectConfigurationNames.contains(o.getRedirectConfigurationName()))
-            .map(RedirectConfiguration::getRedirectConfigurationName)
+            .filter(o -> !redirectConfigurationNames.contains(o.getName()))
+            .map(RedirectConfiguration::getName)
             .collect(Collectors.toList());
 
         for (String redirectConfigurationName : redirectConfigurationDeleteList) {
@@ -615,10 +628,10 @@ public class ApplicationGatewayResource extends AzureResource {
         }
 
         Set<String> oldRedirectConfigurationNames = oldRedirectConfigurations.stream()
-            .map(RedirectConfiguration::getRedirectConfigurationName).collect(Collectors.toSet());
+            .map(RedirectConfiguration::getName).collect(Collectors.toSet());
 
         List<RedirectConfiguration> redirectConfigurationModificationList = getRedirectConfiguration().stream()
-            .filter(o -> oldRedirectConfigurationNames.contains(o.getRedirectConfigurationName()))
+            .filter(o -> oldRedirectConfigurationNames.contains(o.getName()))
             .collect(Collectors.toList());
 
         for (RedirectConfiguration redirectConfiguration : redirectConfigurationModificationList) {
@@ -626,7 +639,7 @@ public class ApplicationGatewayResource extends AzureResource {
         }
 
         List<RedirectConfiguration> redirectConfigurationAdditionList = getRedirectConfiguration().stream()
-            .filter(o -> !oldRedirectConfigurationNames.contains(o.getRedirectConfigurationName()))
+            .filter(o -> !oldRedirectConfigurationNames.contains(o.getName()))
             .collect(Collectors.toList());
 
         for (RedirectConfiguration redirectConfiguration : redirectConfigurationAdditionList) {
@@ -636,13 +649,13 @@ public class ApplicationGatewayResource extends AzureResource {
         return update;
     }
 
-    private Update saveBackendHttpConfiguration(List<BackendHttpConfiguration> oldBackendHttpConfigurations, Update update) {
+    private Update saveBackendHttpConfiguration(Set<BackendHttpConfiguration> oldBackendHttpConfigurations, Update update) {
         Set<String> backendHttpConfigurationNames = getBackendHttpConfiguration().stream()
-            .map(BackendHttpConfiguration::getBackendHttpConfigurationName).collect(Collectors.toSet());
+            .map(BackendHttpConfiguration::getName).collect(Collectors.toSet());
 
         List<String> backendHttpConfigurationDeleteList = oldBackendHttpConfigurations.stream()
-            .filter(o -> !backendHttpConfigurationNames.contains(o.getBackendHttpConfigurationName()))
-            .map(BackendHttpConfiguration::getBackendHttpConfigurationName)
+            .filter(o -> !backendHttpConfigurationNames.contains(o.getName()))
+            .map(BackendHttpConfiguration::getName)
             .collect(Collectors.toList());
 
         for (String backendHttpConfigurationName : backendHttpConfigurationDeleteList) {
@@ -650,10 +663,10 @@ public class ApplicationGatewayResource extends AzureResource {
         }
 
         Set<String> oldBackendHttpConfigurationNames = oldBackendHttpConfigurations.stream()
-            .map(BackendHttpConfiguration::getBackendHttpConfigurationName).collect(Collectors.toSet());
+            .map(BackendHttpConfiguration::getName).collect(Collectors.toSet());
 
         List<BackendHttpConfiguration> backendHttpConfigurationModificationList = getBackendHttpConfiguration().stream()
-            .filter(o -> oldBackendHttpConfigurationNames.contains(o.getBackendHttpConfigurationName()))
+            .filter(o -> oldBackendHttpConfigurationNames.contains(o.getName()))
             .collect(Collectors.toList());
 
         for (BackendHttpConfiguration backendHttpConfiguration : backendHttpConfigurationModificationList) {
@@ -661,7 +674,7 @@ public class ApplicationGatewayResource extends AzureResource {
         }
 
         List<BackendHttpConfiguration> backendHttpConfigurationAdditionList = getBackendHttpConfiguration().stream()
-            .filter(o -> !oldBackendHttpConfigurationNames.contains(o.getBackendHttpConfigurationName()))
+            .filter(o -> !oldBackendHttpConfigurationNames.contains(o.getName()))
             .collect(Collectors.toList());
 
         for (BackendHttpConfiguration backendHttpConfiguration : backendHttpConfigurationAdditionList) {
@@ -671,13 +684,13 @@ public class ApplicationGatewayResource extends AzureResource {
         return update;
     }
 
-    private Update saveProbe(List<Probe> oldProbes, Update update) {
+    private Update saveProbe(Set<Probe> oldProbes, Update update) {
         Set<String> probeNames = getProbe().stream()
-            .map(Probe::getProbeName).collect(Collectors.toSet());
+            .map(Probe::getName).collect(Collectors.toSet());
 
         List<String> probeDeleteList = oldProbes.stream()
-            .filter(o -> !probeNames.contains(o.getProbeName()))
-            .map(Probe::getProbeName)
+            .filter(o -> !probeNames.contains(o.getName()))
+            .map(Probe::getName)
             .collect(Collectors.toList());
 
         for (String probeName : probeDeleteList) {
@@ -685,10 +698,10 @@ public class ApplicationGatewayResource extends AzureResource {
         }
 
         Set<String> oldProbeNames = oldProbes.stream()
-            .map(Probe::getProbeName).collect(Collectors.toSet());
+            .map(Probe::getName).collect(Collectors.toSet());
 
         List<Probe> probeModificationList = getProbe().stream()
-            .filter(o -> oldProbeNames.contains(o.getProbeName()))
+            .filter(o -> oldProbeNames.contains(o.getName()))
             .collect(Collectors.toList());
 
         for (Probe probe : probeModificationList) {
@@ -696,7 +709,7 @@ public class ApplicationGatewayResource extends AzureResource {
         }
 
         List<Probe> probeAdditionList = getProbe().stream()
-            .filter(o -> !oldProbeNames.contains(o.getProbeName()))
+            .filter(o -> !oldProbeNames.contains(o.getName()))
             .collect(Collectors.toList());
 
         for (Probe probe : probeAdditionList) {
@@ -706,13 +719,13 @@ public class ApplicationGatewayResource extends AzureResource {
         return update;
     }
 
-    private Update saveBackend(List<Backend> oldBackends, Update update) {
+    private Update saveBackend(Set<Backend> oldBackends, Update update) {
         Set<String> backendNames = getBackend().stream()
-            .map(Backend::getBackendName).collect(Collectors.toSet());
+            .map(Backend::getName).collect(Collectors.toSet());
 
         List<String> backendDeleteList = oldBackends.stream()
-            .filter(o -> !backendNames.contains(o.getBackendName()))
-            .map(Backend::getBackendName)
+            .filter(o -> !backendNames.contains(o.getName()))
+            .map(Backend::getName)
             .collect(Collectors.toList());
 
         for (String backendName : backendDeleteList) {
@@ -720,22 +733,22 @@ public class ApplicationGatewayResource extends AzureResource {
         }
 
         Set<String> oldBackendNames = oldBackends.stream()
-            .map(Backend::getBackendName).collect(Collectors.toSet());
+            .map(Backend::getName).collect(Collectors.toSet());
 
         Map<String, Backend> oldBackendMap = oldBackends.stream()
-            .collect(Collectors.toMap(Backend::getBackendName, o -> o));
+            .collect(Collectors.toMap(Backend::getName, o -> o));
 
         List<Backend> backendModificationList = getBackend().stream()
-            .filter(o -> oldBackendNames.contains(o.getBackendName()))
+            .filter(o -> oldBackendNames.contains(o.getName()))
             .collect(Collectors.toList());
 
         for (Backend backend : backendModificationList) {
-            Backend oldBackend = oldBackendMap.get(backend.getBackendName());
+            Backend oldBackend = oldBackendMap.get(backend.getName());
             update = backend.updateBackend(update, oldBackend.getIpAddresses(), oldBackend.getFqdns());
         }
 
         List<Backend> backendAdditionList = getBackend().stream()
-            .filter(o -> !oldBackendNames.contains(o.getBackendName()))
+            .filter(o -> !oldBackendNames.contains(o.getName()))
             .collect(Collectors.toList());
 
         for (Backend backend : backendAdditionList) {
