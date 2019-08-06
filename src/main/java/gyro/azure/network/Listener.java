@@ -3,6 +3,7 @@ package gyro.azure.network;
 import com.microsoft.azure.management.network.ApplicationGateway.DefinitionStages.WithCreate;
 import com.microsoft.azure.management.network.ApplicationGateway.Update;
 import com.microsoft.azure.management.network.ApplicationGatewayListener;
+import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 
@@ -15,34 +16,24 @@ import gyro.core.resource.Updatable;
  * .. code-block:: gyro
  *
  *     listener
- *         listener-name: "AG-ex-1-listener"
+ *         name: "AG-ex-1-listener"
  *         port: 81
  *     end
  */
-public class Listener extends Diffable {
-    private String listenerName;
+public class Listener extends Diffable implements Copyable<ApplicationGatewayListener> {
+    private String name;
     private Integer port;
     private Boolean privateFrontend;
-
-    public Listener() {
-
-    }
-
-    public Listener(ApplicationGatewayListener listener) {
-        setListenerName(listener.name());
-        setPort(listener.frontendPortNumber());
-        setPrivateFrontend(listener.frontend().isPrivate());
-    }
 
     /**
      * Name of the listener. (Required)
      */
-    public String getListenerName() {
-        return listenerName;
+    public String getName() {
+        return name;
     }
 
-    public void setListenerName(String listenerName) {
-        this.listenerName = listenerName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -74,18 +65,25 @@ public class Listener extends Diffable {
     }
 
     @Override
+    public void copyFrom(ApplicationGatewayListener listener) {
+        setName(listener.name());
+        setPort(listener.frontendPortNumber());
+        setPrivateFrontend(listener.frontend().isPrivate());
+    }
+
+    @Override
     public String primaryKey() {
-        return getListenerName();
+        return getName();
     }
 
     WithCreate createListener(WithCreate attach) {
         if (getPrivateFrontend()) {
-            attach = attach.defineListener(getListenerName())
+            attach = attach.defineListener(getName())
                 .withPrivateFrontend()
                 .withFrontendPort(getPort())
                 .attach();
         } else {
-            attach = attach.defineListener(getListenerName())
+            attach = attach.defineListener(getName())
                 .withPublicFrontend()
                 .withFrontendPort(getPort())
                 .attach();
@@ -96,12 +94,12 @@ public class Listener extends Diffable {
 
     Update createListener(Update update) {
         if (getPrivateFrontend()) {
-            update = update.defineListener(getListenerName())
+            update = update.defineListener(getName())
                 .withPrivateFrontend()
                 .withFrontendPort(getPort())
                 .attach();
         } else {
-            update = update.defineListener(getListenerName())
+            update = update.defineListener(getName())
                 .withPublicFrontend()
                 .withFrontendPort(getPort())
                 .attach();
@@ -112,12 +110,12 @@ public class Listener extends Diffable {
 
     Update updateListener(Update update) {
         if (getPrivateFrontend()) {
-            update = update.updateListener(getListenerName())
+            update = update.updateListener(getName())
                 .withPrivateFrontend()
                 .withFrontendPort(getPort())
                 .parent();
         } else {
-            update = update.updateListener(getListenerName())
+            update = update.updateListener(getName())
                 .withPublicFrontend()
                 .withFrontendPort(getPort())
                 .parent();
