@@ -704,13 +704,13 @@ public class LoadBalancerResource extends AzureResource {
     }
 
     private void addNatRulesAndPools(Frontend frontend, LoadBalancer.Update updateLoadBalancer) {
-        addNatPools(frontend.getInboundNatPool(), updateLoadBalancer);
-        addNatRules(frontend.getInboundNatRule(), updateLoadBalancer);
+        addNatPools(new ArrayList<>(frontend.getInboundNatPool()), updateLoadBalancer);
+        addNatRules(new ArrayList<>(frontend.getInboundNatRule()), updateLoadBalancer);
     }
 
     private void removeNatRulesAndPools(Frontend frontend, LoadBalancer.Update updateLoadBalancer) {
-        removeNatPools(frontend.getInboundNatPool(), updateLoadBalancer);
-        removeNatRules(frontend.getInboundNatRule(), updateLoadBalancer);
+        removeNatPools(new ArrayList<>(frontend.getInboundNatPool()), updateLoadBalancer);
+        removeNatRules(new ArrayList<>(frontend.getInboundNatRule()), updateLoadBalancer);
     }
 
     private void addNatPools(List<InboundNatPool> pools, LoadBalancer.Update updateLoadBalancer) {
