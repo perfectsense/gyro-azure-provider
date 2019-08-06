@@ -1,5 +1,5 @@
 azure::resource-group cloud-file-resource-group-example
-    resource-group-name: "cloud-file-resource-group"
+    name: "cloud-file-resource-group"
 
     tags: {
         Name: "cloud-file-resource-group"

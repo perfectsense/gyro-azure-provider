@@ -1,5 +1,5 @@
 azure::resource-group resource-group-dns-zone-example
-    resource-group-name: "resource-group-dns-zone-example"
+    name: "resource-group-dns-zone-example"
 
     tags: {
         Name: "resource-group-dns-zone-example"

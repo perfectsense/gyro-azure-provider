@@ -1,12 +1,10 @@
-@highlander
-@repository 'http://repo1.maven.org/maven2/'
-@repository 'https://repo.gradle.org/gradle/libs-releases/'
-@repository 'https://artifactory.psdops.com/public'
-@repository 'https://artifactory.psdops.com/gyro-snapshots'
-@plugin 'gyro:gyro-azure-provider:0.15-SNAPSHOT'
+@highlander: true
+@repository: 'https://artifactory.psdops.com/public'
+@repository: 'https://artifactory.psdops.com/gyro-snapshots'
+@plugin: 'gyro:gyro-azure-provider:0.15-SNAPSHOT'
 
-@credentials 'azure::credentials' {
-    region: "westus",
-    log-level: "basic",
+@credentials 'azure::credentials'
+    region: "westus"
+    log-level: "basic"
     credential-file-path: "path/to/credentials"
-}
+@end

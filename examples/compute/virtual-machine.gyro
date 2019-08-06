@@ -1,5 +1,5 @@
 azure::resource-group resource-group-example-VM
-    resource-group-name: "resource-group-example-VM"
+    name: "resource-group-example-VM"
 
     tags: {
         Name: "resource-group-example-VM"
