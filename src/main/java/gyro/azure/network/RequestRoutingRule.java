@@ -7,6 +7,7 @@ import com.microsoft.azure.management.network.ApplicationGatewayRequestRoutingRu
 import com.microsoft.azure.management.network.ApplicationGateway.DefinitionStages.WithRequestRoutingRuleOrCreate;
 import com.microsoft.azure.management.network.ApplicationGateway.DefinitionStages.WithRequestRoutingRule;
 import com.psddev.dari.util.ObjectUtils;
+import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 
@@ -25,18 +26,15 @@ import gyro.core.resource.Updatable;
  *         backend-http-configuration: "backend-http-configuration-example"
  *     end
  */
-public class RequestRoutingRule extends Diffable {
+public class RequestRoutingRule extends Diffable implements Copyable<ApplicationGatewayRequestRoutingRule> {
     private String ruleName;
     private String listener;
     private String backend;
     private String backendHttpConfiguration;
     private String redirectConfiguration;
 
-    public RequestRoutingRule() {
-
-    }
-
-    public RequestRoutingRule(ApplicationGatewayRequestRoutingRule rule) {
+    @Override
+    public void copyFrom(ApplicationGatewayRequestRoutingRule rule) {
         setBackend(rule.backend() != null ? rule.backend().name() : null);
         setListener(rule.listener() != null ? rule.listener().name() : null);
         setBackendHttpConfiguration(rule.backendHttpConfiguration() != null ? rule.backendHttpConfiguration().name() : null);

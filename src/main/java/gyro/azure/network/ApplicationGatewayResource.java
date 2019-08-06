@@ -524,12 +524,11 @@ public class ApplicationGatewayResource extends AzureResource {
         getRequestRoutingRule().clear();
         for (ApplicationGatewayRequestRoutingRule applicationGatewayRequestRoutingRule: applicationGateway.requestRoutingRules().values()) {
             if (applicationGatewayRequestRoutingRule.ruleType().equals(ApplicationGatewayRequestRoutingRuleType.BASIC)) {
-                RequestRoutingRule requestRoutingRule = new RequestRoutingRule(applicationGatewayRequestRoutingRule);
+                RequestRoutingRule requestRoutingRule = newSubresource(RequestRoutingRule.class);
+                requestRoutingRule.copyFrom(applicationGatewayRequestRoutingRule);
                 getRequestRoutingRule().add(requestRoutingRule);
             }
         }
-
-
     }
 
     private Update saveRequestRoutingRule(List<RequestRoutingRule> oldRequestRoutingRules, Update update) {
