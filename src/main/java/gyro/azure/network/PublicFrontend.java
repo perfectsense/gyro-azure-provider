@@ -5,6 +5,8 @@ import gyro.core.resource.Updatable;
 
 import com.microsoft.azure.management.network.LoadBalancerPublicFrontend;
 
+import java.util.stream.Collectors;
+
 /**
  * Creates a public frontend.
  *
@@ -57,8 +59,12 @@ public class PublicFrontend extends Frontend implements Copyable<LoadBalancerPub
     public void copyFrom(LoadBalancerPublicFrontend publicFrontend) {
         setName(publicFrontend.name());
         setPublicIpAddress(findById(PublicIpAddressResource.class, publicFrontend.getPublicIPAddress().id()));
-        publicFrontend.inboundNatPools().forEach((key, value) -> getInboundNatPool().add(new InboundNatPool(value)));
         publicFrontend.inboundNatRules().forEach((key, value) -> getInboundNatRule().add(new InboundNatRule(value)));
+        setInboundNatPool(publicFrontend.inboundNatPools().values().stream().map(o -> {
+            InboundNatPool inboundNatPool = newSubresource(InboundNatPool.class);
+            inboundNatPool.copyFrom(o);
+            return inboundNatPool;
+        }).collect(Collectors.toSet()));
     }
 
     public String primaryKey() {

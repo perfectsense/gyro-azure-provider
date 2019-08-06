@@ -1,5 +1,6 @@
 package gyro.azure.network;
 
+import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 
@@ -23,7 +24,7 @@ import com.microsoft.azure.management.network.TransportProtocol;
  *             frontend-port-range-end: 89
  *         end
  */
-public class InboundNatPool extends Diffable {
+public class InboundNatPool extends Diffable implements Copyable<LoadBalancerInboundNatPool> {
 
     private Integer backendPort;
     private String frontendName;
@@ -31,17 +32,6 @@ public class InboundNatPool extends Diffable {
     private Integer frontendPortRangeEnd;
     private String name;
     private String protocol;
-
-    public InboundNatPool() {}
-
-    public InboundNatPool(LoadBalancerInboundNatPool natPool) {
-        setBackendPort(natPool.backendPort());
-        setFrontendName(natPool.frontend() != null ? natPool.frontend().name() : null);
-        setFrontendPortRangeStart(natPool.frontendPortRangeStart());
-        setFrontendPortRangeEnd(natPool.frontendPortRangeEnd());
-        setName(natPool.name());
-        setProtocol(natPool.protocol() == TransportProtocol.TCP ? "TCP" : "UDP");
-    }
 
     /**
      * The port number that network traffic is sent to. (Required)
@@ -112,6 +102,16 @@ public class InboundNatPool extends Diffable {
 
     public void setProtocol(String protocol) {
         this.protocol = protocol;
+    }
+
+    @Override
+    public void copyFrom(LoadBalancerInboundNatPool natPool) {
+        setBackendPort(natPool.backendPort());
+        setFrontendName(natPool.frontend() != null ? natPool.frontend().name() : null);
+        setFrontendPortRangeStart(natPool.frontendPortRangeStart());
+        setFrontendPortRangeEnd(natPool.frontendPortRangeEnd());
+        setName(natPool.name());
+        setProtocol(natPool.protocol() == TransportProtocol.TCP ? "TCP" : "UDP");
     }
 
     public String primaryKey() {
