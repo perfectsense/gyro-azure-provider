@@ -207,6 +207,7 @@ public class NetworkResource extends AzureResource implements Copyable<Network> 
         setTags(network.tags());
         setAddressSpaces(new HashSet<>(network.addressSpaces()));
         setName(network.name());
+        setResourceGroup(findById(ResourceGroupResource.class, network.resourceGroupName()));
         setVmProtectionEnabled(network.isVmProtectionEnabled());
         setDdosProtectionEnabled(network.isDdosProtectionEnabled());
         setDdosProtectionPlanId(network.ddosProtectionPlanId());
