@@ -1,7 +1,10 @@
 package gyro.azure.network;
 
 import gyro.azure.AzureResource;
+import gyro.azure.Copyable;
+import gyro.azure.resources.ResourceGroupResource;
 import gyro.core.GyroUI;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
@@ -19,7 +22,6 @@ import com.microsoft.azure.management.network.LoadBalancerTcpProbe;
 import com.microsoft.azure.management.network.Network;
 import com.microsoft.azure.management.network.PublicIPAddress;
 import com.microsoft.azure.management.network.TransportProtocol;
-import com.microsoft.azure.management.network.model.HasNetworkInterfaces;
 import com.microsoft.azure.management.network.LoadBalancer.DefinitionStages.WithCreate;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import gyro.core.scope.State;
@@ -40,12 +42,12 @@ import java.util.Set;
  *
  *         azure::load-balancer load-balancer-example
  *             name: "load-balancer-example"
- *             resource-group-name: $(azure::resource-group resource-group-lb-example | resource-group-name)
+ *             resource-group: $(azure::resource-group resource-group-lb-example)
  *             sku-basic: true
  *
  *             public-frontend
  *                 name: "public-frontend"
- *                 public-ip-address-name: $(azure::public-ip-address public-ip-address | public-ip-address-name)
+ *                 public-ip-address: $(azure::public-ip-address public-ip-address)
  *
  *                 inbound-nat-rule
  *                     name: "test-nat-rule"
@@ -58,8 +60,8 @@ import java.util.Set;
  *             backend-pool
  *                 name: "backend-pool-name"
  *                 target-network-ip-configuration
- *                     ip-configuration-name: "primary"
- *                     network-id: $(azure::network-interface load-balancer-network-interface-example | network-interface-id)
+ *                     name: "primary"
+ *                     network: $(azure::network-interface load-balancer-network-interface-example)
  *                 end
  *                 virtual-machine-ids: [$(azure::virtual-machine virtual-machine-example-lb | virtual-machine-id)]
  *             end
@@ -90,9 +92,8 @@ import java.util.Set;
  *         end
  */
 @Type("load-balancer")
-public class LoadBalancerResource extends AzureResource {
+public class LoadBalancerResource extends AzureResource implements Copyable<LoadBalancer> {
 
-    private Map<String, Frontend> frontends;
     private List<HealthCheckProbeHttp> healthCheckProbeHttp;
     private List<HealthCheckProbeTcp> healthCheckProbeTcp;
     private String id;
@@ -100,28 +101,12 @@ public class LoadBalancerResource extends AzureResource {
     private List<LoadBalancerRule> loadBalancerRule;
     private List<PrivateFrontend> privateFrontend;
     private List<PublicFrontend> publicFrontend;
-    private String resourceGroupName;
+    private ResourceGroupResource resourceGroup;
     private Boolean skuBasic;
     private Map<String, String> tags;
 
-    @Updatable
-    public Map<String, Frontend> frontends() {
-        if (frontends == null) {
-            frontends = new HashMap<>();
-        }
-
-        getPrivateFrontend()
-                .stream()
-                .forEach(frontend -> frontends.put(frontend.getName(), frontend));
-
-        getPublicFrontend().stream()
-                .forEach(frontend -> frontends.put(frontend.getName(), frontend));
-
-        return frontends;
-    }
-
     /**
-     * The http probes associated with the load balancer. (Optional)
+     * The http probes associated with the Load Balancer. (Optional)
      */
     @Updatable
     public List<HealthCheckProbeHttp> getHealthCheckProbeHttp() {
@@ -137,7 +122,7 @@ public class LoadBalancerResource extends AzureResource {
     }
 
     /**
-     * The tcp probes associated with the load balancer. (Optional)
+     * The tcp probes associated with the Load Balancer. (Optional)
      */
     @Updatable
     public List<HealthCheckProbeTcp> getHealthCheckProbeTcp() {
@@ -153,8 +138,9 @@ public class LoadBalancerResource extends AzureResource {
     }
 
     /**
-     * The id of the load balancer.
+     * The ID of the Load Balancer.
      */
+    @Id
     @Output
     public String getId() {
         return id;
@@ -165,7 +151,7 @@ public class LoadBalancerResource extends AzureResource {
     }
 
     /**
-     * The name of the load balancer. (Required)
+     * The name of the Load Balancer. (Required)
      */
     public String getName() {
         return name;
@@ -176,7 +162,7 @@ public class LoadBalancerResource extends AzureResource {
     }
 
     /**
-     * The load balancer rules associated with the load balancer. (Required)
+     * The Load Balancer rules associated with the Load Balancer. (Required)
      */
     @Updatable
     public List<LoadBalancerRule> getLoadBalancerRule() {
@@ -192,7 +178,7 @@ public class LoadBalancerResource extends AzureResource {
     }
 
     /**
-     * The private frontends associated with the load balancer. (Optional)
+     * The private getAllFrontend associated with the Load Balancer. (Optional)
      */
     public List<PrivateFrontend> getPrivateFrontend() {
         if (privateFrontend == null) {
@@ -207,7 +193,7 @@ public class LoadBalancerResource extends AzureResource {
     }
 
     /**
-     * The public frontends associated with the load balancer. (Optional)
+     * The public getAllFrontend associated with the Load Balancer. (Optional)
      */
     public List<PublicFrontend> getPublicFrontend() {
         if (publicFrontend == null) {
@@ -221,16 +207,19 @@ public class LoadBalancerResource extends AzureResource {
         this.publicFrontend = publicFrontend;
     }
 
-    public String getResourceGroupName() {
-        return resourceGroupName;
+    /**
+     * The Resource Group under which the Load Balancer would reside. (Required)
+     */
+    public ResourceGroupResource getResourceGroup() {
+        return resourceGroup;
     }
 
-    public void setResourceGroupName(String resourceGroupName) {
-        this.resourceGroupName = resourceGroupName;
+    public void setResourceGroup(ResourceGroupResource resourceGroup) {
+        this.resourceGroup = resourceGroup;
     }
 
     /**
-     * Specifies if the sku type is basic or standard. Defaults to true. (Required)
+     * Specifies if the sku type is basic or standard. Defaults to ``true``.
      */
     @Updatable
     public Boolean getSkuBasic() {
@@ -246,7 +235,7 @@ public class LoadBalancerResource extends AzureResource {
     }
 
     /**
-     * The tags associated with the load balancer. (Optional)
+     * The tags associated with the Load Balancer. (Optional)
      */
     @Updatable
     public Map<String, String> getTags() {
@@ -262,15 +251,7 @@ public class LoadBalancerResource extends AzureResource {
     }
 
     @Override
-    public boolean refresh() {
-        Azure client = createClient();
-
-        LoadBalancer loadBalancer = client.loadBalancers().getById(getId());
-
-        if (loadBalancer == null) {
-            return false;
-        }
-
+    public void copyFrom(LoadBalancer loadBalancer) {
         //http probes
         getHealthCheckProbeHttp().clear();
         for (Map.Entry<String, LoadBalancerHttpProbe> httpProbe : loadBalancer.httpProbes().entrySet()) {
@@ -287,7 +268,7 @@ public class LoadBalancerResource extends AzureResource {
             getHealthCheckProbeTcp().add(probeTcp);
         }
 
-        //public frontends
+        //public getAllFrontend
         getPublicFrontend().clear();
         for (Map.Entry<String, LoadBalancerPublicFrontend> publicFrontend : loadBalancer.publicFrontends().entrySet()) {
             PublicFrontend frontendPublic = newSubresource(PublicFrontend.class);
@@ -295,7 +276,7 @@ public class LoadBalancerResource extends AzureResource {
             getPublicFrontend().add(frontendPublic);
         }
 
-        //private frontends
+        //private getAllFrontend
         getPrivateFrontend().clear();
         for (Map.Entry<String, LoadBalancerPrivateFrontend> privateFrontend : loadBalancer.privateFrontends().entrySet()) {
             PrivateFrontend frontendPrivate = newSubresource(PrivateFrontend.class);
@@ -312,10 +293,24 @@ public class LoadBalancerResource extends AzureResource {
         }
 
         setId(loadBalancer.id());
-        setSkuBasic(loadBalancer.sku() == LoadBalancerSkuType.BASIC ? true : false);
+        setName(loadBalancer.name());
+        setResourceGroup(findById(ResourceGroupResource.class, loadBalancer.resourceGroupName()));
+        setSkuBasic(loadBalancer.sku() == LoadBalancerSkuType.BASIC);
 
-        getTags().clear();
         setTags(loadBalancer.tags());
+    }
+
+    @Override
+    public boolean refresh() {
+        Azure client = createClient();
+
+        LoadBalancer loadBalancer = client.loadBalancers().getById(getId());
+
+        if (loadBalancer == null) {
+            return false;
+        }
+
+        copyFrom(loadBalancer);
 
         return true;
     }
@@ -327,12 +322,12 @@ public class LoadBalancerResource extends AzureResource {
         LoadBalancer.DefinitionStages.WithLBRuleOrNat lb = client.loadBalancers()
                 .define(getName())
                 .withRegion(Region.fromName(getRegion()))
-                .withExistingResourceGroup(getResourceGroupName());
+                .withExistingResourceGroup(getResourceGroup().getName());
 
         WithCreate buildLoadBalancer = null;
 
         //define the nat pools and rules
-        for (Map.Entry<String, Frontend> frontends : frontends().entrySet()) {
+        for (Map.Entry<String, Frontend> frontends : getAllFrontend().entrySet()) {
             Frontend front = frontends.getValue();
             if (front.getInboundNatPool() != null) {
                 for (InboundNatPool natPool: front.getInboundNatPool()) {
@@ -348,7 +343,6 @@ public class LoadBalancerResource extends AzureResource {
 
             if (front.getInboundNatRule() != null) {
                 for (InboundNatRule natRule : front.getInboundNatRule()) {
-
                     buildLoadBalancer = lb.defineInboundNatRule(natRule.getName())
                             .withProtocol(TransportProtocol.fromString(natRule.getProtocol()))
                             .fromFrontend(natRule.getFrontendName())
@@ -380,7 +374,7 @@ public class LoadBalancerResource extends AzureResource {
                     .attach();
         }
 
-        //define the public frontends
+        //define the public getAllFrontend
         for (PublicFrontend publicFrontend : getPublicFrontend()) {
 
             PublicIPAddress ip = client.publicIPAddresses().getById(publicFrontend.getPublicIpAddress().getId());
@@ -390,7 +384,7 @@ public class LoadBalancerResource extends AzureResource {
                     .attach();
         }
 
-        //define the private frontends
+        //define the private getAllFrontend
         LoadBalancerPrivateFrontend.DefinitionStages.WithAttach withAttachPrivate;
         for (PrivateFrontend privateFrontend : getPrivateFrontend()) {
 
@@ -426,7 +420,7 @@ public class LoadBalancerResource extends AzureResource {
                     .withSku(getSkuBasic() ? LoadBalancerSkuType.BASIC : LoadBalancerSkuType.STANDARD)
                     .withTags(getTags()).create();
 
-        setId(loadBalancer.id());
+        copyFrom(loadBalancer);
     }
 
     @Override
@@ -450,7 +444,6 @@ public class LoadBalancerResource extends AzureResource {
         httpProbeSubtractions.removeAll(getHealthCheckProbeHttp());
 
         for (HealthCheckProbeHttp httpProbe : httpProbeAdditions) {
-
             updateLoadBalancer
                     .defineHttpProbe(httpProbe.getName())
                     .withRequestPath(httpProbe.getRequestPath())
@@ -461,9 +454,7 @@ public class LoadBalancerResource extends AzureResource {
         }
 
         for (HealthCheckProbeHttp httpProbe : httpProbeSubtractions) {
-
-            updateLoadBalancer
-                    .withoutProbe(httpProbe.getName());
+            updateLoadBalancer.withoutProbe(httpProbe.getName());
         }
 
         //tcp
@@ -484,12 +475,10 @@ public class LoadBalancerResource extends AzureResource {
         }
 
         for (HealthCheckProbeTcp tcpProbe : tcpProbeSubtractions) {
-
-            updateLoadBalancer
-                    .withoutProbe(tcpProbe.getName());
+            updateLoadBalancer.withoutProbe(tcpProbe.getName());
         }
 
-        //create added and delete removed private frontends
+        //create added and delete removed private getAllFrontend
         List<PrivateFrontend> privateAdditions = new ArrayList<>(getPrivateFrontend());
         privateAdditions.removeAll(currentResource.getPrivateFrontend());
 
@@ -520,7 +509,7 @@ public class LoadBalancerResource extends AzureResource {
                     .withoutFrontend(privateFrontend.getName());
         }
 
-        //create added and delete removed public frontends
+        //create added and delete removed public getAllFrontend
         List<PublicFrontend> publicAdditions = new ArrayList<>(getPublicFrontend());
         publicAdditions.removeAll(currentResource.getPublicFrontend());
 
@@ -540,8 +529,7 @@ public class LoadBalancerResource extends AzureResource {
 
         for (PublicFrontend publicFrontend : publicSubtractions) {
             removeNatRulesAndPools(publicFrontend, updateLoadBalancer);
-            updateLoadBalancer
-                    .withoutFrontend(publicFrontend.getName());
+            updateLoadBalancer.withoutFrontend(publicFrontend.getName());
         }
 
         //create added and delete removed load balancer rules
@@ -552,7 +540,6 @@ public class LoadBalancerResource extends AzureResource {
         ruleSubtractions.removeAll(getLoadBalancerRule());
 
         for (LoadBalancerRule rule : ruleAdditions) {
-
             updateLoadBalancer
                     .defineLoadBalancingRule(rule.getName())
                     .withProtocol(TransportProtocol.fromString(rule.getProtocol()))
@@ -566,15 +553,12 @@ public class LoadBalancerResource extends AzureResource {
         }
 
         for (LoadBalancerRule rule : ruleSubtractions) {
-
-            updateLoadBalancer
-                    .withoutLoadBalancingRule(rule.getName());
+            updateLoadBalancer.withoutLoadBalancingRule(rule.getName());
         }
 
         //http probes
         for (HealthCheckProbeHttp httpProbe : getHealthCheckProbeHttp()) {
             if (!httpProbeAdditions.contains(httpProbe) && !httpProbeSubtractions.contains(httpProbe)) {
-
                 updateLoadBalancer
                         .updateHttpProbe(httpProbe.getName())
                         .withIntervalInSeconds(httpProbe.getInterval())
@@ -596,7 +580,7 @@ public class LoadBalancerResource extends AzureResource {
             }
         }
 
-        //private frontends
+        //private getAllFrontend
         LoadBalancerPrivateFrontend.Update withAttachPrivateIp;
         for (PrivateFrontend privateFrontend : getPrivateFrontend()) {
             if (!privateAdditions.contains(privateFrontend) && !privateSubtractions.contains(privateFrontend)) {
@@ -613,11 +597,11 @@ public class LoadBalancerResource extends AzureResource {
                     withAttachPrivateIp.withPrivateIPAddressDynamic();
                 }
 
-                updateNatPoolsAndRules(privateFrontend, currentResource.frontends().get(privateFrontend.getName()), updateLoadBalancer, loadBalancer);
+                updateNatPoolsAndRules(privateFrontend, currentResource.getAllFrontend().get(privateFrontend.getName()), updateLoadBalancer);
             }
         }
 
-        //public frontends
+        //public getAllFrontend
         for (PublicFrontend publicFrontend : getPublicFrontend()) {
             if (!publicAdditions.contains(publicFrontend) && !publicSubtractions.contains(publicFrontend)) {
 
@@ -627,7 +611,7 @@ public class LoadBalancerResource extends AzureResource {
                         .updatePublicFrontend(publicFrontend.getName())
                         .withExistingPublicIPAddress(ip);
 
-                updateNatPoolsAndRules(publicFrontend, currentResource.frontends().get(publicFrontend.getName()), updateLoadBalancer, loadBalancer);
+                updateNatPoolsAndRules(publicFrontend, currentResource.getAllFrontend().get(publicFrontend.getName()), updateLoadBalancer);
             }
         }
 
@@ -648,30 +632,31 @@ public class LoadBalancerResource extends AzureResource {
         }
 
         //tags
-        updateLoadBalancer
-                .withTags(getTags());
+        updateLoadBalancer.withTags(getTags());
 
-        updateLoadBalancer.apply();
+        LoadBalancer response = updateLoadBalancer.apply();
+
+        copyFrom(response);
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
-        client.loadBalancers()
-                .deleteByResourceGroup(getResourceGroupName(), getName());
+        client.loadBalancers().deleteByResourceGroup(getResourceGroup().getName(), getName());
     }
 
-    private List<HasNetworkInterfaces> toBackend(List<String> vmIds) {
-        Azure client = createClient();
+    private Map<String, Frontend> getAllFrontend() {
+        Map<String, Frontend> frontends = new HashMap<>();
 
-        List<HasNetworkInterfaces> virtualMachines = new ArrayList<>();
-        vmIds.stream().forEach(vm -> virtualMachines.add(client.virtualMachines().getById(vm)));
+        getPrivateFrontend().forEach(frontend -> frontends.put(frontend.getName(), frontend));
 
-        return virtualMachines;
+        getPublicFrontend().forEach(frontend -> frontends.put(frontend.getName(), frontend));
+
+        return frontends;
     }
 
-    private void updateNatPoolsAndRules(Frontend frontend, Frontend currentResource, LoadBalancer.Update updateLoadBalancer, LoadBalancer loadBalancer) {
+    private void updateNatPoolsAndRules(Frontend frontend, Frontend currentResource, LoadBalancer.Update updateLoadBalancer) {
         List<InboundNatRule> ruleAdditions = new ArrayList<>(frontend.getInboundNatRule());
         ruleAdditions.removeAll(currentResource.getInboundNatRule());
 
@@ -739,7 +724,6 @@ public class LoadBalancerResource extends AzureResource {
 
     private void addNatRules(List<InboundNatRule> rules, LoadBalancer.Update updateLoadBalancer) {
         for (InboundNatRule rule : rules) {
-
             updateLoadBalancer
                     .defineInboundNatRule(rule.getName())
                     .withProtocol(TransportProtocol.fromString(rule.getProtocol()))
@@ -753,22 +737,17 @@ public class LoadBalancerResource extends AzureResource {
 
     private void removeNatPools(List<InboundNatPool> pools, LoadBalancer.Update updateLoadBalancer) {
         for (InboundNatPool pool : pools) {
-
-            updateLoadBalancer
-                    .withoutInboundNatPool(pool.getName());
+            updateLoadBalancer.withoutInboundNatPool(pool.getName());
         }
     }
 
     private void removeNatRules(List<InboundNatRule> rules, LoadBalancer.Update updateLoadBalancer) {
         for (InboundNatRule rule : rules) {
-
-            updateLoadBalancer
-                    .withoutInboundNatPool(rule.getName());
+            updateLoadBalancer.withoutInboundNatPool(rule.getName());
         }
     }
 
     private void updateNatPool(InboundNatPool pool, LoadBalancer.Update updateLoadBalancer) {
-
             updateLoadBalancer
                     .updateInboundNatPool(pool.getName())
                     .withProtocol(TransportProtocol.fromString(pool.getProtocol()))
@@ -778,7 +757,6 @@ public class LoadBalancerResource extends AzureResource {
     }
 
     private void updateNatRule(InboundNatRule rule, LoadBalancer.Update updateLoadBalancer) {
-
             updateLoadBalancer
                     .updateInboundNatRule(rule.getName())
                     .withProtocol(TransportProtocol.fromString(rule.getProtocol()))

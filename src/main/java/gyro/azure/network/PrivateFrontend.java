@@ -48,7 +48,7 @@ public class PrivateFrontend extends Frontend implements Copyable<LoadBalancerPr
     }
 
     /**
-     * The name of the private ip address associated with the private frontend. (Optional)
+     * The Private IP Address associated with the private frontend. (Optional)
      */
     @Updatable
     public String getPrivateIpAddress() {
@@ -60,19 +60,19 @@ public class PrivateFrontend extends Frontend implements Copyable<LoadBalancerPr
     }
 
     /**
-     * The id of the network where the subnet is found. (Required)
+     * The network where the subnet is found. (Required)
      */
     @Updatable
     public NetworkResource getNetwork() {
         return network;
     }
 
-    public void setNetworkId(NetworkResource network) {
+    public void setNetwork(NetworkResource network) {
         this.network = network;
     }
 
     /**
-     * The name of the subnet that is associated with the private frontend. (Required)
+     * The name of the subnet that is associated with the Private Frontend. (Required)
      */
     @Updatable
     public String getSubnetName() {
@@ -88,7 +88,7 @@ public class PrivateFrontend extends Frontend implements Copyable<LoadBalancerPr
         setName(privateFrontend.name());
         setPrivateIpAddress(privateFrontend.privateIPAddress());
         setSubnetName(privateFrontend.subnetName());
-        setNetworkId(findById(NetworkResource.class, privateFrontend.networkId()));
+        setNetwork(findById(NetworkResource.class, privateFrontend.networkId()));
         setInboundNatPool(privateFrontend.inboundNatPools().values().stream().map(o -> {
             InboundNatPool inboundNatPool = newSubresource(InboundNatPool.class);
             inboundNatPool.copyFrom(o);
