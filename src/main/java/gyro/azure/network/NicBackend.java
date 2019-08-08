@@ -1,5 +1,6 @@
 package gyro.azure.network;
 
+import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 
 import com.microsoft.azure.management.network.LoadBalancerBackend;
@@ -12,47 +13,45 @@ import com.microsoft.azure.management.network.LoadBalancerBackend;
  *
  * .. code-block:: gyro
  *
- *         nic-backend
- *             load-balancer-name: "load-balancer-example"
- *             backend-pool-name: "backend-pool-one"
- *         end
+ *    nic-backend
+ *        load-balancer: $(azure::load-balancer load-balancer-example)
+ *        backend-name: "backend-pool-one"
+ *    end
  */
-public class NicBackend extends Diffable {
+public class NicBackend extends Diffable implements Copyable<LoadBalancerBackend> {
 
-    private String backendPoolName;
-    private String loadBalancerName;
+    private String backendName;
+    private LoadBalancerResource loadBalancer;
 
-    public NicBackend() {}
+    /**
+     * The name of the backend pool present on the Load Balancer to associate with the IP configuration. (Required)
+     */
+    public String getBackendName() {
+        return backendName;
+    }
 
-    public NicBackend(LoadBalancerBackend backend) {
-        setBackendPoolName(backend.name());
-        setLoadBalancerName(backend.parent().name());
+    public void setBackendName(String backendName) {
+        this.backendName = backendName;
     }
 
     /**
-     * The name of the backend pool to associate the configuration to. (Required)
+     * The Load Balancer to associate the IP Configuration to. (Required)
      */
-    public String getBackendPoolName() {
-        return backendPoolName;
+    public LoadBalancerResource getLoadBalancer() {
+        return loadBalancer;
     }
 
-    public void setBackendPoolName(String backendPoolName) {
-        this.backendPoolName = backendPoolName;
+    public void setLoadBalancer(LoadBalancerResource loadBalancer) {
+        this.loadBalancer = loadBalancer;
     }
 
-    /**
-     * The name of the load balancer to associate the configuration to. (Required)
-     */
-    public String getLoadBalancerName() {
-        return loadBalancerName;
-    }
-
-    public void setLoadBalancerName(String loadBalancerName) {
-        this.loadBalancerName = loadBalancerName;
+    @Override
+    public void copyFrom(LoadBalancerBackend backend) {
+        setBackendName(backend.name());
+        setLoadBalancer(findById(LoadBalancerResource.class, backend.parent().id()));
     }
 
     public String primaryKey() {
-        return String.format("%s/%s", getLoadBalancerName(), getBackendPoolName());
+        return String.format("%s %s", getLoadBalancer().getName(), getBackendName());
     }
-
 }
