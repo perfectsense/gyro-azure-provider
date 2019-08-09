@@ -39,7 +39,6 @@ import java.util.stream.Collectors;
  *          name: "public-ip-address-example"
  *          resource-group: $(azure::resource-group resource-group-public-ip-address-example)
  *          idle-timeout-in-minute: 4
- *          is-sku-basic: false
  *
  *          tags: {
  *              Name: "public-ip-address-example"
@@ -50,7 +49,7 @@ import java.util.stream.Collectors;
 public class PublicIpAddressResource extends AzureResource implements Copyable<PublicIPAddress> {
     private String name;
     private ResourceGroupResource resourceGroup;
-    private Boolean isSkuBasic;
+    private SKU_TYPE skuType;
     private Boolean isDynamic;
     private Integer idleTimeoutInMinute;
     private String id;
@@ -64,6 +63,8 @@ public class PublicIpAddressResource extends AzureResource implements Copyable<P
     private Boolean hasAssignedLoadBalancer;
     private Boolean hasAssignedNetworkInterface;
     private String version;
+
+    public enum SKU_TYPE {BASIC, STANDARD}
 
     /**
      * Name of the Public IP Address. (Required)
@@ -88,18 +89,18 @@ public class PublicIpAddressResource extends AzureResource implements Copyable<P
     }
 
     /**
-     * Specify if Sku type is basic or standard. Defaults to ``true``.
+     * Specify Sku type. Valid values are ``Basic`` or ``STANDARD``. Defaults to ``BASIC``.
      */
-    public Boolean getIsSkuBasic() {
-        if (isSkuBasic == null) {
-            isSkuBasic = true;
+    public SKU_TYPE getSkuType() {
+        if (skuType == null) {
+            skuType = SKU_TYPE.BASIC;
         }
 
-        return isSkuBasic;
+        return skuType;
     }
 
-    public void setIsSkuBasic(Boolean isSkuBasic) {
-        this.isSkuBasic = isSkuBasic;
+    public void setSkuType(SKU_TYPE skuType) {
+        this.skuType = skuType;
     }
 
     /**
@@ -279,7 +280,7 @@ public class PublicIpAddressResource extends AzureResource implements Copyable<P
         setId(publicIpAddress.id());
         setName(publicIpAddress.name());
         setIsDynamic(publicIpAddress.ipAllocationMethod().equals(IPAllocationMethod.DYNAMIC));
-        setIsSkuBasic(publicIpAddress.sku().equals(PublicIPSkuType.BASIC));
+        setSkuType(publicIpAddress.sku().equals(PublicIPSkuType.BASIC) ? SKU_TYPE.BASIC : SKU_TYPE.STANDARD);
         setAvailabilityZoneIds(publicIpAddress.availabilityZones().stream().map(ExpandableStringEnum::toString).collect(Collectors.toSet()));
         setResourceGroup(findById(ResourceGroupResource.class, publicIpAddress.resourceGroupName()));
         setFqdn(publicIpAddress.fqdn());
@@ -313,7 +314,7 @@ public class PublicIpAddressResource extends AzureResource implements Copyable<P
             .define(getName())
             .withRegion(Region.fromName(getRegion()))
             .withExistingResourceGroup(getResourceGroup().getName())
-            .withSku(getIsSkuBasic() ? PublicIPSkuType.BASIC : PublicIPSkuType.STANDARD);
+            .withSku(getSkuType() == SKU_TYPE.BASIC ? PublicIPSkuType.BASIC : PublicIPSkuType.STANDARD);
 
         if (!ObjectUtils.isBlank(getReverseFqdn())) {
             withCreate = withCreate.withReverseFqdn(getReverseFqdn());
@@ -327,7 +328,7 @@ public class PublicIpAddressResource extends AzureResource implements Copyable<P
             withCreate = withCreate.withAvailabilityZone(AvailabilityZoneId.fromString(availabilityZoneId));
         }
 
-        if (getIsSkuBasic()) {
+        if (getSkuType() == SKU_TYPE.BASIC) {
             //basic
             withCreate = withCreate.withIdleTimeoutInMinutes(getIdleTimeoutInMinute());
 

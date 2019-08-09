@@ -33,7 +33,6 @@ azure::public-ip-address public-ip-address-example-AG
     name: "public-ip-address-example-AG"
     resource-group: $(azure::resource-group resource-group-example-AG)
     idle-timeout-in-minute: 4
-    is-sku-basic: true
 
     tags: {
         Name: "public-ip-address-example-AG"
