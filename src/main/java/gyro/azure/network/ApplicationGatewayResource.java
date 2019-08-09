@@ -16,6 +16,7 @@ import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.azure.resources.ResourceGroupResource;
 import gyro.core.GyroUI;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
@@ -144,7 +145,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
     private String id;
 
     /**
-     * The resource group under which this would reside. (Required)
+     * The resource group under which the Application Gateway would reside. (Required)
      */
     public ResourceGroupResource getResourceGroup() {
         return resourceGroup;
@@ -155,7 +156,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
     }
 
     /**
-     * The Network which would be associated with this. (Required)
+     * The Network which would be associated with the Application Gateway. (Required)
      */
     public NetworkResource getNetwork() {
         return network;
@@ -166,7 +167,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
     }
 
     /**
-     * The Public IP Address associated with the application gateway. (Required)
+     * The Public IP Address associated with the Application Gateway. (Required)
      */
     public PublicIpAddressResource getPublicIpAddress() {
         return publicIpAddress;
@@ -177,7 +178,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
     }
 
     /**
-     * One of the subnet name from the assigned virtual network. (Required)
+     * One of the subnet name from the assigned virtual network for the Application Gateway. (Required)
      */
     public String getSubnet() {
         return subnet;
@@ -188,7 +189,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
     }
 
     /**
-     * Name of the application gateway. (Required)
+     * Name of the Application Gateway. (Required)
      */
     public String getName() {
         return name;
@@ -199,7 +200,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
     }
 
     /**
-     * Request routing rule for the application gateway. (Required)
+     * Request routing rule for the Application Gateway. (Required)
      *
      * @subresource gyro.azure.network.RequestRoutingRule
      */
@@ -217,7 +218,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
     }
 
     /**
-     * Listener for the application gateway. (Required)
+     * Listener for the Application Gateway. (Required)
      *
      * @subresource gyro.azure.network.Listener
      */
@@ -235,7 +236,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
     }
 
     /**
-     * Backend for the application gateway. Required if no redirect configuration present.
+     * Backend for the Application Gateway. Required if no redirect configuration present.
      *
      * @subresource gyro.azure.network.Backend
      */
@@ -253,7 +254,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
     }
 
     /**
-     * Backend http configuration for the application gateway. Required if no redirect configuration present.
+     * Backend http configuration for the Application Gateway. Required if no redirect configuration present.
      *
      * @subresource gyro.azure.network.BackendHttpConfiguration
      */
@@ -271,7 +272,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
     }
 
     /**
-     * Redirect configuration for the application gateway. Required if no backend present.
+     * Redirect configuration for the Application Gateway. Required if no backend present.
      *
      * @subresource gyro.azure.network.RedirectConfiguration
      */
@@ -289,7 +290,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
     }
 
     /**
-     * Probe for the application gateway
+     * Probe for the Application Gateway.
      *
      * @subresource gyro.azure.network.Probe
      */
@@ -319,7 +320,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
     }
 
     /**
-     * Number of instances to scale. (Required)
+     * Number of instances to scale for the Application Gateway. (Required)
      */
     @Updatable
     public Integer getInstanceCount() {
@@ -331,7 +332,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
     }
 
     /**
-     * Tags for the application gateway.
+     * Tags for the Application Gateway.
      */
     @Updatable
     public Map<String, String> getTags() {
@@ -346,7 +347,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
     }
 
     /**
-     * Enable http2. Defaults to false.
+     * Enable http2 for the Application Gateway. Defaults to false.
      */
     @Updatable
     public Boolean getEnableHttp2() {
@@ -362,7 +363,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
     }
 
     /**
-     * Private front end for the application gateway. Defaults to false.
+     * Private front end for the Application Gateway. Defaults to false.
      */
     public Boolean getPrivateFrontEnd() {
         if (privateFrontEnd == null) {
@@ -379,6 +380,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
     /**
      * The ID of the application gateway.
      */
+    @Id
     @Output
     public String getId() {
         return id;

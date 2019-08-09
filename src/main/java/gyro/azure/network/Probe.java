@@ -47,7 +47,7 @@ public class Probe extends Diffable implements Copyable<ApplicationGatewayProbe>
     private String httpResponseBodyMatch;
 
     /**
-     * Name of the probe. (Required)
+     * Name of the Probe. (Required)
      */
     public String getName() {
         return name;
@@ -58,7 +58,7 @@ public class Probe extends Diffable implements Copyable<ApplicationGatewayProbe>
     }
 
     /**
-     * Host name associated with this probe. (Required)
+     * Host name associated with this Probe. (Required)
      */
     @Updatable
     public String getHostName() {
@@ -70,7 +70,7 @@ public class Probe extends Diffable implements Copyable<ApplicationGatewayProbe>
     }
 
     /**
-     * Path associated with this probe. (Required)
+     * Path associated with this Probe. (Required)
      */
     @Updatable
     public String getPath() {
@@ -82,7 +82,7 @@ public class Probe extends Diffable implements Copyable<ApplicationGatewayProbe>
     }
 
     /**
-     * Interval for the probe. Defaults to 30 sec.
+     * Interval for the Probe. Defaults to ``30`` sec.
      */
     @Updatable
     public Integer getInterval() {
@@ -98,7 +98,7 @@ public class Probe extends Diffable implements Copyable<ApplicationGatewayProbe>
     }
 
     /**
-     * Timeout for the probe. Defaults to 30 sec.
+     * Timeout for the Probe. Defaults to ``30`` sec.
      */
     @Updatable
     public Integer getTimeout() {
@@ -114,7 +114,7 @@ public class Probe extends Diffable implements Copyable<ApplicationGatewayProbe>
     }
 
     /**
-     * Threshold for unhealthy instances before it triggers the probe. Defaults to 3.
+     * Threshold for unhealthy instances before it triggers the Probe. Defaults to ``3``.
      */
     @Updatable
     public Integer getUnhealthyThreshold() {
@@ -130,7 +130,7 @@ public class Probe extends Diffable implements Copyable<ApplicationGatewayProbe>
     }
 
     /**
-     * Enable https protocol. Defaults to false.
+     * Enable https protocol for the Probe. Defaults to ``false``.
      */
     @Updatable
     public Boolean getHttpsProtocol() {
@@ -146,7 +146,7 @@ public class Probe extends Diffable implements Copyable<ApplicationGatewayProbe>
     }
 
     /**
-     * List of https response codes.
+     * List of https response codes for the Probe.
      */
     @Updatable
     public Set<String> getHttpResponseCodes() {
@@ -162,7 +162,7 @@ public class Probe extends Diffable implements Copyable<ApplicationGatewayProbe>
     }
 
     /**
-     * String to match with the request body.
+     * String to match with the request body for the Probe.
      */
     @Updatable
     public String getHttpResponseBodyMatch() {

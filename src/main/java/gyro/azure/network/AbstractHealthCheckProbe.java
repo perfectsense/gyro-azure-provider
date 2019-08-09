@@ -10,7 +10,7 @@ public abstract class AbstractHealthCheckProbe extends Diffable {
     private Integer probes;
 
     /**
-     * The name of the health probe. (Required)
+     * The name of the Health Probe. (Required)
      */
     public String getName() {
         return name;
@@ -21,7 +21,7 @@ public abstract class AbstractHealthCheckProbe extends Diffable {
     }
 
     /**
-     * The amount of time between probes. (Required)
+     * The amount of time before a Health Probe signals unhealthy. (Required)
      */
     @Updatable
     public Integer getInterval() {
@@ -33,7 +33,7 @@ public abstract class AbstractHealthCheckProbe extends Diffable {
     }
 
     /**
-     * The destination port used for a probe. (Required)
+     * The destination port used for the Health Probe. (Required)
      */
     @Updatable
     public Integer getPort() {
@@ -45,7 +45,7 @@ public abstract class AbstractHealthCheckProbe extends Diffable {
     }
 
     /**
-     * Health probe failures required by an unhealthy target to be considered unhealthy. (Required)
+     * The number of Health probe failures required by an unhealthy target to be considered unhealthy. (Required)
      */
     @Updatable
     public Integer getProbes() {

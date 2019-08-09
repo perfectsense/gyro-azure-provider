@@ -88,7 +88,7 @@ public class NetworkInterfaceResource extends AzureResource implements Copyable<
     }
 
     /**
-     * The Virtual Network the Network interface is going be assigned with. (Required)
+     * The Virtual Network the Network Interface is going be assigned with. (Required)
      */
     @Output
     public NetworkResource getNetwork() {

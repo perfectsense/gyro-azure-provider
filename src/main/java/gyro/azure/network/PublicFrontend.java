@@ -33,7 +33,7 @@ public class PublicFrontend extends Frontend implements Copyable<LoadBalancerPub
     private PublicIpAddressResource publicIpAddress;
 
     /**
-     * The name of the public frontend. (Required)
+     * The name of the Public Frontend. (Required)
      */
     public String getName() {
         return name;
@@ -44,7 +44,7 @@ public class PublicFrontend extends Frontend implements Copyable<LoadBalancerPub
     }
 
     /**
-     * The Public IP Address associated with the frontend. (Required)
+     * The Public IP Address associated with the Public Frontend. (Required)
      */
     @Updatable
     public PublicIpAddressResource getPublicIpAddress() {

@@ -32,7 +32,7 @@ public class InboundNatRule extends Diffable implements Copyable<LoadBalancerInb
     private String protocol;
 
     /**
-     * The backend port that receives network traffic. (Required)
+     * The backend port that receives network traffic for the Inbound Nat Rule. (Required)
      */
     @Updatable
     public Integer getBackendPort() {
@@ -44,7 +44,7 @@ public class InboundNatRule extends Diffable implements Copyable<LoadBalancerInb
     }
 
     /**
-     * Determines whether floating ip support is enabled. Defaults to false (Required)
+     * Determines whether floating ip support is enabled for the Inbound Nat Rule. Defaults to ``false``.
      */
     @Updatable
     public Boolean getFloatingIp() {
@@ -60,7 +60,7 @@ public class InboundNatRule extends Diffable implements Copyable<LoadBalancerInb
     }
 
     /**
-     * The frontend associated with the inbound nat rule. (Required)
+     * The frontend associated with the Inbound Nat Rule. (Required)
      */
     @Updatable
     public String getFrontendName() {
@@ -72,7 +72,7 @@ public class InboundNatRule extends Diffable implements Copyable<LoadBalancerInb
     }
 
     /**
-     * The name of the inbound nat rule. (Required)
+     * The name of the Inbound Nat Rule. (Required)
      */
     public String getName() {
         return name;
@@ -83,7 +83,7 @@ public class InboundNatRule extends Diffable implements Copyable<LoadBalancerInb
     }
 
     /**
-     * The frontend port that receives network traffic. (Required)
+     * The frontend port that receives network traffic for the Inbound Nat Rule. (Required)
      */
     @Updatable
     public Integer getFrontendPort() {
@@ -95,7 +95,7 @@ public class InboundNatRule extends Diffable implements Copyable<LoadBalancerInb
     }
 
     /**
-     * The protocol used by the nat rule. (Required)
+     * The protocol used by the Inbound Nat Rule. (Required)
      */
     @Updatable
     public String getProtocol() {

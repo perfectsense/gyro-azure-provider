@@ -51,7 +51,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource implements C
     }
 
     /**
-     * Set Network Security Rule type as inbound or outbound. Defaults to true i.e inbound. (Required)
+     * Set Network Security Rule type as inbound or outbound. Defaults to ``true`` i.e inbound.
      */
     @Updatable
     public Boolean getInboundRule() {
@@ -67,7 +67,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource implements C
     }
 
     /**
-     * Set Network Security Rule to allow or block traffic. Defaults to true i.e allow. (Required)
+     * Set Network Security Rule to allow or block traffic. Defaults to ``true`` i.e allow.
      */
     @Updatable
     public Boolean getAllowRule() {
@@ -83,7 +83,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource implements C
     }
 
     /**
-     * A list of source addresses for the Network Security Rule to work. Required if `from-Application-Security-Group` is not set.
+     * A list of source addresses for the Network Security Rule to work. Required if ``from-Application-Security-Group`` is not set.
      */
     @Updatable
     public Set<String> getFromAddresses() {
@@ -115,7 +115,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource implements C
     }
 
     /**
-     * A list of destination addresses for the Network Security Rule to work. Required if `to-Application-Security-Group` is not set.
+     * A list of destination addresses for the Network Security Rule to work. Required if ``to-Application-Security-Group`` is not set.
      */
     @Updatable
     public Set<String> getToAddresses() {
@@ -147,7 +147,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource implements C
     }
 
     /**
-     * Source Application Security Group for the Network Security Rule. Required if `from-Addresses` not set.
+     * Source Application Security Group for the Network Security Rule. Required if ``from-Addresses`` not set.
      */
     @Updatable
     public ApplicationSecurityGroupResource getFromApplicationSecurityGroup() {
@@ -159,7 +159,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource implements C
     }
 
     /**
-     * Destination Application Security Group for the Network Security Rule. Required if `to-Addresses` not set.
+     * Destination Application Security Group for the Network Security Rule. Required if ``to-Addresses`` not set.
      */
     @Updatable
     public ApplicationSecurityGroupResource getToApplicationSecurityGroup() {

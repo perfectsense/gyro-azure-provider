@@ -52,6 +52,9 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
         this.publicIpAddress = publicIpAddress;
     }
 
+    /**
+     * The Private IP Address to be associated with the IP Configuration.
+     */
     public String getPrivateIpAddress() {
         return privateIpAddress;
     }
@@ -61,7 +64,7 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
     }
 
     /**
-     * Private ip address to be associated with the IP Configuration.
+     * The Static Private IP address to be associated with the IP Configuration.
      */
     @Updatable
     public String getPrivateIpAddressStatic() {
@@ -73,7 +76,7 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
     }
 
     /**
-     * Set ip allocation type to be static or dynamic. Defaults to ``false`` i.e dynamic.
+     * Set IP Allocation type to be static or dynamic. Defaults to ``false`` i.e dynamic.
      */
     @Updatable
     public Boolean getIpAllocationStatic() {
@@ -89,7 +92,7 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
     }
 
     /**
-     * Marks the IP Configuration as primary.
+     * Marks the IP Configuration as primary. Defaults to ``false``.
      */
     public Boolean getPrimary() {
         if (primary == null) {
@@ -104,7 +107,7 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
     }
 
     /**
-     * The load balancer backends associated with the IP Configuration.
+     * The Load Balancer Backends associated with the IP Configuration.
      */
     @Updatable
     public List<NicBackend> getNicBackend() {
@@ -120,7 +123,7 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
     }
 
     /**
-     * The load balancer nat rules associated with the IP Configuration.
+     * The Load Balancer Nat Rules associated with the IP Configuration.
      */
     @Updatable
     public List<NicNatRule> getNicNatRule() {

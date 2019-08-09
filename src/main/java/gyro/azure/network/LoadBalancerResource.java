@@ -106,7 +106,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
     private Map<String, String> tags;
 
     /**
-     * The http probes associated with the Load Balancer. (Optional)
+     * The Health Check Http Probes associated with the Load Balancer. (Optional)
      */
     @Updatable
     public List<HealthCheckProbeHttp> getHealthCheckProbeHttp() {
@@ -122,7 +122,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
     }
 
     /**
-     * The tcp probes associated with the Load Balancer. (Optional)
+     * The Health Check Tcp Probes associated with the Load Balancer. (Optional)
      */
     @Updatable
     public List<HealthCheckProbeTcp> getHealthCheckProbeTcp() {
@@ -178,7 +178,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
     }
 
     /**
-     * The private getAllFrontend associated with the Load Balancer. (Optional)
+     * The Private Frontend associated with the Load Balancer. (Optional)
      */
     public List<PrivateFrontend> getPrivateFrontend() {
         if (privateFrontend == null) {
@@ -193,7 +193,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
     }
 
     /**
-     * The public getAllFrontend associated with the Load Balancer. (Optional)
+     * The Public Frontend associated with the Load Balancer. (Optional)
      */
     public List<PublicFrontend> getPublicFrontend() {
         if (publicFrontend == null) {

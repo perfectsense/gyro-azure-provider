@@ -20,6 +20,7 @@ import gyro.core.scope.State;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -53,11 +54,11 @@ public class RouteTableResource extends AzureResource implements Copyable<RouteT
     private String id;
     private String name;
     private ResourceGroupResource resourceGroup;
-    private List<RouteResource> route;
+    private Set<RouteResource> route;
     private Map<String, String> tags;
 
     /**
-     * Determines whether to disable the routes learned by border gateway protocol on the Route Table. Defaults to Disabled.
+     * Determines whether to disable the routes learned by border gateway protocol on the Route Table. Defaults to ``true``.
      */
     @Updatable
     public Boolean getBgpRoutePropagationDisabled() {
@@ -73,7 +74,7 @@ public class RouteTableResource extends AzureResource implements Copyable<RouteT
     }
 
     /**
-     * The ID of the Route Table. (Required)
+     * The ID of the Route Table.
      */
     @Id
     @Output
@@ -97,7 +98,7 @@ public class RouteTableResource extends AzureResource implements Copyable<RouteT
     }
 
     /**
-     * The Resource Group where the the Application Security Group is found. (Required)
+     * The Resource Group where the the Route Table resides. (Required)
      */
     public ResourceGroupResource getResourceGroup() {
         return resourceGroup;
@@ -111,15 +112,15 @@ public class RouteTableResource extends AzureResource implements Copyable<RouteT
      * The routes of the Route Table. (Optional)
      */
     @Updatable
-    public List<RouteResource> getRoute() {
+    public Set<RouteResource> getRoute() {
         if (route == null) {
-            route = new ArrayList<>();
+            route = new HashSet<>();
         }
 
         return route;
     }
 
-    public void setRoute(List<RouteResource> route) {
+    public void setRoute(Set<RouteResource> route) {
         this.route = route;
     }
 

@@ -41,7 +41,7 @@ public class BackendHttpConfiguration extends Diffable implements Copyable<Appli
     private String backendPath;
 
     /**
-     * Name of the backend http configuration. (Required)
+     * Name of the Backend Http Configuration. (Required)
      */
     public String getName() {
         return name;
@@ -52,7 +52,7 @@ public class BackendHttpConfiguration extends Diffable implements Copyable<Appli
     }
 
     /**
-     * Port for the backend http configuration. (Required)
+     * Port for the Backend Http Configuration. (Required)
      */
     @Updatable
     public Integer getPort() {
@@ -64,7 +64,7 @@ public class BackendHttpConfiguration extends Diffable implements Copyable<Appli
     }
 
     /**
-     * Cookie name for the backend http configuration.
+     * Cookie name for the Backend Http Configuration.
      */
     @Updatable
     public String getCookieName() {
@@ -76,7 +76,7 @@ public class BackendHttpConfiguration extends Diffable implements Copyable<Appli
     }
 
     /**
-     * Enable cookie based affinity for the backend http configuration. Defaults to false.
+     * Enable cookie based affinity for the Backend Http Configuration. Defaults to ``false``.
      */
     @Updatable
     public Boolean getEnableAffinityCookie() {
@@ -92,7 +92,7 @@ public class BackendHttpConfiguration extends Diffable implements Copyable<Appli
     }
 
     /**
-     * Connection draining timeout for the backend http configuration. defaults to 0.
+     * Connection draining timeout for the Backend Http Configuration. defaults to ``0``.
      */
     @Updatable
     public Integer getConnectionDrainingTimeout() {
@@ -108,7 +108,7 @@ public class BackendHttpConfiguration extends Diffable implements Copyable<Appli
     }
 
     /**
-     * Name of a probe to be associated with the backend http configuration.
+     * Name of a probe to be associated with the Backend Http Configuration.
      */
     @Updatable
     public String getProbe() {
@@ -120,7 +120,7 @@ public class BackendHttpConfiguration extends Diffable implements Copyable<Appli
     }
 
     /**
-     * Override hostname for the backend http configuration.
+     * Override hostname for the Backend Http Configuration.
      */
     @Updatable
     public String getHostHeader() {
@@ -132,7 +132,7 @@ public class BackendHttpConfiguration extends Diffable implements Copyable<Appli
     }
 
     /**
-     * Get host header from the backend for the backend http configuration. Defaults to false.
+     * Get host header from the backend for the Backend Http Configuration. Defaults to ``false``.
      */
     @Updatable
     public Boolean getHostHeaderFromBackend() {
@@ -148,7 +148,7 @@ public class BackendHttpConfiguration extends Diffable implements Copyable<Appli
     }
 
     /**
-     * Override backend path for the backend http configuration.
+     * Override backend path for the Backend Http Configuration.
      */
     @Updatable
     public String getBackendPath() {

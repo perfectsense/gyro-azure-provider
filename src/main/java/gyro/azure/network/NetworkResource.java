@@ -70,7 +70,7 @@ public class NetworkResource extends AzureResource implements Copyable<Network> 
     private Set<String> dnsServerIPs;
 
     /**
-     * Name of the network. (Required)
+     * Name of the Network. (Required)
      */
     public String getName() {
         return name;
@@ -81,7 +81,7 @@ public class NetworkResource extends AzureResource implements Copyable<Network> 
     }
 
     /**
-     * The resource group under which this would reside. (Required)
+     * The Resource Group under which the Network would reside. (Required)
      */
     public ResourceGroupResource getResourceGroup() {
         return resourceGroup;
@@ -92,7 +92,7 @@ public class NetworkResource extends AzureResource implements Copyable<Network> 
     }
 
     /**
-     * Address spaces for the network. (Required)
+     * Address spaces for the Network. (Required)
      */
     @Updatable
     public Set<String> getAddressSpaces() {
@@ -108,7 +108,7 @@ public class NetworkResource extends AzureResource implements Copyable<Network> 
     }
 
     /**
-     * Subnets for the network.
+     * Subnets for the Network.
      *
      * @subresource gyro.azure.network.SubnetResource
      */
@@ -154,7 +154,7 @@ public class NetworkResource extends AzureResource implements Copyable<Network> 
     }
 
     /**
-     * Is VM protection enabled.
+     * Is VM protection enabled for the Network.
      */
     @Output
     public Boolean getVmProtectionEnabled() {
@@ -166,7 +166,7 @@ public class NetworkResource extends AzureResource implements Copyable<Network> 
     }
 
     /**
-     * Is DDos protection enabled.
+     * Is DDos protection enabled for the Network.
      */
     @Output
     public Boolean getDdosProtectionEnabled() {

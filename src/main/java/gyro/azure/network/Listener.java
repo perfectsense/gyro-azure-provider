@@ -37,7 +37,7 @@ public class Listener extends Diffable implements Copyable<ApplicationGatewayLis
     }
 
     /**
-     * Port for the listener to listen to. (Required)
+     * Port for the Listener to listen to. (Required)
      */
     @Updatable
     public Integer getPort() {
@@ -49,7 +49,7 @@ public class Listener extends Diffable implements Copyable<ApplicationGatewayLis
     }
 
     /**
-     * Enable private frontend. Defaults to false.
+     * Enable private frontend for the Listener. Defaults to ``false``.
      */
     @Updatable
     public Boolean getPrivateFrontend() {

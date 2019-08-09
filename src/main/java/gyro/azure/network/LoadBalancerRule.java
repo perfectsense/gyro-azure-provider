@@ -39,7 +39,7 @@ public class LoadBalancerRule extends Diffable implements Copyable<LoadBalancing
     private String protocol;
 
     /**
-     * The backend pool associated with the load balancer rule. (Required)
+     * The backend pool associated with the Load Balancer Rule. (Required)
      */
     public String getBackendPoolName() {
         return backendPoolName;
@@ -50,7 +50,7 @@ public class LoadBalancerRule extends Diffable implements Copyable<LoadBalancing
     }
 
     /**
-     * The backend port that receives network traffic. (Required)
+     * The backend port that receives network traffic for the Load Balancer Rule. (Required)
      */
     @Updatable
     public Integer getBackendPort() {
@@ -62,7 +62,7 @@ public class LoadBalancerRule extends Diffable implements Copyable<LoadBalancing
     }
 
     /**
-     * Determines whether floating ip support is enabled. Defaults to ``false``.
+     * Determines whether floating ip support is enabled for the Load Balancer Rule. Defaults to ``false``.
      */
     @Updatable
     public Boolean getFloatingIp() {
@@ -78,7 +78,7 @@ public class LoadBalancerRule extends Diffable implements Copyable<LoadBalancing
     }
 
     /**
-     * The name of the frontend associated with the load balancer rule. (Required)
+     * The name of the frontend associated with the Load Balancer Rule. (Required)
      */
     @Updatable
     public String getFrontendName() {
@@ -90,7 +90,7 @@ public class LoadBalancerRule extends Diffable implements Copyable<LoadBalancing
     }
 
     /**
-     * The frontend port that receives network traffic. (Required)
+     * The frontend port that receives network traffic for the Load Balancer Rule. (Required)
      */
     @Updatable
     public Integer getFrontendPort() {
@@ -102,7 +102,7 @@ public class LoadBalancerRule extends Diffable implements Copyable<LoadBalancing
     }
 
     /**
-     * The number of minutes before an unresponsive connection is closed. (Required)
+     * The number of minutes before an unresponsive connection is closed for the Load Balancer Rule. (Required)
      */
     @Updatable
     public Integer getIdleTimeoutInMinutes() {

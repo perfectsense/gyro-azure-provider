@@ -89,7 +89,7 @@ public class RedirectConfiguration extends Diffable implements Copyable<Applicat
     }
 
     /**
-     * Include query string or not. Defaults to false.
+     * Include query string or not. Defaults to ``false``.
      */
     @Updatable
     public Boolean getIncludeQueryString() {
@@ -105,7 +105,7 @@ public class RedirectConfiguration extends Diffable implements Copyable<Applicat
     }
 
     /**
-     * Include path or not. Defaults to false.
+     * Include path or not. Defaults to ``false``.
      */
     @Updatable
     public Boolean getIncludePath() {

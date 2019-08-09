@@ -34,7 +34,7 @@ public class InboundNatPool extends Diffable implements Copyable<LoadBalancerInb
     private String protocol;
 
     /**
-     * The port number that network traffic is sent to. (Required)
+     * The port number that network traffic is sent to for the Inbound Nat Pool. (Required)
      */
     @Updatable
     public Integer getBackendPort() {
@@ -46,7 +46,7 @@ public class InboundNatPool extends Diffable implements Copyable<LoadBalancerInb
     }
 
     /**
-     * The name of the frontend that this nat pool is associated with. (Required)
+     * The name of the frontend that the Inbound Nat Pool is associated with. (Required)
      */
     @Updatable
     public String getFrontendName() {
@@ -58,7 +58,7 @@ public class InboundNatPool extends Diffable implements Copyable<LoadBalancerInb
     }
 
     /**
-     * The starting number of the frontend port. (Required)
+     * The starting number of the frontend port for the Inbound Nat Pool. (Required)
      */
     @Updatable
     public Integer getFrontendPortRangeStart() {
@@ -70,7 +70,7 @@ public class InboundNatPool extends Diffable implements Copyable<LoadBalancerInb
     }
 
     /**
-     * The ending number of the frontend port. (Required)
+     * The ending number of the frontend port for the Inbound Nat Pool. (Required)
      */
     @Updatable
     public Integer getFrontendPortRangeEnd() {
@@ -82,7 +82,7 @@ public class InboundNatPool extends Diffable implements Copyable<LoadBalancerInb
     }
 
     /**
-     * The name of the inbound nat pool. (Required)
+     * The name of the Inbound Nat Pool. (Required)
      */
     public String getName() {
         return name;
@@ -93,7 +93,7 @@ public class InboundNatPool extends Diffable implements Copyable<LoadBalancerInb
     }
 
     /**
-     * The protocol used by the nat pool. (Required)
+     * The protocol used by the Inbound Nat Pool. (Required)
      */
     @Updatable
     public String getProtocol() {
