@@ -43,8 +43,6 @@ end
 azure::load-balancer load-balancer-example
     name: "load-balancer-example"
     resource-group: $(azure::resource-group load-balancer-resource-group-example)
-    sku-basic: true
-
     private-frontend
         name: "private-frontend"
         network: $(azure::network load-balancer-network-example)

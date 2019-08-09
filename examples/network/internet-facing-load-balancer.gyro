@@ -128,7 +128,6 @@ end
 azure::load-balancer load-balancer-example
     name: "load-balancer-example"
     resource-group-name: $(azure::resource-group load-balancer-resource-group-example | resource-group-name)
-    sku-basic: true
 
     public-frontend
         name: "public-frontend"

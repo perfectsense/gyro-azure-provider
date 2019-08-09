@@ -43,7 +43,6 @@ import java.util.Set;
  *         azure::load-balancer load-balancer-example
  *             name: "load-balancer-example"
  *             resource-group: $(azure::resource-group resource-group-lb-example)
- *             sku-basic: true
  *
  *             public-frontend
  *                 name: "public-frontend"
@@ -102,8 +101,10 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
     private List<PrivateFrontend> privateFrontend;
     private List<PublicFrontend> publicFrontend;
     private ResourceGroupResource resourceGroup;
-    private Boolean skuBasic;
+    private SKU_TYPE skuType;
     private Map<String, String> tags;
+
+    public enum SKU_TYPE { STANDARD, BASIC }
 
     /**
      * The Health Check Http Probes associated with the Load Balancer. (Optional)
@@ -219,19 +220,19 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
     }
 
     /**
-     * Specifies if the sku type is basic or standard. Defaults to ``true``.
+     * Specifies the sku type for the Load Balancer. Valid Values are ``BASIC`` or ``STANDARD``. Defaults to ``BASIC``.
      */
     @Updatable
-    public Boolean getSkuBasic() {
-        if (skuBasic == null) {
-            skuBasic = true;
+    public SKU_TYPE getSkuType() {
+        if (skuType == null) {
+            skuType = SKU_TYPE.BASIC;
         }
 
-        return skuBasic;
+        return skuType;
     }
 
-    public void setSkuBasic(Boolean skuBasic) {
-        this.skuBasic = skuBasic;
+    public void setSkuType(SKU_TYPE skuType) {
+        this.skuType = skuType;
     }
 
     /**
@@ -295,7 +296,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
         setId(loadBalancer.id());
         setName(loadBalancer.name());
         setResourceGroup(findById(ResourceGroupResource.class, loadBalancer.resourceGroupName()));
-        setSkuBasic(loadBalancer.sku() == LoadBalancerSkuType.BASIC);
+        setSkuType(loadBalancer.sku() == LoadBalancerSkuType.BASIC ? SKU_TYPE.BASIC : SKU_TYPE.STANDARD);
 
         setTags(loadBalancer.tags());
     }
@@ -417,7 +418,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
         }
 
         LoadBalancer loadBalancer = buildLoadBalancer
-                    .withSku(getSkuBasic() ? LoadBalancerSkuType.BASIC : LoadBalancerSkuType.STANDARD)
+                    .withSku(getSkuType() == SKU_TYPE.BASIC ? LoadBalancerSkuType.BASIC : LoadBalancerSkuType.STANDARD)
                     .withTags(getTags()).create();
 
         copyFrom(loadBalancer);
