@@ -33,15 +33,6 @@ public class RequestRoutingRule extends Diffable implements Copyable<Application
     private String backendHttpConfiguration;
     private String redirectConfiguration;
 
-    @Override
-    public void copyFrom(ApplicationGatewayRequestRoutingRule rule) {
-        setBackend(rule.backend() != null ? rule.backend().name() : null);
-        setListener(rule.listener() != null ? rule.listener().name() : null);
-        setBackendHttpConfiguration(rule.backendHttpConfiguration() != null ? rule.backendHttpConfiguration().name() : null);
-        setRedirectConfiguration(rule.redirectConfiguration() != null ? rule.redirectConfiguration().name() : null);
-        setName(rule.name());
-    }
-
     /**
      * Name of the rule. (Required)
      */
@@ -99,6 +90,15 @@ public class RequestRoutingRule extends Diffable implements Copyable<Application
 
     public void setRedirectConfiguration(String redirectConfiguration) {
         this.redirectConfiguration = redirectConfiguration;
+    }
+
+    @Override
+    public void copyFrom(ApplicationGatewayRequestRoutingRule rule) {
+        setBackend(rule.backend() != null ? rule.backend().name() : null);
+        setListener(rule.listener() != null ? rule.listener().name() : null);
+        setBackendHttpConfiguration(rule.backendHttpConfiguration() != null ? rule.backendHttpConfiguration().name() : null);
+        setRedirectConfiguration(rule.redirectConfiguration() != null ? rule.redirectConfiguration().name() : null);
+        setName(rule.name());
     }
 
     @Override
