@@ -1,8 +1,11 @@
 package gyro.azure.cosmosdb;
 
 import gyro.azure.AzureResource;
+import gyro.azure.Copyable;
+import gyro.azure.resources.ResourceGroupResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.Type;
@@ -43,16 +46,16 @@ import java.util.stream.Collectors;
  *             ip-range-filter: "10.1.0.0"
  *             name: "cosmos-db-example"
  *             read-replication-regions: ["Central US"]
- *             resource-group-name: $(azure::resource-group resource-group-cosmos-db-example | resource-group-name)
+ *             resource-group-name: $(azure::resource-group resource-group-cosmos-db-example)
  *             tags: {
  *                 Name: "network-interface-example"
  *             }
- *             virtual-network-rules: ["$(azure::network network-example-fri | network-id)/subnets/subnet1"]
+ *             virtual-network-rules: [$(azure::network network-example).subnet.0.id]
  *             write-replication-region: "Canada East"
  *         end
  */
 @Type("cosmos-db")
-public class CosmosDBAccountResource extends AzureResource {
+public class CosmosDBAccountResource extends AzureResource implements Copyable<CosmosDBAccount> {
 
     private static final String KIND_AZURETABLE = "AzureTable";
     private static final String KIND_CASSANDRA = "Cassandra";
@@ -72,14 +75,13 @@ public class CosmosDBAccountResource extends AzureResource {
     private String maxStalenessPrefix;
     private String name;
     private List<String> readReplicationRegions;
-    private String resourceGroupName;
+    private ResourceGroupResource resourceGroup;
     private Map<String, String> tags;
     private List<String> virtualNetworkRules;
     private String writeReplicationRegion;
 
     /**
-     * The consistency policy of the account. Valid values are ``AzureTable``, ``Cassandra``,
-     * ``Gremlin``, ``MongoDB``, ``Sql``. (Required)
+     * The consistency policy of the account. Valid values are ``AzureTable`` or ``Cassandra`` or ``Gremlin`` or ``MongoDB`` or ``Sql``. (Required)
      */
     public String getDatabaseAccountKind() {
         return databaseAccountKind;
@@ -90,8 +92,7 @@ public class CosmosDBAccountResource extends AzureResource {
     }
 
     /**
-     * The consistency policy of the account. Valid values are ``BoundedStaleness``, ``Eventual``,
-     * ``Session``, and ``Strong``. (Required)
+     * The consistency policy of the account. Valid values are ``BoundedStaleness``or ``Eventual`` or ``Session`` or ``Strong``. (Required)
      */
     @Updatable
     public String getConsistencyLevel() {
@@ -103,8 +104,9 @@ public class CosmosDBAccountResource extends AzureResource {
     }
 
     /**
-     * The id of the database.
+     * The Id of the database.
      */
+    @Id
     @Output
     public String getId() {
         return id;
@@ -180,12 +182,12 @@ public class CosmosDBAccountResource extends AzureResource {
     /**
      * The resource group where the database is found. (Required)
      */
-    public String getResourceGroupName() {
-        return resourceGroupName;
+    public ResourceGroupResource getResourceGroup() {
+        return resourceGroup;
     }
 
-    public void setResourceGroupName(String resourceGroupName) {
-        this.resourceGroupName = resourceGroupName;
+    public void setResourceGroup(ResourceGroupResource resourceGroup) {
+        this.resourceGroup = resourceGroup;
     }
 
     /**
@@ -205,7 +207,7 @@ public class CosmosDBAccountResource extends AzureResource {
     }
 
     /**
-     * The virtual network rules associated with the account. (Optional)
+     * The virtual network rules associated with the account. A list Subnet Id is required. (Optional)
      */
     @Updatable
     public List<String> getVirtualNetworkRules() {
@@ -221,8 +223,7 @@ public class CosmosDBAccountResource extends AzureResource {
     }
 
     /**
-     * Sets the write location. Required when used with ``BoundedStaleness``, ``Eventual``, and ``Session``
-     * consistency levels. (Optional)
+     * Sets the write location. Required when used with ``BoundedStaleness``, ``Eventual``, and ``Session`` consistency levels. (Optional)
      */
     @Updatable
     public String getWriteReplicationRegion() {
@@ -234,15 +235,7 @@ public class CosmosDBAccountResource extends AzureResource {
     }
 
     @Override
-    public boolean refresh() {
-        Azure client = createClient();
-
-        CosmosDBAccount cosmosAccount = client.cosmosDBAccounts().getById(getId());
-
-        if (cosmosAccount == null) {
-            return false;
-        }
-
+    public void copyFrom(CosmosDBAccount cosmosAccount) {
         setConsistencyLevel(cosmosAccount.consistencyPolicy().defaultConsistencyLevel().toString());
         setId(cosmosAccount.id());
         setIpRangeFilter(cosmosAccount.ipRangeFilter());
@@ -266,6 +259,19 @@ public class CosmosDBAccountResource extends AzureResource {
 
         getVirtualNetworkRules().clear();
         cosmosAccount.virtualNetworkRules().forEach(rule -> getVirtualNetworkRules().add(rule.id()));
+    }
+
+    @Override
+    public boolean refresh() {
+        Azure client = createClient();
+
+        CosmosDBAccount cosmosAccount = client.cosmosDBAccounts().getById(getId());
+
+        if (cosmosAccount == null) {
+            return false;
+        }
+
+        copyFrom(cosmosAccount);
 
         return true;
     }
@@ -281,7 +287,7 @@ public class CosmosDBAccountResource extends AzureResource {
         WithKind withKind = client.cosmosDBAccounts()
                 .define(getName())
                 .withRegion(Region.fromName(getRegion()))
-                .withExistingResourceGroup(getResourceGroupName());
+                .withExistingResourceGroup(getResourceGroup().getName());
 
         WithConsistencyPolicy withConsistencyPolicy = null;
         if (KIND_AZURETABLE.equalsIgnoreCase(getDatabaseAccountKind())) {
@@ -403,7 +409,7 @@ public class CosmosDBAccountResource extends AzureResource {
             locations.add(readLocation);
         }
 
-        client.cosmosDBAccounts().failoverPriorityChange(getResourceGroupName(), getName(), locations);
+        client.cosmosDBAccounts().failoverPriorityChange(getResourceGroup().getName(), getName(), locations);
     }
 
     @Override
