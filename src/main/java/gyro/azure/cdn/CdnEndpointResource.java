@@ -1,6 +1,7 @@
 package gyro.azure.cdn;
 
 import gyro.azure.AzureResource;
+import gyro.azure.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
@@ -21,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Creates a cdn endpoint.
@@ -30,46 +32,43 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *         azure::cdn-endpoint standard-cdn-endpoint-example
- *             cdn-profile: $(azure::cdn-profile cdn-profile-example)
- *             compression-enabled: false
- *             content-types-to-compress: ["application/eot", "application/json", "text/html"]
+ *    endpoint
+ *        compression-enabled: false
+ *        content-types-to-compress: ["application/eot", "application/json", "text/html"]
  *
- *             geo-filter
- *                 action: "ALLOW"
- *                 country-codes: ["CA", "CL"]
- *                 relative-path: "/"
- *             end
+ *        geo-filter
+ *            action: "ALLOW"
+ *            country-codes: ["CA", "CL"]
+ *            relative-path: "/"
+ *        end
  *
- *             geo-filter
- *                 action: "BLOCK"
- *                 country-codes: ["CA"]
- *                 relative-path: "/relativepath"
- *             end
+ *        geo-filter
+ *            action: "BLOCK"
+ *            country-codes: ["CA"]
+ *            relative-path: "/relativepath"
+ *        end
  *
- *             host-header: "my.host.com"
- *             http-enabled: true
- *             http-port: 81
- *             https-enabled: true
- *             https-port: 8443
- *             name: "test-endpoint-cdn"
- *             origin-hostname: "origin.hostname.com"
- *             origin-path: "/example/path"
- *             query-caching-behavior: "BYPASS_CACHING"
- *             type: "Standard"
- *         end
+ *        host-header: "my.host.com"
+ *        http-enabled: true
+ *        http-port: 81
+ *        https-enabled: true
+ *        https-port: 8443
+ *        name: "test-endpoint-cdn"
+ *        origin-hostname: "origin.hostname.com"
+ *        origin-path: "/example/path"
+ *        query-caching-behavior: "BYPASS_CACHING"
+ *        type: "Standard"
+ *    end
  */
-@Type("cdn-endpoint")
-public class CdnEndpointResource extends AzureResource {
+public class CdnEndpointResource extends AzureResource implements Copyable<CdnEndpoint> {
 
     private static final String TYPE_PREMIUM = "Premium";
     private static final String TYPE_STANDARD = "Standard";
 
-    private CdnProfileResource cdnProfile;
     private Boolean compressionEnabled;
     private Set<String> contentTypesToCompress;
     private Set<String> customDomains;
-    private List<GeoFilter> geoFilter;
+    private Set<GeoFilter> geoFilter;
     private String hostHeader;
     private Boolean httpEnabled;
     private Integer httpPort;
@@ -81,17 +80,6 @@ public class CdnEndpointResource extends AzureResource {
     private String queryCachingBehavior;
     private Map<String, String> tags;
     private String type;
-
-    /**
-     * The cdn profile resource where the endpoint is found. (Required)
-     */
-    public CdnProfileResource getCdnProfile() {
-        return cdnProfile;
-    }
-
-    public void setCdnProfile(CdnProfileResource cdnProfile) {
-        this.cdnProfile = cdnProfile;
-    }
 
     /**
      * Determines whether compression is enabled. (Optional)
@@ -138,18 +126,18 @@ public class CdnEndpointResource extends AzureResource {
     }
 
     /**
-     * The list of geo-filters associated with the endpoint. (Optional)
+     * The set of geo-filters associated with the endpoint. (Optional)
      */
     @Updatable
-    public List<GeoFilter> getGeoFilter() {
+    public Set<GeoFilter> getGeoFilter() {
         if (geoFilter == null) {
-            geoFilter = new ArrayList<>();
+            geoFilter = new HashSet<>();
         }
 
         return geoFilter;
     }
 
-    public void setGeoFilter(List<GeoFilter> geoFilter) {
+    public void setGeoFilter(Set<GeoFilter> geoFilter) {
         this.geoFilter = geoFilter;
     }
 
@@ -180,7 +168,6 @@ public class CdnEndpointResource extends AzureResource {
     /**
      * The http port. Required if http protocol is enabled. (Optional)
      */
-    @Updatable
     public Integer getHttpPort() {
         return httpPort;
     }
@@ -248,8 +235,7 @@ public class CdnEndpointResource extends AzureResource {
     }
 
     /**
-     * Determines the query caching behavior. Values are ``IGNORE_QUERY_STRING``, ``BYPASS_CACHING``,
-     * and ``USE_QUERY_STRING``. (Optional)
+     * Determines the query caching behavior. Valid values are ``IGNORE_QUERY_STRING`` or ``BYPASS_CACHING`` or ``USE_QUERY_STRING``. (Optional)
      */
     @Updatable
     public String getQueryCachingBehavior() {
@@ -277,9 +263,13 @@ public class CdnEndpointResource extends AzureResource {
     }
 
     /**
-     * The type of the endpoint. Values are ``Standard`` and ``Premium``. (Required)
+     * The type of the endpoint. Valid values are ``Standard`` or ``Premium``. Defaults to ``Standard``.
      */
     public String getType() {
+        if (type == null) {
+            type = "Standard";
+        }
+
         return type;
     }
 
@@ -288,18 +278,15 @@ public class CdnEndpointResource extends AzureResource {
     }
 
     @Override
-    public boolean refresh() {
-        Azure client = createClient();
-
-        CdnEndpoint cdnEndpoint = client.cdnProfiles().getById(getCdnProfile().getId()).endpoints().get(getName());
-        if (cdnEndpoint == null) {
-            return false;
-        }
-
+    public void copyFrom(CdnEndpoint cdnEndpoint) {
         setCompressionEnabled(cdnEndpoint.isCompressionEnabled());
         setContentTypesToCompress(cdnEndpoint.contentTypesToCompress());
         setCustomDomains(cdnEndpoint.customDomains());
-        cdnEndpoint.geoFilters().forEach(geo -> getGeoFilter().add(new GeoFilter(geo)));
+        setGeoFilter(cdnEndpoint.geoFilters().stream().map(geo -> {
+            GeoFilter filter = newSubresource(GeoFilter.class);
+            filter.copyFrom(geo);
+            return filter;
+        }).collect(Collectors.toSet()));
         setHostHeader(cdnEndpoint.originHostHeader());
         setHttpEnabled(cdnEndpoint.isHttpAllowed());
         setHttpPort(cdnEndpoint.httpPort());
@@ -309,15 +296,25 @@ public class CdnEndpointResource extends AzureResource {
         setOriginHostname(cdnEndpoint.originHostName());
         setOriginPath(cdnEndpoint.originPath());
         setQueryCachingBehavior(adjustQueueCaching(cdnEndpoint.queryStringCachingBehavior().toString()));
+    }
 
-        return true;
+    @Override
+    public String primaryKey() {
+        return getName();
+    }
+
+    @Override
+    public boolean refresh() {
+        return false;
     }
 
     @Override
     public void create(GyroUI ui, State state) {
         Azure client = createClient();
 
-        CdnProfile cdnProfile = client.cdnProfiles().getById(getCdnProfile().getId());
+        CdnProfileResource parent = (CdnProfileResource) parent();
+
+        CdnProfile cdnProfile = client.cdnProfiles().getById(parent.getId());
 
         if (TYPE_PREMIUM.equalsIgnoreCase(getType())) {
             WithPremiumAttach<CdnProfile.Update> createPremiumEndpoint =
@@ -409,7 +406,9 @@ public class CdnEndpointResource extends AzureResource {
     public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
-        CdnProfile cdnProfile = client.cdnProfiles().getById(getCdnProfile().getId());
+        CdnProfileResource parent = (CdnProfileResource) parent();
+
+        CdnProfile cdnProfile = client.cdnProfiles().getById(parent.getId());
 
         if (TYPE_PREMIUM.equalsIgnoreCase(getType())) {
             CdnEndpoint.UpdatePremiumEndpoint updatePremiumEndpoint =
@@ -441,8 +440,7 @@ public class CdnEndpointResource extends AzureResource {
                 updatePremiumEndpoint.withCustomDomain(customDomain);
             }
 
-            CdnProfile.Update parent = updatePremiumEndpoint.parent();
-            parent.apply();
+            updatePremiumEndpoint.parent().apply();
 
         } else if (TYPE_STANDARD.equalsIgnoreCase(getType())) {
             CdnEndpoint.UpdateStandardEndpoint updateStandardEndpoint =
@@ -490,8 +488,7 @@ public class CdnEndpointResource extends AzureResource {
                 updateStandardEndpoint.withCustomDomain(customDomain);
             }
 
-            CdnProfile.Update parent = updateStandardEndpoint.parent();
-            parent.apply();
+            updateStandardEndpoint.parent().apply();
         }
     }
 
@@ -499,7 +496,9 @@ public class CdnEndpointResource extends AzureResource {
     public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
-        CdnProfile cdnProfile = client.cdnProfiles().getById(getCdnProfile().getId());
+        CdnProfileResource parent = (CdnProfileResource) parent();
+
+        CdnProfile cdnProfile = client.cdnProfiles().getById(parent.getId());
 
         CdnProfile.Update update = cdnProfile.update().withoutEndpoint(getName());
         update.apply();

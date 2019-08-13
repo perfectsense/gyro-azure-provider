@@ -1,27 +1,21 @@
 package gyro.azure.cdn;
 
+import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 import com.microsoft.azure.management.cdn.GeoFilterActions;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
-public class GeoFilter extends Diffable {
+public class GeoFilter extends Diffable implements Copyable<com.microsoft.azure.management.cdn.GeoFilter> {
 
     private String action;
-    private List<String> countryCodes;
+    private Set<String> countryCodes;
     private String relativePath;
 
-    public GeoFilter() {}
-
-    public GeoFilter(com.microsoft.azure.management.cdn.GeoFilter geoFilter) {
-        setAction(geoFilter.action().name());
-        setCountryCodes(geoFilter.countryCodes());
-        setRelativePath(geoFilter.relativePath());
-    }
-
     /**
-     * The action to be taken. Values are ``ALLOW`` and ``BLOCK``. (Required)
+     * The action to be taken. Valid values are ``ALLOW`` or ``BLOCK``. (Required)
      */
     public String getAction() {
         return action;
@@ -34,15 +28,15 @@ public class GeoFilter extends Diffable {
     /**
      * The country codes that will either be allowed content or be blocked. (Required)
      */
-    public List<String> getCountryCodes() {
+    public Set<String> getCountryCodes() {
         if (countryCodes == null) {
-            countryCodes = new ArrayList<>();
+            countryCodes = new HashSet<>();
         }
 
         return countryCodes;
     }
 
-    public void setCountryCodes(List<String> countryCodes) {
+    public void setCountryCodes(Set<String> countryCodes) {
         this.countryCodes = countryCodes;
     }
 
@@ -57,6 +51,13 @@ public class GeoFilter extends Diffable {
         this.relativePath = relativePath;
     }
 
+    @Override
+    public void copyFrom(com.microsoft.azure.management.cdn.GeoFilter geoFilter) {
+        setAction(geoFilter.action().name());
+        setCountryCodes(new HashSet<>(geoFilter.countryCodes()));
+        setRelativePath(geoFilter.relativePath());
+    }
+
     public String primaryKey() {
         return String.format("%s/%s/%s", getAction(), getCountryCodes(), getRelativePath());
     }
@@ -65,7 +66,7 @@ public class GeoFilter extends Diffable {
         com.microsoft.azure.management.cdn.GeoFilter geoFilter = new com.microsoft.azure.management.cdn.GeoFilter();
 
         geoFilter.withAction(GeoFilterActions.fromString(getAction()));
-        geoFilter.withCountryCodes(getCountryCodes());
+        geoFilter.withCountryCodes(new ArrayList<>(getCountryCodes()));
         geoFilter.withRelativePath(getRelativePath());
 
         return geoFilter;

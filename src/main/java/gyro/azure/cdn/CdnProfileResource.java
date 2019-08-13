@@ -1,8 +1,11 @@
 package gyro.azure.cdn;
 
 import gyro.azure.AzureResource;
+import gyro.azure.Copyable;
+import gyro.azure.resources.ResourceGroupResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.Type;
@@ -15,8 +18,10 @@ import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import gyro.core.scope.State;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Creates a cdn profile.
@@ -28,7 +33,7 @@ import java.util.Set;
  *
  *         azure::cdn-profile cdn-profile-example
  *             name: "cdn-profile-example"
- *             resource-group-name: $(azure::resource-group resource-group-cdn-profile-example | resource-group-name)
+ *             resource-group-name: $(azure::resource-group resource-group-cdn-profile-example)
  *             sku: "Standard_Akamai"
  *             tags: {
  *                 Name: "cdn-profile-example"
@@ -36,17 +41,19 @@ import java.util.Set;
  *         end
  */
 @Type("cdn-profile")
-public class CdnProfileResource extends AzureResource {
+public class CdnProfileResource extends AzureResource implements Copyable<CdnProfile> {
 
     private String id;
     private String name;
-    private String resourceGroupName;
+    private ResourceGroupResource resourceGroup;
     private String sku;
     private Map<String, String> tags;
+    private Set<CdnEndpointResource> endpoint;
 
     /**
-     * The id of the profile.
+     * The ID of the CDN Profile.
      */
+    @Id
     @Output
     public String getId() {
         return id;
@@ -57,7 +64,7 @@ public class CdnProfileResource extends AzureResource {
     }
 
     /**
-     * The name of the profile. (Required)
+     * The name of the CDN Profile. (Required)
      */
     public String getName() {
         return name;
@@ -68,18 +75,18 @@ public class CdnProfileResource extends AzureResource {
     }
 
     /**
-     * The resource group where the profile is found. (Required)
+     * The resource group where the CDN Profile is found. (Required)
      */
-    public String getResourceGroupName() {
-        return resourceGroupName;
+    public ResourceGroupResource getResourceGroup() {
+        return resourceGroup;
     }
 
-    public void setResourceGroupName(String resourceGroupName) {
-        this.resourceGroupName = resourceGroupName;
+    public void setResourceGroup(ResourceGroupResource resourceGroup) {
+        this.resourceGroup = resourceGroup;
     }
 
     /**
-     * The sku of the profile. Valid values are ``Premium_Verizon``, ``Standard_Verizon``, ``Standard_Akamai``. (Required)
+     * The sku of the CDN Profile. Valid values are ``Premium_Verizon`` or ``Standard_Verizon`` or ``Standard_Akamai``. (Required)
      */
     public String getSku() {
         return sku;
@@ -90,7 +97,7 @@ public class CdnProfileResource extends AzureResource {
     }
 
     /**
-     * The tags associated with the profile. (Optional)
+     * The tags associated with the CDN Profile. (Optional)
      */
     @Updatable
     public Map<String, String> getTags() {
@@ -105,6 +112,36 @@ public class CdnProfileResource extends AzureResource {
         this.tags = tags;
     }
 
+    /**
+     * A set of endpoints for the CDN Profile.
+     */
+    @Updatable
+    public Set<CdnEndpointResource> getEndpoint() {
+        if (endpoint == null) {
+            endpoint = new HashSet<>();
+        }
+
+        return endpoint;
+    }
+
+    public void setEndpoint(Set<CdnEndpointResource> endpoint) {
+        this.endpoint = endpoint;
+    }
+
+    @Override
+    public void copyFrom(CdnProfile cdnProfile) {
+        setId(cdnProfile.id());
+        setName(cdnProfile.name());
+        setResourceGroup(findById(ResourceGroupResource.class, cdnProfile.resourceGroupName()));
+        setSku(cdnProfile.sku().name().toString());
+        setTags(cdnProfile.tags());
+        setEndpoint(cdnProfile.endpoints().values().stream().map(o -> {
+            CdnEndpointResource endpointResource = newSubresource(CdnEndpointResource.class);
+            endpointResource.copyFrom(o);
+            return endpointResource;
+        }).collect(Collectors.toSet()));
+    }
+
     @Override
     public boolean refresh() {
         Azure client = createClient();
@@ -115,11 +152,7 @@ public class CdnProfileResource extends AzureResource {
             return false;
         }
 
-        setId(cdnProfile.id());
-        setName(cdnProfile.name());
-        setResourceGroupName(cdnProfile.resourceGroupName());
-        setSku(cdnProfile.sku().name().toString());
-        setTags(cdnProfile.tags());
+        copyFrom(cdnProfile);
 
         return true;
     }
@@ -130,7 +163,7 @@ public class CdnProfileResource extends AzureResource {
 
         WithSku withSku = client.cdnProfiles().define(getName())
                 .withRegion(Region.fromName(getRegion()))
-                .withExistingResourceGroup(getResourceGroupName());
+                .withExistingResourceGroup(getResourceGroup().getName());
 
         CdnProfile cdnProfile = null;
         if ("Premium_Verizon".equalsIgnoreCase(getSku())) {
@@ -161,5 +194,4 @@ public class CdnProfileResource extends AzureResource {
 
         client.cdnProfiles().deleteById(getId());
     }
-
 }
