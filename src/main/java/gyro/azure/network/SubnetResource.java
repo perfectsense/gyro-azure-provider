@@ -3,6 +3,7 @@ package gyro.azure.network;
 import gyro.azure.AzureResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
 
@@ -42,6 +43,7 @@ public class SubnetResource extends AzureResource {
     private String networkSecurityGroupId;
     private String routeTableId;
     private Map<String, List<String>> serviceEndpoints;
+    private String id;
 
     public SubnetResource() {
 
@@ -53,6 +55,7 @@ public class SubnetResource extends AzureResource {
         setNetworkSecurityGroupId(subnet.networkSecurityGroupId());
         setRouteTableId(subnet.routeTableId());
         setServiceEndpoints(toServiceEndpoints(subnet.servicesWithAccess()));
+        setId(subnet.inner().id());
     }
 
     /**
@@ -118,6 +121,18 @@ public class SubnetResource extends AzureResource {
         this.serviceEndpoints = serviceEndpoints;
     }
 
+    /**
+     * The ID of the Subnet.
+     */
+    @Output
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     @Override
     public boolean refresh() {
         return false;
@@ -149,7 +164,8 @@ public class SubnetResource extends AzureResource {
             }
         }
 
-        updateWithAttach.attach().apply();
+        Network response = updateWithAttach.attach().apply();
+        setId(response.subnets().get(getName()).inner().id());
     }
 
     @Override
