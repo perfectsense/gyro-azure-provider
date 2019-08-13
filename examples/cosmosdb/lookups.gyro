@@ -1,0 +1,1 @@
+cosmos-db: $(external-query azure::cosmos-db {} )
