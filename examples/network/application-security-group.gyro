@@ -1,5 +1,5 @@
 azure::resource-group resource-group-app-security-group-example
-    resource-group-name: "resource-group-app-security-group-example"
+    name: "resource-group-app-security-group-example"
 
     tags: {
         Name: "resource-group-app-security-group-example"

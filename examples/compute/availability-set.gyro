@@ -1,5 +1,5 @@
 azure::resource-group resource-group-availability-set-example
-    resource-group-name: "resource-group-availability-set-example"
+    name: "resource-group-availability-set-example"
 
     tags: {
         Name: "resource-group-availability-set-example"

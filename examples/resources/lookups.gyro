@@ -1,0 +1,1 @@
+resource-group: $(external-query azure::resource-group {} )

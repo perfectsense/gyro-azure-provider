@@ -1,5 +1,5 @@
 azure::resource-group resource-group-example-AG
-    resource-group-name: "resource-group-example-AG"
+    name: "resource-group-example-AG"
 
     tags: {
         Name: "resource-group-example-AG"

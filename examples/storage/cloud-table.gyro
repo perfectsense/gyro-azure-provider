@@ -1,5 +1,5 @@
 azure::resource-group table-resource-group
-    resource-group-name: "table-resource-group"
+    name: "table-resource-group"
 
     tags: {
         Name: "table-resource-group"

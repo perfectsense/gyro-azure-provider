@@ -1,5 +1,5 @@
 azure::resource-group resource-group-network-interface-example
-    resource-group-name: "resource-group-network-interface-example"
+    name: "resource-group-network-interface-example"
 
     tags: {
         Name: "resource-group-network-interface-example"
