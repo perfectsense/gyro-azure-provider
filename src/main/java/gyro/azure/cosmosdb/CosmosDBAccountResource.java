@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
  *             ip-range-filter: "10.1.0.0"
  *             name: "cosmos-db-example"
  *             read-replication-regions: ["Central US"]
- *             resource-group-name: $(azure::resource-group resource-group-cosmos-db-example)
+ *             resource-group: $(azure::resource-group resource-group-cosmos-db-example)
  *             tags: {
  *                 Name: "network-interface-example"
  *             }
@@ -81,7 +81,7 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
     private String writeReplicationRegion;
 
     /**
-     * The consistency policy of the account. Valid values are ``AzureTable`` or ``Cassandra`` or ``Gremlin`` or ``MongoDB`` or ``Sql``. (Required)
+     * The database account kind. Valid values are ``AzureTable`` or ``Cassandra`` or ``Gremlin`` or ``MongoDB`` or ``Sql``. (Required)
      */
     public String getDatabaseAccountKind() {
         return databaseAccountKind;
@@ -104,7 +104,7 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
     }
 
     /**
-     * The Id of the database.
+     * The ID of the database.
      */
     @Id
     @Output
@@ -117,7 +117,7 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
     }
 
     /**
-     * The ip range filter in CIDR notation. (Optional)
+     * This value specifies the set of IP addresses or IP address ranges in CIDR form to be included as the allowed list of client IP's for a given database account. IP addresses/ranges must be comma separated and must not contain any spaces. (Optional)
      */
     @Updatable
     public String getIpRangeFilter() {
@@ -129,7 +129,7 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
     }
 
     /**
-     * The max interval, in seconds. Required when used with ``BoundedStaleness`` consistency policy. (Optional)
+     * The time amount of staleness (in seconds) tolerated. Valid values are ``5`` to ``86400``. Required when used with ``BoundedStaleness`` consistency policy. (Optional)
      */
     @Updatable
     public Integer getMaxInterval() {
@@ -141,7 +141,7 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
     }
 
     /**
-     * The max staleness prefix. Required when used with ``BoundedStaleness`` consistency policy. (Optional)
+     * This value represents the number of stale requests tolerated. Valid values are ``10`` to ``2147483647``. Required when used with ``BoundedStaleness`` consistency policy. (Optional)
      */
     @Updatable
     public Long getMaxStalenessPrefix() {
@@ -207,7 +207,7 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
     }
 
     /**
-     * The virtual network rules associated with the account. A list Subnet Id is required. (Optional)
+     * The virtual network rules associated with the account. A list of Subnet ID is required. (Optional)
      */
     @Updatable
     public List<String> getVirtualNetworkRules() {
@@ -236,6 +236,7 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
 
     @Override
     public void copyFrom(CosmosDBAccount cosmosAccount) {
+        setResourceGroup(findById(ResourceGroupResource.class, cosmosAccount.resourceGroupName()));
         setConsistencyLevel(cosmosAccount.consistencyPolicy().defaultConsistencyLevel().toString());
         setId(cosmosAccount.id());
         setIpRangeFilter(cosmosAccount.ipRangeFilter());
