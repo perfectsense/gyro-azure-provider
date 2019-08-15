@@ -8,7 +8,7 @@ end
 
 azure::network sql-network-example
     network-name: "sql-network-example"
-    resource-group-name: $(azure::resource-group resource-group-sql-database-example | resource-group-name)
+    resource-group-name: $(azure::resource-group resource-group-sql-database-example).name
     address-spaces:  [
          "10.0.0.0/27",
          "10.1.0.0/27"
@@ -32,16 +32,67 @@ azure::network sql-network-example
     }
 end
 
+azure::network sql-network-example-2
+    network-name: "sql-network-example-2"
+    resource-group-name: $(azure::resource-group resource-group-sql-database-example).name
+    address-spaces:  [
+         "10.0.0.0/27",
+         "10.1.0.0/27"
+    ]
+
+    subnet
+        address-prefix: "10.0.0.0/28"
+        name: "subnet1"
+        service-endpoints: {
+            Sql : ["westus"]
+        }
+    end
+
+    subnet
+        address-prefix: "10.0.0.16/28"
+        name: "subnet2"
+        service-endpoints: {
+            Sql : ["westus"]
+        }
+    end
+
+    tags: {
+        Name: "network-example-2"
+    }
+end
+
 azure::sql-server sql-server-example
     administrator-login: "TestAdmin18"
     administrator-password: "TestPass18!"
     name: "sql-server-example"
     region: "westus"
-    resource-group-name: $(azure::resource-group resource-group-sql-database-example | resource-group-name)
+    resource-group: $(azure::resource-group resource-group-sql-database-example)
     system-assigned-msi: true
     tags: {
         Name: "sql-server-example"
     }
+
+    firewall-rule
+        start-ip-address: "10.0.0.0"
+        name: "test firewall rule"
+    end
+
+    virtual-network-rule
+        name: "test vn rule"
+        network: $(azure::network sql-network-example)
+        subnet-name: "subnet1"
+    end
+
+    elastic-pool
+        name: "sql-elastic-pool"
+        edition: "Basic"
+        dtu-min: "eDTU_0"
+        dtu-max: "eDTU_5"
+        dtu-reserved: "eDTU_50"
+        tags: {
+            Name: "sql-elastic-pool-example"
+        }
+    end
 end
 
 azure::sql-database sql-database-example
@@ -55,38 +106,23 @@ azure::sql-database sql-database-example
     }
 end
 
-azure::sql-firewall-rule firewall
-    start-ip-address: "10.0.0.0"
-    name: "test firewall rule"
-    sql-server: $(azure::sql-server sql-server-example)
-end
-
-azure::sql-virtual-network-rule vnrule
-    name: "test vn rule"
-    network-id: $(azure::network sql-network-example | network-id)
-    subnet-name: "subnet1"
-    sql-server: $(azure::sql-server sql-server-example)
-end
-
-azure::sql-elastic-pool sql-elastic-pool-example
-    name: "sql-elastic-pool"
-    edition: "Basic"
-    dtu-min: "eDTU_0"
-    dtu-max: "eDTU_5"
-    dtu-reserved: "eDTU_50"
-    sql-server: $(azure::sql-server sql-server-example)
-    tags: {
-        Name: "sql-elastic-pool-example"
-    }
-end
-
 azure::sql-database sql-database-example-with-elastic-pool
     name: "sql-database-example-with-pool"
-    elastic-pool-name: $(azure::sql-elastic-pool sql-elastic-pool-example | name)
+    elastic-pool-name: "sql-elastic-pool"
     max-storage-capacity: "524288000"
     sql-server: $(azure::sql-server sql-server-example)
     tags: {
         Name: "sql-database-example-with-elastic-pool-example"
+    }
+end
+
+azure::sql-database sql-database-example-with-elastic-pool-source-db
+    name: "sql-database-example-with-pool-db"
+    elastic-pool-name: "sql-elastic-pool"
+    max-storage-capacity: "524288000"
+    sql-server: $(azure::sql-server sql-server-example)
+    tags: {
+        Name: "sql-database-example-with-elastic-pool-example-source-db"
     }
 end
 
@@ -95,30 +131,19 @@ azure::sql-server sql-server-example-partner-server
     administrator-password: "TestPass183!"
     name: "sql-server-example-partner-server"
     region: "eastus"
-    resource-group-name: $(azure::resource-group resource-group-sql-database-example | resource-group-name)
+    resource-group: $(azure::resource-group resource-group-sql-database-example)
     system-assigned-msi: true
     tags: {
         Name: "sql-server-example-partner-server"
     }
 end
 
-azure::sql-failover-group failover-example
+azure::sql-failover-group sql-failover-example
     name: "sql-failover-example"
-    database-ids: [$(azure::sql-database sql-database-example | id)]
-    sql-server: $(azure::sql-server sql-server-example)
+    database: [$(azure::sql-database sql-database-example)]
     manual-read-and-write-policy: false
-    read-write-grace-period: 2
-    partner-server-ids: [$(azure::sql-server sql-server-example-partner-server | id)]
+    read-write-grace-period: 3
+    partner-server: [$(azure::sql-server sql-server-example-partner-server)]
     read-only-policy-enabled: false
-end
-
-
-azure::sql-database sql-database-example-with-elastic-pool-source-db
-    name: "sql-database-example-with-pool-db"
-    elastic-pool-name: $(azure::sql-elastic-pool sql-elastic-pool-example | name)
-    max-storage-capacity: "524288000"
     sql-server: $(azure::sql-server sql-server-example)
-    tags: {
-        Name: "sql-database-example-with-elastic-pool-example-source-db"
-    }
 end

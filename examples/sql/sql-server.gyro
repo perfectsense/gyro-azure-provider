@@ -8,7 +8,7 @@ end
 
 azure::network sql-network-example
     network-name: "sql-network-example"
-    resource-group-name: $(azure::resource-group resource-group-sql-server-example | resource-group-name)
+    resource-group-name: $(azure::resource-group resource-group-sql-server-example).name
     address-spaces:  [
          "10.0.0.0/27",
          "10.1.0.0/27"
@@ -37,22 +37,21 @@ azure::sql-server sql-server-example
     administrator-password: "TestPass18!"
     name: "sql-server-example"
     region: "westus"
-    resource-group-name: $(azure::resource-group resource-group-sql-server-example | resource-group-name)
+    resource-group: $(azure::resource-group resource-group-sql-server-example)
     system-assigned-msi: true
+    with-access-from-azure-services: true
     tags: {
         Name: "sql-server-example"
     }
-end
 
-azure::sql-firewall-rule firewall
-    start-ip-address: "10.0.0.0"
-    name: "test firewall rule"
-    sql-server: $(azure::sql-server sql-server-example)
-end
+    firewall-rule
+        start-ip-address: "10.0.0.0"
+        name: "test firewall rule"
+    end
 
-azure::sql-virtual-network-rule vnrule
-    name: "test vn rule"
-    network-id: $(azure::network sql-network-example | network-id)
-    subnet-name: "subnet1"
-    sql-server: $(azure::sql-server sql-server-example)
+    virtual-network-rule
+        name: "test vn rule"
+        network: $(azure::network sql-network-example)
+        subnet-name: "subnet1"
+    end
 end

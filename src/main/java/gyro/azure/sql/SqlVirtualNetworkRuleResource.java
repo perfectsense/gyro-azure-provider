@@ -1,11 +1,11 @@
 package gyro.azure.sql;
 
 import gyro.azure.AzureResource;
-import gyro.core.GyroException;
+import gyro.azure.Copyable;
+import gyro.azure.network.NetworkResource;
 import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
-import gyro.core.Type;
 import gyro.core.resource.Updatable;
 
 import com.microsoft.azure.management.Azure;
@@ -23,25 +23,21 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *     azure::sql-virtual-network-rule vnrule
+ *     virtual-network-rule vnrule
  *         name: "test vn rule"
- *         network-id: $(azure::network sql-network-example | network-id)
+ *         network: $(azure::network sql-network-example)
  *         subnet-name: "subnet1"
- *         sql-server: $(azure::sql-server sql-server-example)
  *     end
  */
-@Type("sql-virtual-network-rule")
-public class SqlVirtualNetworkRuleResource extends AzureResource {
+public class SqlVirtualNetworkRuleResource extends AzureResource implements Copyable<SqlVirtualNetworkRule> {
 
     private String id;
     private String name;
-    private String networkId;
-    private SqlServerResource sqlServer;
-    private SqlVirtualNetworkRule sqlVirtualNetworkRule;
+    private NetworkResource network;
     private String subnetName;
 
     /**
-     * The id of the virtual network rule.
+     * The ID of the Virtual Network Rule.
      */
     @Output
     public String getId() {
@@ -53,7 +49,7 @@ public class SqlVirtualNetworkRuleResource extends AzureResource {
     }
 
     /**
-     * The name of the virtual network rule. (Required)
+     * The name of the Virtual Network Rule. (Required)
      */
     public String getName() {
         return name;
@@ -64,30 +60,19 @@ public class SqlVirtualNetworkRuleResource extends AzureResource {
     }
 
     /**
-     * The network id where the subnet is found. (Required)
+     * The Network where the to be attached subnet is found for the Virtual Network Rule. (Required)
      */
     @Updatable
-    public String getNetworkId() {
-        return networkId;
+    public NetworkResource getNetwork() {
+        return network;
     }
 
-    public void setNetworkId(String networkId) {
-        this.networkId = networkId;
-    }
-
-    /**
-     * The sql server where the virtual network rule is found. (Required)
-     */
-    public SqlServerResource getSqlServer() {
-        return sqlServer;
-    }
-
-    public void setSqlServer(SqlServerResource sqlServer) {
-        this.sqlServer = sqlServer;
+    public void setNetwork(NetworkResource network) {
+        this.network = network;
     }
 
     /**
-     * The name of a subnet within the specified network. (Required)
+     * The name of a Subnet within the specified network for the Virtual Network Rule. (Required)
      */
     @Updatable
     public String getSubnetName() {
@@ -99,37 +84,35 @@ public class SqlVirtualNetworkRuleResource extends AzureResource {
     }
 
     @Override
-    public boolean refresh() {
-        Azure client = createClient();
-
-        SqlVirtualNetworkRule virtualNetworkRule = virtualNetworkRule(client);
-
-        if (virtualNetworkRule == null) {
-            return false;
-        }
-
+    public void copyFrom(SqlVirtualNetworkRule virtualNetworkRule) {
         setId(virtualNetworkRule.id());
         setName(virtualNetworkRule.name());
-        setNetworkId(virtualNetworkRule.subnetId().split("/subnets/")[0]);
+        setNetwork(findById(NetworkResource.class,virtualNetworkRule.subnetId().split("/subnets/")[0]));
         setSubnetName(virtualNetworkRule.subnetId().split("/subnets/")[1]);
+    }
 
-        return true;
+    @Override
+    public String primaryKey() {
+        return getName();
+    }
+
+    @Override
+    public boolean refresh() {
+        return false;
     }
 
     @Override
     public void create(GyroUI ui, State state) {
-        if (getSqlServer() == null) {
-            throw new GyroException("You must provide a sql server resource.");
-        }
-        
         Azure client = createClient();
 
-        WithServiceEndpoint withServiceEndpoint = client.sqlServers().getById(getSqlServer().getId()).virtualNetworkRules().define(getName())
-                .withSubnet(getNetworkId(), getSubnetName());
+        SqlServerResource parent = (SqlServerResource) parent();
+
+        WithServiceEndpoint withServiceEndpoint = client.sqlServers().getById(parent.getId()).virtualNetworkRules().define(getName())
+                .withSubnet(getNetwork().getNetworkId(), getSubnetName());
 
         SqlVirtualNetworkRule virtualNetworkRule = withServiceEndpoint.create();
 
-        setId(virtualNetworkRule.id());
+        copyFrom(virtualNetworkRule);
     }
 
     @Override
@@ -138,9 +121,11 @@ public class SqlVirtualNetworkRuleResource extends AzureResource {
 
         SqlVirtualNetworkRule.Update update = virtualNetworkRule(client)
                 .update()
-                .withSubnet(getNetworkId(), getSubnetName());
+                .withSubnet(getNetwork().getNetworkId(), getSubnetName());
 
-        update.apply();
+        SqlVirtualNetworkRule virtualNetworkRule = update.apply();
+
+        copyFrom(virtualNetworkRule);
     }
 
     @Override
@@ -151,10 +136,8 @@ public class SqlVirtualNetworkRuleResource extends AzureResource {
     }
 
     private SqlVirtualNetworkRule virtualNetworkRule(Azure client) {
-        if (sqlVirtualNetworkRule == null) {
-            sqlVirtualNetworkRule = client.sqlServers().getById(getSqlServer().getId()).virtualNetworkRules().get(getName());
-        }
+        SqlServerResource parent = (SqlServerResource) parent();
 
-        return sqlVirtualNetworkRule;
+        return client.sqlServers().getById(parent.getId()).virtualNetworkRules().get(getName());
     }
 }

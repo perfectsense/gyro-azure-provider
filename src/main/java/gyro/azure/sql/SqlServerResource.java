@@ -1,7 +1,10 @@
 package gyro.azure.sql;
 
 import gyro.azure.AzureResource;
+import gyro.azure.Copyable;
+import gyro.azure.resources.ResourceGroupResource;
 import gyro.core.GyroUI;
+import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.Type;
@@ -13,8 +16,10 @@ import com.microsoft.azure.management.sql.SqlServer;
 import gyro.core.scope.State;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Creates a sql server.
@@ -29,7 +34,7 @@ import java.util.Set;
  *         administrator-password: "TestPass18!"
  *         name: "sql-server-example"
  *         region: "westus"
- *         resource-group-name: $(azure::resource-group sql-server-example | resource-group-name)
+ *         resource-group: $(azure::resource-group sql-server-example)
  *         system-assigned-msi: true
  *         tags: {
  *             Name: "sql-server-example"
@@ -37,7 +42,7 @@ import java.util.Set;
  *     end
  */
 @Type("sql-server")
-public class SqlServerResource extends AzureResource {
+public class SqlServerResource extends AzureResource implements Copyable<SqlServer> {
 
     private Boolean withAccessFromAzureServices;
     private String administratorLogin;
@@ -45,13 +50,17 @@ public class SqlServerResource extends AzureResource {
     private String id;
     private String name;
     private String region;
-    private String resourceGroupName;
+    private ResourceGroupResource resourceGroup;
     private Boolean systemAssignedMsi;
     private Map<String, String> tags;
+    private Set<SqlFirewallRuleResource> firewallRule;
+    private Set<SqlElasticPoolResource> elasticPool;
+    private Set<SqlVirtualNetworkRuleResource> virtualNetworkRule;
 
     /**
-     * Determines if the azure portal will have access to the server. (Required)
+     * Determines if the azure portal will have access to the Sql Server. Defaults to ``true``.
      */
+    @Updatable
     public Boolean getWithAccessFromAzureServices() {
         if (withAccessFromAzureServices == null) {
             withAccessFromAzureServices = true;
@@ -65,7 +74,7 @@ public class SqlServerResource extends AzureResource {
     }
 
     /**
-     * The administrator login. (Required)
+     * The administrator login for the Sql Server. (Required)
      */
     public String getAdministratorLogin() {
         return administratorLogin;
@@ -76,7 +85,7 @@ public class SqlServerResource extends AzureResource {
     }
 
     /**
-     * The administrator password. (Required)
+     * The administrator password for the Sql Server. (Required)
      */
     @Updatable
     public String getAdministratorPassword() {
@@ -88,8 +97,9 @@ public class SqlServerResource extends AzureResource {
     }
 
     /**
-     * The id of the server.
+     * The ID of the Sql Server.
      */
+    @Id
     @Output
     public String getId() {
         return id;
@@ -100,7 +110,7 @@ public class SqlServerResource extends AzureResource {
     }
 
     /**
-     * The name of the server. (Required)
+     * The name of the Sql Server. (Required)
      */
     public String getName() {
         return name;
@@ -111,7 +121,7 @@ public class SqlServerResource extends AzureResource {
     }
 
     /**
-     * The server's region. (Required)
+     * The Sql Server's region. (Required)
      */
     @Override
     public String getRegion() {
@@ -123,18 +133,18 @@ public class SqlServerResource extends AzureResource {
     }
 
     /**
-     * Name of the resource group under which this would reside. (Required)
+     * Name of the resource group under which the Sql Server would reside. (Required)
      */
-    public String getResourceGroupName() {
-        return resourceGroupName;
+    public ResourceGroupResource getResourceGroup() {
+        return resourceGroup;
     }
 
-    public void setResourceGroupName(String resourceGroupName) {
-        this.resourceGroupName = resourceGroupName;
+    public void setResourceGroup(ResourceGroupResource resourceGroup) {
+        this.resourceGroup = resourceGroup;
     }
 
     /**
-     * Determines if the system will set a local Managed Service Identity (MSI) for the server. (Optional)
+     * Determines if the system will set a local Managed Service Identity (MSI) for the Sql Server. (Optional)
      */
     @Updatable
     public Boolean getSystemAssignedMsi() {
@@ -149,7 +159,7 @@ public class SqlServerResource extends AzureResource {
     }
 
     /**
-     * The tags for the sql server. (Optional)
+     * The tags for the Sql Server. (Optional)
      */
     @Updatable
     public Map<String, String> getTags() {
@@ -164,6 +174,83 @@ public class SqlServerResource extends AzureResource {
         this.tags = tags;
     }
 
+    /**
+     * A set of Firewall Rules for the Sql Server.
+     */
+    @Updatable
+    public Set<SqlFirewallRuleResource> getFirewallRule() {
+        if (firewallRule == null) {
+            firewallRule = new HashSet<>();
+        }
+
+        return firewallRule;
+    }
+
+    public void setFirewallRule(Set<SqlFirewallRuleResource> firewallRule) {
+        this.firewallRule = firewallRule;
+    }
+
+    /**
+     * A set of Elastic Pools for the Sql Server.
+     */
+    @Updatable
+    public Set<SqlElasticPoolResource> getElasticPool() {
+        if (elasticPool == null) {
+            elasticPool = new HashSet<>();
+        }
+
+        return elasticPool;
+    }
+
+    public void setElasticPool(Set<SqlElasticPoolResource> elasticPool) {
+        this.elasticPool = elasticPool;
+    }
+
+    /**
+     * A set of Virtual Network Rules for the Sql Server.
+     */
+    @Updatable
+    public Set<SqlVirtualNetworkRuleResource> getVirtualNetworkRule() {
+        if (virtualNetworkRule == null) {
+            virtualNetworkRule = new HashSet<>();
+        }
+
+        return virtualNetworkRule;
+    }
+
+    public void setVirtualNetworkRule(Set<SqlVirtualNetworkRuleResource> virtualNetworkRule) {
+        this.virtualNetworkRule = virtualNetworkRule;
+    }
+
+    @Override
+    public void copyFrom(SqlServer sqlServer) {
+        setAdministratorLogin(sqlServer.administratorLogin());
+        setId(sqlServer.id());
+        setName(sqlServer.name());
+        setSystemAssignedMsi(sqlServer.isManagedServiceIdentityEnabled());
+        setTags(sqlServer.tags());
+        setResourceGroup(findById(ResourceGroupResource.class, sqlServer.resourceGroupName()));
+        setWithAccessFromAzureServices(sqlServer.firewallRules().list().stream().anyMatch(o -> o.name().equals("AllowAllWindowsAzureIps")));
+        setFirewallRule(sqlServer.firewallRules().list().stream().filter(o -> !o.name().equals("AllowAllWindowsAzureIps")).map(o -> {
+            SqlFirewallRuleResource firewallRule = newSubresource(SqlFirewallRuleResource.class);
+            firewallRule.copyFrom(o);
+            return firewallRule;
+        }).collect(Collectors.toSet()));
+        setVirtualNetworkRule(sqlServer.virtualNetworkRules().list().stream().map(o -> {
+            SqlVirtualNetworkRuleResource virtualNetworkRule = newSubresource(SqlVirtualNetworkRuleResource.class);
+            virtualNetworkRule.copyFrom(o);
+            return virtualNetworkRule;
+        }).collect(Collectors.toSet()));
+        setElasticPool(sqlServer.elasticPools().list().stream().map(o -> {
+            SqlElasticPoolResource elasticPool = newSubresource(SqlElasticPoolResource.class);
+            elasticPool.copyFrom(o);
+            //tags arn't refreshed
+            //api fails to provide.
+            getElasticPool().stream().filter(oo -> oo.getName().equals(o.name())).findFirst().ifPresent(pool -> elasticPool.setTags(pool.getTags()));
+            return elasticPool;
+        }).collect(Collectors.toSet()));
+    }
+
     @Override
     public boolean refresh() {
         Azure client = createClient();
@@ -174,11 +261,7 @@ public class SqlServerResource extends AzureResource {
             return false;
         }
 
-        setAdministratorLogin(sqlServer.administratorLogin());
-        setId(sqlServer.id());
-        setName(sqlServer.name());
-        setSystemAssignedMsi(sqlServer.isManagedServiceIdentityEnabled());
-        setTags(sqlServer.tags());
+        copyFrom(sqlServer);
 
         return true;
     }
@@ -189,7 +272,7 @@ public class SqlServerResource extends AzureResource {
 
         SqlServer.DefinitionStages.WithCreate withCreate = client.sqlServers().define(getName())
                 .withRegion(Region.fromName(getRegion()))
-                .withExistingResourceGroup(getResourceGroupName())
+                .withExistingResourceGroup(getResourceGroup().getName())
                 .withAdministratorLogin(getAdministratorLogin())
                 .withAdministratorPassword(getAdministratorPassword())
                 .withTags(getTags());
@@ -204,12 +287,21 @@ public class SqlServerResource extends AzureResource {
 
         SqlServer sqlServer = withCreate.create();
 
-        setId(sqlServer.id());
+        copyFrom(sqlServer);
     }
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
+
+        if (changedProperties.contains("with-access-from-azure-services")) {
+            SqlServer server = client.sqlServers().getById(getId());
+            if (getWithAccessFromAzureServices()) {
+                server.firewallRules().define("AllowAllWindowsAzureIps").withIPAddress("0.0.0.0").create();
+            } else {
+                server.firewallRules().delete("AllowAllWindowsAzureIps");
+            }
+        }
 
         SqlServer.Update update = client.sqlServers().getById(getId()).update();
 
@@ -219,7 +311,9 @@ public class SqlServerResource extends AzureResource {
 
         update.withAdministratorPassword(getAdministratorPassword());
         update.withTags(getTags());
-        update.apply();
+        SqlServer sqlServer = update.apply();
+
+        copyFrom(sqlServer);
     }
 
     @Override
@@ -228,5 +322,4 @@ public class SqlServerResource extends AzureResource {
 
         client.sqlServers().deleteById(getId());
     }
-
 }

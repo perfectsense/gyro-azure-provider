@@ -1,6 +1,8 @@
 package gyro.azure.sql;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
+import gyro.azure.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
@@ -24,24 +26,20 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *     azure::sql-firewall-rule firewall
+ *     firewall-rule firewall
  *         start-ip-address: "10.0.0.0"
  *         name: "test firewall rule"
- *         sql-server: $(azure::sql-server sql-server-example)
  *     end
  */
-@Type("sql-firewall-rule")
-public class SqlFirewallRuleResource extends AzureResource {
+public class SqlFirewallRuleResource extends AzureResource implements Copyable<SqlFirewallRule> {
 
     private String id;
     private String startIpAddress;
     private String endIpAddress;
     private String name;
-    private SqlFirewallRule sqlFirewallRule;
-    private SqlServerResource sqlServer;
 
     /**
-     * The id of the firewall rule. (Required)
+     * The ID of the Firewall Rule. (Required)
      */
     @Output
     public String getId() {
@@ -53,7 +51,7 @@ public class SqlFirewallRuleResource extends AzureResource {
     }
 
     /**
-     * The starting or only ip address of the firewall rule. (Required)
+     * The starting or only ip address of the Firewall Rule. (Required)
      */
     @Updatable
     public String getStartIpAddress() {
@@ -65,7 +63,7 @@ public class SqlFirewallRuleResource extends AzureResource {
     }
 
     /**
-     * The ending ip address of the firewall rule. (Optional)
+     * The ending ip address of the Firewall Rule. (Optional)
      */
     @Updatable
     public String getEndIpAddress() {
@@ -77,7 +75,7 @@ public class SqlFirewallRuleResource extends AzureResource {
     }
 
     /**
-     * The name of the firewall rule. (Required)
+     * The name of the Firewall Rule. (Required)
      */
     public String getName() {
         return name;
@@ -87,47 +85,34 @@ public class SqlFirewallRuleResource extends AzureResource {
         this.name = name;
     }
 
-    /**
-     * The sql server where the firewall rule is found. (Required)
-     */
-    public SqlServerResource getSqlServer() {
-        return sqlServer;
-    }
-
-    public void setSqlServer(SqlServerResource sqlServer) {
-        this.sqlServer = sqlServer;
-    }
-
     @Override
-    public boolean refresh() {
-        Azure client = createClient();
-
-        SqlFirewallRule firewallRule = sqlFirewallRule(client);
-
-        if (firewallRule == null) {
-            return false;
-        }
-
+    public void copyFrom(SqlFirewallRule firewallRule) {
         setId(firewallRule.id());
         setStartIpAddress(firewallRule.startIPAddress());
         setEndIpAddress(firewallRule.endIPAddress());
         setName(firewallRule.name());
+    }
 
-        return true;
+    @Override
+    public String primaryKey() {
+        return getName();
+    }
+
+    @Override
+    public boolean refresh() {
+        return false;
     }
 
     @Override
     public void create(GyroUI ui, State state) {
-        if (getSqlServer() == null) {
-            throw new GyroException("You must provide a sql server resource.");
-        }
-
         Azure client = createClient();
 
-        WithIPAddressRange rule = client.sqlServers().getById(getSqlServer().getId()).firewallRules().define(getName());
+        SqlServerResource parent = (SqlServerResource) parent();
+
+        WithIPAddressRange rule = client.sqlServers().getById(parent.getId()).firewallRules().define(getName());
 
         WithCreate withCreate;
-        if (getStartIpAddress() != null) {
+        if (ObjectUtils.isBlank(getEndIpAddress())) {
             withCreate = rule.withIPAddress(getStartIpAddress());
         } else {
             withCreate = rule.withIPAddressRange(getStartIpAddress(), getEndIpAddress());
@@ -144,7 +129,7 @@ public class SqlFirewallRuleResource extends AzureResource {
 
         SqlFirewallRule.Update update = sqlFirewallRule(client).update();
 
-        if (getStartIpAddress() != null && getEndIpAddress() != null) {
+        if (!ObjectUtils.isBlank(getStartIpAddress()) && !ObjectUtils.isBlank(getEndIpAddress())) {
             update.withStartIPAddress(getStartIpAddress())
                     .withEndIPAddress(getEndIpAddress())
                     .apply();
@@ -161,10 +146,8 @@ public class SqlFirewallRuleResource extends AzureResource {
     }
 
     private SqlFirewallRule sqlFirewallRule(Azure client) {
-        if (sqlFirewallRule == null) {
-            sqlFirewallRule = client.sqlServers().getById(getSqlServer().getId()).firewallRules().get(getName());
-        }
+        SqlServerResource parent = (SqlServerResource) parent();
 
-        return sqlFirewallRule;
+        return client.sqlServers().getById(parent.getId()).firewallRules().get(getName());
     }
 }

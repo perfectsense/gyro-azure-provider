@@ -2,11 +2,11 @@ package gyro.azure.sql;
 
 import com.microsoft.azure.management.sql.SqlElasticPoolOperations;
 import gyro.azure.AzureResource;
+import gyro.azure.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
-import gyro.core.Type;
 import gyro.core.resource.Updatable;
 
 import com.microsoft.azure.management.Azure;
@@ -25,9 +25,8 @@ import com.microsoft.azure.management.sql.SqlElasticPoolStandardStorage;
 import com.microsoft.azure.management.sql.SqlElasticPoolOperations.DefinitionStages.WithEdition;
 import gyro.core.scope.State;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -39,55 +38,51 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *     azure::sql-elastic-pool sql-elastic-pool-example
+ *     elastic-pool sql-elastic-pool-example
  *         name: "sql-elastic-pool"
  *         edition: "Basic"
  *         dtu-min: "eDTU_0"
  *         dtu-max: "eDTU_5"
  *         dtu-reserved: "eDTU_50"
- *         sql-server: $(azure::sql-server sql-server-example)
  *         tags: {
  *             Name: "sql-elastic-pool-example"
  *         }
  *     end
  */
-@Type("sql-elastic-pool")
-public class SqlElasticPoolResource extends AzureResource {
+public class SqlElasticPoolResource extends AzureResource implements Copyable<SqlElasticPool> {
 
     private static final String EDITION_BASIC = "Basic";
     private static final String EDITION_PREMIUM = "Premium";
     private static final String EDITION_STANDARD = "Standard";
 
-    private List<String> databaseNames;
+    private Set<String> databaseNames;
     private String dtuMax;
     private String dtuMin;
     private String dtuReserved;
     private String edition;
     private String id;
     private String name;
-    private SqlElasticPool sqlElasticPool;
-    private SqlServerResource sqlServer;
     private String storageCapacity;
     private Map<String, String> tags;
 
     /**
-     * The databases within the elastic pool. (Optional)
+     * The databases within the Elastic Pool. (Optional)
      */
     @Updatable
-    public List<String> getDatabaseNames() {
+    public Set<String> getDatabaseNames() {
         if (databaseNames == null) {
-            databaseNames = new ArrayList<>();
+            databaseNames = new HashSet<>();
         }
 
         return databaseNames;
     }
 
-    public void setDatabaseNames(List<String> databaseNames) {
+    public void setDatabaseNames(Set<String> databaseNames) {
         this.databaseNames = databaseNames;
     }
 
     /**
-     * The maximum eDTU for the each database in the pool. (Required)
+     * The maximum eDTU for the each database in the Elastic Pool. (Required)
      */
     @Updatable
     public String getDtuMax() {
@@ -99,7 +94,7 @@ public class SqlElasticPoolResource extends AzureResource {
     }
 
     /**
-     * The minimum of eDTU for each database in the pool. (Required)
+     * The minimum of eDTU for each database in the Elastic Pool. (Required)
      */
     @Updatable
     public String getDtuMin() {
@@ -111,7 +106,7 @@ public class SqlElasticPoolResource extends AzureResource {
     }
 
     /**
-     * The total shared eDTU for the elastic pool. (Required)
+     * The total shared eDTU for the Elastic Pool. (Required)
      */
     @Updatable
     public String getDtuReserved() {
@@ -123,7 +118,7 @@ public class SqlElasticPoolResource extends AzureResource {
     }
 
     /**
-     * The edition of the elastic pool. (Required)
+     * The edition of the Elastic Pool. (Required)
      */
     @Updatable
     public String getEdition() {
@@ -135,7 +130,7 @@ public class SqlElasticPoolResource extends AzureResource {
     }
 
     /**
-     * The id of the elastic pool.
+     * The ID of the Elastic Pool.
      */
     @Output
     public String getId() {
@@ -147,7 +142,7 @@ public class SqlElasticPoolResource extends AzureResource {
     }
 
     /**
-     * The name of the elastic pool. (Required)
+     * The name of the Elastic Pool. (Required)
      */
     public String getName() {
         return name;
@@ -158,7 +153,7 @@ public class SqlElasticPoolResource extends AzureResource {
     }
 
     /**
-     * The storage limit for the database elastic pool. Required when used with ``Standard`` and ``Premium`` editions. (Optional)
+     * The storage limit for the Elastic Pool. Required when used with ``Standard`` or ``Premium`` editions. (Optional)
      */
     @Updatable
     public String getStorageCapacity() {
@@ -170,18 +165,7 @@ public class SqlElasticPoolResource extends AzureResource {
     }
 
     /**
-     * The sql server where the elastic pool is found. (Required)
-     */
-    public SqlServerResource getSqlServer() {
-        return sqlServer;
-    }
-
-    public void setSqlServer(SqlServerResource sqlServer) {
-        this.sqlServer = sqlServer;
-    }
-
-    /**
-     * The tags associated with the elastic pool. (Optional)
+     * The tags associated with the Elastic Pool. (Optional)
      */
     @Updatable
     public Map<String, String> getTags() {
@@ -192,20 +176,17 @@ public class SqlElasticPoolResource extends AzureResource {
         return tags;
     }
 
+    @Override
+    public String primaryKey() {
+        return getName();
+    }
+
     public void setTags(Map<String, String> tags) {
         this.tags = tags;
     }
 
     @Override
-    public boolean refresh() {
-        Azure client = createClient();
-
-        SqlElasticPool elasticPool = sqlElasticPool(client);
-
-        if (elasticPool == null) {
-            return false;
-        }
-
+    public void copyFrom(SqlElasticPool elasticPool) {
         getDatabaseNames().clear();
         elasticPool.listDatabases().forEach(db -> getDatabaseNames().add(db.name()));
         setDtuMax("eDTU_" + elasticPool.databaseDtuMax());
@@ -215,20 +196,22 @@ public class SqlElasticPoolResource extends AzureResource {
         setId(elasticPool.id());
         setName(elasticPool.name());
         setStorageCapacity(Integer.toString(elasticPool.storageCapacityInMB()));
-        setTags(elasticPool.inner().getTags());
+        //tags arn't refreshed
+        //api fails to provide.
+    }
 
-        return true;
+    @Override
+    public boolean refresh() {
+        return false;
     }
 
     @Override
     public void create(GyroUI ui, State state) {
-        if (getSqlServer() == null) {
-            throw new GyroException("You must provide a sql server resource.");
-        }
-
         Azure client = createClient();
 
-        WithEdition buildPool = client.sqlServers().getById(getSqlServer().getId()).elasticPools().define(getName());
+        SqlServerResource parent = (SqlServerResource) parent();
+
+        WithEdition buildPool = client.sqlServers().getById(parent.getId()).elasticPools().define(getName());
 
         SqlElasticPoolOperations.DefinitionStages.WithCreate elasticPool;
 
@@ -250,7 +233,7 @@ public class SqlElasticPoolResource extends AzureResource {
                     .withReservedDtu(SqlElasticPoolStandardEDTUs.valueOf(getDtuReserved()))
                     .withStorageCapacity(SqlElasticPoolStandardStorage.valueOf(getStorageCapacity()));
         } else {
-            throw new GyroException("Invalid edition. Valid values are Basic, Standard, and Premium");
+            throw new GyroException("Invalid edition. Valid values are Basic, Standard, or Premium");
         }
 
         for (String database : getDatabaseNames()) {
@@ -261,7 +244,7 @@ public class SqlElasticPoolResource extends AzureResource {
 
         SqlElasticPool pool = elasticPool.create();
 
-        setId(pool.id());
+        copyFrom(pool);
     }
 
     @Override
@@ -285,14 +268,16 @@ public class SqlElasticPoolResource extends AzureResource {
                     .withReservedDtu(SqlElasticPoolStandardEDTUs.valueOf(getDtuReserved()))
                     .withStorageCapacity(SqlElasticPoolStandardStorage.valueOf(getStorageCapacity()));
         } else {
-            throw new GyroException("Invalid edition. Valid values are Basic, Standard, and Premium");
+            throw new GyroException("Invalid edition. Valid values are Basic, Standard, or Premium");
         }
 
         for (String database : getDatabaseNames()) {
             update.withNewDatabase(database);
         }
 
-        update.withTags(getTags()).apply();
+        SqlElasticPool pool = update.withTags(getTags()).apply();
+
+        copyFrom(pool);
     }
 
     @Override
@@ -303,10 +288,8 @@ public class SqlElasticPoolResource extends AzureResource {
     }
 
     private SqlElasticPool sqlElasticPool(Azure client) {
-        if (sqlElasticPool == null) {
-            sqlElasticPool = client.sqlServers().getById(getSqlServer().getId()).elasticPools().get(getName());
-        }
+        SqlServerResource parent = (SqlServerResource) parent();
 
-        return sqlElasticPool;
+        return client.sqlServers().getById(parent.getId()).elasticPools().get(getName());
     }
 }
