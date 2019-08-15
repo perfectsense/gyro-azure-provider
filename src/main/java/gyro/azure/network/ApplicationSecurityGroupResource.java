@@ -2,6 +2,7 @@ package gyro.azure.network;
 
 import gyro.azure.AzureResource;
 import gyro.core.GyroUI;
+import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.Type;
@@ -43,6 +44,7 @@ public class ApplicationSecurityGroupResource extends AzureResource {
     /**
      * The id of the application security group.
      */
+    @Id
     @Output
     public String getId() {
         return id;
