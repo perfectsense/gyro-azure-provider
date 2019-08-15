@@ -72,7 +72,7 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
     private String id;
     private String ipRangeFilter;
     private Integer maxInterval;
-    private String maxStalenessPrefix;
+    private Long maxStalenessPrefix;
     private String name;
     private List<String> readReplicationRegions;
     private ResourceGroupResource resourceGroup;
@@ -144,11 +144,11 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
      * The max staleness prefix. Required when used with ``BoundedStaleness`` consistency policy. (Optional)
      */
     @Updatable
-    public String getMaxStalenessPrefix() {
+    public Long getMaxStalenessPrefix() {
         return maxStalenessPrefix;
     }
 
-    public void setMaxStalenessPrefix(String maxStalenessPrefix) {
+    public void setMaxStalenessPrefix(Long maxStalenessPrefix) {
         this.maxStalenessPrefix = maxStalenessPrefix;
     }
 
@@ -242,7 +242,7 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
 
         if (LEVEL_BOUNDED.equalsIgnoreCase(getConsistencyLevel())) {
             setMaxInterval(cosmosAccount.consistencyPolicy().maxIntervalInSeconds());
-            setMaxStalenessPrefix(cosmosAccount.consistencyPolicy().maxStalenessPrefix().toString());
+            setMaxStalenessPrefix(cosmosAccount.consistencyPolicy().maxStalenessPrefix());
         }
         setName(cosmosAccount.name());
 
@@ -310,7 +310,7 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
                 && getMaxStalenessPrefix() != null
                 && getMaxInterval() != null) {
             withCreate = withConsistencyPolicy
-                    .withBoundedStalenessConsistency(Long.parseLong(getMaxStalenessPrefix()), getMaxInterval())
+                    .withBoundedStalenessConsistency(getMaxStalenessPrefix(), getMaxInterval())
                     .withWriteReplication(Region.fromName(getWriteReplicationRegion()));
         } else if (LEVEL_EVENTUAL.equalsIgnoreCase(getConsistencyLevel())) {
             withCreate = withConsistencyPolicy.withEventualConsistency()
@@ -377,7 +377,7 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
                 && getMaxStalenessPrefix() != null
                 && getMaxInterval() != null) {
             withOptionals = update
-                    .withBoundedStalenessConsistency(Long.parseLong(getMaxStalenessPrefix()), getMaxInterval());
+                    .withBoundedStalenessConsistency(getMaxStalenessPrefix(), getMaxInterval());
         } else if (LEVEL_EVENTUAL.equalsIgnoreCase(getConsistencyLevel())) {
             withOptionals = update.withEventualConsistency();
         } else if (LEVEL_SESSION.equalsIgnoreCase(getConsistencyLevel())) {
