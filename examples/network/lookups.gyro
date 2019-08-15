@@ -1,0 +1,1 @@
+network-security-group: $(external-query azure::network-security-group {} )
