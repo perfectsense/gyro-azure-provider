@@ -7,8 +7,8 @@ azure::resource-group resource-group-example-VM
 end
 
 azure::network network-example-VM
-    network-name: "network-example-VM"
-    resource-group-name: $(azure::resource-group resource-group-example-VM).resource-group-name
+    name: "network-example-VM"
+    resource-group: $(azure::resource-group resource-group-example-VM)
     address-spaces:  [
          "10.0.0.0/27",
          "10.1.0.0/27"
@@ -30,10 +30,10 @@ azure::network network-example-VM
 end
 
 azure::public-ip-address public-ip-address-example-VM
-    public-ip-address-name: "public-ip-address-example-VM"
-    resource-group-name: $(azure::resource-group resource-group-example-VM).resource-group-name
+    name: "public-ip-address-example-VM"
+    resource-group: $(azure::resource-group resource-group-example-VM)
     idle-timeout-in-minute: 4
-    sku-basic: false
+    sku-type: "STANDARD"
 
     tags: {
         Name: "public-ip-address-example-VM"
@@ -52,17 +52,16 @@ azure::disk disk-example-VM
 end
 
 azure::network-interface network-interface-example-VM
-    network-interface-name: "network-interface-example-VM"
-    resource-group-name: $(azure::resource-group resource-group-example-VM).resource-group-name
-    network-id: $(azure::network network-example-VM).network-id
+    name: "network-interface-example-VM"
+    resource-group: $(azure::resource-group resource-group-example-VM)
+    network: $(azure::network network-example-VM)
     subnet: "subnet1"
     tags: {
         Name: "network-interface-example-VM"
     }
 
     nic-ip-configuration
-        ip-allocation-static: false
-        ip-configuration-name: 'primary'
+        name: 'primary'
         primary: true
     end
 end

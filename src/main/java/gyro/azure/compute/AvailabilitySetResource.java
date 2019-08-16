@@ -171,7 +171,7 @@ public class AvailabilitySetResource extends AzureResource implements Copyable<A
 
         AvailabilitySet availabilitySet = client.availabilitySets().define(getName())
                 .withRegion(Region.fromName(getRegion()))
-                .withExistingResourceGroup(getResourceGroup().getResourceGroupName())
+                .withExistingResourceGroup(getResourceGroup().getName())
                 .withFaultDomainCount(getFaultDomainCount())
                 .withSku(AvailabilitySetSkuTypes.fromString(getSku()))
                 .withUpdateDomainCount(getUpdateDomainCount())

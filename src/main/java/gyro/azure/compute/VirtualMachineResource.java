@@ -534,19 +534,19 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
 
         WithNetwork withNetwork = client.virtualMachines().define(getName())
             .withRegion(Region.fromName(getRegion()))
-            .withExistingResourceGroup(getResourceGroup().getResourceGroupName());
+            .withExistingResourceGroup(getResourceGroup().getName());
 
         WithOS withOS;
 
         if (!ObjectUtils.isBlank(getNetworkInterface())) {
             withOS = withNetwork.withExistingPrimaryNetworkInterface(
                     client.networkInterfaces().getByResourceGroup(
-                        getResourceGroup().getResourceGroupName(), getNetworkInterface().getNetworkInterfaceName()
+                        getResourceGroup().getName(), getNetworkInterface().getName()
                     ));
         } else {
 
             WithPrivateIP withPrivateIP = withNetwork
-                .withExistingPrimaryNetwork(client.networks().getById(getNetwork().getNetworkId()))
+                .withExistingPrimaryNetwork(client.networks().getById(getNetwork().getId()))
                 .withSubnet(getSubnet());
 
             WithPublicIPAddress withPublicIpAddress;
@@ -558,7 +558,7 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
 
             if (!ObjectUtils.isBlank(getPublicIpAddress())) {
                 withOS = withPublicIpAddress.withExistingPrimaryPublicIPAddress(
-                    client.publicIPAddresses().getByResourceGroup(getResourceGroup().getResourceGroupName(), getPublicIpAddress().getPublicIpAddressName())
+                    client.publicIPAddresses().getByResourceGroup(getResourceGroup().getName(), getPublicIpAddress().getName())
                 );
             } else {
                 withOS = withPublicIpAddress.withoutPrimaryPublicIPAddress();
@@ -722,13 +722,13 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
         if (!getSecondaryNetworkInterface().isEmpty()) {
             for (NetworkInterfaceResource nic : getSecondaryNetworkInterface()) {
                 create = create.withExistingSecondaryNetworkInterface(
-                    client.networkInterfaces().getByResourceGroup(getResourceGroup().getResourceGroupName(), nic.getNetworkInterfaceName())
+                    client.networkInterfaces().getByResourceGroup(getResourceGroup().getName(), nic.getName())
                 );
             }
         }
 
         if (getAvailabilitySet() != null) {
-            create.withExistingAvailabilitySet(client.availabilitySets().getByResourceGroup(getResourceGroup().getResourceGroupName(), getAvailabilitySet().getId()));
+            create.withExistingAvailabilitySet(client.availabilitySets().getByResourceGroup(getResourceGroup().getName(), getAvailabilitySet().getId()));
         }
 
         VirtualMachine virtualMachine = create.withTags(getTags()).create();

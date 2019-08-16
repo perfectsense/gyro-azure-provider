@@ -198,7 +198,7 @@ public class DiskResource extends AzureResource implements Copyable<Disk> {
         Disk.DefinitionStages.WithDiskSource diskDefWithoutData = client.disks()
             .define(getName())
             .withRegion(Region.fromName(getRegion()))
-            .withExistingResourceGroup(getResourceGroup().getResourceGroupName());
+            .withExistingResourceGroup(getResourceGroup().getName());
 
         Disk disk;
 

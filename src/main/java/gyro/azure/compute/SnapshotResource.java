@@ -248,7 +248,7 @@ public class SnapshotResource extends AzureResource implements Copyable<Snapshot
 
         Snapshot.DefinitionStages.WithSnapshotSource withSnapshotSource = client.snapshots().define(getName())
                 .withRegion(Region.fromName(getRegion()))
-                .withExistingResourceGroup(getResourceGroup().getResourceGroupName());
+                .withExistingResourceGroup(getResourceGroup().getName());
 
         WithCreate withCreate = null;
 
