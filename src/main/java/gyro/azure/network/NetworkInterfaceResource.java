@@ -42,7 +42,6 @@ import java.util.Set;
  *         security-group: $(azure::network-security-group network-security-group-example-interface)
  *
  *         nic-ip-configuration
- *             ip-allocation-static: false
  *             name: 'primary'
  *             primary: true
  *         end
