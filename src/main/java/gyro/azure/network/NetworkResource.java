@@ -14,8 +14,8 @@ import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -72,6 +72,7 @@ public class NetworkResource extends AzureResource implements Copyable<Network> 
     /**
      * Name of the Network. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }
@@ -83,6 +84,7 @@ public class NetworkResource extends AzureResource implements Copyable<Network> 
     /**
      * The Resource Group under which the Network would reside. (Required)
      */
+    @Required
     public ResourceGroupResource getResourceGroup() {
         return resourceGroup;
     }
@@ -94,6 +96,7 @@ public class NetworkResource extends AzureResource implements Copyable<Network> 
     /**
      * Address spaces for the Network. (Required)
      */
+    @Required
     @Updatable
     public Set<String> getAddressSpaces() {
         if (addressSpaces == null) {
@@ -190,7 +193,7 @@ public class NetworkResource extends AzureResource implements Copyable<Network> 
     }
 
     /**
-     * The DNS Server IP's for the Network.
+     * The DNS Server IPs for the Network.
      */
     @Output
     public Set<String> getDnsServerIPs() {

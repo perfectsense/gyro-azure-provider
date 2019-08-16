@@ -13,6 +13,7 @@ import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -68,6 +69,7 @@ public class NetworkSecurityGroupResource extends AzureResource implements Copya
     /**
      * Name of the Network Security Group. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }
@@ -77,8 +79,9 @@ public class NetworkSecurityGroupResource extends AzureResource implements Copya
     }
 
     /**
-     * Name of the resource group under which the Network Security Group would reside. (Required)
+     * The Resource Group under which the Network Security Group would reside. (Required)
      */
+    @Required
     public ResourceGroupResource getResourceGroup() {
         return resourceGroup;
     }

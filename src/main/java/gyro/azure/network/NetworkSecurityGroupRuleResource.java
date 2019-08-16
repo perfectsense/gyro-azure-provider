@@ -7,13 +7,15 @@ import com.microsoft.azure.management.network.NetworkSecurityRule;
 import com.microsoft.azure.management.network.SecurityRuleAccess;
 import com.microsoft.azure.management.network.SecurityRuleDirection;
 import com.microsoft.azure.management.network.SecurityRuleProtocol;
-import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.core.GyroUI;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
+import gyro.core.validation.Range;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -101,6 +103,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource implements C
     /**
      * A list of source ports for the Network Security Rule to work. (Required)
      */
+    @Required
     @Updatable
     public Set<String> getFromPorts() {
         if (fromPorts == null) {
@@ -133,6 +136,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource implements C
     /**
      * A list of destination ports for the Network Security Rule to work. (Required)
      */
+    @Required
     @Updatable
     public Set<String> getToPorts() {
         if (toPorts == null) {
@@ -185,6 +189,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource implements C
     /**
      * Priority for the Network Security Rule. Valid values are any Integer from ``100`` to ``4096``. (Required)
      */
+    @Range(min = 100, max = 4096)
     @Updatable
     public Integer getPriority() {
         return priority;
@@ -197,6 +202,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource implements C
     /**
      * Protocol for the Network Security Rule. Valid values are ``all`` or ``tcp`` or ``udp``. Defaults to ``all``.
      */
+    @ValidStrings({"all", "tcp", "udp"})
     @Updatable
     public String getProtocol() {
         if (protocol == null) {

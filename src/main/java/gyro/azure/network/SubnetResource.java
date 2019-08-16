@@ -14,6 +14,7 @@ import com.microsoft.azure.management.network.ServiceEndpointType;
 import com.microsoft.azure.management.network.Subnet;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,6 +49,7 @@ public class SubnetResource extends AzureResource implements Copyable<Subnet> {
     /**
      * The address prefix in CIDR notation. (Required)
      */
+    @Required
     @Updatable
     public String getAddressPrefix() {
         return addressPrefix;
@@ -60,6 +62,7 @@ public class SubnetResource extends AzureResource implements Copyable<Subnet> {
     /**
      * The name of the Subnet. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }

@@ -12,6 +12,7 @@ import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.resources.ResourceGroup;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,6 +44,7 @@ public class ResourceGroupResource extends AzureResource implements Copyable<Res
     /**
      * The name of the resource group. (Required)
      */
+    @Required
     @Id
     public String getName() {
         return name;
