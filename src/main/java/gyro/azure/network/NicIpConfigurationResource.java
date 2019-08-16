@@ -1,17 +1,17 @@
 package gyro.azure.network;
 
 import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.network.IPAllocationMethod;
 import com.microsoft.azure.management.network.LoadBalancer;
 import com.microsoft.azure.management.network.LoadBalancerBackend;
 import com.microsoft.azure.management.network.NetworkInterface;
 import com.microsoft.azure.management.network.NicIPConfiguration;
 import com.microsoft.azure.management.network.LoadBalancerInboundNatRule;
 
+import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
+import gyro.core.GyroException;
 import gyro.core.GyroUI;
-import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
@@ -24,8 +24,6 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
     private String name;
     private PublicIpAddressResource publicIpAddress;
     private String privateIpAddress;
-    private String privateIpAddressStatic;
-    private Boolean ipAllocationStatic;
     private Boolean primary;
     private Set<NicBackend> nicBackend;
     private Set<NicNatRule> nicNatRule;
@@ -57,41 +55,13 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
     /**
      * The Private IP Address to be associated with the IP Configuration.
      */
-    @Output
+    @Updatable
     public String getPrivateIpAddress() {
         return privateIpAddress;
     }
 
     public void setPrivateIpAddress(String privateIpAddress) {
         this.privateIpAddress = privateIpAddress;
-    }
-
-    /**
-     * The Static Private IP address to be associated with the IP Configuration.
-     */
-    @Updatable
-    public String getPrivateIpAddressStatic() {
-        return privateIpAddressStatic;
-    }
-
-    public void setPrivateIpAddressStatic(String privateIpAddressStatic) {
-        this.privateIpAddressStatic = privateIpAddressStatic;
-    }
-
-    /**
-     * Set IP Allocation type to be static or dynamic. Defaults to ``false`` i.e dynamic.
-     */
-    @Updatable
-    public Boolean getIpAllocationStatic() {
-        if (ipAllocationStatic == null) {
-            ipAllocationStatic = false;
-        }
-
-        return ipAllocationStatic;
-    }
-
-    public void setIpAllocationStatic(Boolean ipAllocationStatic) {
-        this.ipAllocationStatic = ipAllocationStatic;
     }
 
     /**
@@ -146,8 +116,6 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
         setName(nicIpConfiguration.name());
         setPublicIpAddress(nicIpConfiguration.getPublicIPAddress() != null ? findById(PublicIpAddressResource.class, nicIpConfiguration.getPublicIPAddress().id()) : null);
         setPrivateIpAddress(nicIpConfiguration.privateIPAddress());
-        setIpAllocationStatic(nicIpConfiguration.privateIPAllocationMethod().equals(IPAllocationMethod.STATIC));
-        setPrivateIpAddressStatic(getIpAllocationStatic() ? getPrivateIpAddress() : null);
 
         getNicBackend().clear();
         for (LoadBalancerBackend backend : nicIpConfiguration.listAssociatedLoadBalancerBackends()) {
@@ -188,8 +156,8 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
 
         NicIPConfiguration.UpdateDefinitionStages.WithAttach<NetworkInterface.Update> updateWithAttach;
 
-        if (getIpAllocationStatic()) {
-            updateWithAttach = updateWithPrivateIP.withPrivateIPAddressStatic(getPrivateIpAddressStatic());
+        if (!ObjectUtils.isBlank(getPrivateIpAddress())) {
+            updateWithAttach = updateWithPrivateIP.withPrivateIPAddressStatic(getPrivateIpAddress());
         } else {
             updateWithAttach = updateWithPrivateIP.withPrivateIPAddressDynamic();
         }
@@ -209,6 +177,7 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
         }
 
         updateWithAttach.attach().apply();
+
     }
 
     @Override
@@ -230,8 +199,8 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
             }
         }
 
-        if (getIpAllocationStatic()) {
-            update = update.withPrivateIPAddressStatic(getPrivateIpAddressStatic());
+        if (!ObjectUtils.isBlank(getPrivateIpAddress())) {
+            update = update.withPrivateIPAddressStatic(getPrivateIpAddress());
         } else {
             update = update.withPrivateIPAddressDynamic();
         }
