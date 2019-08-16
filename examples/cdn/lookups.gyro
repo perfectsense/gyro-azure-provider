@@ -1,1 +1,0 @@
-cdn-profile: $(external-query azure::cdn-profile {} )
