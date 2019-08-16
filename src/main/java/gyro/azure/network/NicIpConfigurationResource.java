@@ -16,8 +16,7 @@ import gyro.core.resource.Resource;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 
 public class NicIpConfigurationResource extends AzureResource implements Copyable<NicIPConfiguration> {
@@ -27,8 +26,8 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
     private String privateIpAddressStatic;
     private Boolean ipAllocationStatic;
     private Boolean primary;
-    private List<NicBackend> nicBackend;
-    private List<NicNatRule> nicNatRule;
+    private Set<NicBackend> nicBackend;
+    private Set<NicNatRule> nicNatRule;
 
     /**
      * Name of the IP Configuration. (Required)
@@ -112,15 +111,15 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
      * The Load Balancer Backends associated with the IP Configuration.
      */
     @Updatable
-    public List<NicBackend> getNicBackend() {
+    public Set<NicBackend> getNicBackend() {
         if (nicBackend == null) {
-            nicBackend = new ArrayList<>();
+            nicBackend = new HashSet<>();
         }
 
         return nicBackend;
     }
 
-    public void setNicBackend(List<NicBackend> nicBackend) {
+    public void setNicBackend(Set<NicBackend> nicBackend) {
         this.nicBackend = nicBackend;
     }
 
@@ -128,15 +127,15 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
      * The Load Balancer Nat Rules associated with the IP Configuration.
      */
     @Updatable
-    public List<NicNatRule> getNicNatRule() {
+    public Set<NicNatRule> getNicNatRule() {
         if (nicNatRule == null) {
-            nicNatRule = new ArrayList<>();
+            nicNatRule = new HashSet<>();
         }
 
         return nicNatRule;
     }
 
-    public void setNicNatRule(List<NicNatRule> nicNatRule) {
+    public void setNicNatRule(Set<NicNatRule> nicNatRule) {
         this.nicNatRule = nicNatRule;
     }
 
