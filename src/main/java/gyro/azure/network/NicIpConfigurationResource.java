@@ -1,7 +1,6 @@
 package gyro.azure.network;
 
 import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.network.IPAllocationMethod;
 import com.microsoft.azure.management.network.LoadBalancer;
 import com.microsoft.azure.management.network.LoadBalancerBackend;
 import com.microsoft.azure.management.network.NetworkInterface;
@@ -10,49 +9,52 @@ import com.microsoft.azure.management.network.LoadBalancerInboundNatRule;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
+import gyro.azure.Copyable;
 import gyro.core.GyroUI;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 
-public class NicIpConfigurationResource extends AzureResource {
-
-    private String ipConfigurationName;
-    private String publicIpAddressName;
+public class NicIpConfigurationResource extends AzureResource implements Copyable<NicIPConfiguration> {
+    private String name;
+    private PublicIpAddressResource publicIpAddress;
     private String privateIpAddress;
-    private String privateIpAddressStatic;
-    private Boolean ipAllocationStatic;
     private Boolean primary;
-    private List<NicBackend> nicBackend;
-    private List<NicNatRule> nicNatRule;
+    private Set<NicBackend> nicBackend;
+    private Set<NicNatRule> nicNatRule;
 
     /**
-     * Name of the ip configuration. (Required)
+     * Name of the IP Configuration. (Required)
      */
-    public String getIpConfigurationName() {
-        return ipConfigurationName;
+    @Required
+    public String getName() {
+        return name;
     }
 
-    public void setIpConfigurationName(String ipConfigurationName) {
-        this.ipConfigurationName = ipConfigurationName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
-     * Public ip address name to be associated with the ip config.
+     * The Public IP Address to be associated with the IP Configuration.
      */
     @Updatable
-    public String getPublicIpAddressName() {
-        return publicIpAddressName;
+    public PublicIpAddressResource getPublicIpAddress() {
+        return publicIpAddress;
     }
 
-    public void setPublicIpAddressName(String publicIpAddressName) {
-        this.publicIpAddressName = publicIpAddressName;
+    public void setPublicIpAddress(PublicIpAddressResource publicIpAddress) {
+        this.publicIpAddress = publicIpAddress;
     }
 
+    /**
+     * The Private IP Address to be associated with the IP Configuration.
+     */
+    @Updatable
     public String getPrivateIpAddress() {
         return privateIpAddress;
     }
@@ -62,35 +64,7 @@ public class NicIpConfigurationResource extends AzureResource {
     }
 
     /**
-     * Private ip address to be associated with the ip config.
-     */
-    @Updatable
-    public String getPrivateIpAddressStatic() {
-        return privateIpAddressStatic;
-    }
-
-    public void setPrivateIpAddressStatic(String privateIpAddressStatic) {
-        this.privateIpAddressStatic = privateIpAddressStatic;
-    }
-
-    /**
-     * Set ip allocation type to be static or dynamic. Defaults to false i.e dynamic.
-     */
-    @Updatable
-    public Boolean getIpAllocationStatic() {
-        if (ipAllocationStatic == null) {
-            ipAllocationStatic = false;
-        }
-
-        return ipAllocationStatic;
-    }
-
-    public void setIpAllocationStatic(Boolean ipAllocationStatic) {
-        this.ipAllocationStatic = ipAllocationStatic;
-    }
-
-    /**
-     * Marks the ip configuration as primary.
+     * Marks the IP Configuration as primary. Defaults to ``false``.
      */
     public Boolean getPrimary() {
         if (primary == null) {
@@ -105,54 +79,56 @@ public class NicIpConfigurationResource extends AzureResource {
     }
 
     /**
-     * The load balancer backends associated with the configuration.
+     * The Load Balancer Backends associated with the IP Configuration.
      */
     @Updatable
-    public List<NicBackend> getNicBackend() {
+    public Set<NicBackend> getNicBackend() {
         if (nicBackend == null) {
-            nicBackend = new ArrayList<>();
+            nicBackend = new HashSet<>();
         }
 
         return nicBackend;
     }
 
-    public void setNicBackend(List<NicBackend> nicBackend) {
+    public void setNicBackend(Set<NicBackend> nicBackend) {
         this.nicBackend = nicBackend;
     }
 
     /**
-     * The load balancer nat rules associated with the configuration.
+     * The Load Balancer Nat Rules associated with the IP Configuration.
      */
     @Updatable
-    public List<NicNatRule> getNicNatRule() {
+    public Set<NicNatRule> getNicNatRule() {
         if (nicNatRule == null) {
-            nicNatRule = new ArrayList<>();
+            nicNatRule = new HashSet<>();
         }
 
         return nicNatRule;
     }
 
-
-    public void setNicNatRule(List<NicNatRule> nicNatRule) {
+    public void setNicNatRule(Set<NicNatRule> nicNatRule) {
         this.nicNatRule = nicNatRule;
     }
 
-    public NicIpConfigurationResource() {
-
-    }
-
-    public NicIpConfigurationResource(String ipConfigurationName) {
-        setIpConfigurationName(ipConfigurationName);
-        setPrimary(true);
-    }
-
-    public NicIpConfigurationResource(NicIPConfiguration nicIpConfiguration) {
-        setIpConfigurationName(nicIpConfiguration.name());
-        setPublicIpAddressName(nicIpConfiguration.getPublicIPAddress() != null ? nicIpConfiguration.getPublicIPAddress().name() : null);
+    @Override
+    public void copyFrom(NicIPConfiguration nicIpConfiguration) {
+        setName(nicIpConfiguration.name());
+        setPublicIpAddress(nicIpConfiguration.getPublicIPAddress() != null ? findById(PublicIpAddressResource.class, nicIpConfiguration.getPublicIPAddress().id()) : null);
         setPrivateIpAddress(nicIpConfiguration.privateIPAddress());
-        setIpAllocationStatic(nicIpConfiguration.privateIPAllocationMethod().equals(IPAllocationMethod.STATIC));
-        setPrivateIpAddressStatic(getIpAllocationStatic() ? getPrivateIpAddress() : null);
-        refreshBackendsAndRules(nicIpConfiguration);
+
+        getNicBackend().clear();
+        for (LoadBalancerBackend backend : nicIpConfiguration.listAssociatedLoadBalancerBackends()) {
+            NicBackend nicBackend = newSubresource(NicBackend.class);
+            nicBackend.copyFrom(backend);
+            getNicBackend().add(nicBackend);
+        }
+
+        getNicNatRule().clear();
+        for(LoadBalancerInboundNatRule rule : nicIpConfiguration.listAssociatedLoadBalancerInboundNatRules()) {
+            NicNatRule nicNatRule = newSubresource(NicNatRule.class);
+            nicNatRule.copyFrom(rule);
+            getNicNatRule().add(nicNatRule);
+        }
     }
 
     @Override
@@ -173,40 +149,34 @@ public class NicIpConfigurationResource extends AzureResource {
         NetworkInterface networkInterface = parent.getNetworkInterface(client);
 
         NicIPConfiguration.UpdateDefinitionStages.WithPrivateIP<NetworkInterface.Update> updateWithPrivateIP = networkInterface.update()
-                .defineSecondaryIPConfiguration(getIpConfigurationName())
-                .withExistingNetwork(client.networks().getById(parent.getNetworkId()))
-                .withSubnet(parent.getSubnet());
+            .defineSecondaryIPConfiguration(getName())
+            .withExistingNetwork(client.networks().getById(parent.getNetwork().getId()))
+            .withSubnet(parent.getSubnet());
 
         NicIPConfiguration.UpdateDefinitionStages.WithAttach<NetworkInterface.Update> updateWithAttach;
 
-        if (getIpAllocationStatic()) {
-            updateWithAttach = updateWithPrivateIP.withPrivateIPAddressStatic(getPrivateIpAddressStatic());
+        if (!ObjectUtils.isBlank(getPrivateIpAddress())) {
+            updateWithAttach = updateWithPrivateIP.withPrivateIPAddressStatic(getPrivateIpAddress());
         } else {
             updateWithAttach = updateWithPrivateIP.withPrivateIPAddressDynamic();
         }
 
-        if (!ObjectUtils.isBlank(getPublicIpAddressName())) {
-            updateWithAttach = updateWithAttach.withExistingPublicIPAddress(
-                    client.publicIPAddresses()
-                            .getByResourceGroup(parent.getResourceGroupName(),getPublicIpAddressName())
-            );
+        if (getPublicIpAddress() != null) {
+            updateWithAttach = updateWithAttach.withExistingPublicIPAddress(client.publicIPAddresses().getById(getPublicIpAddress().getId()));
         }
 
-        if (getNicBackend() != null) {
-            for (NicBackend backend : getNicBackend()) {
-                LoadBalancer loadBalancer = client.loadBalancers().getByResourceGroup(parent.getResourceGroupName(), backend.getLoadBalancerName());
-                updateWithAttach.withExistingLoadBalancerBackend(loadBalancer, backend.getBackendPoolName());
-            }
+        for (NicBackend backend : getNicBackend()) {
+            LoadBalancer loadBalancer = client.loadBalancers().getById(backend.getLoadBalancer().getId());
+            updateWithAttach.withExistingLoadBalancerBackend(loadBalancer, backend.getBackendName());
         }
 
-        if (getNicNatRule() != null) {
-            for (NicNatRule rule : getNicNatRule()) {
-                LoadBalancer loadBalancer = client.loadBalancers().getByResourceGroup(parent.getResourceGroupName(), rule.getLoadBalancerName());
-                updateWithAttach.withExistingLoadBalancerInboundNatRule(loadBalancer, rule.getNatRuleName());
-            }
+        for (NicNatRule rule : getNicNatRule()) {
+            LoadBalancer loadBalancer = client.loadBalancers().getById(rule.getLoadBalancer().getId());
+            updateWithAttach.withExistingLoadBalancerInboundNatRule(loadBalancer, rule.getInboundNatRuleName());
         }
 
         updateWithAttach.attach().apply();
+
     }
 
     @Override
@@ -217,43 +187,38 @@ public class NicIpConfigurationResource extends AzureResource {
 
         NetworkInterface networkInterface = parent.getNetworkInterface(client);
 
-        NicIPConfiguration.Update update = networkInterface.update().updateIPConfiguration(getIpConfigurationName())
-                .withSubnet(parent.getSubnet());
+        NicIPConfiguration.Update update = networkInterface.update().updateIPConfiguration(getName())
+            .withSubnet(parent.getSubnet());
 
-        if (changedFieldNames.contains("public-ip-address-name")) {
-            if (ObjectUtils.isBlank(getPublicIpAddressName())) {
+        if (changedFieldNames.contains("public-ip-address")) {
+            if (getPublicIpAddress() == null) {
                 update = update.withoutPublicIPAddress();
             } else {
-                update = update.withExistingPublicIPAddress(
-                        client.publicIPAddresses()
-                                .getByResourceGroup(parent.getResourceGroupName(),getPublicIpAddressName())
-                );
+                update = update.withExistingPublicIPAddress(client.publicIPAddresses().getById(getPublicIpAddress().getId()));
             }
         }
 
-        if (getIpAllocationStatic()) {
-            update = update.withPrivateIPAddressStatic(getPrivateIpAddressStatic());
+        if (!ObjectUtils.isBlank(getPrivateIpAddress())) {
+            update = update.withPrivateIPAddressStatic(getPrivateIpAddress());
         } else {
             update = update.withPrivateIPAddressDynamic();
         }
 
-        if (getNicBackend() != null) {
-            update.withoutLoadBalancerBackends();
-            for (NicBackend backend : getNicBackend()) {
-                LoadBalancer loadBalancer = client.loadBalancers().getByResourceGroup(parent.getResourceGroupName(), backend.getLoadBalancerName());
-                update.withExistingLoadBalancerBackend(loadBalancer, backend.getBackendPoolName());
-            }
+        update.withoutLoadBalancerBackends();
+        for (NicBackend backend : getNicBackend()) {
+            LoadBalancer loadBalancer = client.loadBalancers().getById(backend.getLoadBalancer().getId());
+            update.withExistingLoadBalancerBackend(loadBalancer, backend.getBackendName());
         }
 
-        if (getNicNatRule() != null) {
-            update.withoutLoadBalancerInboundNatRules();
-            for (NicNatRule rule : getNicNatRule()) {
-                LoadBalancer loadBalancer = client.loadBalancers().getByResourceGroup(parent.getResourceGroupName(), rule.getLoadBalancerName());
-                update.withExistingLoadBalancerInboundNatRule(loadBalancer, rule.getNatRuleName());
-            }
+        update.withoutLoadBalancerInboundNatRules();
+        for (NicNatRule rule : getNicNatRule()) {
+            LoadBalancer loadBalancer = client.loadBalancers().getById(rule.getLoadBalancer().getId());
+            update.withExistingLoadBalancerInboundNatRule(loadBalancer, rule.getInboundNatRuleName());
         }
 
-        update.parent().apply();
+        NetworkInterface response = update.parent().apply();
+
+        copyFrom(response.ipConfigurations().get(getName()));
     }
 
     @Override
@@ -268,23 +233,11 @@ public class NicIpConfigurationResource extends AzureResource {
 
         NetworkInterface networkInterface = parent.getNetworkInterface(client);
 
-        networkInterface.update().withoutIPConfiguration(getIpConfigurationName()).apply();
+        networkInterface.update().withoutIPConfiguration(getName()).apply();
     }
 
     @Override
     public String primaryKey() {
-        return String.format("%s", getIpConfigurationName());
-    }
-
-    private void refreshBackendsAndRules(NicIPConfiguration configuration) {
-        getNicBackend().clear();
-        for (LoadBalancerBackend backend : configuration.listAssociatedLoadBalancerBackends()) {
-            getNicBackend().add(new NicBackend(backend));
-        }
-
-        getNicNatRule().clear();
-        for(LoadBalancerInboundNatRule rule : configuration.listAssociatedLoadBalancerInboundNatRules()) {
-            getNicNatRule().add(new NicNatRule(rule));
-        }
+        return String.format("%s", getName());
     }
 }

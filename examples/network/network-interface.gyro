@@ -7,8 +7,8 @@ azure::resource-group resource-group-network-interface-example
 end
 
 azure::network-security-group network-security-group-example-interface
-    network-security-group-name: "network-security-group-example-interface"
-    resource-group-name: $(azure::resource-group resource-group-network-interface-example | resource-group-name)
+    name: "network-security-group-example-interface"
+    resource-group: $(azure::resource-group resource-group-network-interface-example)
 
     tags: {
         Name: "network-security-group-example-interface"
@@ -16,8 +16,8 @@ azure::network-security-group network-security-group-example-interface
 end
 
 azure::network network-example-interface
-    network-name: "network-example"
-    resource-group-name: $(azure::resource-group resource-group-network-interface-example | resource-group-name)
+    name: "network-example"
+    resource-group: $(azure::resource-group resource-group-network-interface-example)
     address-spaces:  [
          "10.0.0.0/27",
          "10.1.0.0/27"
@@ -39,10 +39,9 @@ azure::network network-example-interface
 end
 
 azure::public-ip-address public-ip-address-example-interface
-    public-ip-address-name: "public-ip-address-example"
-    resource-group-name: $(azure::resource-group resource-group-network-interface-example | resource-group-name)
+    name: "public-ip-address-example"
+    resource-group: $(azure::resource-group resource-group-network-interface-example)
     idle-timeout-in-minute: 4
-    sku-basic: false
 
     tags: {
         Name: "public-ip-address-example"
@@ -50,10 +49,9 @@ azure::public-ip-address public-ip-address-example-interface
 end
 
 azure::public-ip-address public-ip-address-example-interface-2
-    public-ip-address-name: "public-ip-address-example-2"
-    resource-group-name: $(azure::resource-group resource-group-network-interface-example | resource-group-name)
+    name: "public-ip-address-example-2"
+    resource-group: $(azure::resource-group resource-group-network-interface-example)
     idle-timeout-in-minute: 4
-    sku-basic: false
 
     tags: {
         Name: "public-ip-address-example-2"
@@ -61,40 +59,38 @@ azure::public-ip-address public-ip-address-example-interface-2
 end
 
 azure::network-interface network-interface-example
-    network-interface-name: "network-interface-example"
-    resource-group-name: $(azure::resource-group resource-group-network-interface-example | resource-group-name)
-    network-id: $(azure::network network-example-interface | network-id)
+    name: "network-interface-example"
+    resource-group: $(azure::resource-group resource-group-network-interface-example)
+    network: $(azure::network network-example-interface)
     subnet: "subnet1"
-    security-group-id: $(azure::network-security-group network-security-group-example-interface | network-security-group-id)
+    security-group: $(azure::network-security-group network-security-group-example-interface)
     tags: {
         Name: "network-interface-example"
     }
 
     nic-ip-configuration
-        ip-allocation-static: false
-        ip-configuration-name: 'primary'
+        name: 'primary'
         primary: true
+        private-ip-address: "10.0.0.6"
     end
 
     nic-ip-configuration
-        ip-configuration-name: "nic-ip-configuration-1"
+        name: "nic-ip-configuration-1"
     end
 
     nic-ip-configuration
-        ip-configuration-name: "nic-ip-configuration-2"
-        public-ip-address-name: $(azure::public-ip-address public-ip-address-example-interface-2 | public-ip-address-name)
+        name: "nic-ip-configuration-2"
+        public-ip-address: $(azure::public-ip-address public-ip-address-example-interface-2)
     end
 
     nic-ip-configuration
-        ip-configuration-name: "nic-ip-configuration-3"
-        private-ip-address-static: "10.0.0.8"
-        ip-allocation-static: true
+        name: "nic-ip-configuration-3"
+        private-ip-address: "10.0.0.10"
     end
 
     nic-ip-configuration
-        ip-configuration-name: "nic-ip-configuration-4"
-        private-ip-address-static: "10.0.0.9"
-        ip-allocation-static: true
-        public-ip-address-name: $(azure::public-ip-address public-ip-address-example-interface | public-ip-address-name)
+        name: "nic-ip-configuration-4"
+        private-ip-address: "10.0.0.9"
+        public-ip-address: $(azure::public-ip-address public-ip-address-example-interface)
     end
 end
