@@ -22,7 +22,6 @@ import gyro.core.resource.Resource;
 import gyro.core.scope.State;
 import gyro.core.validation.Range;
 import gyro.core.validation.Required;
-import gyro.core.validation.ValidStrings;
 
 import java.util.HashMap;
 import java.util.HashSet;

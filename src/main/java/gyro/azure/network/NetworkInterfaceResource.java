@@ -18,9 +18,8 @@ import gyro.core.resource.Resource;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -64,7 +63,7 @@ public class NetworkInterfaceResource extends AzureResource implements Copyable<
     private NetworkSecurityGroupResource securityGroup;
     private String id;
     private Map<String, String> tags;
-    private List<NicIpConfigurationResource> nicIpConfiguration;
+    private Set<NicIpConfigurationResource> nicIpConfiguration;
 
     /**
      * Name of the Network Interface. (Required)
@@ -172,14 +171,14 @@ public class NetworkInterfaceResource extends AzureResource implements Copyable<
      * @subresource gyro.azure.network.NicIpConfigurationResource
      */
     @Updatable
-    public List<NicIpConfigurationResource> getNicIpConfiguration() {
+    public Set<NicIpConfigurationResource> getNicIpConfiguration() {
         if (nicIpConfiguration == null) {
-            nicIpConfiguration = new ArrayList<>();
+            nicIpConfiguration = new HashSet<>();
         }
         return nicIpConfiguration;
     }
 
-    public void setNicIpConfiguration(List<NicIpConfigurationResource> nicIpConfiguration) {
+    public void setNicIpConfiguration(Set<NicIpConfigurationResource> nicIpConfiguration) {
         this.nicIpConfiguration = nicIpConfiguration;
     }
 
