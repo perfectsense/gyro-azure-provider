@@ -17,9 +17,12 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidationError;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -59,7 +62,6 @@ public class NetworkInterfaceResource extends AzureResource implements Copyable<
     private ResourceGroupResource resourceGroup;
     private NetworkResource network;
     private String subnet;
-    private String staticIpAddress;
     private NetworkSecurityGroupResource securityGroup;
     private String id;
     private Map<String, String> tags;
@@ -111,17 +113,6 @@ public class NetworkInterfaceResource extends AzureResource implements Copyable<
 
     public void setSubnet(String subnet) {
         this.subnet = subnet;
-    }
-
-    /**
-     * Choose to assign a static ip to the Network Interface. Leave blank for dynamic ip.
-     */
-    public String getStaticIpAddress() {
-        return staticIpAddress;
-    }
-
-    public void setStaticIpAddress(String staticIpAddress) {
-        this.staticIpAddress = staticIpAddress;
     }
 
     /**
@@ -231,8 +222,10 @@ public class NetworkInterfaceResource extends AzureResource implements Copyable<
 
         NetworkInterface.DefinitionStages.WithCreate withCreate;
 
-        if (!ObjectUtils.isBlank(getStaticIpAddress())) {
-            withCreate = withPrimaryPrivateIP.withPrimaryPrivateIPAddressStatic(getStaticIpAddress());
+        NicIpConfigurationResource primary = getNicIpConfiguration().stream().filter(NicIpConfigurationResource::getPrimary).findFirst().get();
+
+        if (!ObjectUtils.isBlank(primary.getPrivateIpAddress())) {
+            withCreate = withPrimaryPrivateIP.withPrimaryPrivateIPAddressStatic(primary.getPrivateIpAddress());
         } else {
             withCreate = withPrimaryPrivateIP.withPrimaryPrivateIPAddressDynamic();
         }
@@ -241,17 +234,14 @@ public class NetworkInterfaceResource extends AzureResource implements Copyable<
             withCreate = withCreate.withExistingNetworkSecurityGroup(client.networkSecurityGroups().getById(getSecurityGroup().getId()));
         }
 
-        NicIpConfigurationResource primary = getNicIpConfiguration().stream().filter(NicIpConfigurationResource::getPrimary).findFirst().orElse(null);
-
-        if (primary != null) {
-            for (NicBackend backend : primary.getNicBackend()) {
-                withCreate.withExistingLoadBalancerBackend(client.loadBalancers().getById(backend.getLoadBalancer().getId()), backend.getBackendName());
-            }
-
-            for (NicNatRule rule : primary.getNicNatRule()) {
-                withCreate.withExistingLoadBalancerInboundNatRule(client.loadBalancers().getById(rule.getLoadBalancer().getId()), rule.getInboundNatRuleName());
-            }
+        for (NicBackend backend : primary.getNicBackend()) {
+            withCreate.withExistingLoadBalancerBackend(client.loadBalancers().getById(backend.getLoadBalancer().getId()), backend.getBackendName());
         }
+
+        for (NicNatRule rule : primary.getNicNatRule()) {
+            withCreate.withExistingLoadBalancerInboundNatRule(client.loadBalancers().getById(rule.getLoadBalancer().getId()), rule.getInboundNatRuleName());
+        }
+
 
         NetworkInterface networkInterface = withCreate.withTags(getTags()).create();
 
@@ -288,5 +278,22 @@ public class NetworkInterfaceResource extends AzureResource implements Copyable<
 
     NetworkInterface getNetworkInterface(Azure client) {
         return client.networkInterfaces().getById(getId());
+    }
+
+    @Override
+    public List<ValidationError> validate() {
+        List<ValidationError> errors = new ArrayList<>();
+
+        long primaryCount = getNicIpConfiguration().stream().filter(NicIpConfigurationResource::getPrimary).count();
+
+        if (primaryCount != 1) {
+            errors.add(new ValidationError(this, "nic-ip-configuration", "One and only One Ip configuration designated as primary is required."));
+        }
+
+        if (getNicIpConfiguration().stream().anyMatch(o -> o.getPrimary() && !o.getName().equals("primary"))) {
+            errors.add(new ValidationError(this, "nic-ip-configuration", "The primary Ip configuration needs the name as 'primary'."));
+        }
+
+        return errors;
     }
 }
