@@ -96,7 +96,6 @@ public class PublicIpAddressResource extends AzureResource implements Copyable<P
     /**
      * Specify Sku type. Valid values are ``BASIC`` or ``STANDARD``. Defaults to ``BASIC``.
      */
-    @ValidStrings({"BASIC", "STANDARD"})
     public SKU_TYPE getSkuType() {
         if (skuType == null) {
             skuType = SKU_TYPE.BASIC;
