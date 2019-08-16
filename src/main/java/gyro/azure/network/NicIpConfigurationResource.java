@@ -11,6 +11,7 @@ import com.microsoft.azure.management.network.LoadBalancerInboundNatRule;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.core.GyroUI;
+import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
@@ -56,6 +57,7 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
     /**
      * The Private IP Address to be associated with the IP Configuration.
      */
+    @Output
     public String getPrivateIpAddress() {
         return privateIpAddress;
     }
