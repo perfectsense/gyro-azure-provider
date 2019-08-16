@@ -1,8 +1,10 @@
 package gyro.azure.network;
 
+import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 
 import com.microsoft.azure.management.network.LoadBalancerInboundNatRule;
+import gyro.core.validation.Required;
 
 /**
  * Creates a nic nat rule.
@@ -12,47 +14,46 @@ import com.microsoft.azure.management.network.LoadBalancerInboundNatRule;
  *
  * .. code-block:: gyro
  *
- *         nic-nat-rule
- *             load-balancer-name: $(azure::load-balancer load-balancer-example | name)
- *             nat-rule-name: "test-nat-rule"
- *         end
+ *    nic-nat-rule
+ *        load-balancer: $(azure::load-balancer load-balancer-example)
+ *        inbound-nat-rule-name: "test-nat-rule"
+ *    end
  */
-public class NicNatRule extends Diffable {
+public class NicNatRule extends Diffable implements Copyable<LoadBalancerInboundNatRule> {
+    private LoadBalancerResource loadBalancer;
+    private String inboundNatRuleName;
 
-    private String loadBalancerName;
-    private String natRuleName;
+    /**
+     * The Load Balancer to associate the IP Configuration to. (Required)
+     */
+    @Required
+    public LoadBalancerResource getLoadBalancer() {
+        return loadBalancer;
+    }
 
-    public NicNatRule() {}
-
-    public NicNatRule(LoadBalancerInboundNatRule rule) {
-        setLoadBalancerName(rule.parent().name());
-        setNatRuleName(rule.name());
+    public void setLoadBalancer(LoadBalancerResource loadBalancer) {
+        this.loadBalancer = loadBalancer;
     }
 
     /**
-     * The name of the load balancer to associate the configuration to. (Required)
+     * The name of the Inbound Nat Rule present on the Load Balancer to associate with the IP configuration. (Required)
      */
-    public String getLoadBalancerName() {
-        return loadBalancerName;
+    @Required
+    public String getInboundNatRuleName() {
+        return inboundNatRuleName;
     }
 
-    public void setLoadBalancerName(String loadBalancerName) {
-        this.loadBalancerName = loadBalancerName;
+    public void setInboundNatRuleName(String inboundNatRuleName) {
+        this.inboundNatRuleName = inboundNatRuleName;
     }
 
-    /**
-     * The name of the nat rule to associate the configuration to. (Required)
-     */
-    public String getNatRuleName() {
-        return natRuleName;
-    }
-
-    public void setNatRuleName(String natRuleName) {
-        this.natRuleName = natRuleName;
+    @Override
+    public void copyFrom(LoadBalancerInboundNatRule rule) {
+        setLoadBalancer(findById(LoadBalancerResource.class, rule.parent().id()));
+        setInboundNatRuleName(rule.name());
     }
 
     public String primaryKey() {
-        return String.format("%s/%s", getLoadBalancerName(), getNatRuleName());
+        return String.format("%s %s", getLoadBalancer().getName(), getInboundNatRuleName());
     }
-
 }
