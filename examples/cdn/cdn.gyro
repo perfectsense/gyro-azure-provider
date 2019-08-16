@@ -31,7 +31,7 @@ azure::cdn-profile cdn-profile-example
         end
 
         host-header: "my.host.com"
-        http-enabled: false
+        http-enabled: true
         http-port: 81
         https-enabled: true
         https-port: 8443

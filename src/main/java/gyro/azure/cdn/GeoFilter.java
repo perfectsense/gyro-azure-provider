@@ -3,6 +3,8 @@ package gyro.azure.cdn;
 import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 import com.microsoft.azure.management.cdn.GeoFilterActions;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -17,6 +19,8 @@ public class GeoFilter extends Diffable implements Copyable<com.microsoft.azure.
     /**
      * The action to be taken. Valid values are ``ALLOW`` or ``BLOCK``. (Required)
      */
+    @Required
+    @ValidStrings({"ALLOW", "BLOCK"})
     public String getAction() {
         return action;
     }
@@ -28,6 +32,7 @@ public class GeoFilter extends Diffable implements Copyable<com.microsoft.azure.
     /**
      * The country codes that will either be allowed content or be blocked. (Required)
      */
+    @Required
     public Set<String> getCountryCodes() {
         if (countryCodes == null) {
             countryCodes = new HashSet<>();
@@ -43,6 +48,7 @@ public class GeoFilter extends Diffable implements Copyable<com.microsoft.azure.
     /**
      * The relative path of the content. (Required)
      */
+    @Required
     public String getRelativePath() {
         return relativePath;
     }

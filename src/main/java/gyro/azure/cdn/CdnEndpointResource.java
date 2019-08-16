@@ -2,10 +2,8 @@ package gyro.azure.cdn;
 
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
-import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
-import gyro.core.Type;
 import gyro.core.resource.Updatable;
 
 import com.microsoft.azure.management.Azure;
@@ -15,6 +13,9 @@ import com.microsoft.azure.management.cdn.QueryStringCachingBehavior;
 import com.microsoft.azure.management.cdn.CdnEndpoint.UpdateDefinitionStages.WithPremiumAttach;
 import com.microsoft.azure.management.cdn.CdnEndpoint.UpdateDefinitionStages.WithStandardAttach;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
+import gyro.core.validation.ValidationError;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -154,10 +155,14 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
     }
 
     /**
-     * Determines whether http protocol is enabled. (Optional)
+     * Determines whether http protocol is enabled. Defaults to ``false``. (Optional)
      */
     @Updatable
     public Boolean getHttpEnabled() {
+        if (httpEnabled == null) {
+            httpEnabled = false;
+        }
+
         return httpEnabled;
     }
 
@@ -168,6 +173,7 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
     /**
      * The http port. Required if http protocol is enabled. (Optional)
      */
+    @Updatable
     public Integer getHttpPort() {
         return httpPort;
     }
@@ -177,10 +183,14 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
     }
 
     /**
-     * Determines whether https protocol is enabled. (Optional)
+     * Determines whether https protocol is enabled. Defaults to ``false``. (Optional)
      */
     @Updatable
     public Boolean getHttpsEnabled() {
+        if (httpsEnabled == null) {
+            httpsEnabled = false;
+        }
+
         return httpsEnabled;
     }
 
@@ -215,6 +225,7 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
     /**
      * The name of the endpoint. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }
@@ -226,6 +237,7 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
     /**
      * The origin hostname. (Required)
      */
+    @Required
     public String getOriginHostname() {
         return originHostname;
     }
@@ -237,6 +249,7 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
     /**
      * Determines the query caching behavior. Valid values are ``IGNORE_QUERY_STRING`` or ``BYPASS_CACHING`` or ``USE_QUERY_STRING``. (Optional)
      */
+    @ValidStrings({"IGNORE_QUERY_STRING", "BYPASS_CACHING", "USE_QUERY_STRING"})
     @Updatable
     public String getQueryCachingBehavior() {
         return queryCachingBehavior;
@@ -265,9 +278,10 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
     /**
      * The type of the endpoint. Valid values are ``Standard`` or ``Premium``. Defaults to ``Standard``.
      */
+    @ValidStrings({"Standard", "Premium"})
     public String getType() {
         if (type == null) {
-            type = "Standard";
+            type = TYPE_STANDARD;
         }
 
         return type;
@@ -289,9 +303,9 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
         }).collect(Collectors.toSet()));
         setHostHeader(cdnEndpoint.originHostHeader());
         setHttpEnabled(cdnEndpoint.isHttpAllowed());
-        setHttpPort(cdnEndpoint.httpPort());
+        setHttpPort(getHttpEnabled() ? cdnEndpoint.httpPort() : null);
         setHttpsEnabled(cdnEndpoint.isHttpsAllowed());
-        setHttpsPort(cdnEndpoint.httpsPort());
+        setHttpsPort(getHttpsEnabled() ? cdnEndpoint.httpsPort() : null);
         setName(cdnEndpoint.name());
         setOriginHostname(cdnEndpoint.originHostName());
         setOriginPath(cdnEndpoint.originPath());
@@ -347,7 +361,8 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
             }
 
             CdnProfile.Update attach = createPremiumEndpoint.attach();
-            attach.apply();
+            CdnProfile profile = attach.apply();
+            copyFrom(profile.endpoints().get(getName()));
 
         } else if (TYPE_STANDARD.equalsIgnoreCase(getType())) {
             WithStandardAttach<CdnProfile.Update> createStandardEndpoint =
@@ -395,10 +410,8 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
             }
 
             CdnProfile.Update attach = createStandardEndpoint.attach();
-            attach.apply();
-
-        } else {
-            throw new GyroException("Invalid endpoint type. Valid values are Premium and Standard");
+            CdnProfile profile = attach.apply();
+            copyFrom(profile.endpoints().get(getName()));
         }
     }
 
@@ -418,14 +431,14 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
                 updatePremiumEndpoint.withHostHeader(getHostHeader());
             }
 
-            if (getHttpEnabled() != null && getHttpPort() != null) {
+            if (getHttpEnabled() != null) {
                 updatePremiumEndpoint.withHttpAllowed(getHttpEnabled());
                 if (getHttpEnabled()) {
                     updatePremiumEndpoint.withHttpPort(getHttpPort());
                 }
             }
 
-            if (getHttpsEnabled() != null && getHttpsPort() != null) {
+            if (getHttpsEnabled() != null) {
                 updatePremiumEndpoint.withHttpsAllowed(getHttpsEnabled());
                 if (getHttpsEnabled()) {
                     updatePremiumEndpoint.withHttpsPort(getHttpsPort());
@@ -440,7 +453,8 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
                 updatePremiumEndpoint.withCustomDomain(customDomain);
             }
 
-            updatePremiumEndpoint.parent().apply();
+            CdnProfile profile = updatePremiumEndpoint.parent().apply();
+            copyFrom(profile.endpoints().get(getName()));
 
         } else if (TYPE_STANDARD.equalsIgnoreCase(getType())) {
             CdnEndpoint.UpdateStandardEndpoint updateStandardEndpoint =
@@ -460,14 +474,14 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
                 updateStandardEndpoint.withHostHeader(getHostHeader());
             }
 
-            if (getHttpEnabled() != null && getHttpPort() != null) {
+            if (getHttpEnabled() != null) {
                 updateStandardEndpoint.withHttpAllowed(getHttpEnabled());
                 if (getHttpEnabled()) {
                     updateStandardEndpoint.withHttpPort(getHttpPort());
                 }
             }
 
-            if (getHttpsEnabled() != null && getHttpsPort() != null) {
+            if (getHttpsEnabled() != null) {
                 updateStandardEndpoint.withHttpsAllowed(getHttpsEnabled());
                 if (getHttpsEnabled()) {
                     updateStandardEndpoint.withHttpsPort(getHttpsPort());
@@ -488,7 +502,8 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
                 updateStandardEndpoint.withCustomDomain(customDomain);
             }
 
-            updateStandardEndpoint.parent().apply();
+            CdnProfile profile = updateStandardEndpoint.parent().apply();
+            copyFrom(profile.endpoints().get(getName()));
         }
     }
 
@@ -501,6 +516,7 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
         CdnProfile cdnProfile = client.cdnProfiles().getById(parent.getId());
 
         CdnProfile.Update update = cdnProfile.update().withoutEndpoint(getName());
+
         update.apply();
     }
 
@@ -524,5 +540,32 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
         }
 
         return null;
+    }
+
+    @Override
+    public List<ValidationError> validate() {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if (!getHttpEnabled() && !getHttpsEnabled()) {
+            errors.add(new ValidationError(this, null, "Both 'http-enabled' and 'https-enabled' cannot be set to false."));
+        }
+
+        if (!getHttpEnabled() && getHttpPort() != null) {
+            errors.add(new ValidationError(this, "http-port", "'http-port' cannot be configured when 'http-enabled' is set to false."));
+        }
+
+        if (getHttpEnabled() && getHttpPort() == null) {
+            errors.add(new ValidationError(this, "http-port", "'http-port' is required when 'http-enabled' is set to true."));
+        }
+
+        if (!getHttpsEnabled() && getHttpsPort() != null) {
+            errors.add(new ValidationError(this, "https-port", "'https-port' cannot be configured when 'https-enabled' is set to false."));
+        }
+
+        if (getHttpsEnabled() && getHttpsPort() == null) {
+            errors.add(new ValidationError(this, "https-port", "'https-port' is required when 'https-enabled' is set to true."));
+        }
+
+        return errors;
     }
 }

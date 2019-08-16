@@ -3,7 +3,6 @@ package gyro.azure.cdn;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.azure.resources.ResourceGroupResource;
-import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
@@ -16,6 +15,8 @@ import com.microsoft.azure.management.cdn.CdnProfile;
 import com.microsoft.azure.management.cdn.CdnProfile.DefinitionStages.WithSku;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,7 +34,7 @@ import java.util.stream.Collectors;
  *
  *         azure::cdn-profile cdn-profile-example
  *             name: "cdn-profile-example"
- *             resource-group-name: $(azure::resource-group resource-group-cdn-profile-example)
+ *             resource-group: $(azure::resource-group resource-group-cdn-profile-example)
  *             sku: "Standard_Akamai"
  *             tags: {
  *                 Name: "cdn-profile-example"
@@ -66,6 +67,7 @@ public class CdnProfileResource extends AzureResource implements Copyable<CdnPro
     /**
      * The name of the CDN Profile. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }
@@ -77,6 +79,7 @@ public class CdnProfileResource extends AzureResource implements Copyable<CdnPro
     /**
      * The resource group where the CDN Profile is found. (Required)
      */
+    @Required
     public ResourceGroupResource getResourceGroup() {
         return resourceGroup;
     }
@@ -88,6 +91,8 @@ public class CdnProfileResource extends AzureResource implements Copyable<CdnPro
     /**
      * The sku of the CDN Profile. Valid values are ``Premium_Verizon`` or ``Standard_Verizon`` or ``Standard_Akamai``. (Required)
      */
+    @Required
+    @ValidStrings({"Premium_Verizon", "Standard_Verizon", "Standard_Akamai"})
     public String getSku() {
         return sku;
     }
@@ -172,12 +177,9 @@ public class CdnProfileResource extends AzureResource implements Copyable<CdnPro
             cdnProfile = withSku.withStandardVerizonSku().withTags(getTags()).create();
         } else if ("Standard_Akamai".equalsIgnoreCase(getSku())) {
             cdnProfile = withSku.withStandardAkamaiSku().withTags(getTags()).create();
-        } else {
-            throw new GyroException("Invalid sku. Valid values are Premium_Verizon, " +
-                    "Standard_Verizon, Standard_Akamai.");
         }
 
-        setId(cdnProfile.id());
+        copyFrom(cdnProfile);
     }
 
     @Override
