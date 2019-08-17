@@ -1,7 +1,6 @@
 package gyro.azure.network;
 
-import gyro.core.resource.Diffable;
-import gyro.core.resource.Updatable;
+import gyro.azure.Copyable;
 
 import com.microsoft.azure.management.network.LoadBalancerTcpProbe;
 
@@ -13,80 +12,20 @@ import com.microsoft.azure.management.network.LoadBalancerTcpProbe;
  *
  * .. code-block:: gyro
  *
- *         health-check-probe-tcp
- *             name: "healthcheck-tcp-test-sat"
- *             interval: 5
- *             port: 80
- *             probes: 2
- *         end
+ *    health-check-probe-tcp
+ *        name: "healthcheck-tcp-test-sat"
+ *        interval: 5
+ *        port: 80
+ *        probes: 2
+ *    end
  */
-public class HealthCheckProbeTcp extends Diffable {
+public class HealthCheckProbeTcp extends AbstractHealthCheckProbe implements Copyable<LoadBalancerTcpProbe> {
 
-    private String name;
-    private Integer interval;
-    private Integer port;
-    private Integer probes;
-
-    public HealthCheckProbeTcp() {
-
-    }
-
-    public HealthCheckProbeTcp(LoadBalancerTcpProbe tcpProbe) {
+    @Override
+    public void copyFrom(LoadBalancerTcpProbe tcpProbe) {
         setName(tcpProbe.name());
         setInterval(tcpProbe.intervalInSeconds());
         setPort(tcpProbe.port());
         setProbes(tcpProbe.numberOfProbes());
     }
-
-    /**
-     * The name of the health probe. (Required)
-     */
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * The amount of time between probes. (Required)
-     */
-    @Updatable
-    public Integer getInterval() {
-        return interval;
-    }
-
-    public void setInterval(Integer interval) {
-        this.interval = interval;
-    }
-
-    /**
-     * The destination port used for a probe. (Required)
-     */
-    @Updatable
-    public Integer getPort() {
-        return port;
-    }
-
-    public void setPort(Integer port) {
-        this.port = port;
-    }
-
-    /**
-     * Health probe failures required by an unhealthy target to be considered unhealthy (Required)
-     */
-    @Updatable
-    public Integer getProbes() {
-        return probes;
-    }
-
-    public void setProbes(Integer probes) {
-        this.probes = probes;
-    }
-
-    public String primaryKey() {
-        return String.format("%s", getName());
-    }
-
 }
