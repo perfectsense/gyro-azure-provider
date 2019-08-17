@@ -1,5 +1,6 @@
 package gyro.azure.compute;
 
+import com.microsoft.azure.SubResource;
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.compute.CachingTypes;
 import com.microsoft.azure.management.compute.KnownLinuxVirtualMachineImage;
@@ -499,14 +500,14 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
                 virtualMachine.inner().networkProfile()
                     .networkInterfaces().stream()
                     .filter(NetworkInterfaceReference::primary).findFirst()
-                    .map(o -> o.id().split("/networkInterfaces/")[1]).orElse(null)
+                    .map(SubResource::id).orElse(null)
             )
         );
         setSecondaryNetworkInterface(
             virtualMachine.inner().networkProfile()
                 .networkInterfaces().stream()
                 .filter(o -> !o.primary())
-                .map(o -> findById(NetworkInterfaceResource.class, o.id().split("/networkInterfaces/")[1]))
+                .map(o -> findById(NetworkInterfaceResource.class, o.id()))
                 .collect(Collectors.toSet())
         );
 
