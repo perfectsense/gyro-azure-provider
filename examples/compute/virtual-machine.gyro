@@ -62,7 +62,6 @@ azure::network-interface network-interface-example-VM
 
     nic-ip-configuration
         name: 'primary'
-        primary: true
     end
 end
 
