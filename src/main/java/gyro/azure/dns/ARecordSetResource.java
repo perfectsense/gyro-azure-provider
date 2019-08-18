@@ -1,8 +1,9 @@
 package gyro.azure.dns;
 
 import gyro.azure.AzureResource;
-import gyro.core.GyroException;
+import gyro.azure.Copyable;
 import gyro.core.GyroUI;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
@@ -16,9 +17,11 @@ import com.microsoft.azure.management.dns.DnsZone;
 import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.ARecordSetBlank;
 import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.WithARecordIPv4AddressOrAttachable;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,50 +35,53 @@ import java.util.Set;
  * .. code-block:: gyro
  *
  *     azure::a-record-set a-record-set
- *         dns-zone-id: $(azure::dns-zone dns-zone-example-zones | id)
+ *         dns-zone: $(azure::dns-zone dns-zone-example-zones)
  *         name: "arecexample"
- *         time-to-live: "3"
+ *         time-to-live: 3
  *         ipv4-addresses: ["10.0.0.1"]
  *     end
  */
 @Type("a-record-set")
-public class ARecordSetResource extends AzureResource {
+public class ARecordSetResource extends AzureResource implements Copyable<ARecordSet> {
 
-    private String dnsZoneId;
-    private List<String> ipv4Addresses;
+    private DnsZoneResource dnsZone;
+    private Set<String> ipv4Addresses;
     private Map<String, String> metadata;
     private String name;
-    private String timeToLive;
+    private Long timeToLive;
+    private String id;
 
     /**
-     * The dns zone where the record resides. (Required)
+     * The DNS Zone where the A Record Set resides. (Required)
      */
-    public String getDnsZoneId() {
-        return dnsZoneId;
+    @Required
+    public DnsZoneResource getDnsZone() {
+        return dnsZone;
     }
 
-    public void setDnsZoneId(String dnsZoneId) {
-        this.dnsZoneId = dnsZoneId;
+    public void setDnsZone(DnsZoneResource dnsZone) {
+        this.dnsZone = dnsZone;
     }
 
     /**
-     * The ipv4 addresses associated with the record set. (Required)
+     * The ipv4 addresses associated with the A Record Set set. (Required)
      */
+    @Required
     @Updatable
-    public List<String> getIpv4Addresses() {
+    public Set<String> getIpv4Addresses() {
         if (ipv4Addresses == null) {
-            ipv4Addresses = new ArrayList<>();
+            ipv4Addresses = new HashSet<>();
         }
-        
+
         return ipv4Addresses;
     }
 
-    public void setIpv4Addresses(List<String> ipv4Addresses) {
+    public void setIpv4Addresses(Set<String> ipv4Addresses) {
         this.ipv4Addresses = ipv4Addresses;
     }
 
     /**
-     * The metadata for the record. (Optional)
+     * The metadata for the A Record Set. (Optional)
      */
     @Updatable
     public Map<String, String> getMetadata() {
@@ -91,8 +97,9 @@ public class ARecordSetResource extends AzureResource {
     }
 
     /**
-     * The name of the record. (Required)
+     * The name of the A Record Set. (Required)
      */
+    @Required
     public String getName() { return name; }
 
     public void setName(String name) {
@@ -100,46 +107,62 @@ public class ARecordSetResource extends AzureResource {
     }
 
     /**
-     * The Time To Live for the records in the set. (Required)
+     * The Time To Live for the A Record Set in the set. (Required)
      */
+    @Required
     @Updatable
-    public String getTimeToLive() {
+    public Long getTimeToLive() {
         return timeToLive;
     }
 
-    public void setTimeToLive(String timeToLive) {
+    public void setTimeToLive(Long timeToLive) {
         this.timeToLive = timeToLive;
+    }
+
+    /**
+     * The ID of the A Record Set.
+     */
+    @Output
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    @Override
+    public void copyFrom(ARecordSet aRecordSet) {
+        getIpv4Addresses().clear();
+        setIpv4Addresses(new HashSet<>(aRecordSet.ipv4Addresses()));
+        setMetadata(aRecordSet.metadata());
+        setName(aRecordSet.name());
+        setTimeToLive(aRecordSet.timeToLive());
+        setDnsZone(findById(DnsZoneResource.class, aRecordSet.parent().id()));
+        aRecordSet.id();
     }
 
     @Override
     public boolean refresh() {
         Azure client = createClient();
 
-        ARecordSet aRecordSet = client.dnsZones().getById(getDnsZoneId()).aRecordSets().getByName(getName());
+        ARecordSet aRecordSet = client.dnsZones().getById(getDnsZone().getId()).aRecordSets().getByName(getName());
 
         if (aRecordSet == null) {
             return false;
         }
 
-        getIpv4Addresses().clear();
-        setIpv4Addresses(aRecordSet.ipv4Addresses());
-        setMetadata(aRecordSet.metadata());
-        setName(aRecordSet.name());
-        setTimeToLive(Long.toString(aRecordSet.timeToLive()));
+        copyFrom(aRecordSet);
 
         return true;
     }
 
     @Override
     public void create(GyroUI ui, State state) {
-        if (getIpv4Addresses().isEmpty()) {
-            throw new GyroException("At least one ipv4 address must be provided.");
-        }
-
         Azure client = createClient();
 
         ARecordSetBlank<DnsZone.Update> defineARecordSetBlank =
-                client.dnsZones().getById(getDnsZoneId()).update().defineARecordSet(getName());
+                client.dnsZones().getById(getDnsZone().getId()).update().defineARecordSet(getName());
 
         WithARecordIPv4AddressOrAttachable<DnsZone.Update> createARecordSet = null;
         for (String ip : getIpv4Addresses()) {
@@ -151,11 +174,12 @@ public class ARecordSetResource extends AzureResource {
         }
 
         if (getTimeToLive() != null) {
-            createARecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
+            createARecordSet.withTimeToLive(getTimeToLive());
         }
 
         DnsZone.Update attach = createARecordSet.attach();
-        attach.apply();
+        DnsZone dnsZone = attach.apply();
+        copyFrom(dnsZone.aRecordSets().getByName(getName()));
     }
 
     @Override
@@ -163,10 +187,10 @@ public class ARecordSetResource extends AzureResource {
         Azure client = createClient();
 
         DnsRecordSet.UpdateARecordSet updateARecordSet =
-                client.dnsZones().getById(getDnsZoneId()).update().updateARecordSet(getName());
+                client.dnsZones().getById(getDnsZone().getId()).update().updateARecordSet(getName());
 
         if (getTimeToLive() != null) {
-            updateARecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
+            updateARecordSet.withTimeToLive(getTimeToLive());
         }
 
         ARecordSetResource oldResource = (ARecordSetResource) current;
@@ -203,14 +227,14 @@ public class ARecordSetResource extends AzureResource {
         }
 
         DnsZone.Update parent = updateARecordSet.parent();
-        parent.apply();
+        DnsZone dnsZone = parent.apply();
+        copyFrom(dnsZone.aRecordSets().getByName(getName()));
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
-        client.dnsZones().getById(getDnsZoneId()).update().withoutARecordSet(getName()).apply();
+        client.dnsZones().getById(getDnsZone().getId()).update().withoutARecordSet(getName()).apply();
     }
-
 }
