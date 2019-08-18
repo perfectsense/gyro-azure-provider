@@ -70,7 +70,6 @@ azure::network-interface network-interface-example
 
     nic-ip-configuration
         name: 'primary'
-        primary: true
         private-ip-address: "10.0.0.6"
     end
 

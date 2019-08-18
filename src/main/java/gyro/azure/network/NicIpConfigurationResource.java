@@ -23,7 +23,6 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
     private String name;
     private PublicIpAddressResource publicIpAddress;
     private String privateIpAddress;
-    private Boolean primary;
     private Set<NicBackend> nicBackend;
     private Set<NicNatRule> nicNatRule;
 
@@ -61,21 +60,6 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
 
     public void setPrivateIpAddress(String privateIpAddress) {
         this.privateIpAddress = privateIpAddress;
-    }
-
-    /**
-     * Marks the IP Configuration as primary. Defaults to ``false``.
-     */
-    public Boolean getPrimary() {
-        if (primary == null) {
-            primary = false;
-        }
-
-        return primary;
-    }
-
-    public void setPrimary(Boolean primary) {
-        this.primary = primary;
     }
 
     /**
@@ -138,7 +122,7 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
 
     @Override
     public void create(GyroUI ui, State state) {
-        if (getPrimary()) {
+        if (isPrimary()) {
             return;
         }
 
@@ -223,7 +207,7 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
 
     @Override
     public void delete(GyroUI ui, State state) {
-        if (getPrimary()) {
+        if (isPrimary()) {
             return;
         }
 
@@ -238,6 +222,10 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
 
     @Override
     public String primaryKey() {
-        return String.format("%s", getName());
+        return getName();
+    }
+
+    boolean isPrimary() {
+        return getName().equals("primary");
     }
 }

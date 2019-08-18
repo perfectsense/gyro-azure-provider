@@ -185,10 +185,6 @@ public class NetworkInterfaceResource extends AzureResource implements Copyable<
             NicIpConfigurationResource nicIpConfigurationResource = newSubresource(NicIpConfigurationResource.class);
             nicIpConfigurationResource.copyFrom(nicIpConfiguration);
 
-            if (nicIpConfiguration.isPrimary()) {
-                nicIpConfigurationResource.setPrimary(true);
-            }
-
             getNicIpConfiguration().add(nicIpConfigurationResource);
         }
     }
@@ -221,7 +217,7 @@ public class NetworkInterfaceResource extends AzureResource implements Copyable<
 
         NetworkInterface.DefinitionStages.WithCreate withCreate;
 
-        NicIpConfigurationResource primary = getNicIpConfiguration().stream().filter(NicIpConfigurationResource::getPrimary).findFirst().get();
+        NicIpConfigurationResource primary = getNicIpConfiguration().stream().filter(NicIpConfigurationResource::isPrimary).findFirst().get();
 
         if (!ObjectUtils.isBlank(primary.getPrivateIpAddress())) {
             withCreate = withPrimaryPrivateIP.withPrimaryPrivateIPAddressStatic(primary.getPrivateIpAddress());
@@ -283,14 +279,8 @@ public class NetworkInterfaceResource extends AzureResource implements Copyable<
     public List<ValidationError> validate() {
         List<ValidationError> errors = new ArrayList<>();
 
-        long primaryCount = getNicIpConfiguration().stream().filter(NicIpConfigurationResource::getPrimary).count();
-
-        if (primaryCount != 1) {
-            errors.add(new ValidationError(this, "nic-ip-configuration", "One and only One Ip configuration designated as primary is required."));
-        }
-
-        if (getNicIpConfiguration().stream().anyMatch(o -> o.getPrimary() && !o.getName().equals("primary"))) {
-            errors.add(new ValidationError(this, "nic-ip-configuration", "The primary Ip configuration needs the name as 'primary'."));
+        if (getNicIpConfiguration().stream().filter(NicIpConfigurationResource::isPrimary).count() != 1) {
+            errors.add(new ValidationError(this, "nic-ip-configuration", "One and only one Ip configuration named as primary is required."));
         }
 
         return errors;
