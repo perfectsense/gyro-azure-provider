@@ -40,6 +40,8 @@ import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -115,6 +117,7 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
     /**
      * Name of the Virtual Machine. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }
@@ -124,8 +127,9 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
     }
 
     /**
-     * The resource group under which this would reside. (Required)
+     * The resource group under which the Virtual Machine would reside. (Required)
      */
+    @Required
     public ResourceGroupResource getResourceGroup() {
         return resourceGroup;
     }
@@ -137,6 +141,7 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
     /**
      * The virtual network which would be associated with this. (Required)
      */
+    @Required
     public NetworkResource getNetwork() {
         return network;
     }
@@ -237,8 +242,10 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
     }
 
     /**
-     * The os for the Virtual Machine. Valid values are ``Linux`` or ``Unix``. (Required)
+     * The os for the Virtual Machine. Valid values are ``Linux`` or ``Windows``. (Required)
      */
+    @Required
+    @ValidStrings({"Linux", "Windiws"})
     public String getOsType() {
         return osType != null ? osType.toLowerCase() : null;
     }
@@ -272,6 +279,8 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
     /**
      * Type of Virtual Machine image. Defaults to specialized. Valid values are ``popular`` or ``specialized`` or ``latest`` or ``specific`` or ``custom`` or ``gallery``. (Required)
      */
+    @Required
+    @ValidStrings({"popular", "specialized", "latest", "specific", "custom", "gallery"})
     public String getVmImageType() {
         if (vmImageType == null) {
             vmImageType = "specialized";
@@ -343,6 +352,7 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
     /**
      * The data disk storage account type for the Virtual Machine. Valid values are ``STANDARD_LRS`` or ``PREMIUM_LRS`` or ``STANDARD_SSD_LRS``.
      */
+    @ValidStrings({"STANDARD_LRS", "PREMIUM_LRS", "STANDARD_SSD_LRS"})
     @Updatable
     public String getStorageAccountTypeDataDisk() {
         return storageAccountTypeDataDisk;
@@ -355,6 +365,7 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
     /**
      * The os disk storage account type for the Virtual Machine. Valid values are ``STANDARD_LRS`` or ``PREMIUM_LRS`` or ``STANDARD_SSD_LRS``.
      */
+    @ValidStrings({"STANDARD_LRS", "PREMIUM_LRS", "STANDARD_SSD_LRS"})
     public String getStorageAccountTypeOsDisk() {
         return storageAccountTypeOsDisk;
     }

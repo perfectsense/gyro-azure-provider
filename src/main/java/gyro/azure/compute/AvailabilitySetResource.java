@@ -16,6 +16,8 @@ import com.microsoft.azure.management.compute.AvailabilitySet;
 import com.microsoft.azure.management.compute.AvailabilitySetSkuTypes;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -54,6 +56,7 @@ public class AvailabilitySetResource extends AzureResource implements Copyable<A
     /**
      * The fault domain count of the Availability Set.
      */
+    @Required
     public Integer getFaultDomainCount() {
         return faultDomainCount;
     }
@@ -63,7 +66,7 @@ public class AvailabilitySetResource extends AzureResource implements Copyable<A
     }
 
     /**
-     * The id of the Availability Set.
+     * The ID of the Availability Set.
      */
     @Id
     @Output
@@ -76,8 +79,9 @@ public class AvailabilitySetResource extends AzureResource implements Copyable<A
     }
 
     /**
-     * The name of the Availability Set.
+     * The name of the Availability Set. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }
@@ -87,8 +91,9 @@ public class AvailabilitySetResource extends AzureResource implements Copyable<A
     }
 
     /**
-     * The Resource Group under which the Availability Set would reside.
+     * The Resource Group under which the Availability Set would reside. (Required)
      */
+    @Required
     public ResourceGroupResource getResourceGroup() {
         return resourceGroup;
     }
@@ -100,6 +105,7 @@ public class AvailabilitySetResource extends AzureResource implements Copyable<A
     /**
      * The Availability Set sku. Valid values are ``Aligned`` or ``Classic``. Defaults to ``Classic``. (Optional)
      */
+    @ValidStrings({"Aligned", "Classic"})
     @Updatable
     public String getSku() {
         if (sku == null) {

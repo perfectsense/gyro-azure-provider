@@ -17,6 +17,8 @@ import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -56,6 +58,7 @@ public class DiskResource extends AzureResource implements Copyable<Disk> {
     /**
      * Name of the Disk. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }
@@ -80,6 +83,7 @@ public class DiskResource extends AzureResource implements Copyable<Disk> {
     /**
      * The resource group under which the Disk would reside. (Required)
      */
+    @Required
     public ResourceGroupResource getResourceGroup() {
         return resourceGroup;
     }
@@ -91,6 +95,7 @@ public class DiskResource extends AzureResource implements Copyable<Disk> {
     /**
      * Size of the Disk in Gb. (Required)
      */
+    @Required
     @Updatable
     public Integer getSize() {
         return size;
@@ -103,6 +108,8 @@ public class DiskResource extends AzureResource implements Copyable<Disk> {
     /**
      * Type of OS. Valid values are ``LINUX`` or ``WINDOWS``.
      */
+    @Required
+    @ValidStrings({"LINUX", "WINDOWS"})
     @Updatable
     public String getOsType() {
         return osType != null ? osType.toUpperCase() : null;
@@ -113,8 +120,10 @@ public class DiskResource extends AzureResource implements Copyable<Disk> {
     }
 
     /**
-     * Type of Disk. Valid values are ``STANDARD_LRS`` or ``PREMIUM_LRS`` or ``STANDARD_SSD_LRS``.
+     * Type of Disk. Valid values are ``STANDARD_LRS`` or ``PREMIUM_LRS`` or ``STANDARD_SSD_LRS``. (REQUIRED)
      */
+    @Required
+    @ValidStrings({"STANDARD_LRS", "PREMIUM_LRS", "STANDARD_SSD_LRS"})
     @Updatable
     public String getType() {
         return type != null ? type.toUpperCase() : null;
@@ -127,6 +136,7 @@ public class DiskResource extends AzureResource implements Copyable<Disk> {
     /**
      * Type of data source. Defaults to ``disk``. Valid values are ``disk`` or ``vhd`` or ``snapshot``.
      */
+    @ValidStrings({"disk", "vhd", "snapshot"})
     public String getDataLoadSourceType() {
         if (dataLoadSourceType == null) {
             dataLoadSourceType = "disk";

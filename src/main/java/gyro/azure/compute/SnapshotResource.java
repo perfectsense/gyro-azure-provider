@@ -19,6 +19,8 @@ import com.microsoft.azure.management.compute.SnapshotStorageAccountTypes;
 import com.microsoft.azure.management.compute.Snapshot.DefinitionStages.WithCreate;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -95,6 +97,7 @@ public class SnapshotResource extends AzureResource implements Copyable<Snapshot
     /**
      * The name of the Snapshot. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }
@@ -106,6 +109,8 @@ public class SnapshotResource extends AzureResource implements Copyable<Snapshot
     /**
      * Determines what data type is used. Valid values are ``disk`` or ``snapshot`` or ``vhd``. (Required)
      */
+    @Required
+    @ValidStrings({"disk", "snapshot", "vhd"})
     public String getProvider() {
         return provider;
     }
@@ -115,8 +120,9 @@ public class SnapshotResource extends AzureResource implements Copyable<Snapshot
     }
 
     /**
-     * The input Resource Group. (Required)
+     * The Resource Group where the Snapshot resides in. (Required)
      */
+    @Required
     public ResourceGroupResource getResourceGroup() {
         return resourceGroup;
     }
@@ -128,6 +134,7 @@ public class SnapshotResource extends AzureResource implements Copyable<Snapshot
     /**
      * Specifies the sku type. Valid values are ``Premium_LRS`` or ``Standard_LRS`` or ``Standard_ZRS``. (Optional)
      */
+    @ValidStrings({"Premium_LRS", "Standard_LRS", "Standard_ZRS"})
     @Updatable
     public String getSku() {
         return sku;
@@ -162,6 +169,8 @@ public class SnapshotResource extends AzureResource implements Copyable<Snapshot
     /**
      * The type of the disk, snapshot, or vhd used. Valid values are ``Linux`` or ``Windows`` or ``Data``. (Required)
      */
+    @Required
+    @ValidStrings({"Linux", "Windows", "Data"})
     public String getSource() {
         return source;
     }
