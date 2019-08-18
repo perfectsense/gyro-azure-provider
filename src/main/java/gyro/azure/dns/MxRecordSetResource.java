@@ -1,8 +1,9 @@
 package gyro.azure.dns;
 
 import gyro.azure.AzureResource;
-import gyro.core.GyroException;
+import gyro.azure.Copyable;
 import gyro.core.GyroUI;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
@@ -16,9 +17,11 @@ import com.microsoft.azure.management.dns.MXRecordSet;
 import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.MXRecordSetBlank;
 import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.WithMXRecordMailExchangeOrAttachable;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,8 +37,8 @@ import java.util.stream.Collectors;
  *
  *     azure::mx-record-set mx-record-set
  *         name: "mxrecexample"
- *         time-to-live: "4"
- *         dns-zone-id: $(azure::dns-zone dns-zone-example-zones | id)
+ *         time-to-live: 4
+ *         dns-zone: $(azure::dns-zone dns-zone-example-zones)
  *
  *         mx-record
  *            exchange: "mail.cont.com"
@@ -49,43 +52,46 @@ import java.util.stream.Collectors;
  *     end
  */
 @Type("mx-record-set")
-public class MxRecordSetResource extends AzureResource {
+public class MxRecordSetResource extends AzureResource implements Copyable<MXRecordSet> {
 
-    private String dnsZoneId;
-    private List<MxRecord> mxRecord;
+    private DnsZoneResource dnsZone;
+    private Set<MxRecord> mxRecord;
     private Map<String, String> metadata;
     private String name;
-    private String timeToLive;
+    private Long timeToLive;
+    private String id;
 
     /**
-     * The dns zone where the record resides. (Required)
+     * The DNS Zone where the MX Record Set resides. (Required)
      */
-    public String getDnsZoneId() {
-        return dnsZoneId;
+    @Required
+    public DnsZoneResource getDnsZone() {
+        return dnsZone;
     }
 
-    public void setDnsZoneId(String dnsZoneId) {
-        this.dnsZoneId = dnsZoneId;
+    public void setDnsZone(DnsZoneResource dnsZone) {
+        this.dnsZone = dnsZone;
     }
 
     /**
-     * The list of mx records. (Required)
+     * The list of mx MX Records Set. (Required)
      */
+    @Required
     @Updatable
-    public List<MxRecord> getMxRecord() {
+    public Set<MxRecord> getMxRecord() {
         if (mxRecord == null) {
-            mxRecord = new ArrayList<>();
+            mxRecord = new HashSet<>();
         }
 
         return mxRecord;
     }
 
-    public void setMxRecord(List<MxRecord> mxRecord) {
+    public void setMxRecord(Set<MxRecord> mxRecord) {
         this.mxRecord = mxRecord;
     }
 
     /**
-     * The metadata for the record. (Optional)
+     * The metadata for the MX Record Set. (Optional)
      */
     @Updatable
     public Map<String, String> getMetadata() {
@@ -101,8 +107,9 @@ public class MxRecordSetResource extends AzureResource {
     }
 
     /**
-     * The name of the record. (Required)
+     * The name of the MX Record Set. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }
@@ -112,46 +119,65 @@ public class MxRecordSetResource extends AzureResource {
     }
 
     /**
-     * The Time To Live for the records in the set. (Required)
+     * The Time To Live for the MX Record Set in the set. (Required)
      */
+    @Required
     @Updatable
-    public String getTimeToLive() {
+    public Long getTimeToLive() {
         return timeToLive;
     }
 
-    public void setTimeToLive(String timeToLive) {
+    public void setTimeToLive(Long timeToLive) {
         this.timeToLive = timeToLive;
+    }
+
+    /**
+     * The ID of the MX Record Set.
+     */
+    @Output
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    @Override
+    public void copyFrom(MXRecordSet mxRecordSet) {
+        setMxRecord(mxRecordSet.records().stream().map(o -> {
+            MxRecord mxRecord = newSubresource(MxRecord.class);
+            mxRecord.copyFrom(o);
+            return mxRecord;
+        }).collect(Collectors.toSet()));
+        setMetadata(mxRecordSet.metadata());
+        setName(mxRecordSet.name());
+        setTimeToLive(mxRecordSet.timeToLive());
+        setDnsZone(findById(DnsZoneResource.class, mxRecordSet.parent().id()));
+        setId(mxRecordSet.id());
     }
 
     @Override
     public boolean refresh() {
         Azure client = createClient();
 
-        MXRecordSet mxRecordSet = client.dnsZones().getById(getDnsZoneId()).mxRecordSets().getByName(getName());
+        MXRecordSet mxRecordSet = client.dnsZones().getById(getDnsZone().getId()).mxRecordSets().getByName(getName());
 
         if (mxRecordSet == null) {
             return false;
         }
 
-        getMxRecord().clear();
-        mxRecordSet.records().forEach(record -> getMxRecord().add(new MxRecord(record)));
-        setMetadata(mxRecordSet.metadata());
-        setName(mxRecordSet.name());
-        setTimeToLive(Long.toString(mxRecordSet.timeToLive()));
+        copyFrom(mxRecordSet);
 
         return true;
     }
 
     @Override
     public void create(GyroUI ui, State state) {
-        if (getMxRecord() == null || getMxRecord().size() == 0) {
-            throw new GyroException("At least one mx record must be provided.");
-        }
-
         Azure client = createClient();
 
         MXRecordSetBlank<DnsZone.Update> defineMXRecordSet =
-                client.dnsZones().getById(getDnsZoneId()).update().defineMXRecordSet(getName());
+                client.dnsZones().getById(getDnsZone().getId()).update().defineMXRecordSet(getName());
 
         WithMXRecordMailExchangeOrAttachable<DnsZone.Update> createMXRecordSet = null;
         for (MxRecord mxRecord : getMxRecord()) {
@@ -159,7 +185,7 @@ public class MxRecordSetResource extends AzureResource {
         }
 
         if (getTimeToLive() != null) {
-            createMXRecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
+            createMXRecordSet.withTimeToLive(getTimeToLive());
         }
 
         for (Map.Entry<String,String> e : getMetadata().entrySet()) {
@@ -167,7 +193,8 @@ public class MxRecordSetResource extends AzureResource {
         }
 
         DnsZone.Update attach = createMXRecordSet.attach();
-        attach.apply();
+        DnsZone dnsZone = attach.apply();
+        copyFrom(dnsZone.mxRecordSets().getByName(getName()));
     }
 
     @Override
@@ -175,10 +202,10 @@ public class MxRecordSetResource extends AzureResource {
         Azure client = createClient();
 
         DnsRecordSet.UpdateMXRecordSet updateMXRecordSet =
-                client.dnsZones().getById(getDnsZoneId()).update().updateMXRecordSet(getName());
+                client.dnsZones().getById(getDnsZone().getId()).update().updateMXRecordSet(getName());
 
         if (getTimeToLive() != null) {
-            updateMXRecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
+            updateMXRecordSet.withTimeToLive(getTimeToLive());
         }
 
         MxRecordSetResource oldRecord = (MxRecordSetResource) current;
@@ -226,14 +253,14 @@ public class MxRecordSetResource extends AzureResource {
         }
 
         DnsZone.Update parent = updateMXRecordSet.parent();
-        parent.apply();
+        DnsZone dnsZone = parent.apply();
+        copyFrom(dnsZone.mxRecordSets().getByName(getName()));
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
-        client.dnsZones().getById(getDnsZoneId()).update().withoutMXRecordSet(getName()).apply();
+        client.dnsZones().getById(getDnsZone().getId()).update().withoutMXRecordSet(getName()).apply();
     }
-
 }
