@@ -1,8 +1,9 @@
 package gyro.azure.dns;
 
 import gyro.azure.AzureResource;
-import gyro.core.GyroException;
+import gyro.azure.Copyable;
 import gyro.core.GyroUI;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
@@ -16,12 +17,15 @@ import com.microsoft.azure.management.dns.DnsZone;
 import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.WithCaaRecordEntryOrAttachable;
 import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.CaaRecordSetBlank;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Creates an CAA Record Set.
@@ -33,8 +37,8 @@ import java.util.Set;
  *
  *     azure::caa-record-set caa-record-set
  *         name: "caaexample"
- *         time-to-live: "3"
- *         dns-zone-id: $(azure::dns-zone dns-zone-example-zones | id)
+ *         time-to-live: 3
+ *         dns-zone: $(azure::dns-zone dns-zone-example-zones)
  *
  *         caa-record
  *             flags: 1
@@ -50,43 +54,46 @@ import java.util.Set;
  *     end
  */
 @Type("caa-record-set")
-public class CaaRecordSetResource extends AzureResource {
+public class CaaRecordSetResource extends AzureResource implements Copyable<CaaRecordSet> {
 
-    private List<CaaRecord> caaRecord;
-    private String dnsZoneId;
+    private Set<CaaRecord> caaRecord;
+    private DnsZoneResource dnsZone;
     private Map<String, String> metadata;
     private String name;
-    private String timeToLive;
+    private Long timeToLive;
+    private String id;
 
     /**
-     * The Caa records associated with the record. (Required)
+     * The  set of CAA Records associated with the CAA Record Set. (Required)
      */
+    @Required
     @Updatable
-    public List<CaaRecord> getCaaRecord() {
+    public Set<CaaRecord> getCaaRecord() {
         if (caaRecord == null) {
-            caaRecord = new ArrayList<>();
+            caaRecord = new HashSet<>();
         }
 
         return caaRecord;
     }
 
-    public void setCaaRecord(List<CaaRecord> caaRecord) {
+    public void setCaaRecord(Set<CaaRecord> caaRecord) {
         this.caaRecord = caaRecord;
     }
 
     /**
-     * The dns zone where the record resides. (Required)
+     * The DNS Zone where the CAA Record resides Set. (Required)
      */
-    public String getDnsZoneId() {
-        return dnsZoneId;
+    @Required
+    public DnsZoneResource getDnsZone() {
+        return dnsZone;
     }
 
-    public void setDnsZoneId(String dnsZoneId) {
-        this.dnsZoneId = dnsZoneId;
+    public void setDnsZone(DnsZoneResource dnsZone) {
+        this.dnsZone = dnsZone;
     }
 
     /**
-     * The metadata for the record. (Optional)
+     * The metadata for the CAA Record Set. (Optional)
      */
     @Updatable
     public Map<String, String> getMetadata() {
@@ -102,8 +109,9 @@ public class CaaRecordSetResource extends AzureResource {
     }
 
     /**
-     * The name of the record. (Required)
+     * The name of the CAA Record Set. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }
@@ -113,42 +121,65 @@ public class CaaRecordSetResource extends AzureResource {
     }
 
     /**
-     * The Time To Live for the records in the set. (Required)
+     * The Time To Live for the CAA Record Set in the set. (Required)
      */
+    @Required
     @Updatable
-    public String getTimeToLive() {
+    public Long getTimeToLive() {
         return timeToLive;
     }
 
-    public void setTimeToLive(String timeToLive) {
+    public void setTimeToLive(Long timeToLive) {
         this.timeToLive = timeToLive;
+    }
+
+    /**
+     * The ID of the CAA Record Set.
+     */
+    @Output
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    @Override
+    public void copyFrom(CaaRecordSet caaRecordSet) {
+        setCaaRecord(caaRecordSet.records().stream().map(o -> {
+            CaaRecord caaRecord = newSubresource(CaaRecord.class);
+            caaRecord.copyFrom(o);
+            return caaRecord;
+        }).collect(Collectors.toSet()));
+        setMetadata(caaRecordSet.metadata());
+        setName(caaRecordSet.name());
+        setTimeToLive(caaRecordSet.timeToLive());
+        setDnsZone(findById(DnsZoneResource.class, caaRecordSet.parent().id()));
+        setId(caaRecordSet.id());
     }
 
     @Override
     public boolean refresh() {
         Azure client = createClient();
 
-        CaaRecordSet caaRecordSet = client.dnsZones().getById(getDnsZoneId()).caaRecordSets().getByName(getName());
+        CaaRecordSet caaRecordSet = client.dnsZones().getById(getDnsZone().getId()).caaRecordSets().getByName(getName());
 
-        getCaaRecord().clear();
-        caaRecordSet.records().forEach(record -> getCaaRecord().add(new CaaRecord(record)));
-        setMetadata(caaRecordSet.metadata());
-        setName(caaRecordSet.name());
-        setTimeToLive(Long.toString(caaRecordSet.timeToLive()));
+        if (caaRecordSet == null) {
+            return false;
+        }
+
+        copyFrom(caaRecordSet);
 
         return true;
     }
 
     @Override
     public void create(GyroUI ui, State state) {
-        if (getCaaRecord().isEmpty()) {
-            throw new GyroException("At least one caa record must be provided.");
-        }
-
         Azure client = createClient();
 
         CaaRecordSetBlank<DnsZone.Update> defineCaaRecordSet =
-                client.dnsZones().getById(getDnsZoneId()).update().defineCaaRecordSet(getName());
+                client.dnsZones().getById(getDnsZone().getId()).update().defineCaaRecordSet(getName());
 
         WithCaaRecordEntryOrAttachable<DnsZone.Update> createCaaRecordSet = null;
         for (CaaRecord caaRecord : getCaaRecord()) {
@@ -156,7 +187,7 @@ public class CaaRecordSetResource extends AzureResource {
         }
 
         if (getTimeToLive() != null) {
-            createCaaRecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
+            createCaaRecordSet.withTimeToLive(getTimeToLive());
         }
 
         for (Map.Entry<String,String> e : getMetadata().entrySet()) {
@@ -164,7 +195,8 @@ public class CaaRecordSetResource extends AzureResource {
         }
 
         DnsZone.Update attach = createCaaRecordSet.attach();
-        attach.apply();
+        DnsZone dnsZone = attach.apply();
+        copyFrom(dnsZone.caaRecordSets().getByName(getName()));
     }
 
     @Override
@@ -172,10 +204,10 @@ public class CaaRecordSetResource extends AzureResource {
         Azure client = createClient();
 
         DnsRecordSet.UpdateCaaRecordSet updateCaaRecordSet =
-                client.dnsZones().getById(getDnsZoneId()).update().updateCaaRecordSet(getName());
+                client.dnsZones().getById(getDnsZone().getId()).update().updateCaaRecordSet(getName());
 
         if (getTimeToLive() != null) {
-            updateCaaRecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
+            updateCaaRecordSet.withTimeToLive(getTimeToLive());
         }
 
         CaaRecordSetResource oldRecord = (CaaRecordSetResource) current;
@@ -210,17 +242,18 @@ public class CaaRecordSetResource extends AzureResource {
         }
 
         DnsZone.Update parent = updateCaaRecordSet.parent();
-        parent.apply();
+        DnsZone dnsZone = parent.apply();
+        copyFrom(dnsZone.caaRecordSets().getByName(getName()));
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
-        client.dnsZones().getById(getDnsZoneId()).update().withoutCaaRecordSet(getName()).apply();
+        client.dnsZones().getById(getDnsZone().getId()).update().withoutCaaRecordSet(getName()).apply();
     }
 
-    private List<CaaRecord> comparator(List<CaaRecord> original, List<CaaRecord> compareTo) {
+    private List<CaaRecord> comparator(Set<CaaRecord> original, Set<CaaRecord> compareTo) {
         List<CaaRecord> differences = new ArrayList<>(original);
 
         for (CaaRecord record : original) {
