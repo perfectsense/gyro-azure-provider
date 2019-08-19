@@ -2,6 +2,7 @@ package gyro.azure.network;
 
 import gyro.azure.AzureResource;
 import gyro.core.GyroUI;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
@@ -155,6 +156,7 @@ public class LoadBalancerResource extends AzureResource {
     /**
      * The id of the load balancer.
      */
+    @Id
     @Output
     public String getId() {
         return id;
