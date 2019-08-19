@@ -112,7 +112,7 @@ azure::public-ip-address load-balancer-public-frontend-public-ip-address-example
 end
 
 azure::load-balancer load-balancer-example-2
-    name: "load-balancer-example"
+    name: "load-balancer-example-2"
     resource-group: $(azure::resource-group load-balancer-resource-group-example)
 
     public-frontend
