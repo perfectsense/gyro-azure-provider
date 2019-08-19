@@ -5,6 +5,7 @@ import gyro.azure.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 
@@ -45,18 +46,11 @@ public class CloudFileDirectoryResource extends AzureResource implements Copyabl
     private CloudFileShareResource cloudFileShare;
     private StorageAccountResource storageAccount;
 
-    public CloudFileDirectoryResource() {}
-
-    public CloudFileDirectoryResource(String directoryPath, String cloudFileShareName, StorageAccountResource storageAccount) {
-        this.cloudFileDirectoryPath = directoryPath;
-        this.cloudFileShare = findById(CloudFileShareResource.class, cloudFileShareName);
-        this.storageAccount = storageAccount;
-    }
-
     /**
      * The Cloud File Directory path. (Required)
      */
     @Required
+    @Id
     public String getCloudFileDirectoryPath() {
         if (cloudFileDirectoryPath != null && !cloudFileDirectoryPath.startsWith("/")) {
             cloudFileDirectoryPath = "/" + cloudFileDirectoryPath;
@@ -156,7 +150,7 @@ public class CloudFileDirectoryResource extends AzureResource implements Copyabl
         }
     }
 
-    CloudFileDirectory cloudFileDirectory() {
+    private CloudFileDirectory cloudFileDirectory() {
         try {
             CloudStorageAccount storageAccount = CloudStorageAccount.parse(getStorageAccount().getConnection());
             CloudFileClient fileClient = storageAccount.createCloudFileClient();
