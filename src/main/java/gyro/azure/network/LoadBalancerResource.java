@@ -66,7 +66,7 @@ import java.util.Set;
  *                 frontend-port: 443
  *                 idle-timeout-in-minutes: 8
  *                 protocol: "TCP"
- *                 backend-pool-name: "backend-pool-name"
+ *                 backend-name: "backend-name"
  *                 health-check-probe-name: "healthcheck-tcp"
  *             end
  *
@@ -405,7 +405,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
                 .withProtocol(TransportProtocol.fromString(rule.getProtocol()))
                 .fromFrontend(rule.getFrontendName())
                 .fromFrontendPort(rule.getFrontendPort())
-                .toBackend(rule.getBackendPoolName())
+                .toBackend(rule.getBackendName())
                 .toBackendPort(rule.getBackendPort())
                 .withProbe(rule.getHealthCheckProbeName())
                 .withIdleTimeoutInMinutes(rule.getIdleTimeoutInMinutes())
@@ -542,7 +542,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
                 .withProtocol(TransportProtocol.fromString(rule.getProtocol()))
                 .fromFrontend(rule.getFrontendName())
                 .fromFrontendPort(rule.getFrontendPort())
-                .toBackend(rule.getBackendPoolName())
+                .toBackend(rule.getBackendName())
                 .withProbe(rule.getHealthCheckProbeName())
                 .withIdleTimeoutInMinutes(rule.getIdleTimeoutInMinutes())
                 .withFloatingIP(rule.getFloatingIp())

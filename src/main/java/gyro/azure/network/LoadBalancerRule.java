@@ -24,12 +24,12 @@ import gyro.core.validation.Required;
  *        frontend-port: 443
  *        idle-timeout-in-minutes: 8
  *        protocol: "TCP"
- *        backend-pool-name: "backendpoolname"
+ *        backend-name: "backendname"
  *        health-check-probe-name: "healthcheck-http"
  *    end
  */
 public class LoadBalancerRule extends Diffable implements Copyable<LoadBalancingRule> {
-    private String backendPoolName;
+    private String backendName;
     private Integer backendPort;
     private Boolean floatingIp;
     private String frontendName;
@@ -43,12 +43,12 @@ public class LoadBalancerRule extends Diffable implements Copyable<LoadBalancing
      * The backend pool associated with the Load Balancer Rule. (Required)
      */
     @Required
-    public String getBackendPoolName() {
-        return backendPoolName;
+    public String getBackendName() {
+        return backendName;
     }
 
-    public void setBackendPoolName(String backendPoolName) {
-        this.backendPoolName = backendPoolName;
+    public void setBackendName(String backendName) {
+        this.backendName = backendName;
     }
 
     /**
@@ -159,7 +159,7 @@ public class LoadBalancerRule extends Diffable implements Copyable<LoadBalancing
 
     @Override
     public void copyFrom(LoadBalancingRule rule) {
-        setBackendPoolName(rule.backend() != null ? rule.backend().name() : null);
+        setBackendName(rule.backend() != null ? rule.backend().name() : null);
         setBackendPort(rule.backendPort());
         setFloatingIp(rule.floatingIPEnabled());
         setFrontendName(rule.frontend() != null ? rule.frontend().name() : null);

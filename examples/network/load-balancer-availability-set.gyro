@@ -65,7 +65,7 @@ azure::load-balancer load-balancer-example
         frontend-port: 443
         idle-timeout-in-minutes: 9
         protocol: "TCP"
-        backend-pool-name: "backend-pool-one"
+        backend-name: "backend-one"
         health-check-probe-name: "health-check-http"
     end
 
@@ -77,7 +77,7 @@ azure::load-balancer load-balancer-example
         frontend-port: 445
         idle-timeout-in-minutes: 9
         protocol: "UDP"
-        backend-pool-name: "backend-pool-two"
+        backend-name: "backend-two"
         health-check-probe-name: "health-check-tcp"
     end
 
@@ -146,7 +146,7 @@ azure::load-balancer load-balancer-example-2
         frontend-port: 443
         idle-timeout-in-minutes: 9
         protocol: "TCP"
-        backend-pool-name: "backend-pool-one"
+        backend-name: "backend-one"
         health-check-probe-name: "health-check-http"
     end
 
@@ -158,7 +158,7 @@ azure::load-balancer load-balancer-example-2
         frontend-port: 445
         idle-timeout-in-minutes: 9
         protocol: "UDP"
-        backend-pool-name: "backend-pool-two"
+        backend-name: "backend-two"
         health-check-probe-name: "health-check-tcp"
     end
 
