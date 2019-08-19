@@ -52,8 +52,8 @@ azure::load-balancer load-balancer-example
             frontend-name: "private-frontend"
             backend-port: 81
             protocol: "TCP"
-            frontend-port-range-start: 81
-            frontend-port-range-end: 90
+            frontend-port-start: 81
+            frontend-port-end: 90
         end
     end
 

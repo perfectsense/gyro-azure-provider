@@ -331,7 +331,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
                     buildLoadBalancer = lb.defineInboundNatPool(natPool.getName())
                         .withProtocol(TransportProtocol.fromString(natPool.getProtocol()))
                         .fromFrontend(natPool.getFrontendName())
-                        .fromFrontendPortRange(natPool.getFrontendPortRangeStart(), natPool.getFrontendPortRangeEnd())
+                        .fromFrontendPortRange(natPool.getFrontendPortStart(), natPool.getFrontendPortEnd())
                         .toBackendPort(natPool.getBackendPort())
                         .attach();
                 }
@@ -710,7 +710,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
 
             withFrontend = (LoadBalancerInboundNatPool.UpdateDefinitionStages.WithFrontendPortRange) withProtocol.fromFrontend(pool.getFrontendName());
 
-            withPortRange = (LoadBalancerInboundNatPool.UpdateDefinitionStages.WithBackendPort) withFrontend.fromFrontendPortRange(pool.getFrontendPortRangeStart(), pool.getFrontendPortRangeEnd());
+            withPortRange = (LoadBalancerInboundNatPool.UpdateDefinitionStages.WithBackendPort) withFrontend.fromFrontendPortRange(pool.getFrontendPortStart(), pool.getFrontendPortEnd());
 
             withBackendPort = (LoadBalancerInboundNatPool.UpdateDefinitionStages.WithAttach) withPortRange.toBackendPort(pool.getBackendPort());
 
@@ -748,7 +748,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
             .updateInboundNatPool(pool.getName())
             .withProtocol(TransportProtocol.fromString(pool.getProtocol()))
             .fromFrontend(pool.getFrontendName())
-            .fromFrontendPortRange(pool.getFrontendPortRangeStart(), pool.getFrontendPortRangeEnd())
+            .fromFrontendPortRange(pool.getFrontendPortStart(), pool.getFrontendPortEnd())
             .toBackendPort(pool.getBackendPort());
     }
 

@@ -7,6 +7,7 @@ import gyro.core.resource.Updatable;
 import com.microsoft.azure.management.network.LoadBalancerInboundNatPool;
 import com.microsoft.azure.management.network.TransportProtocol;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 
 /**
  * Creates a nat pool.
@@ -21,16 +22,16 @@ import gyro.core.validation.Required;
  *             frontend-name: "test-frontend"
  *             backend-port: 80
  *             protocol: "TCP"
- *             frontend-port-range-start: 80
- *             frontend-port-range-end: 89
+ *             frontend-port-start: 80
+ *             frontend-port-end: 89
  *         end
  */
 public class InboundNatPool extends Diffable implements Copyable<LoadBalancerInboundNatPool> {
 
     private Integer backendPort;
     private String frontendName;
-    private Integer frontendPortRangeStart;
-    private Integer frontendPortRangeEnd;
+    private Integer frontendPortStart;
+    private Integer frontendPortEnd;
     private String name;
     private String protocol;
 
@@ -65,12 +66,12 @@ public class InboundNatPool extends Diffable implements Copyable<LoadBalancerInb
      */
     @Required
     @Updatable
-    public Integer getFrontendPortRangeStart() {
-        return frontendPortRangeStart;
+    public Integer getFrontendPortStart() {
+        return frontendPortStart;
     }
 
-    public void setFrontendPortRangeStart(Integer frontendPortRangeStart) {
-        this.frontendPortRangeStart = frontendPortRangeStart;
+    public void setFrontendPortStart(Integer frontendPortStart) {
+        this.frontendPortStart = frontendPortStart;
     }
 
     /**
@@ -78,12 +79,12 @@ public class InboundNatPool extends Diffable implements Copyable<LoadBalancerInb
      */
     @Required
     @Updatable
-    public Integer getFrontendPortRangeEnd() {
-        return frontendPortRangeEnd;
+    public Integer getFrontendPortEnd() {
+        return frontendPortEnd;
     }
 
-    public void setFrontendPortRangeEnd(Integer frontendPortRangeEnd) {
-        this.frontendPortRangeEnd = frontendPortRangeEnd;
+    public void setFrontendPortEnd(Integer frontendPortEnd) {
+        this.frontendPortEnd = frontendPortEnd;
     }
 
     /**
@@ -102,6 +103,7 @@ public class InboundNatPool extends Diffable implements Copyable<LoadBalancerInb
      * The protocol used by the Inbound Nat Pool. (Required)
      */
     @Required
+    @ValidStrings({"TCP", "UDP"})
     @Updatable
     public String getProtocol() {
         return protocol;
@@ -115,14 +117,14 @@ public class InboundNatPool extends Diffable implements Copyable<LoadBalancerInb
     public void copyFrom(LoadBalancerInboundNatPool natPool) {
         setBackendPort(natPool.backendPort());
         setFrontendName(natPool.frontend() != null ? natPool.frontend().name() : null);
-        setFrontendPortRangeStart(natPool.frontendPortRangeStart());
-        setFrontendPortRangeEnd(natPool.frontendPortRangeEnd());
+        setFrontendPortStart(natPool.frontendPortRangeStart());
+        setFrontendPortEnd(natPool.frontendPortRangeEnd());
         setName(natPool.name());
         setProtocol(natPool.protocol() == TransportProtocol.TCP ? "TCP" : "UDP");
     }
 
     public String primaryKey() {
-        return String.format("%s", getName());
+        return getName();
     }
 
 }

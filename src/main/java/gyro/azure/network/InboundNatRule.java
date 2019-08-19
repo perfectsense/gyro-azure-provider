@@ -7,6 +7,7 @@ import gyro.core.resource.Updatable;
 import com.microsoft.azure.management.network.LoadBalancerInboundNatRule;
 import com.microsoft.azure.management.network.TransportProtocol;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 
 /**
  * Creates a nat rule.
@@ -103,6 +104,7 @@ public class InboundNatRule extends Diffable implements Copyable<LoadBalancerInb
      * The protocol used by the Inbound Nat Rule. (Required)
      */
     @Required
+    @ValidStrings({"TCP", "UDP"})
     @Updatable
     public String getProtocol() {
         return protocol;
@@ -123,7 +125,7 @@ public class InboundNatRule extends Diffable implements Copyable<LoadBalancerInb
     }
 
     public String primaryKey() {
-        return String.format("%s", getName());
+        return getName();
     }
 
 }
