@@ -1,7 +1,9 @@
 package gyro.azure.storage;
 
 import gyro.azure.AzureResource;
+import gyro.azure.Copyable;
 import gyro.core.GyroException;
+import gyro.core.GyroInputStream;
 import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
@@ -13,6 +15,8 @@ import com.microsoft.azure.storage.blob.CloudBlobDirectory;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import gyro.core.resource.Output;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -35,36 +39,29 @@ import java.io.File;
  *
  *     azure::cloud-blob blob-example
  *         blob-directory-path: "/path/to/blob"
- *         container-name: $(azure::cloud-blob-container blob-container-example | container-name)
+ *         container: $(azure::cloud-blob-container blob-container-example)
  *         file-path: "gyro-providers/gyro-azure-provider/examples/storage/test-blob-doc.txt"
  *         storage-account: $(azure::storage-account blob-storage-account-example)
  *     end
  */
 @Type("cloud-blob")
-public class CloudBlobResource extends AzureResource {
+public class CloudBlobResource extends AzureResource implements Copyable<CloudBlockBlob> {
 
-    private String blobName;
     private String blobDirectoryPath;
-    private String containerName;
+    private CloudBlobContainerResource container;
     private String filePath;
     private StorageAccountResource storageAccount;
     private String uri;
 
     /**
-     * The name of the blob. (Required)
+     * The directory path of the Blob. (Required)
      */
-    public String getBlobName() {
-        return Paths.get(getBlobDirectoryPath()).getFileName().toString();
-    }
-
-    public void setBlobName(String blockBlobName) {
-        this.blobName = blobName;
-    }
-
-    /**
-     * The directory path of the blob. (Required)
-     */
+    @Required
     public String getBlobDirectoryPath() {
+        if (blobDirectoryPath != null && !blobDirectoryPath.startsWith("/")) {
+            blobDirectoryPath = "/" + blobDirectoryPath;
+        }
+
         return blobDirectoryPath;
     }
 
@@ -73,19 +70,21 @@ public class CloudBlobResource extends AzureResource {
     }
 
     /**
-     * The container where the blob found. (Required)
+     * The container where the Blob is found. (Required)
      */
-    public String getContainerName() {
-        return containerName;
+    @Required
+    public CloudBlobContainerResource getContainer() {
+        return container;
     }
 
-    public void setContainerName(String containerName) {
-        this.containerName = containerName;
+    public void setContainer(CloudBlobContainerResource container) {
+        this.container = container;
     }
 
     /**
      * The path of the file to upload. (Required)
      */
+    @Required
     public String getFilePath() {
         return filePath;
     }
@@ -95,8 +94,9 @@ public class CloudBlobResource extends AzureResource {
     }
 
     /**
-     * The storage account resource where the blob will be created. (Required)
+     * The Storage Account where the Blob will be created. (Required)
      */
+    @Required
     public StorageAccountResource getStorageAccount() {
         return storageAccount;
     }
@@ -105,6 +105,9 @@ public class CloudBlobResource extends AzureResource {
         this.storageAccount = storageAccount;
     }
 
+    /**
+     * The fully qualified uri of the Blob.
+     */
     @Output
     public String getUri() {
         return uri;
@@ -115,15 +118,28 @@ public class CloudBlobResource extends AzureResource {
     }
 
     @Override
+    public void copyFrom(CloudBlockBlob blob) {
+        try {
+            setUri(blob.getUri().toString());
+            setBlobDirectoryPath(blob.getName());
+            setContainer(findById(CloudBlobContainerResource.class, blob.getContainer().getName()));
+            setStorageAccount(findById(StorageAccountResource.class, blob.getContainer().getStorageUri().getPrimaryUri().getAuthority().split(".blob.core")[0]));
+        } catch (Exception ex) {
+            throw new GyroException(ex.getMessage());
+        }
+    }
+
+    @Override
     public boolean refresh() {
         try {
             CloudBlockBlob blob = cloudBlobBlob();
-            if (blob.exists()) {
-                setBlobName(blob.getName());
-                setUri(blob.getUri().toString());
-                return true;
+            if (!blob.exists()) {
+                return false;
             }
-            return false;
+
+            copyFrom(blob);
+
+            return true;
         } catch (StorageException ex) {
             throw new GyroException(ex.getMessage());
         }
@@ -133,8 +149,8 @@ public class CloudBlobResource extends AzureResource {
     public void create(GyroUI ui, State state) {
         try {
             CloudBlockBlob blob = cloudBlobBlob();
-            File file = new File(getFilePath());
-            blob.upload(new FileInputStream(file), file.length());
+            GyroInputStream file = openInput(getFilePath());
+            blob.upload(file, file.available());
             setUri(blob.getUri().toString());
         } catch (StorageException | IOException ex) {
             throw new GyroException(ex.getMessage());
@@ -158,18 +174,15 @@ public class CloudBlobResource extends AzureResource {
         try {
             CloudStorageAccount account = CloudStorageAccount.parse(getStorageAccount().getConnection());
             CloudBlobClient client = account.createCloudBlobClient();
-            CloudBlobContainer container = client.getContainerReference(getContainerName());
-            CloudBlockBlob blob;
-            if (getBlobDirectoryPath() != null) {
+            CloudBlobContainer container = client.getContainerReference(getContainer().getName());
+
+            if (StringUtils.countMatches(getBlobDirectoryPath(), "/") > 1) {
                 CloudBlobDirectory directory = createDirectories();
-                blob = directory.getBlockBlobReference(getBlobName());
-                File file = new File(getFilePath());
-                blob.upload(new FileInputStream(file), file.length());
+                return directory.getBlockBlobReference(getBlobDirectoryPath().substring(getBlobDirectoryPath().lastIndexOf("/") + 1));
             } else {
-                blob = container.getBlockBlobReference(getBlobName());
+                return container.getBlockBlobReference(getBlobDirectoryPath().substring(getBlobDirectoryPath().lastIndexOf("/") + 1));
             }
-            return blob;
-        } catch (StorageException | URISyntaxException | InvalidKeyException | IOException ex) {
+        } catch (StorageException | URISyntaxException | InvalidKeyException/* | IOException*/ ex) {
             throw new GyroException(ex.getMessage());
         }
     }
@@ -178,7 +191,7 @@ public class CloudBlobResource extends AzureResource {
         try {
             CloudStorageAccount account = CloudStorageAccount.parse(getStorageAccount().getConnection());
             CloudBlobClient client = account.createCloudBlobClient();
-            CloudBlobContainer container = client.getContainerReference(getContainerName());
+            CloudBlobContainer container = client.getContainerReference(getContainer().getName());
             Path directoryPath = Paths.get(getBlobDirectoryPath()).getParent();
             Iterator<Path> iter = directoryPath.iterator();
             CloudBlobDirectory directory = container.getDirectoryReference(iter.next().toString());

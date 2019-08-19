@@ -1,10 +1,10 @@
 package gyro.azure.storage;
 
-import com.microsoft.azure.storage.StorageUri;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
@@ -46,6 +46,7 @@ public class CloudBlobContainerResource extends AzureResource implements Copyabl
     /**
      * The name of the container. (Required)
      */
+    @Id
     @Required
     public String getName() {
         return name;

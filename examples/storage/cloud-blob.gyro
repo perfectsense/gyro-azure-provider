@@ -32,7 +32,7 @@ end
 
 azure::cloud-blob blob-example
     blob-directory-path: "/path/to/blob"
-    container-name: $(azure::cloud-blob-container blob-container-example | container-name)
-    file-path: "examples/storage/test-blob-doc.txt"
+    container: $(azure::cloud-blob-container blob-container-example)
+    file-path: "test-blob-doc.txt"
     storage-account: $(azure::storage-account blob-storage-account-example)
 end
