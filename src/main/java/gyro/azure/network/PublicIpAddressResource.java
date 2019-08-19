@@ -71,6 +71,7 @@ public class PublicIpAddressResource extends AzureResource implements Copyable<P
     /**
      * Name of the Public IP Address. (Required)
      */
+
     @Required
     public String getName() {
         return name;
