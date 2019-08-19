@@ -13,9 +13,9 @@ import gyro.core.validation.Required;
  *
  * .. code-block:: gyro
  *
- *     mx-record-set
+ *     azure::mx-record-set mx-record-set
  *         name: "mxrecexample"
- *         time-to-live: 4
+ *         ttl: 4
  *
  *         mx-record
  *             exchange: "mail.cont.com"

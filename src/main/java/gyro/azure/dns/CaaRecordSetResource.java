@@ -3,6 +3,7 @@ package gyro.azure.dns;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.core.GyroUI;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.Type;
@@ -37,7 +38,7 @@ import java.util.stream.Collectors;
  *
  *     azure::caa-record-set caa-record-set
  *         name: "caaexample"
- *         time-to-live: 3
+ *         ttl: 3
  *         dns-zone: $(azure::dns-zone dns-zone-example-zones)
  *
  *         caa-record
@@ -60,11 +61,11 @@ public class CaaRecordSetResource extends AzureResource implements Copyable<CaaR
     private DnsZoneResource dnsZone;
     private Map<String, String> metadata;
     private String name;
-    private Long timeToLive;
+    private Long ttl;
     private String id;
 
     /**
-     * The  set of CAA Records associated with the CAA Record Set. (Required)
+     * The set of CAA Records associated with the CAA Record Set. (Required)
      */
     @Required
     @Updatable
@@ -121,21 +122,22 @@ public class CaaRecordSetResource extends AzureResource implements Copyable<CaaR
     }
 
     /**
-     * The Time To Live for the CAA Record Set in the set. (Required)
+     * The Time To Live in Seconds for the CAA Record Set in the set. (Required)
      */
     @Required
     @Updatable
-    public Long getTimeToLive() {
-        return timeToLive;
+    public Long getTtl() {
+        return ttl;
     }
 
-    public void setTimeToLive(Long timeToLive) {
-        this.timeToLive = timeToLive;
+    public void setTtl(Long ttl) {
+        this.ttl = ttl;
     }
 
     /**
      * The ID of the CAA Record Set.
      */
+    @Id
     @Output
     public String getId() {
         return id;
@@ -154,7 +156,7 @@ public class CaaRecordSetResource extends AzureResource implements Copyable<CaaR
         }).collect(Collectors.toSet()));
         setMetadata(caaRecordSet.metadata());
         setName(caaRecordSet.name());
-        setTimeToLive(caaRecordSet.timeToLive());
+        setTtl(caaRecordSet.timeToLive());
         setDnsZone(findById(DnsZoneResource.class, caaRecordSet.parent().id()));
         setId(caaRecordSet.id());
     }
@@ -186,8 +188,8 @@ public class CaaRecordSetResource extends AzureResource implements Copyable<CaaR
             createCaaRecordSet = defineCaaRecordSet.withRecord(caaRecord.getFlags(), caaRecord.getTag(), caaRecord.getValue());
         }
 
-        if (getTimeToLive() != null) {
-            createCaaRecordSet.withTimeToLive(getTimeToLive());
+        if (getTtl() != null) {
+            createCaaRecordSet.withTimeToLive(getTtl());
         }
 
         for (Map.Entry<String,String> e : getMetadata().entrySet()) {
@@ -206,8 +208,8 @@ public class CaaRecordSetResource extends AzureResource implements Copyable<CaaR
         DnsRecordSet.UpdateCaaRecordSet updateCaaRecordSet =
                 client.dnsZones().getById(getDnsZone().getId()).update().updateCaaRecordSet(getName());
 
-        if (getTimeToLive() != null) {
-            updateCaaRecordSet.withTimeToLive(getTimeToLive());
+        if (getTtl() != null) {
+            updateCaaRecordSet.withTimeToLive(getTtl());
         }
 
         CaaRecordSetResource oldRecord = (CaaRecordSetResource) current;

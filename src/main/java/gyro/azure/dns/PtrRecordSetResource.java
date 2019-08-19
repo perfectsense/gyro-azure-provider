@@ -3,6 +3,7 @@ package gyro.azure.dns;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.core.GyroUI;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.Type;
@@ -37,7 +38,7 @@ import java.util.Set;
  *     azure::ptr-record-set
  *         name: "ptrrecexample"
  *         target-domain-names: ["domain1.com", "domain2.com"]
- *         time-to-live: 3
+ *         ttl: 3
  *         dns-zone: $(azure::dns-zone dns-zone-example-zones)
  *     end
  */
@@ -48,7 +49,7 @@ public class PtrRecordSetResource extends AzureResource implements Copyable<PtrR
     private Map<String, String> metadata;
     private String name;
     private Set<String> targetDomainNames;
-    private Long timeToLive;
+    private Long ttl;
     private String id;
 
     /**
@@ -109,21 +110,22 @@ public class PtrRecordSetResource extends AzureResource implements Copyable<PtrR
     }
 
     /**
-     * The Time To Live for the Ptr Record Set in the set. (Required)
+     * The Time To Live in Seconds for the Ptr Record Set in the set. (Required)
      */
     @Required
     @Updatable
-    public Long getTimeToLive() {
-        return timeToLive;
+    public Long getTtl() {
+        return ttl;
     }
 
-    public void setTimeToLive(Long timeToLive) {
-        this.timeToLive = timeToLive;
+    public void setTtl(Long ttl) {
+        this.ttl = ttl;
     }
 
     /**
      * The ID of the Ptr Record Set.
      */
+    @Id
     @Output
     public String getId() {
         return id;
@@ -138,7 +140,7 @@ public class PtrRecordSetResource extends AzureResource implements Copyable<PtrR
         setMetadata(ptrRecordSet.metadata());
         setName(ptrRecordSet.name());
         setTargetDomainNames(new HashSet<>(ptrRecordSet.targetDomainNames()));
-        setTimeToLive(ptrRecordSet.timeToLive());
+        setTtl(ptrRecordSet.timeToLive());
         setDnsZone(findById(DnsZoneResource.class, ptrRecordSet.parent().id()));
         setId(ptrRecordSet.id());
     }
@@ -169,8 +171,8 @@ public class PtrRecordSetResource extends AzureResource implements Copyable<PtrR
             createPtrRecordSet = definePtrRecordSet.withTargetDomainName(targetDomainName);
         }
 
-        if (getTimeToLive() != null) {
-            createPtrRecordSet.withTimeToLive(getTimeToLive());
+        if (getTtl() != null) {
+            createPtrRecordSet.withTimeToLive(getTtl());
         }
 
         for (Map.Entry<String,String> e : getMetadata().entrySet()) {
@@ -189,8 +191,8 @@ public class PtrRecordSetResource extends AzureResource implements Copyable<PtrR
         DnsRecordSet.UpdatePtrRecordSet updatePtrRecordSet =
                 client.dnsZones().getById(getDnsZone().getId()).update().updatePtrRecordSet(getName());
 
-        if (getTimeToLive() != null) {
-            updatePtrRecordSet.withTimeToLive(getTimeToLive());
+        if (getTtl() != null) {
+            updatePtrRecordSet.withTimeToLive(getTtl());
         }
 
         PtrRecordSetResource oldRecord = (PtrRecordSetResource) current;

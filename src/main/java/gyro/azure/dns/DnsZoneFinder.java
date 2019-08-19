@@ -2,7 +2,9 @@ package gyro.azure.dns;
 
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.dns.DnsZone;
+import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureFinder;
+import gyro.core.GyroException;
 import gyro.core.Type;
 
 import java.util.Collections;
@@ -31,6 +33,10 @@ public class DnsZoneFinder extends AzureFinder<DnsZone, DnsZoneResource> {
 
     @Override
     protected List<DnsZone> findAzure(Azure client, Map<String, String> filters) {
+        if (ObjectUtils.isBlank(filters.get("id"))) {
+            throw new GyroException("'id' is required.");
+        }
+
         DnsZone dnsZone = client.dnsZones().getById(filters.get("id"));
         if (dnsZone == null) {
             return Collections.emptyList();

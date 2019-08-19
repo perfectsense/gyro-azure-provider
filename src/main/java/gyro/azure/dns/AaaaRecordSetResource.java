@@ -3,6 +3,7 @@ package gyro.azure.dns;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.core.GyroUI;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.Type;
@@ -48,7 +49,7 @@ public class AaaaRecordSetResource extends AzureResource implements Copyable<Aaa
     private Set<String> ipv6Addresses;
     private Map<String, String> metadata;
     private String name;
-    private Long timeToLive;
+    private Long ttl;
     private String id;
 
     /**
@@ -110,21 +111,22 @@ public class AaaaRecordSetResource extends AzureResource implements Copyable<Aaa
     }
 
     /**
-     * The Time To Live for the AAAA Record Set in the set. (Required)
+     * The Time To Live in Seconds for the AAAA Record Set in the set. (Required)
      */
     @Required
     @Updatable
-    public Long getTimeToLive() {
-        return timeToLive;
+    public Long getTtl() {
+        return ttl;
     }
 
-    public void setTimeToLive(Long timeToLive) {
-        this.timeToLive = timeToLive;
+    public void setTtl(Long ttl) {
+        this.ttl = ttl;
     }
 
     /**
      * The ID for the AAAA Record Set.
      */
+    @Id
     @Output
     public String getId() {
         return id;
@@ -140,7 +142,7 @@ public class AaaaRecordSetResource extends AzureResource implements Copyable<Aaa
         setIpv6Addresses(new HashSet<>(aaaaRecordSet.ipv6Addresses()));
         setMetadata(aaaaRecordSet.metadata());
         setName(aaaaRecordSet.name());
-        setTimeToLive(aaaaRecordSet.timeToLive());
+        setTtl(aaaaRecordSet.timeToLive());
         setDnsZone(findById(DnsZoneResource.class, aaaaRecordSet.parent().id()));
         setId(aaaaRecordSet.id());
     }
@@ -172,8 +174,8 @@ public class AaaaRecordSetResource extends AzureResource implements Copyable<Aaa
             createAaaaRecordSet = defineAaaaRecordSet.withIPv6Address(ip);
         }
 
-        if (getTimeToLive() != null) {
-            createAaaaRecordSet.withTimeToLive(getTimeToLive());
+        if (getTtl() != null) {
+            createAaaaRecordSet.withTimeToLive(getTtl());
         }
 
         for (Map.Entry<String,String> e : getMetadata().entrySet()) {
@@ -192,8 +194,8 @@ public class AaaaRecordSetResource extends AzureResource implements Copyable<Aaa
         DnsRecordSet.UpdateAaaaRecordSet updateAaaaRecordSet =
                 client.dnsZones().getById(getDnsZone().getId()).update().updateAaaaRecordSet(getName());
 
-        if (getTimeToLive() != null) {
-            updateAaaaRecordSet.withTimeToLive(getTimeToLive());
+        if (getTtl() != null) {
+            updateAaaaRecordSet.withTimeToLive(getTtl());
         }
 
         AaaaRecordSetResource oldResource = (AaaaRecordSetResource) current;

@@ -3,6 +3,7 @@ package gyro.azure.dns;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.core.GyroUI;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.Type;
@@ -32,7 +33,7 @@ import java.util.Set;
  *
  *     azure::cname-record-set
  *         name: "cnamerecexample"
- *         time-to-live: 5
+ *         ttl: 5
  *         alias: "cnamerecalias"
  *         dns-zone: $(azure::dns-zone dns-zone-example-zones)
  *     end
@@ -44,14 +45,13 @@ public class CnameRecordSetResource extends AzureResource implements Copyable<CN
     private DnsZoneResource dnsZone;
     private Map<String, String> metadata;
     private String name;
-    private String timeToLive;
+    private Long ttl;
     private String id;
 
     /**
      * The alias for the Cname Record Set. (Required)
      */
     @Required
-    @Updatable
     public String getAlias() {
         return alias;
     }
@@ -101,21 +101,22 @@ public class CnameRecordSetResource extends AzureResource implements Copyable<CN
     }
 
     /**
-     * The Time To Live for the Cname Records Set in the set. (Required)
+     * The Time To Live in Seconds for the Cname Records Set in the set. (Required)
      */
     @Required
     @Updatable
-    public String getTimeToLive() {
-        return timeToLive;
+    public Long getTtl() {
+        return ttl;
     }
 
-    public void setTimeToLive(String timeToLive) {
-        this.timeToLive = timeToLive;
+    public void setTtl(Long ttl) {
+        this.ttl = ttl;
     }
 
     /**
      * The ID of the Cname Record Set.
      */
+    @Id
     @Output
     public String getId() {
         return id;
@@ -130,7 +131,7 @@ public class CnameRecordSetResource extends AzureResource implements Copyable<CN
         setAlias(cnameRecordSet.canonicalName());
         setMetadata(cnameRecordSet.metadata());
         setName(cnameRecordSet.name());
-        setTimeToLive(Long.toString(cnameRecordSet.timeToLive()));
+        setTtl(cnameRecordSet.timeToLive());
         setDnsZone(findById(DnsZoneResource.class, cnameRecordSet.parent().id()));
         setId(cnameRecordSet.id());
     }
@@ -158,8 +159,8 @@ public class CnameRecordSetResource extends AzureResource implements Copyable<CN
                 client.dnsZones().getById(getDnsZone().getId()).update().
                         defineCNameRecordSet(getName()).withAlias(getAlias());
 
-        if (getTimeToLive() != null) {
-            createCNameRecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
+        if (getTtl() != null) {
+            createCNameRecordSet.withTimeToLive(getTtl());
         }
 
         for (Map.Entry<String,String> e : getMetadata().entrySet()) {
@@ -179,11 +180,11 @@ public class CnameRecordSetResource extends AzureResource implements Copyable<CN
                 client.dnsZones().getById(getDnsZone().getId()).update().updateCNameRecordSet(getName());
 
         if (getAlias() != null) {
-            updateCNameRecordSet.withAlias(getAlias());
+            updateCNameRecordSet = updateCNameRecordSet.withAlias(getAlias());
         }
 
-        if (getTimeToLive() != null) {
-            updateCNameRecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
+        if (getTtl() != null) {
+            updateCNameRecordSet.withTimeToLive(getTtl());
         }
 
         CnameRecordSetResource oldResource = (CnameRecordSetResource) current;

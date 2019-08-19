@@ -3,6 +3,7 @@ package gyro.azure.dns;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.core.GyroUI;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.Type;
@@ -37,7 +38,7 @@ import java.util.Set;
  *     azure::a-record-set a-record-set
  *         dns-zone: $(azure::dns-zone dns-zone-example-zones)
  *         name: "arecexample"
- *         time-to-live: 3
+ *         ttl: 3
  *         ipv4-addresses: ["10.0.0.1"]
  *     end
  */
@@ -48,7 +49,7 @@ public class ARecordSetResource extends AzureResource implements Copyable<ARecor
     private Set<String> ipv4Addresses;
     private Map<String, String> metadata;
     private String name;
-    private Long timeToLive;
+    private Long ttl;
     private String id;
 
     /**
@@ -107,21 +108,22 @@ public class ARecordSetResource extends AzureResource implements Copyable<ARecor
     }
 
     /**
-     * The Time To Live for the A Record Set in the set. (Required)
+     * The Time To Live in Seconds for the A Record Set in the set. (Required)
      */
     @Required
     @Updatable
-    public Long getTimeToLive() {
-        return timeToLive;
+    public Long getTtl() {
+        return ttl;
     }
 
-    public void setTimeToLive(Long timeToLive) {
-        this.timeToLive = timeToLive;
+    public void setTtl(Long ttl) {
+        this.ttl = ttl;
     }
 
     /**
      * The ID of the A Record Set.
      */
+    @Id
     @Output
     public String getId() {
         return id;
@@ -137,9 +139,9 @@ public class ARecordSetResource extends AzureResource implements Copyable<ARecor
         setIpv4Addresses(new HashSet<>(aRecordSet.ipv4Addresses()));
         setMetadata(aRecordSet.metadata());
         setName(aRecordSet.name());
-        setTimeToLive(aRecordSet.timeToLive());
+        setTtl(aRecordSet.timeToLive());
         setDnsZone(findById(DnsZoneResource.class, aRecordSet.parent().id()));
-        aRecordSet.id();
+        setId(aRecordSet.id());
     }
 
     @Override
@@ -173,8 +175,8 @@ public class ARecordSetResource extends AzureResource implements Copyable<ARecor
             createARecordSet.withMetadata(e.getKey(), e.getValue());
         }
 
-        if (getTimeToLive() != null) {
-            createARecordSet.withTimeToLive(getTimeToLive());
+        if (getTtl() != null) {
+            createARecordSet.withTimeToLive(getTtl());
         }
 
         DnsZone.Update attach = createARecordSet.attach();
@@ -189,8 +191,8 @@ public class ARecordSetResource extends AzureResource implements Copyable<ARecor
         DnsRecordSet.UpdateARecordSet updateARecordSet =
                 client.dnsZones().getById(getDnsZone().getId()).update().updateARecordSet(getName());
 
-        if (getTimeToLive() != null) {
-            updateARecordSet.withTimeToLive(getTimeToLive());
+        if (getTtl() != null) {
+            updateARecordSet.withTimeToLive(getTtl());
         }
 
         ARecordSetResource oldResource = (ARecordSetResource) current;

@@ -19,19 +19,19 @@ azure::aaaa-record-set aaaa-record-set
     dns-zone: $(azure::dns-zone dns-zone-example-zones)
     name: "aaaarecexample"
     ipv6-addresses: ["2001:0db8:85a3:0000:0000:8a2e:0370:7334", "2001:0db8:85a3:0000:0000:8a2e:0370:7335"]
-    time-to-live: 3
+    ttl: 3
 end
 
 azure::a-record-set a-record-set
     dns-zone: $(azure::dns-zone dns-zone-example-zones)
     name: "arecexample"
-    time-to-live: 3
+    ttl: 3
     ipv4-addresses: ["10.0.0.1"]
 end
 
 azure::caa-record-set caa-record-set
     name: "caaexample"
-    time-to-live: 3
+    ttl: 3
     dns-zone: $(azure::dns-zone dns-zone-example-zones)
 
     caa-record
@@ -49,14 +49,14 @@ end
 
 azure::cname-record-set cname-record-set
     name: "cnamerecexample"
-    time-to-live: 5
+    ttl: 4
     alias: "cnamerecalias"
     dns-zone: $(azure::dns-zone dns-zone-example-zones)
 end
 
 azure::mx-record-set mx-record-set
     name: "mxrecexample"
-    time-to-live: 4
+    ttl: 4
     dns-zone: $(azure::dns-zone dns-zone-example-zones)
 
     mx-record
@@ -73,13 +73,13 @@ end
 azure::ptr-record-set ptr-record-set
     name: "ptrrecexample"
     target-domain-names: ["domain1.com", "domain2.com"]
-    time-to-live: 3
+    ttl: 3
     dns-zone: $(azure::dns-zone dns-zone-example-zones)
 end
 
 azure::srv-record-set srv-record-set
     name: "srvrecexample"
-    time-to-live: 4
+    ttl: 4
     dns-zone: $(azure::dns-zone dns-zone-example-zones)
 
     srv-record
@@ -93,6 +93,6 @@ end
 azure::txt-record-set txt-record-set
     name: "txtrecexample"
     txt-records: ["record1", "record2"]
-    time-to-live: 3
+    ttl: 3
     dns-zone: $(azure::dns-zone dns-zone-example-zones)
 end

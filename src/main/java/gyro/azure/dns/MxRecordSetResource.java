@@ -3,6 +3,7 @@ package gyro.azure.dns;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.core.GyroUI;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.Type;
@@ -37,7 +38,7 @@ import java.util.stream.Collectors;
  *
  *     azure::mx-record-set mx-record-set
  *         name: "mxrecexample"
- *         time-to-live: 4
+ *         ttl: 4
  *         dns-zone: $(azure::dns-zone dns-zone-example-zones)
  *
  *         mx-record
@@ -58,7 +59,7 @@ public class MxRecordSetResource extends AzureResource implements Copyable<MXRec
     private Set<MxRecord> mxRecord;
     private Map<String, String> metadata;
     private String name;
-    private Long timeToLive;
+    private Long ttl;
     private String id;
 
     /**
@@ -119,21 +120,22 @@ public class MxRecordSetResource extends AzureResource implements Copyable<MXRec
     }
 
     /**
-     * The Time To Live for the MX Record Set in the set. (Required)
+     * The Time To Live in Seconds for the MX Record Set in the set. (Required)
      */
     @Required
     @Updatable
-    public Long getTimeToLive() {
-        return timeToLive;
+    public Long getTtl() {
+        return ttl;
     }
 
-    public void setTimeToLive(Long timeToLive) {
-        this.timeToLive = timeToLive;
+    public void setTtl(Long ttl) {
+        this.ttl = ttl;
     }
 
     /**
      * The ID of the MX Record Set.
      */
+    @Id
     @Output
     public String getId() {
         return id;
@@ -152,7 +154,7 @@ public class MxRecordSetResource extends AzureResource implements Copyable<MXRec
         }).collect(Collectors.toSet()));
         setMetadata(mxRecordSet.metadata());
         setName(mxRecordSet.name());
-        setTimeToLive(mxRecordSet.timeToLive());
+        setTtl(mxRecordSet.timeToLive());
         setDnsZone(findById(DnsZoneResource.class, mxRecordSet.parent().id()));
         setId(mxRecordSet.id());
     }
@@ -184,8 +186,8 @@ public class MxRecordSetResource extends AzureResource implements Copyable<MXRec
             createMXRecordSet = defineMXRecordSet.withMailExchange(mxRecord.getExchange(), mxRecord.getPreference());
         }
 
-        if (getTimeToLive() != null) {
-            createMXRecordSet.withTimeToLive(getTimeToLive());
+        if (getTtl() != null) {
+            createMXRecordSet.withTimeToLive(getTtl());
         }
 
         for (Map.Entry<String,String> e : getMetadata().entrySet()) {
@@ -204,8 +206,8 @@ public class MxRecordSetResource extends AzureResource implements Copyable<MXRec
         DnsRecordSet.UpdateMXRecordSet updateMXRecordSet =
                 client.dnsZones().getById(getDnsZone().getId()).update().updateMXRecordSet(getName());
 
-        if (getTimeToLive() != null) {
-            updateMXRecordSet.withTimeToLive(getTimeToLive());
+        if (getTtl() != null) {
+            updateMXRecordSet.withTimeToLive(getTtl());
         }
 
         MxRecordSetResource oldRecord = (MxRecordSetResource) current;

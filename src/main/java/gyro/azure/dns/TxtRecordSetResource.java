@@ -3,6 +3,7 @@ package gyro.azure.dns;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.core.GyroUI;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.Type;
@@ -36,7 +37,7 @@ import java.util.Set;
  *     azure::txt-record-set txt-record-set
  *         name: "txtrecexample"
  *         txt-records: ["record1", "record2"]
- *         time-to-live: 3
+ *         ttl: 3
  *         dns-zone: $(azure::dns-zone dns-zone-example-zones)
  *     end
  */
@@ -47,7 +48,7 @@ public class TxtRecordSetResource extends AzureResource implements Copyable<TxtR
     private Map<String, String> metadata;
     private String name;
     private Set<String> txtRecords;
-    private Long timeToLive;
+    private Long ttl;
     private String id;
 
     /**
@@ -108,21 +109,22 @@ public class TxtRecordSetResource extends AzureResource implements Copyable<TxtR
     }
 
     /**
-     * The Time To Live for the Txt Record Set in the set. (Required)
+     * The Time To Live in Seconds for the Txt Record Set in the set. (Required)
      */
     @Required
     @Updatable
-    public Long getTimeToLive() {
-        return timeToLive;
+    public Long getTtl() {
+        return ttl;
     }
 
-    public void setTimeToLive(Long timeToLive) {
-        this.timeToLive = timeToLive;
+    public void setTtl(Long ttl) {
+        this.ttl = ttl;
     }
 
     /**
      * The ID of the Txt Record Set.
      */
+    @Id
     @Output
     public String getId() {
         return id;
@@ -138,7 +140,7 @@ public class TxtRecordSetResource extends AzureResource implements Copyable<TxtR
         txtRecordSet.records().forEach(rec -> getTxtRecords().add(rec.value().get(0)));
         setMetadata(txtRecordSet.metadata());
         setName(txtRecordSet.name());
-        setTimeToLive(txtRecordSet.timeToLive());
+        setTtl(txtRecordSet.timeToLive());
         setDnsZone(findById(DnsZoneResource.class, txtRecordSet.parent().id()));
         setId(txtRecordSet.id());
     }
@@ -170,8 +172,8 @@ public class TxtRecordSetResource extends AzureResource implements Copyable<TxtR
             createTxtRecordSet = defineTxtRecordSet.withText(txtRecord);
         }
 
-        if (getTimeToLive() != null) {
-            createTxtRecordSet.withTimeToLive(getTimeToLive());
+        if (getTtl() != null) {
+            createTxtRecordSet.withTimeToLive(getTtl());
         }
 
         for (Map.Entry<String,String> e : getMetadata().entrySet()) {
@@ -190,8 +192,8 @@ public class TxtRecordSetResource extends AzureResource implements Copyable<TxtR
         DnsRecordSet.UpdateTxtRecordSet updateTxtRecordSet =
                 client.dnsZones().getById(getDnsZone().getId()).update().updateTxtRecordSet(getName());
 
-        if (getTimeToLive() != null) {
-            updateTxtRecordSet.withTimeToLive(getTimeToLive());
+        if (getTtl() != null) {
+            updateTxtRecordSet.withTimeToLive(getTtl());
         }
 
         TxtRecordSetResource oldRecord = (TxtRecordSetResource) current;

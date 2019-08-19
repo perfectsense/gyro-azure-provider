@@ -3,7 +3,9 @@ package gyro.azure.dns;
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.dns.MXRecordSet;
 import com.microsoft.azure.management.dns.DnsZone;
+import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureFinder;
+import gyro.core.GyroException;
 import gyro.core.Type;
 
 import java.util.Collections;
@@ -45,6 +47,10 @@ public class MxRecordSetFinder extends AzureFinder<MXRecordSet, MxRecordSetResou
 
     @Override
     protected List<MXRecordSet> findAzure(Azure client, Map<String, String> filters) {
+        if (ObjectUtils.isBlank(filters.get("dns-zone-id"))) {
+            throw new GyroException("'dns-zone-id' is required.");
+        }
+
         DnsZone dnsZone = client.dnsZones().getById(filters.get("dns-zone-id"));
         if (dnsZone == null) {
             return Collections.emptyList();
