@@ -2,6 +2,7 @@ package gyro.azure.storage;
 
 import gyro.azure.AzureResource;
 
+import gyro.azure.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Type;
@@ -12,6 +13,7 @@ import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.table.CloudTable;
 import com.microsoft.azure.storage.table.CloudTableClient;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
@@ -26,30 +28,32 @@ import java.util.Set;
  * .. code-block:: gyro
  *
  *     azure::cloud-table cloud-table-example
- *         cloud-table-name: "cloudtablename"
+ *         name: "cloudtablename"
  *         storage-account: $(azure::storage-account queue-storage-account-example)
  *     end
  */
 @Type("cloud-table")
-public class CloudTableResource extends AzureResource {
+public class CloudTableResource extends AzureResource implements Copyable<CloudTable> {
 
-    private String cloudTableName;
+    private String name;
     private StorageAccountResource storageAccount;
 
     /**
-     * The name of the table (Required)
+     * The name of the Table (Required)
      */
-    public String getCloudTableName() {
-        return cloudTableName;
+    @Required
+    public String getName() {
+        return name;
     }
 
-    public void setCloudTableName(String cloudTableName) {
-        this.cloudTableName = cloudTableName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
-     * The storage account resource where the table will be created. (Required)
+     * The Storage Account where the table will be created. (Required)
      */
+    @Required
     public StorageAccountResource getStorageAccount() {
         return storageAccount;
     }
@@ -59,15 +63,22 @@ public class CloudTableResource extends AzureResource {
     }
 
     @Override
-    public boolean refresh() {
+    public void copyFrom(CloudTable cloudTable) {
+        setName(cloudTable.getName());
+        setStorageAccount(findById(StorageAccountResource.class, cloudTable.getStorageUri().getPrimaryUri().getAuthority().split(".table.core")[0]));
+    }
 
+    @Override
+    public boolean refresh() {
         try {
             CloudTable cloudTable = cloudTable();
-            if (cloudTable.exists()) {
-                setCloudTableName(cloudTable.getName());
-                return true;
+            if (!cloudTable.exists()) {
+                return false;
             }
-            return false;
+
+            copyFrom(cloudTable);
+
+            return true;
         } catch (StorageException ex) {
             throw new GyroException(ex.getMessage());
         }
@@ -100,7 +111,7 @@ public class CloudTableResource extends AzureResource {
         try {
             CloudStorageAccount account = CloudStorageAccount.parse(getStorageAccount().getConnection());
             CloudTableClient tableClient = account.createCloudTableClient();
-            return tableClient.getTableReference(getCloudTableName());
+            return tableClient.getTableReference(getName());
         } catch (StorageException | URISyntaxException | InvalidKeyException ex) {
             throw new GyroException(ex.getMessage());
         }

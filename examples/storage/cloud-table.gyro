@@ -16,6 +16,6 @@ azure::storage-account table-storage-account-example
 end
 
 azure::cloud-table cloud-table-example
-    cloud-table-name: "cloudtablename"
+    name: "cloudtablename"
     storage-account: $(azure::storage-account table-storage-account-example)
 end
