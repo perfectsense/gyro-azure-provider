@@ -245,7 +245,7 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
      * The os for the Virtual Machine. Valid values are ``Linux`` or ``Windows``. (Required)
      */
     @Required
-    @ValidStrings({"Linux", "Windiws"})
+    @ValidStrings({"linux", "windows"})
     public String getOsType() {
         return osType != null ? osType.toLowerCase() : null;
     }
