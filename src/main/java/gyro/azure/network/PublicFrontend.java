@@ -49,6 +49,7 @@ public class PublicFrontend extends Frontend implements Copyable<LoadBalancerPub
      * The Public IP Address associated with the Public Frontend. (Required)
      */
     @Updatable
+    @Required
     public PublicIpAddressResource getPublicIpAddress() {
         return publicIpAddress;
     }
