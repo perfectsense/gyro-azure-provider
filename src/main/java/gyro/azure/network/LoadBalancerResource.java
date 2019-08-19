@@ -146,6 +146,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
     /**
      * The name of the Load Balancer. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }

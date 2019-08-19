@@ -4,6 +4,7 @@ import gyro.azure.Copyable;
 import gyro.core.resource.Updatable;
 
 import com.microsoft.azure.management.network.LoadBalancerPublicFrontend;
+import gyro.core.validation.Required;
 
 import java.util.stream.Collectors;
 
@@ -35,6 +36,7 @@ public class PublicFrontend extends Frontend implements Copyable<LoadBalancerPub
     /**
      * The name of the Public Frontend. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }
