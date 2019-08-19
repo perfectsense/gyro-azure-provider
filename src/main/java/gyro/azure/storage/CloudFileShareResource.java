@@ -4,6 +4,7 @@ import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
@@ -45,6 +46,7 @@ public class CloudFileShareResource extends AzureResource implements Copyable<Cl
      * The name of the Cloud Share. (Required)
      */
     @Required
+    @Id
     public String getName() {
         return name;
     }

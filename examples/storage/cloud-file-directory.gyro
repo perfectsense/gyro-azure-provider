@@ -25,12 +25,12 @@ azure::storage-account cloud-file-account-example
 end
 
 azure::cloud-file-share cloud-file-share-example
-    cloud-file-share-name: "cloudfileshare"
+    name: "cloudfileshare"
     storage-account: $(azure::storage-account cloud-file-account-example)
 end
 
 azure::cloud-file-directory cloud-file-directory
     cloud-file-directory-path: "/example/directory/path"
-    cloud-file-share-name: $(azure::cloud-file-share cloud-file-share-example | cloud-file-share-name)
+    cloud-file-share: $(azure::cloud-file-share cloud-file-share-example)
     storage-account: $(azure::storage-account cloud-file-account-example)
 end
