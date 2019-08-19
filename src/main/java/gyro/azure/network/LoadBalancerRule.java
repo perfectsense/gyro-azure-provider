@@ -171,7 +171,7 @@ public class LoadBalancerRule extends Diffable implements Copyable<LoadBalancing
     }
 
     public String primaryKey() {
-        return String.format("%s", getName());
+        return getName();
     }
 
 }

@@ -62,6 +62,6 @@ public abstract class AbstractHealthCheckProbe extends Diffable {
     }
 
     public String primaryKey() {
-        return String.format("%s", getName());
+        return getName();
     }
 }

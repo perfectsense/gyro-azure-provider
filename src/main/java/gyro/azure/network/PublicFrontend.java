@@ -74,6 +74,6 @@ public class PublicFrontend extends Frontend implements Copyable<LoadBalancerPub
     }
 
     public String primaryKey() {
-        return String.format("%s", getName());
+        return getName();
     }
 }

@@ -106,6 +106,6 @@ public class PrivateFrontend extends Frontend implements Copyable<LoadBalancerPr
     }
 
     public String primaryKey() {
-        return String.format("%s", getName());
+        return getName();
     }
 }
