@@ -38,7 +38,7 @@ import java.util.Set;
  *     azure::cloud-blob blob-example
  *         blob-directory-path: "/path/to/blob"
  *         container: $(azure::cloud-blob-container blob-container-example)
- *         file-path: "gyro-providers/gyro-azure-provider/examples/storage/test-blob-doc.txt"
+ *         file-path: "test-blob-doc.txt"
  *         storage-account: $(azure::storage-account blob-storage-account-example)
  *     end
  */

@@ -35,7 +35,7 @@ import java.util.Set;
  *     azure::cloud-file cloud-file-example
  *         cloud-file-directory: $(azure::cloud-file-directory cloud-file-directory)
  *         cloud-file-share: $(azure::cloud-file-share cloud-file-share-example)
- *         file-path: "gyro-providers/gyro-azure-provider/examples/storage/test-cloud-file.txt"
+ *         file-path: "test-cloud-file.txt"
  *         storage-account: $(azure::storage-account blob-storage-account-example)
  *     end
  */
