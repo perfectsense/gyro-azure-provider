@@ -324,7 +324,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
         WithCreate buildLoadBalancer = null;
 
         //define the nat pools and rules
-        for (Map.Entry<String, Frontend> frontends : getAllFrontend().entrySet()) {
+        for (Map.Entry<String, Frontend> frontends : getAllFrontends().entrySet()) {
             Frontend front = frontends.getValue();
             if (front.getInboundNatPool() != null) {
                 for (InboundNatPool natPool: front.getInboundNatPool()) {
@@ -594,7 +594,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
                     withAttachPrivateIp.withPrivateIPAddressDynamic();
                 }
 
-                updateNatPoolsAndRules(privateFrontend, currentResource.getAllFrontend().get(privateFrontend.getName()), updateLoadBalancer);
+                updateNatPoolsAndRules(privateFrontend, currentResource.getAllFrontends().get(privateFrontend.getName()), updateLoadBalancer);
             }
         }
 
@@ -608,7 +608,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
                     .updatePublicFrontend(publicFrontend.getName())
                     .withExistingPublicIPAddress(ip);
 
-                updateNatPoolsAndRules(publicFrontend, currentResource.getAllFrontend().get(publicFrontend.getName()), updateLoadBalancer);
+                updateNatPoolsAndRules(publicFrontend, currentResource.getAllFrontends().get(publicFrontend.getName()), updateLoadBalancer);
             }
         }
 
@@ -643,7 +643,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
         client.loadBalancers().deleteByResourceGroup(getResourceGroup().getName(), getName());
     }
 
-    private Map<String, Frontend> getAllFrontend() {
+    private Map<String, Frontend> getAllFrontends() {
         Map<String, Frontend> frontends = new HashMap<>();
 
         getPrivateFrontend().forEach(frontend -> frontends.put(frontend.getName(), frontend));
