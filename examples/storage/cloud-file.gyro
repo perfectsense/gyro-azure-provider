@@ -7,7 +7,7 @@ azure::resource-group file-resource-group
 end
 
 azure::storage-account file-storage-account-example
-    resource-group-name: $(azure::resource-group file-resource-group | resource-group-name)
+    resource-group: $(azure::resource-group file-resource-group)
     name: "fileexampleoscars"
 
     cors-rule

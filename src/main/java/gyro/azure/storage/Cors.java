@@ -1,14 +1,18 @@
 package gyro.azure.storage;
 
+import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 
 import com.microsoft.azure.storage.CorsHttpMethods;
 import com.microsoft.azure.storage.CorsRule;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.EnumSet;
-import java.util.List;
+import java.util.Set;
 
 /**
  * Creates a cors rule
@@ -27,93 +31,87 @@ import java.util.List;
  *          type: "blob"
  *      end
  */
-public class Cors extends Diffable {
+public class Cors extends Diffable implements Copyable<CorsRule> {
 
-    private List<String> allowedHeaders;
-    private List<String> allowedMethods;
-    private List<String> allowedOrigins;
-    private List<String> exposedHeaders;
+    private Set<String> allowedHeaders;
+    private Set<String> allowedMethods;
+    private Set<String> allowedOrigins;
+    private Set<String> exposedHeaders;
     private Integer maxAge;
     private String type;
-
-    public Cors() {}
-
-    public Cors(CorsRule rule, String type) {
-        setAllowedHeaders(rule.getAllowedHeaders());
-        setAllowedOrigins(rule.getAllowedOrigins());
-        rule.getAllowedMethods().forEach(r -> getAllowedMethods().add(r.name()));
-        setExposedHeaders(rule.getExposedHeaders());
-        setMaxAge(rule.getMaxAgeInSeconds());
-        setType(type);
-    }
 
     /**
      * A list of the allowed headers. (Required)
      */
+    @Required
     @Updatable
-    public List<String> getAllowedHeaders() {
+    public Set<String> getAllowedHeaders() {
         if (allowedHeaders == null) {
-            allowedHeaders = new ArrayList<>();
+            allowedHeaders = new HashSet<>();
         }
 
         return allowedHeaders;
     }
 
-    public void setAllowedHeaders(List<String> allowedHeaders) {
+    public void setAllowedHeaders(Set<String> allowedHeaders) {
         this.allowedHeaders = allowedHeaders;
     }
 
     /**
      * A list of the allowed methods. (Required)
      */
+    @Required
     @Updatable
-    public List<String> getAllowedMethods() {
+    public Set<String> getAllowedMethods() {
         if (allowedMethods == null) {
-            allowedMethods = new ArrayList<>();
+            allowedMethods = new HashSet<>();
         }
 
         return allowedMethods;
     }
 
-    public void setAllowedMethods(List<String> allowedMethods) {
+    public void setAllowedMethods(Set<String> allowedMethods) {
         this.allowedMethods = allowedMethods;
     }
 
     /**
      * A list of the allowed origins. (Required)
      */
+    @Required
     @Updatable
-    public List<String> getAllowedOrigins() {
+    public Set<String> getAllowedOrigins() {
         if (allowedOrigins == null) {
-            allowedOrigins = new ArrayList<>();
+            allowedOrigins = new HashSet<>();
         }
 
         return allowedOrigins;
     }
 
-    public void setAllowedOrigins(List<String> allowedOrigins) {
+    public void setAllowedOrigins(Set<String> allowedOrigins) {
         this.allowedOrigins = allowedOrigins;
     }
 
     /**
      * A list of the exposed headers. (Required)
      */
+    @Required
     @Updatable
-    public List<String> getExposedHeaders() {
+    public Set<String> getExposedHeaders() {
         if (exposedHeaders == null) {
-            exposedHeaders = new ArrayList<>();
+            exposedHeaders = new HashSet<>();
         }
 
         return exposedHeaders;
     }
 
-    public void setExposedHeaders(List<String> exposedHeaders) {
+    public void setExposedHeaders(Set<String> exposedHeaders) {
         this.exposedHeaders = exposedHeaders;
     }
 
     /**
      * A maximum age, in seconds. (Required)
      */
+    @Required
     @Updatable
     public Integer getMaxAge() {
         return maxAge;
@@ -124,8 +122,10 @@ public class Cors extends Diffable {
     }
 
     /**
-     * Specifies which service the rule belongs to. Options include blob, file, queue, and table. (Required)
+     * Specifies which service the rule belongs to. Valid values are ``blob`` or ``file`` or ``queue`` or ``table``. (Required)
      */
+    @Required
+    @ValidStrings({"blob", "file", "queue", "table"})
     public String getType() {
         return type;
     }
@@ -134,18 +134,27 @@ public class Cors extends Diffable {
         this.type = type;
     }
 
+    @Override
+    public void copyFrom(CorsRule rule) {
+        setAllowedHeaders(new HashSet<>(rule.getAllowedHeaders()));
+        setAllowedOrigins(new HashSet<>(rule.getAllowedOrigins()));
+        rule.getAllowedMethods().forEach(r -> getAllowedMethods().add(r.name()));
+        setExposedHeaders(new HashSet<>(rule.getExposedHeaders()));
+        setMaxAge(rule.getMaxAgeInSeconds());
+    }
+
     public String primaryKey() {
         return String.format("%s/%s/%s/%s/%s/%s", getAllowedHeaders(), getAllowedMethods(),
-                getAllowedOrigins(), getExposedHeaders(), getMaxAge(), getType());
+            getAllowedOrigins(), getExposedHeaders(), getMaxAge(), getType());
     }
 
     public CorsRule toCors() {
         CorsRule rule = new CorsRule();
 
-        rule.setAllowedHeaders(getAllowedHeaders());
+        rule.setAllowedHeaders(new ArrayList<>(getAllowedHeaders()));
         rule.setAllowedMethods(toAllowedMethods());
-        rule.setAllowedOrigins(getAllowedOrigins());
-        rule.setExposedHeaders(getExposedHeaders());
+        rule.setAllowedOrigins(new ArrayList<>(getAllowedOrigins()));
+        rule.setExposedHeaders(new ArrayList<>(getExposedHeaders()));
         rule.setMaxAgeInSeconds(getMaxAge());
 
         return rule;
