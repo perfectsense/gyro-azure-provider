@@ -23,7 +23,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.InvalidKeyException;
 import java.util.Set;
-import java.io.File;
 
 /**
  * Creates a cloud file
@@ -86,8 +85,7 @@ public class CloudFileResource extends AzureResource implements Copyable<CloudFi
     }
 
     public String getFileName() {
-        File f = new File(getFilePath());
-        return f.getName();
+        return fileName;
     }
 
     public void setFileName(String fileName) {

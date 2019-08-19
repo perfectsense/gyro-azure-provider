@@ -18,7 +18,6 @@ import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import org.apache.commons.lang.StringUtils;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
@@ -27,7 +26,6 @@ import java.security.InvalidKeyException;
 import java.util.Iterator;
 import java.util.Set;
 
-import java.io.File;
 
 /**
  * Creates a cloud blob
