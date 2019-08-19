@@ -13,6 +13,7 @@ import gyro.azure.Copyable;
 import gyro.azure.resources.ResourceGroupResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
@@ -119,6 +120,7 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
     /**
      * The name of the Storage Account. (Required)
      */
+    @Id
     @Required
     public String getName() {
         return name;

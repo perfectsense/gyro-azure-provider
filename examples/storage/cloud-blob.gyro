@@ -25,7 +25,7 @@ azure::storage-account blob-storage-account-example
 end
 
 azure::cloud-blob-container blob-container-example
-    container-name: "blobcontainer"
+    name: "blobcontainer"
     public-access: "CONTAINER"
     storage-account: $(azure::storage-account blob-storage-account-example)
 end
