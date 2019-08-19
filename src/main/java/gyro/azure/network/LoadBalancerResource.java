@@ -29,6 +29,7 @@ import gyro.core.validation.Required;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -85,13 +86,13 @@ import java.util.Set;
 @Type("load-balancer")
 public class LoadBalancerResource extends AzureResource implements Copyable<LoadBalancer> {
 
-    private List<HealthCheckProbeHttp> healthCheckProbeHttp;
-    private List<HealthCheckProbeTcp> healthCheckProbeTcp;
+    private Set<HealthCheckProbeHttp> healthCheckProbeHttp;
+    private Set<HealthCheckProbeTcp> healthCheckProbeTcp;
     private String id;
     private String name;
-    private List<LoadBalancerRule> loadBalancerRule;
-    private List<PrivateFrontend> privateFrontend;
-    private List<PublicFrontend> publicFrontend;
+    private Set<LoadBalancerRule> loadBalancerRule;
+    private Set<PrivateFrontend> privateFrontend;
+    private Set<PublicFrontend> publicFrontend;
     private ResourceGroupResource resourceGroup;
     private SKU_TYPE skuType;
     private Map<String, String> tags;
@@ -102,15 +103,15 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
      * The Health Check Http Probes associated with the Load Balancer. (Optional)
      */
     @Updatable
-    public List<HealthCheckProbeHttp> getHealthCheckProbeHttp() {
+    public Set<HealthCheckProbeHttp> getHealthCheckProbeHttp() {
         if (healthCheckProbeHttp == null) {
-            healthCheckProbeHttp = new ArrayList<>();
+            healthCheckProbeHttp = new HashSet<>();
         }
 
         return healthCheckProbeHttp;
     }
 
-    public void setHealthCheckProbeHttp(List<HealthCheckProbeHttp> healthCheckProbeHttp) {
+    public void setHealthCheckProbeHttp(Set<HealthCheckProbeHttp> healthCheckProbeHttp) {
         this.healthCheckProbeHttp = healthCheckProbeHttp;
     }
 
@@ -118,15 +119,15 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
      * The Health Check Tcp Probes associated with the Load Balancer. (Optional)
      */
     @Updatable
-    public List<HealthCheckProbeTcp> getHealthCheckProbeTcp() {
+    public Set<HealthCheckProbeTcp> getHealthCheckProbeTcp() {
         if (healthCheckProbeTcp == null) {
-            healthCheckProbeTcp = new ArrayList<>();
+            healthCheckProbeTcp = new HashSet<>();
         }
 
         return healthCheckProbeTcp;
     }
 
-    public void setHealthCheckProbeTcp(List<HealthCheckProbeTcp> healthCheckProbeTcp) {
+    public void setHealthCheckProbeTcp(Set<HealthCheckProbeTcp> healthCheckProbeTcp) {
         this.healthCheckProbeTcp = healthCheckProbeTcp;
     }
 
@@ -160,45 +161,45 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
      */
     @Required
     @Updatable
-    public List<LoadBalancerRule> getLoadBalancerRule() {
+    public Set<LoadBalancerRule> getLoadBalancerRule() {
         if (loadBalancerRule == null) {
-            loadBalancerRule = new ArrayList<>();
+            loadBalancerRule = new HashSet<>();
         }
 
         return loadBalancerRule;
     }
 
-    public void setLoadBalancerRule(List<LoadBalancerRule> loadBalancerRule) {
+    public void setLoadBalancerRule(Set<LoadBalancerRule> loadBalancerRule) {
         this.loadBalancerRule = loadBalancerRule;
     }
 
     /**
      * The Private Frontend associated with the Load Balancer. (Optional)
      */
-    public List<PrivateFrontend> getPrivateFrontend() {
+    public Set<PrivateFrontend> getPrivateFrontend() {
         if (privateFrontend == null) {
-            privateFrontend = new ArrayList<>();
+            privateFrontend = new HashSet<>();
         }
 
         return privateFrontend;
     }
 
-    public void setPrivateFrontend(List<PrivateFrontend> privateFrontend) {
+    public void setPrivateFrontend(Set<PrivateFrontend> privateFrontend) {
         this.privateFrontend = privateFrontend;
     }
 
     /**
      * The Public Frontend associated with the Load Balancer. (Optional)
      */
-    public List<PublicFrontend> getPublicFrontend() {
+    public Set<PublicFrontend> getPublicFrontend() {
         if (publicFrontend == null) {
-            publicFrontend = new ArrayList<>();
+            publicFrontend = new HashSet<>();
         }
 
         return publicFrontend;
     }
 
-    public void setPublicFrontend(List<PublicFrontend> publicFrontend) {
+    public void setPublicFrontend(Set<PublicFrontend> publicFrontend) {
         this.publicFrontend = publicFrontend;
     }
 
