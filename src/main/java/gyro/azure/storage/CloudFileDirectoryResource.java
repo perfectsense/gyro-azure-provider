@@ -122,52 +122,42 @@ public class CloudFileDirectoryResource extends AzureResource implements Copyabl
             copyFrom(directory);
 
             return true;
-        }  catch (StorageException ex) {
+        }  catch (StorageException | URISyntaxException | InvalidKeyException ex) {
             throw new GyroException(ex.getMessage());
         }
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
-        try {
-            CloudFileDirectory directory = cloudFileDirectory();
-            directory.create();
-        } catch (StorageException | URISyntaxException ex) {
-            throw new GyroException(ex.getMessage());
-        }
+    public void create(GyroUI ui, State state) throws StorageException, URISyntaxException, InvalidKeyException {
+        CloudFileDirectory directory = cloudFileDirectory();
+        directory.create();
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {}
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
 
-    @Override
-    public void delete(GyroUI ui, State state) {
-        try {
-            CloudFileDirectory directory = cloudFileDirectory();
-            directory.delete();
-        } catch (StorageException | URISyntaxException ex) {
-            throw new GyroException(ex.getMessage());
-        }
     }
 
-    private CloudFileDirectory cloudFileDirectory() {
-        try {
-            CloudStorageAccount storageAccount = CloudStorageAccount.parse(getStorageAccount().getConnection());
-            CloudFileClient fileClient = storageAccount.createCloudFileClient();
-            CloudFileShare share = fileClient.getShareReference(getCloudFileShare().getName());
+    @Override
+    public void delete(GyroUI ui, State state) throws StorageException, URISyntaxException, InvalidKeyException {
+        CloudFileDirectory directory = cloudFileDirectory();
+        directory.delete();
+    }
 
-            CloudFileDirectory rootDirectory = share.getRootDirectoryReference();
+    private CloudFileDirectory cloudFileDirectory() throws StorageException, URISyntaxException, InvalidKeyException {
+        CloudStorageAccount storageAccount = CloudStorageAccount.parse(getStorageAccount().getConnection());
+        CloudFileClient fileClient = storageAccount.createCloudFileClient();
+        CloudFileShare share = fileClient.getShareReference(getCloudFileShare().getName());
 
-            Path cloudFilePath = Paths.get(getCloudFileDirectoryPath()).getParent();
-            String finalDirectory = Paths.get(getCloudFileDirectoryPath()).getFileName().toString();
-            for (Path path : cloudFilePath) {
-                String currentDirectory = path.toString();
-                rootDirectory = rootDirectory.getDirectoryReference(currentDirectory);
-                rootDirectory.createIfNotExists();
-            }
-            return rootDirectory.getDirectoryReference(finalDirectory);
-        } catch (StorageException | URISyntaxException | InvalidKeyException ex) {
-            throw new GyroException(ex.getMessage());
+        CloudFileDirectory rootDirectory = share.getRootDirectoryReference();
+
+        Path cloudFilePath = Paths.get(getPath()).getParent();
+        String finalDirectory = Paths.get(getPath()).getFileName().toString();
+        for (Path path : cloudFilePath) {
+            String currentDirectory = path.toString();
+            rootDirectory = rootDirectory.getDirectoryReference(currentDirectory);
+            rootDirectory.createIfNotExists();
         }
+        return rootDirectory.getDirectoryReference(finalDirectory);
     }
 }

@@ -220,7 +220,7 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void create(GyroUI ui, State state) throws StorageException, URISyntaxException, InvalidKeyException {
         Azure client = createClient();
 
         StorageAccount storageAccount = client.storageAccounts()
@@ -241,7 +241,7 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws StorageException, URISyntaxException, InvalidKeyException {
         Azure client = createClient();
 
         StorageAccount storageAccount = client.storageAccounts().getById(getId());
@@ -257,46 +257,37 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
         client.storageAccounts().deleteById(getId());
     }
 
-    private void updateCorsRules() {
-        try {
-            CloudStorageAccount cloudStorageAccount = CloudStorageAccount.parse(getConnection());
+    private void updateCorsRules() throws StorageException, URISyntaxException, InvalidKeyException {
+        CloudStorageAccount cloudStorageAccount = CloudStorageAccount.parse(getConnection());
 
-            CloudBlobClient blobClient = cloudStorageAccount.createCloudBlobClient();
-            ServiceProperties blobProperties = new ServiceProperties();
+        CloudBlobClient blobClient = cloudStorageAccount.createCloudBlobClient();
+        ServiceProperties blobProperties = new ServiceProperties();
 
-            CloudFileClient fileClient = cloudStorageAccount.createCloudFileClient();
-            FileServiceProperties fileProperties = new FileServiceProperties();
+        CloudFileClient fileClient = cloudStorageAccount.createCloudFileClient();
+        FileServiceProperties fileProperties = new FileServiceProperties();
 
-            CloudQueueClient queueClient = cloudStorageAccount.createCloudQueueClient();
-            ServiceProperties queueProperties = new ServiceProperties();
+        CloudQueueClient queueClient = cloudStorageAccount.createCloudQueueClient();
+        ServiceProperties queueProperties = new ServiceProperties();
 
-            CloudTableClient tableClient = cloudStorageAccount.createCloudTableClient();
-            ServiceProperties tableProperties = new ServiceProperties();
+        CloudTableClient tableClient = cloudStorageAccount.createCloudTableClient();
+        ServiceProperties tableProperties = new ServiceProperties();
 
-            for (Cors rule : getCorsRule()) {
-                if (rule.getType().equalsIgnoreCase("blob")) {
-                    blobProperties.getCors().getCorsRules().add(rule.toCors());
-                } else if (rule.getType().equalsIgnoreCase("file")) {
-                    fileProperties.getCors().getCorsRules().add(rule.toCors());
-                } else if (rule.getType().equalsIgnoreCase("queue")) {
-                    queueProperties.getCors().getCorsRules().add(rule.toCors());
-                } else if (rule.getType().equalsIgnoreCase("table")) {
-                    tableProperties.getCors().getCorsRules().add(rule.toCors());
-                } else {
-                    throw new GyroException("Invalid storage service. " +
-                            "Valid storage service options include" +
-                            "blob, file, queue, and table");
-                }
+        for (Cors rule : getCorsRule()) {
+            if (rule.getType().equalsIgnoreCase("blob")) {
+                blobProperties.getCors().getCorsRules().add(rule.toCors());
+            } else if (rule.getType().equalsIgnoreCase("file")) {
+                fileProperties.getCors().getCorsRules().add(rule.toCors());
+            } else if (rule.getType().equalsIgnoreCase("queue")) {
+                queueProperties.getCors().getCorsRules().add(rule.toCors());
+            } else if (rule.getType().equalsIgnoreCase("table")) {
+                tableProperties.getCors().getCorsRules().add(rule.toCors());
             }
-
-            blobClient.uploadServiceProperties(blobProperties);
-            fileClient.uploadServiceProperties(fileProperties);
-            queueClient.uploadServiceProperties(queueProperties);
-            tableClient.uploadServiceProperties(tableProperties);
-
-        } catch (StorageException | URISyntaxException | InvalidKeyException ex) {
-            throw new GyroException(ex.getMessage());
         }
+
+        blobClient.uploadServiceProperties(blobProperties);
+        fileClient.uploadServiceProperties(fileProperties);
+        queueClient.uploadServiceProperties(queueProperties);
+        tableClient.uploadServiceProperties(tableProperties);
     }
 
     public String getConnection() {

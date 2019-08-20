@@ -138,67 +138,53 @@ public class CloudBlobResource extends AzureResource implements Copyable<CloudBl
             copyFrom(blob);
 
             return true;
-        } catch (StorageException ex) {
-            throw new GyroException(ex.getMessage());
-        }
-    }
-
-    @Override
-    public void create(GyroUI ui, State state) {
-        try {
-            CloudBlockBlob blob = cloudBlobBlob();
-            GyroInputStream file = openInput(getFilePath());
-            blob.upload(file, file.available());
-            setUri(blob.getUri().toString());
-        } catch (StorageException | IOException ex) {
-            throw new GyroException(ex.getMessage());
-        }
-    }
-
-    @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {}
-
-    @Override
-    public void delete(GyroUI ui, State state) {
-        try {
-            CloudBlockBlob blob = cloudBlobBlob();
-            blob.delete();
-        } catch (StorageException ex) {
-            throw new GyroException(ex.getMessage());
-        }
-    }
-
-    private CloudBlockBlob cloudBlobBlob() {
-        try {
-            CloudStorageAccount account = CloudStorageAccount.parse(getStorageAccount().getConnection());
-            CloudBlobClient client = account.createCloudBlobClient();
-            CloudBlobContainer container = client.getContainerReference(getContainer().getName());
-
-            if (StringUtils.countMatches(getBlobDirectoryPath(), "/") > 1) {
-                CloudBlobDirectory directory = createDirectories();
-                return directory.getBlockBlobReference(getBlobDirectoryPath().substring(getBlobDirectoryPath().lastIndexOf("/") + 1));
-            } else {
-                return container.getBlockBlobReference(getBlobDirectoryPath().substring(getBlobDirectoryPath().lastIndexOf("/") + 1));
-            }
-        } catch (StorageException | URISyntaxException | InvalidKeyException/* | IOException*/ ex) {
-            throw new GyroException(ex.getMessage());
-        }
-    }
-
-    private CloudBlobDirectory createDirectories() {
-        try {
-            CloudStorageAccount account = CloudStorageAccount.parse(getStorageAccount().getConnection());
-            CloudBlobClient client = account.createCloudBlobClient();
-            CloudBlobContainer container = client.getContainerReference(getContainer().getName());
-            Path directoryPath = Paths.get(getBlobDirectoryPath()).getParent();
-            Iterator<Path> iter = directoryPath.iterator();
-            CloudBlobDirectory directory = container.getDirectoryReference(iter.next().toString());
-            while (iter.hasNext()) {
-                directory = directory.getDirectoryReference(iter.next().toString());
-            }
-            return directory;
         } catch (StorageException | URISyntaxException | InvalidKeyException ex) {
             throw new GyroException(ex.getMessage());
         }
+    }
+
+    @Override
+    public void create(GyroUI ui, State state) throws StorageException, URISyntaxException, InvalidKeyException, IOException {
+        CloudBlockBlob blob = cloudBlobBlob();
+        GyroInputStream file = openInput(getFilePath());
+        blob.upload(file, file.available());
+        setUri(blob.getUri().toString());
+    }
+
+    @Override
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
+
+    }
+
+    @Override
+    public void delete(GyroUI ui, State state) throws StorageException, URISyntaxException, InvalidKeyException {
+        CloudBlockBlob blob = cloudBlobBlob();
+        blob.delete();
+    }
+
+    private CloudBlockBlob cloudBlobBlob() throws StorageException, URISyntaxException, InvalidKeyException {
+        CloudStorageAccount account = CloudStorageAccount.parse(getStorageAccount().getConnection());
+        CloudBlobClient client = account.createCloudBlobClient();
+        CloudBlobContainer container = client.getContainerReference(getContainer().getName());
+
+        if (StringUtils.countMatches(getBlobDirectoryPath(), "/") > 1) {
+            CloudBlobDirectory directory = createDirectories();
+            return directory.getBlockBlobReference(getBlobDirectoryPath().substring(getBlobDirectoryPath().lastIndexOf("/") + 1));
+        } else {
+            return container.getBlockBlobReference(getBlobDirectoryPath().substring(getBlobDirectoryPath().lastIndexOf("/") + 1));
+        }
+    }
+
+    private CloudBlobDirectory createDirectories() throws StorageException, URISyntaxException, InvalidKeyException {
+        CloudStorageAccount account = CloudStorageAccount.parse(getStorageAccount().getConnection());
+        CloudBlobClient client = account.createCloudBlobClient();
+        CloudBlobContainer container = client.getContainerReference(getContainer().getName());
+        Path directoryPath = Paths.get(getBlobDirectoryPath()).getParent();
+        Iterator<Path> iter = directoryPath.iterator();
+        CloudBlobDirectory directory = container.getDirectoryReference(iter.next().toString());
+        while (iter.hasNext()) {
+            directory = directory.getDirectoryReference(iter.next().toString());
+        }
+        return directory;
     }
 }

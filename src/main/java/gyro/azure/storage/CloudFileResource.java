@@ -9,6 +9,7 @@ import gyro.core.GyroException;
 import gyro.core.GyroInputStream;
 import gyro.core.GyroUI;
 import gyro.core.Type;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 
 import com.microsoft.azure.storage.StorageException;
@@ -84,6 +85,10 @@ public class CloudFileResource extends AzureResource implements Copyable<CloudFi
         this.filePath = filePath;
     }
 
+    /**
+     * The name of the file.
+     */
+    @Output
     public String getFileName() {
         return fileName;
     }
@@ -126,63 +131,49 @@ public class CloudFileResource extends AzureResource implements Copyable<CloudFi
             copyFrom(file);
 
             return true;
-        } catch (StorageException ex) {
-            throw new GyroException(ex.getMessage());
-        }
-    }
-
-    @Override
-    public void create(GyroUI ui, State state) {
-        try {
-            GyroInputStream inputStream = openInput(getFilePath());
-            CloudFile file = cloudFile();
-            file.upload(inputStream, inputStream.available());
-        } catch (StorageException | URISyntaxException | IOException ex) {
-            throw new GyroException(ex.getMessage());
-        }
-    }
-
-    @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {}
-
-    @Override
-    public void delete(GyroUI ui, State state) {
-        try {
-            CloudFile file = cloudFile();
-            file.delete();
-        } catch (StorageException | URISyntaxException ex) {
-            throw new GyroException(ex.getMessage());
-        }
-    }
-
-    private CloudFile cloudFile() {
-        try {
-            String name = Paths.get(getFilePath()).getFileName().toString();
-            CloudFileDirectory root = cloudFileDirectory();
-            return root.getFileReference(name);
-        } catch (StorageException | URISyntaxException ex) {
-            throw new GyroException(ex.getMessage());
-        }
-    }
-
-    private CloudFileDirectory cloudFileDirectory() {
-        try {
-            CloudStorageAccount storageAccount = CloudStorageAccount.parse(getStorageAccount().getConnection());
-            CloudFileClient fileClient = storageAccount.createCloudFileClient();
-            CloudFileShare share = fileClient.getShareReference(getCloudFileShare().getName());
-
-            CloudFileDirectory rootDirectory = share.getRootDirectoryReference();
-
-            Path cloudFilePath = Paths.get(getCloudFileDirectory().getCloudFileDirectoryPath()).getParent();
-            String finalDirectory = Paths.get(getCloudFileDirectory().getCloudFileDirectoryPath()).getFileName().toString();
-            for (Path path : cloudFilePath) {
-                String currentDirectory = path.toString();
-                rootDirectory = rootDirectory.getDirectoryReference(currentDirectory);
-                rootDirectory.createIfNotExists();
-            }
-            return rootDirectory.getDirectoryReference(finalDirectory);
         } catch (StorageException | URISyntaxException | InvalidKeyException ex) {
             throw new GyroException(ex.getMessage());
         }
+    }
+
+    @Override
+    public void create(GyroUI ui, State state) throws StorageException, URISyntaxException, InvalidKeyException, IOException {
+        GyroInputStream inputStream = openInput(getFilePath());
+        CloudFile file = cloudFile();
+        file.upload(inputStream, inputStream.available());
+    }
+
+    @Override
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
+
+    }
+
+    @Override
+    public void delete(GyroUI ui, State state) throws StorageException, URISyntaxException, InvalidKeyException {
+        CloudFile file = cloudFile();
+        file.delete();
+    }
+
+    private CloudFile cloudFile() throws StorageException, URISyntaxException, InvalidKeyException {
+        String name = Paths.get(getFilePath()).getFileName().toString();
+        CloudFileDirectory root = cloudFileDirectory();
+        return root.getFileReference(name);
+    }
+
+    private CloudFileDirectory cloudFileDirectory() throws StorageException, URISyntaxException, InvalidKeyException {
+        CloudStorageAccount storageAccount = CloudStorageAccount.parse(getStorageAccount().getConnection());
+        CloudFileClient fileClient = storageAccount.createCloudFileClient();
+        CloudFileShare share = fileClient.getShareReference(getCloudFileShare().getName());
+
+        CloudFileDirectory rootDirectory = share.getRootDirectoryReference();
+
+        Path cloudFilePath = Paths.get(getCloudFileDirectory().getPath()).getParent();
+        String finalDirectory = Paths.get(getCloudFileDirectory().getPath()).getFileName().toString();
+        for (Path path : cloudFilePath) {
+            String currentDirectory = path.toString();
+            rootDirectory = rootDirectory.getDirectoryReference(currentDirectory);
+            rootDirectory.createIfNotExists();
+        }
+        return rootDirectory.getDirectoryReference(finalDirectory);
     }
 }

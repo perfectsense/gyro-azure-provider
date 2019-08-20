@@ -17,6 +17,7 @@ import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
@@ -57,9 +58,10 @@ public class CloudBlobContainerResource extends AzureResource implements Copyabl
     }
 
     /**
-     * The public access of the container. (Required)
+     * The public access of the container. Valid values are ``BLOB`` or ``CONTAINER`` or ``OFF`` (Required)
      */
     @Required
+    @ValidStrings({"BLOB", "CONTAINER", "OFF"})
     @Updatable
     public String getPublicAccess() {
         return publicAccess;

@@ -79,41 +79,31 @@ public class CloudQueueResource extends AzureResource implements Copyable<CloudQ
             copyFrom(queue);
 
             return true;
-        } catch (StorageException ex) {
-            throw new GyroException(ex.getMessage());
-        }
-    }
-
-    @Override
-    public void create(GyroUI ui, State state) {
-        try {
-            CloudQueue queue = cloudQueue();
-            queue.create();
-        } catch (StorageException ex) {
-            throw new GyroException(ex.getMessage());
-        }
-    }
-
-    @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {}
-
-    @Override
-    public void delete(GyroUI ui, State state) {
-        try {
-            CloudQueue queue = cloudQueue();
-            queue.delete();
-        } catch (StorageException ex) {
-            throw new GyroException(ex.getMessage());
-        }
-    }
-
-    private CloudQueue cloudQueue() {
-        try {
-            CloudStorageAccount storageAccount = CloudStorageAccount.parse(getStorageAccount().getConnection());
-            CloudQueueClient queueClient = storageAccount.createCloudQueueClient();
-            return queueClient.getQueueReference(getName());
         } catch (StorageException | URISyntaxException | InvalidKeyException ex) {
             throw new GyroException(ex.getMessage());
         }
+    }
+
+    @Override
+    public void create(GyroUI ui, State state) throws StorageException, URISyntaxException, InvalidKeyException {
+        CloudQueue queue = cloudQueue();
+        queue.create();
+    }
+
+    @Override
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
+
+    }
+
+    @Override
+    public void delete(GyroUI ui, State state) throws StorageException, URISyntaxException, InvalidKeyException {
+        CloudQueue queue = cloudQueue();
+        queue.delete();
+    }
+
+    private CloudQueue cloudQueue() throws StorageException, URISyntaxException, InvalidKeyException {
+        CloudStorageAccount storageAccount = CloudStorageAccount.parse(getStorageAccount().getConnection());
+        CloudQueueClient queueClient = storageAccount.createCloudQueueClient();
+        return queueClient.getQueueReference(getName());
     }
 }

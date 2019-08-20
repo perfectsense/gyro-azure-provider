@@ -79,41 +79,31 @@ public class CloudTableResource extends AzureResource implements Copyable<CloudT
             copyFrom(cloudTable);
 
             return true;
-        } catch (StorageException ex) {
-            throw new GyroException(ex.getMessage());
-        }
-    }
-
-    @Override
-    public void create(GyroUI ui, State state) {
-        try {
-            CloudTable cloudTable = cloudTable();
-            cloudTable.create();
-        } catch (StorageException ex) {
-            throw new GyroException(ex.getMessage());
-        }
-    }
-
-    @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {}
-
-    @Override
-    public void delete(GyroUI ui, State state) {
-        try {
-            CloudTable cloudTable = cloudTable();
-            cloudTable.delete();
-        } catch (StorageException ex) {
-            throw new GyroException(ex.getMessage());
-        }
-    }
-
-    private CloudTable cloudTable() {
-        try {
-            CloudStorageAccount account = CloudStorageAccount.parse(getStorageAccount().getConnection());
-            CloudTableClient tableClient = account.createCloudTableClient();
-            return tableClient.getTableReference(getName());
         } catch (StorageException | URISyntaxException | InvalidKeyException ex) {
             throw new GyroException(ex.getMessage());
         }
+    }
+
+    @Override
+    public void create(GyroUI ui, State state) throws StorageException, URISyntaxException, InvalidKeyException {
+        CloudTable cloudTable = cloudTable();
+        cloudTable.create();
+    }
+
+    @Override
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
+
+    }
+
+    @Override
+    public void delete(GyroUI ui, State state) throws StorageException, URISyntaxException, InvalidKeyException {
+        CloudTable cloudTable = cloudTable();
+        cloudTable.delete();
+    }
+
+    private CloudTable cloudTable() throws StorageException, URISyntaxException, InvalidKeyException {
+        CloudStorageAccount account = CloudStorageAccount.parse(getStorageAccount().getConnection());
+        CloudTableClient tableClient = account.createCloudTableClient();
+        return tableClient.getTableReference(getName());
     }
 }
