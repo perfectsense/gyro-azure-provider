@@ -1,23 +1,33 @@
 package gyro.azure.network;
 
 import com.microsoft.azure.management.Azure;
+import com.microsoft.azure.management.network.IPAllocationMethod;
+import com.microsoft.azure.management.network.IpTag;
 import com.microsoft.azure.management.network.PublicIPAddress;
 import com.microsoft.azure.management.network.PublicIPAddress.DefinitionStages.WithCreate;
 import com.microsoft.azure.management.network.PublicIPSkuType;
 import com.microsoft.azure.management.resources.fluentcore.arm.AvailabilityZoneId;
+import com.microsoft.azure.management.resources.fluentcore.arm.ExpandableStringEnum;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
+import gyro.azure.Copyable;
+import gyro.azure.resources.ResourceGroupResource;
 import gyro.core.GyroUI;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
+import gyro.core.validation.Range;
+import gyro.core.validation.Required;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Creates a public ip address.
@@ -29,9 +39,8 @@ import java.util.Set;
  *
  *     azure::public-ip-address public-ip-address-example
  *          name: "public-ip-address-example"
- *          resource-group-name: $(azure::resource-group resource-group-public-ip-address-example | resource-group-name)
+ *          resource-group: $(azure::resource-group resource-group-public-ip-address-example)
  *          idle-timeout-in-minute: 4
- *          sku-basic: false
  *
  *          tags: {
  *              Name: "public-ip-address-example"
@@ -39,73 +48,83 @@ import java.util.Set;
  *     end
  */
 @Type("public-ip-address")
-public class PublicIpAddressResource extends AzureResource {
-    private String publicIpAddressName;
-    private String resourceGroupName;
-    private Boolean skuBasic;
-    private Boolean dynamic;
+public class PublicIpAddressResource extends AzureResource implements Copyable<PublicIPAddress> {
+    private String name;
+    private ResourceGroupResource resourceGroup;
+    private SKU_TYPE skuType;
+    private Boolean isDynamic;
     private Integer idleTimeoutInMinute;
-    private String publicIpAddressId;
+    private String id;
     private String ipAddress;
-    private String availabilityZoneId;
+    private Set<String> availabilityZoneIds;
     private String domainLabel;
     private Map<String, String> tags;
+    private Map<String, String> ipTags;
+    private String reverseFqdn;
+    private String fqdn;
+    private Boolean hasAssignedLoadBalancer;
+    private Boolean hasAssignedNetworkInterface;
+    private String version;
+
+    public enum SKU_TYPE {BASIC, STANDARD}
 
     /**
-     * Name of the public ip address. (Required)
+     * Name of the Public IP Address. (Required)
      */
-    public String getPublicIpAddressName() {
-        return publicIpAddressName;
+
+    @Required
+    public String getName() {
+        return name;
     }
 
-    public void setPublicIpAddressName(String publicIpAddressName) {
-        this.publicIpAddressName = publicIpAddressName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
-     * Name of the resource group under which this would reside. (Required)
+     * The resource group under which this would reside. (Required)
      */
-    public String getResourceGroupName() {
-        return resourceGroupName;
+    @Required
+    public ResourceGroupResource getResourceGroup() {
+        return resourceGroup;
     }
 
-    public void setResourceGroupName(String resourceGroupName) {
-        this.resourceGroupName = resourceGroupName;
+    public void setResourceGroup(ResourceGroupResource resourceGroup) {
+        this.resourceGroup = resourceGroup;
     }
 
     /**
-     * Specify if Sku type is basic or standard. Defaults to true.
+     * Specify Sku type. Valid values are ``BASIC`` or ``STANDARD``. Defaults to ``BASIC``.
      */
-    public Boolean getSkuBasic() {
-        if (skuBasic == null) {
-            skuBasic = true;
+    public SKU_TYPE getSkuType() {
+        if (skuType == null) {
+            skuType = SKU_TYPE.BASIC;
         }
 
-        return skuBasic;
+        return skuType;
     }
 
-    public void setSkuBasic(Boolean skuBasic) {
-        this.skuBasic = skuBasic;
-    }
-
-    /**
-     * Specify if using dynamic ip or not. Defaults to false.
-     */
-    public Boolean getDynamic() {
-        if (dynamic == null) {
-            dynamic = false;
-        }
-
-        return dynamic;
-    }
-
-    public void setDynamic(Boolean dynamic) {
-        this.dynamic = dynamic;
+    public void setSkuType(SKU_TYPE skuType) {
+        this.skuType = skuType;
     }
 
     /**
-     * Specify the idle time in minutes before time out. Valid values [ Integer from 4 - 30]. (Required)
+     * Specifies if the Public IP Address is using Dynamic IP or Static IP.
      */
+    @Output
+    public Boolean getIsDynamic() {
+        return isDynamic;
+    }
+
+    public void setIsDynamic(Boolean isDynamic) {
+        this.isDynamic = isDynamic;
+    }
+
+    /**
+     * Specify the idle time in minutes before time out. Valid values are any Integer between ``4`` and ``30``. (Required)
+     */
+    @Required
+    @Range(min = 4, max = 30)
     @Updatable
     public Integer getIdleTimeoutInMinute() {
         return idleTimeoutInMinute;
@@ -115,15 +134,22 @@ public class PublicIpAddressResource extends AzureResource {
         this.idleTimeoutInMinute = idleTimeoutInMinute;
     }
 
+    /**
+     * The ID of the Public IP Address.
+     */
+    @Id
     @Output
-    public String getPublicIpAddressId() {
-        return publicIpAddressId;
+    public String getId() {
+        return id;
     }
 
-    public void setPublicIpAddressId(String publicIpAddressid) {
-        this.publicIpAddressId = publicIpAddressId;
+    public void setId(String id) {
+        this.id = id;
     }
 
+    /**
+     * The IP of the Public IP Address.
+     */
     @Output
     public String getIpAddress() {
         return ipAddress;
@@ -134,18 +160,22 @@ public class PublicIpAddressResource extends AzureResource {
     }
 
     /**
-     * Specify the availability zone.
+     * The availability zone of the Public IP Address.
      */
-    public String getAvailabilityZoneId() {
-        return availabilityZoneId;
+    public Set<String> getAvailabilityZoneIds() {
+        if (availabilityZoneIds == null) {
+            availabilityZoneIds = new HashSet<>();
+        }
+
+        return availabilityZoneIds;
     }
 
-    public void setAvailabilityZoneId(String availabilityZoneId) {
-        this.availabilityZoneId = availabilityZoneId;
+    public void setAvailabilityZoneIds(Set<String> availabilityZoneIds) {
+        this.availabilityZoneIds = availabilityZoneIds;
     }
 
     /**
-     * Specify the domain prefix.
+     * The domain prefix of the Public IP Address.
      */
     @Updatable
     public String getDomainLabel() {
@@ -156,6 +186,9 @@ public class PublicIpAddressResource extends AzureResource {
         this.domainLabel = domainLabel;
     }
 
+    /**
+     * The tags for the Public IP Address.
+     */
     @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
@@ -169,16 +202,113 @@ public class PublicIpAddressResource extends AzureResource {
         this.tags = tags;
     }
 
+    /**
+     * A set of IP tags for the Public IP Address.
+     */
+    @Updatable
+    public Map<String, String> getIpTags() {
+        if (ipTags == null) {
+            ipTags = new HashMap<>();
+        }
+
+        return ipTags;
+    }
+
+    public void setIpTags(Map<String, String> ipTags) {
+        this.ipTags = ipTags;
+    }
+
+    /**
+     * The reverse FQDN for the Public IP Address.
+     */
+    @Updatable
+    public String getReverseFqdn() {
+        return reverseFqdn;
+    }
+
+    public void setReverseFqdn(String reverseFqdn) {
+        this.reverseFqdn = reverseFqdn;
+    }
+
+    /**
+     * The FQDN for the Public IP Address.
+     */
+    @Output
+    public String getFqdn() {
+        return fqdn;
+    }
+
+    public void setFqdn(String fqdn) {
+        this.fqdn = fqdn;
+    }
+
+    /**
+     * Specifies if the Public IP Address is associated with any Load Balancer.
+     */
+    @Output
+    public Boolean getHasAssignedLoadBalancer() {
+        return hasAssignedLoadBalancer;
+    }
+
+    public void setHasAssignedLoadBalancer(Boolean hasAssignedLoadBalancer) {
+        this.hasAssignedLoadBalancer = hasAssignedLoadBalancer;
+    }
+
+    /**
+     * Specifies if the Public IP Address is associated with any Network Interface.
+     */
+    @Output
+    public Boolean getHasAssignedNetworkInterface() {
+        return hasAssignedNetworkInterface;
+    }
+
+    public void setHasAssignedNetworkInterface(Boolean hasAssignedNetworkInterface) {
+        this.hasAssignedNetworkInterface = hasAssignedNetworkInterface;
+    }
+
+    /**
+     * The Public IP Address version being IPV4 or IPV6.
+     */
+    @Output
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
     @Override
-    public boolean refresh() {
-        Azure client = createClient();
-
-        PublicIPAddress publicIpAddress = client.publicIPAddresses().getByResourceGroup(getResourceGroupName(), getPublicIpAddressName());
-
+    public void copyFrom(PublicIPAddress publicIpAddress) {
         setIpAddress(publicIpAddress.ipAddress());
         setDomainLabel(publicIpAddress.leafDomainLabel());
         setIdleTimeoutInMinute(publicIpAddress.idleTimeoutInMinutes());
         setTags(publicIpAddress.tags());
+        setId(publicIpAddress.id());
+        setName(publicIpAddress.name());
+        setIsDynamic(publicIpAddress.ipAllocationMethod().equals(IPAllocationMethod.DYNAMIC));
+        setSkuType(publicIpAddress.sku().equals(PublicIPSkuType.BASIC) ? SKU_TYPE.BASIC : SKU_TYPE.STANDARD);
+        setAvailabilityZoneIds(publicIpAddress.availabilityZones().stream().map(ExpandableStringEnum::toString).collect(Collectors.toSet()));
+        setResourceGroup(findById(ResourceGroupResource.class, publicIpAddress.resourceGroupName()));
+        setFqdn(publicIpAddress.fqdn());
+        setHasAssignedLoadBalancer(publicIpAddress.hasAssignedLoadBalancer());
+        setHasAssignedNetworkInterface(publicIpAddress.hasAssignedNetworkInterface());
+        setReverseFqdn(publicIpAddress.reverseFqdn());
+        setVersion(publicIpAddress.version().toString());
+        setIpTags(publicIpAddress.ipTags().stream().collect(Collectors.toMap(IpTag::tag, IpTag::ipTagType)));
+    }
+
+    @Override
+    public boolean refresh() {
+        Azure client = createClient();
+
+        PublicIPAddress publicIpAddress = client.publicIPAddresses().getById(getId());
+
+        if (publicIpAddress == null) {
+            return false;
+        }
+
+        copyFrom(publicIpAddress);
 
         return true;
     }
@@ -188,16 +318,24 @@ public class PublicIpAddressResource extends AzureResource {
         Azure client = createClient();
 
         WithCreate withCreate = client.publicIPAddresses()
-            .define(getPublicIpAddressName())
+            .define(getName())
             .withRegion(Region.fromName(getRegion()))
-            .withExistingResourceGroup(getResourceGroupName())
-            .withSku(getSkuBasic() ? PublicIPSkuType.BASIC : PublicIPSkuType.STANDARD);
+            .withExistingResourceGroup(getResourceGroup().getName())
+            .withSku(getSkuType() == SKU_TYPE.BASIC ? PublicIPSkuType.BASIC : PublicIPSkuType.STANDARD);
 
-        if (!ObjectUtils.isBlank(getAvailabilityZoneId())) {
-            withCreate = withCreate.withAvailabilityZone(AvailabilityZoneId.fromString(getAvailabilityZoneId()));
+        if (!ObjectUtils.isBlank(getReverseFqdn())) {
+            withCreate = withCreate.withReverseFqdn(getReverseFqdn());
         }
 
-        if (getSkuBasic()) {
+        for (String key : getIpTags().keySet()) {
+            withCreate = withCreate.withIpTag(key, getIpTags().get(key));
+        }
+
+        for (String availabilityZoneId : getAvailabilityZoneIds()) {
+            withCreate = withCreate.withAvailabilityZone(AvailabilityZoneId.fromString(availabilityZoneId));
+        }
+
+        if (getSkuType() == SKU_TYPE.BASIC) {
             //basic
             withCreate = withCreate.withIdleTimeoutInMinutes(getIdleTimeoutInMinute());
 
@@ -220,15 +358,14 @@ public class PublicIpAddressResource extends AzureResource {
 
         PublicIPAddress publicIpAddress = withCreate.withTags(getTags()).create();
 
-        setPublicIpAddressId(publicIpAddress.id());
-        setIpAddress(publicIpAddress.ipAddress());
+        copyFrom(publicIpAddress);
     }
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
-        PublicIPAddress publicIpAddress = client.publicIPAddresses().getByResourceGroup(getResourceGroupName(), getPublicIpAddressName());
+        PublicIPAddress publicIpAddress = client.publicIPAddresses().getById(getId());
 
         PublicIPAddress.Update update = publicIpAddress.update();
 
@@ -245,16 +382,31 @@ public class PublicIpAddressResource extends AzureResource {
                 ? update.withoutLeafDomainLabel() : update.withLeafDomainLabel(getDomainLabel());
         }
 
+        if (changedFieldNames.contains("reverse-fqdn")) {
+            update = ObjectUtils.isBlank(getReverseFqdn())
+                ? update.withoutReverseFqdn() : update.withReverseFqdn(getReverseFqdn());
+        }
+
+        if (changedFieldNames.contains("ip-tags")) {
+            PublicIpAddressResource publicIpAddressResource = (PublicIpAddressResource) current;
+            for (String ipTag : publicIpAddressResource.getIpTags().keySet()) {
+                update = update.withoutIpTag(ipTag);
+            }
+
+            for (String key : getIpTags().keySet()) {
+                update = update.withIpTag(key, getIpTags().get(key));
+            }
+        }
+
         if (!changedFieldNames.isEmpty()) {
-            update.apply();
+            PublicIPAddress response = update.apply();
+            copyFrom(response);
         }
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
         Azure client = createClient();
-
-        client.publicIPAddresses().deleteByResourceGroup(getResourceGroupName(), getPublicIpAddressName());
+        client.publicIPAddresses().deleteById(getId());
     }
-
 }
