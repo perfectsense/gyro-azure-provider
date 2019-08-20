@@ -180,7 +180,7 @@ public class CnameRecordSetResource extends AzureResource implements Copyable<CN
                 client.dnsZones().getById(getDnsZone().getId()).update().updateCNameRecordSet(getName());
 
         if (getAlias() != null) {
-            updateCNameRecordSet = updateCNameRecordSet.withAlias(getAlias());
+            updateCNameRecordSet.withAlias(getAlias());
         }
 
         if (getTtl() != null) {
