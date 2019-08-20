@@ -92,9 +92,8 @@ public class Cors extends Diffable implements Copyable<CorsRule> {
     }
 
     /**
-     * A list of the exposed headers. (Required)
+     * A list of the exposed headers.
      */
-    @Required
     @Updatable
     public Set<String> getExposedHeaders() {
         if (exposedHeaders == null) {
