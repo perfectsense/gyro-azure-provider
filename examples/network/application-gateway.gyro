@@ -7,8 +7,8 @@ azure::resource-group resource-group-example-AG
 end
 
 azure::network network-example-AG
-    network-name: "network-example-AG"
-    resource-group-name: $(azure::resource-group resource-group-example-AG | resource-group-name)
+    name: "network-example-AG"
+    resource-group: $(azure::resource-group resource-group-example-AG)
     address-spaces:  [
          "10.0.0.0/27",
          "10.1.0.0/27"
@@ -30,10 +30,9 @@ azure::network network-example-AG
 end
 
 azure::public-ip-address public-ip-address-example-AG
-    public-ip-address-name: "public-ip-address-example-AG"
-    resource-group-name: $(azure::resource-group resource-group-example-AG | resource-group-name)
+    name: "public-ip-address-example-AG"
+    resource-group: $(azure::resource-group resource-group-example-AG)
     idle-timeout-in-minute: 4
-    sku-basic: true
 
     tags: {
         Name: "public-ip-address-example-AG"
@@ -41,11 +40,11 @@ azure::public-ip-address public-ip-address-example-AG
 end
 
 azure::application-gateway application-gateway-example
-    application-gateway-name: "application-gateway-example"
-    resource-group-name: $(azure::resource-group resource-group-example-AG | resource-group-name)
-    network-id: $(azure::network network-example-AG | network-id)
+    name: "application-gateway-example"
+    resource-group: $(azure::resource-group resource-group-example-AG)
+    network: $(azure::network network-example-AG)
     subnet: "subnet1"
-    public-ip-address-name: $(azure::public-ip-address public-ip-address-example-AG | public-ip-address-name)
+    public-ip-address: $(azure::public-ip-address public-ip-address-example-AG)
     sku-size: "STANDARD_SMALL"
     instance-count: 1
     enable-http2: true
@@ -54,20 +53,20 @@ azure::application-gateway application-gateway-example
     }
 
     request-routing-rule
-        rule-name: "request-routing-rule-example"
+        name: "request-routing-rule-example"
         listener: "listener-example"
         backend: "backend-example"
         backend-http-configuration: "backend-http-configuration-example"
     end
 
     request-routing-rule
-        rule-name: "request-routing-rule-2-example"
+        name: "request-routing-rule-2-example"
         listener: "listener-example-2"
         redirect-configuration: "redirect-configuration-example"
     end
 
     redirect-configuration
-        redirect-configuration-name: "redirect-configuration-example"
+        name: "redirect-configuration-example"
         type: "Temporary"
         target-listener: "listener-example-3"
         include-query-string: true
@@ -75,22 +74,22 @@ azure::application-gateway application-gateway-example
     end
 
     listener
-        listener-name: "listener-example"
+        name: "listener-example"
         port: 81
     end
 
     listener
-        listener-name: "listener-example-2"
+        name: "listener-example-2"
         port: 82
     end
 
     listener
-        listener-name: "listener-example-3"
+        name: "listener-example-3"
         port: 83
     end
 
     backend
-        backend-name: "backend-example"
+        name: "backend-example"
         ip-addresses: [
             "10.0.0.2",
             "10.0.0.3"
@@ -98,7 +97,7 @@ azure::application-gateway application-gateway-example
     end
 
     backend-http-configuration
-        backend-http-configuration-name: "backend-http-configuration-example"
+        name: "backend-http-configuration-example"
         port: 8080
         cookie-name: "something"
         enable-affinity-cookie: false
@@ -110,7 +109,7 @@ azure::application-gateway application-gateway-example
     end
 
     probe
-        probe-name: "probe-example"
+        name: "probe-example"
         host-name: "www.google.com"
         path: "/path"
         interval: 40
@@ -122,5 +121,4 @@ azure::application-gateway application-gateway-example
         ]
         http-response-body-match: "body"
     end
-
 end
