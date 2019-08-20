@@ -7,8 +7,10 @@ import com.microsoft.azure.management.network.ApplicationGatewayRequestRoutingRu
 import com.microsoft.azure.management.network.ApplicationGateway.DefinitionStages.WithRequestRoutingRuleOrCreate;
 import com.microsoft.azure.management.network.ApplicationGateway.DefinitionStages.WithRequestRoutingRule;
 import com.psddev.dari.util.ObjectUtils;
+import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
 
 /**
  * Creates a Request Routing Rule.
@@ -19,45 +21,35 @@ import gyro.core.resource.Updatable;
  * .. code-block:: gyro
  *
  *     request-routing-rule
- *         rule-name: "request-routing-rule-example"
+ *         name: "request-routing-rule-example"
  *         listener: "listener-example"
  *         backend: "backend-example"
  *         backend-http-configuration: "backend-http-configuration-example"
  *     end
  */
-public class RequestRoutingRule extends Diffable {
-    private String ruleName;
+public class RequestRoutingRule extends Diffable implements Copyable<ApplicationGatewayRequestRoutingRule> {
+    private String name;
     private String listener;
     private String backend;
     private String backendHttpConfiguration;
     private String redirectConfiguration;
 
-    public RequestRoutingRule() {
-
-    }
-
-    public RequestRoutingRule(ApplicationGatewayRequestRoutingRule rule) {
-        setBackend(rule.backend() != null ? rule.backend().name() : null);
-        setListener(rule.listener() != null ? rule.listener().name() : null);
-        setBackendHttpConfiguration(rule.backendHttpConfiguration() != null ? rule.backendHttpConfiguration().name() : null);
-        setRedirectConfiguration(rule.redirectConfiguration() != null ? rule.redirectConfiguration().name() : null);
-        setRuleName(rule.name());
-    }
-
     /**
      * Name of the rule. (Required)
      */
-    public String getRuleName() {
-        return ruleName;
+    @Required
+    public String getName() {
+        return name;
     }
 
-    public void setRuleName(String ruleName) {
-        this.ruleName = ruleName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
      * Name of the listener to associated with the rule. (Required)
      */
+    @Required
     @Updatable
     public String getListener() {
         return listener;
@@ -104,16 +96,25 @@ public class RequestRoutingRule extends Diffable {
     }
 
     @Override
+    public void copyFrom(ApplicationGatewayRequestRoutingRule rule) {
+        setBackend(rule.backend() != null ? rule.backend().name() : null);
+        setListener(rule.listener() != null ? rule.listener().name() : null);
+        setBackendHttpConfiguration(rule.backendHttpConfiguration() != null ? rule.backendHttpConfiguration().name() : null);
+        setRedirectConfiguration(rule.redirectConfiguration() != null ? rule.redirectConfiguration().name() : null);
+        setName(rule.name());
+    }
+
+    @Override
     public String primaryKey() {
-        return getRuleName();
+        return getName();
     }
 
     WithRequestRoutingRuleOrCreate createRequestRoutingRule(WithRequestRoutingRule preAttach, WithRequestRoutingRuleOrCreate attach) {
         DefinitionStages.WithBackendHttpConfigOrRedirect<WithRequestRoutingRuleOrCreate> partialAttach;
         if (attach == null) {
-            partialAttach = preAttach.defineRequestRoutingRule(getRuleName()).fromListener(getListener());
+            partialAttach = preAttach.defineRequestRoutingRule(getName()).fromListener(getListener());
         } else {
-            partialAttach = attach.defineRequestRoutingRule(getRuleName())
+            partialAttach = attach.defineRequestRoutingRule(getName())
                 .fromListener(getListener());
         }
 
@@ -130,7 +131,7 @@ public class RequestRoutingRule extends Diffable {
     }
 
     Update createRequestRoutingRule(Update update) {
-        WithBackendHttpConfigOrRedirect<Update> partialUpdate = update.defineRequestRoutingRule(getRuleName())
+        WithBackendHttpConfigOrRedirect<Update> partialUpdate = update.defineRequestRoutingRule(getName())
             .fromListener(getListener());
 
         if (!ObjectUtils.isBlank(getRedirectConfiguration())) {
@@ -146,7 +147,7 @@ public class RequestRoutingRule extends Diffable {
     }
 
     Update updateRequestRoutingRule(Update update) {
-        ApplicationGatewayRequestRoutingRule.Update partialUpdate = update.updateRequestRoutingRule(getRuleName())
+        ApplicationGatewayRequestRoutingRule.Update partialUpdate = update.updateRequestRoutingRule(getName())
             .fromListener(getListener());
 
         if (!ObjectUtils.isBlank(getRedirectConfiguration())) {

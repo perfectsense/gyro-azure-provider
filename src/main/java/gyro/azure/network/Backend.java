@@ -6,12 +6,14 @@ import com.microsoft.azure.management.network.ApplicationGatewayBackend;
 import com.microsoft.azure.management.network.ApplicationGatewayBackend.UpdateDefinitionStages.WithAttach;
 import com.microsoft.azure.management.network.ApplicationGateway.DefinitionStages.WithCreate;
 import com.microsoft.azure.management.network.ApplicationGatewayBackendAddress;
+import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -23,52 +25,43 @@ import java.util.stream.Collectors;
  * .. code-block:: gyro
  *
  *     backend
- *         backend-name: "backend-example"
+ *         name: "backend-example"
  *         ip-addresses: [
  *             "10.0.0.3",
  *             "10.0.0.4"
  *         ]
  *     end
  */
-public class Backend extends Diffable {
-    private String backendName;
-    private List<String> ipAddresses;
-    private List<String> fqdns;
-
-    public Backend () {
-
-    }
-
-    public Backend(ApplicationGatewayBackend backend) {
-        setBackendName(backend.name());
-        setIpAddresses(backend.addresses().stream().map(ApplicationGatewayBackendAddress::ipAddress).collect(Collectors.toList()));
-        setFqdns(backend.addresses().stream().map(ApplicationGatewayBackendAddress::fqdn).filter(Objects::nonNull).collect(Collectors.toList()));
-    }
+public class Backend extends Diffable implements Copyable<ApplicationGatewayBackend> {
+    private String name;
+    private Set<String> ipAddresses;
+    private Set<String> fqdns;
 
     /**
      * Name of the backend. (Required)
      */
-    public String getBackendName() {
-        return backendName;
+    @Required
+    public String getName() {
+        return name;
     }
 
-    public void setBackendName(String backendName) {
-        this.backendName = backendName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
      * List of ip addresses. Required if no fqdns are present.
      */
     @Updatable
-    public List<String> getIpAddresses() {
+    public Set<String> getIpAddresses() {
         if (ipAddresses == null) {
-            ipAddresses = new ArrayList<>();
+            ipAddresses = new HashSet<>();
         }
 
         return ipAddresses;
     }
 
-    public void setIpAddresses(List<String> ipAddresses) {
+    public void setIpAddresses(Set<String> ipAddresses) {
         this.ipAddresses = ipAddresses;
     }
 
@@ -76,25 +69,32 @@ public class Backend extends Diffable {
      * List of fqdns. Required if no ip addresses are present.
      */
     @Updatable
-    public List<String> getFqdns() {
+    public Set<String> getFqdns() {
         if (fqdns == null) {
-            fqdns = new ArrayList<>();
+            fqdns = new HashSet<>();
         }
 
         return fqdns;
     }
 
-    public void setFqdns(List<String> fqdns) {
+    public void setFqdns(Set<String> fqdns) {
         this.fqdns = fqdns;
     }
 
     @Override
+    public void copyFrom(ApplicationGatewayBackend backend) {
+        setName(backend.name());
+        setIpAddresses(backend.addresses().stream().map(ApplicationGatewayBackendAddress::ipAddress).collect(Collectors.toSet()));
+        setFqdns(backend.addresses().stream().map(ApplicationGatewayBackendAddress::fqdn).filter(Objects::nonNull).collect(Collectors.toSet()));
+    }
+
+    @Override
     public String primaryKey() {
-        return getBackendName();
+        return getName();
     }
 
     WithCreate createBackend(WithCreate attach) {
-        ApplicationGatewayBackend.DefinitionStages.Blank<WithCreate> withCreateBlank = attach.defineBackend(getBackendName());
+        ApplicationGatewayBackend.DefinitionStages.Blank<WithCreate> withCreateBlank = attach.defineBackend(getName());
 
         for (String ipAddress : getIpAddresses()) {
             attach = withCreateBlank.withIPAddress(ipAddress).attach();
@@ -108,7 +108,7 @@ public class Backend extends Diffable {
     }
 
     Update createBackend(Update update) {
-        WithAttach<ApplicationGateway.Update> updateWithAttach = update.defineBackend(getBackendName());
+        WithAttach<ApplicationGateway.Update> updateWithAttach = update.defineBackend(getName());
 
         for (String ipAddress : getIpAddresses()) {
             updateWithAttach = updateWithAttach.withIPAddress(ipAddress);
@@ -125,8 +125,8 @@ public class Backend extends Diffable {
         return update;
     }
 
-    Update updateBackend(Update update, List<String> oldIpAddress, List<String> oldFqdns) {
-        ApplicationGatewayBackend.Update updateWithAttach = update.updateBackend(getBackendName());
+    Update updateBackend(Update update, Set<String> oldIpAddress, Set<String> oldFqdns) {
+        ApplicationGatewayBackend.Update updateWithAttach = update.updateBackend(getName());
 
         for (String ipAddress : oldIpAddress) {
             updateWithAttach = updateWithAttach.withoutIPAddress(ipAddress);

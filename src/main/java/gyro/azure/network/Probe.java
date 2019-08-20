@@ -6,12 +6,13 @@ import com.microsoft.azure.management.network.ApplicationGatewayProbe.UpdateDefi
 import com.microsoft.azure.management.network.ApplicationGatewayProbe.UpdateDefinitionStages.WithAttach;
 import com.microsoft.azure.management.network.ApplicationGatewayProtocol;
 import com.microsoft.azure.management.network.ApplicationGateway.DefinitionStages.WithCreate;
+import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Set;
 
 /**
  * Creates a Probe.
@@ -22,7 +23,7 @@ import java.util.List;
  * .. code-block:: gyro
  *
  *     probe
- *         probe-name: "probe-example"
+ *         name: "probe-example"
  *         host-name: "example.com"
  *         path: "/path"
  *         interval: 40
@@ -35,47 +36,33 @@ import java.util.List;
  *         http-response-body-match: "probe-body"
  *     end
  */
-public class Probe extends Diffable {
-    private String probeName;
+public class Probe extends Diffable implements Copyable<ApplicationGatewayProbe> {
+    private String name;
     private String hostName;
     private String path;
     private Integer interval;
     private Integer timeout;
     private Integer unhealthyThreshold;
     private Boolean httpsProtocol;
-    private List<String> httpResponseCodes;
+    private Set<String> httpResponseCodes;
     private String httpResponseBodyMatch;
 
-    public Probe() {
-
+    /**
+     * Name of the Probe. (Required)
+     */
+    @Required
+    public String getName() {
+        return name;
     }
 
-    public Probe(ApplicationGatewayProbe probe) {
-        setProbeName(probe.name());
-        setHostName(probe.host());
-        setPath(probe.path());
-        setInterval(probe.timeBetweenProbesInSeconds());
-        setTimeout(probe.timeoutInSeconds());
-        setUnhealthyThreshold(probe.retriesBeforeUnhealthy());
-        setHttpResponseCodes(new ArrayList<>(probe.healthyHttpResponseStatusCodeRanges()));
-        setHttpResponseBodyMatch(probe.healthyHttpResponseBodyContents());
-        setHttpsProtocol(probe.inner().protocol().equals(ApplicationGatewayProtocol.HTTPS));
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
-     * Name of the probe. (Required)
+     * Host name associated with this Probe. (Required)
      */
-    public String getProbeName() {
-        return probeName;
-    }
-
-    public void setProbeName(String probeName) {
-        this.probeName = probeName;
-    }
-
-    /**
-     * Host name associated with this probe. (Required)
-     */
+    @Required
     @Updatable
     public String getHostName() {
         return hostName;
@@ -86,8 +73,9 @@ public class Probe extends Diffable {
     }
 
     /**
-     * Path associated with this probe. (Required)
+     * Path associated with this Probe. (Required)
      */
+    @Required
     @Updatable
     public String getPath() {
         return path;
@@ -98,7 +86,7 @@ public class Probe extends Diffable {
     }
 
     /**
-     * Interval for the probe. Defaults to 30 sec.
+     * Interval for the Probe. Defaults to ``30`` sec.
      */
     @Updatable
     public Integer getInterval() {
@@ -114,7 +102,7 @@ public class Probe extends Diffable {
     }
 
     /**
-     * Timeout for the probe. Defaults to 30 sec.
+     * Timeout for the Probe. Defaults to ``30`` sec.
      */
     @Updatable
     public Integer getTimeout() {
@@ -130,7 +118,7 @@ public class Probe extends Diffable {
     }
 
     /**
-     * Threshold for unhealthy instances before it triggers the probe. Defaults to 3.
+     * Threshold for unhealthy instances before it triggers the Probe. Defaults to ``3``.
      */
     @Updatable
     public Integer getUnhealthyThreshold() {
@@ -146,7 +134,7 @@ public class Probe extends Diffable {
     }
 
     /**
-     * Enable https protocol. Defaults to false.
+     * Enable https protocol for the Probe. Defaults to ``false``.
      */
     @Updatable
     public Boolean getHttpsProtocol() {
@@ -162,23 +150,23 @@ public class Probe extends Diffable {
     }
 
     /**
-     * List of https response codes.
+     * List of https response codes for the Probe.
      */
     @Updatable
-    public List<String> getHttpResponseCodes() {
+    public Set<String> getHttpResponseCodes() {
         if (httpResponseCodes == null) {
-            httpResponseCodes = new ArrayList<>();
+            httpResponseCodes = new HashSet<>();
         }
 
         return httpResponseCodes;
     }
 
-    public void setHttpResponseCodes(List<String> httpResponseCodes) {
+    public void setHttpResponseCodes(Set<String> httpResponseCodes) {
         this.httpResponseCodes = httpResponseCodes;
     }
 
     /**
-     * String to match with the request body.
+     * String to match with the request body for the Probe.
      */
     @Updatable
     public String getHttpResponseBodyMatch() {
@@ -190,12 +178,25 @@ public class Probe extends Diffable {
     }
 
     @Override
+    public void copyFrom(ApplicationGatewayProbe probe) {
+        setName(probe.name());
+        setHostName(probe.host());
+        setPath(probe.path());
+        setInterval(probe.timeBetweenProbesInSeconds());
+        setTimeout(probe.timeoutInSeconds());
+        setUnhealthyThreshold(probe.retriesBeforeUnhealthy());
+        setHttpResponseCodes(new HashSet<>(probe.healthyHttpResponseStatusCodeRanges()));
+        setHttpResponseBodyMatch(probe.healthyHttpResponseBodyContents());
+        setHttpsProtocol(probe.inner().protocol().equals(ApplicationGatewayProtocol.HTTPS));
+    }
+
+    @Override
     public String primaryKey() {
-        return getProbeName();
+        return getName();
     }
 
     WithCreate createProbe(WithCreate attach) {
-        ApplicationGatewayProbe.DefinitionStages.WithProtocol<WithCreate> attachWithProtocol = attach.defineProbe(getProbeName())
+        ApplicationGatewayProbe.DefinitionStages.WithProtocol<WithCreate> attachWithProtocol = attach.defineProbe(getName())
             .withHost(getHostName()).withPath(getPath());
 
         ApplicationGatewayProbe.DefinitionStages.WithAttach<WithCreate> withCreateWithAttach;
@@ -221,7 +222,7 @@ public class Probe extends Diffable {
     }
 
     Update createProbe(Update update) {
-        WithProtocol<Update> updateWithProtocol = update.defineProbe(getProbeName())
+        WithProtocol<Update> updateWithProtocol = update.defineProbe(getName())
             .withHost(getHostName()).withPath(getPath());
 
         WithAttach<Update> updateWithAttach;
@@ -247,7 +248,7 @@ public class Probe extends Diffable {
     }
 
     Update updateProbe(Update update) {
-        ApplicationGatewayProbe.Update partialUpdate = update.updateProbe(getProbeName())
+        ApplicationGatewayProbe.Update partialUpdate = update.updateProbe(getName())
             .withHost(getHostName()).withPath(getPath());
 
         if (getHttpsProtocol()) {

@@ -5,8 +5,10 @@ import com.microsoft.azure.management.network.ApplicationGatewayBackendHttpConfi
 import com.microsoft.azure.management.network.ApplicationGateway.DefinitionStages.WithCreate;
 import com.microsoft.azure.management.network.ApplicationGatewayBackendHttpConfiguration.DefinitionStages.WithAttach;
 import com.psddev.dari.util.ObjectUtils;
+import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
 
 /**
  * Creates a Backend Http Configuration.
@@ -17,7 +19,7 @@ import gyro.core.resource.Updatable;
  * .. code-block:: gyro
  *
  *     backend-http-configuration
- *         backend-http-configuration-name: "backend-http-configuration-example"
+ *         name: "backend-http-configuration-example"
  *         port: 8080
  *         cookie-name: "cookieName"
  *         enable-affinity-cookie: false
@@ -28,8 +30,8 @@ import gyro.core.resource.Updatable;
  *         backend-path: "backendPath"
  *     end
  */
-public class BackendHttpConfiguration extends Diffable {
-    private String backendHttpConfigurationName;
+public class BackendHttpConfiguration extends Diffable implements Copyable<ApplicationGatewayBackendHttpConfiguration> {
+    private String name;
     private Integer port;
     private String cookieName;
     private Boolean enableAffinityCookie;
@@ -39,36 +41,22 @@ public class BackendHttpConfiguration extends Diffable {
     private Boolean hostHeaderFromBackend;
     private String backendPath;
 
-    public BackendHttpConfiguration() {
-
+    /**
+     * Name of the Backend Http Configuration. (Required)
+     */
+    @Required
+    public String getName() {
+        return name;
     }
 
-    public BackendHttpConfiguration(ApplicationGatewayBackendHttpConfiguration backendHttpConfiguration) {
-        setBackendHttpConfigurationName(backendHttpConfiguration.name());
-        setPort(backendHttpConfiguration.port());
-        setConnectionDrainingTimeout(backendHttpConfiguration.connectionDrainingTimeoutInSeconds());
-        setEnableAffinityCookie(backendHttpConfiguration.cookieBasedAffinity());
-        setCookieName(backendHttpConfiguration.affinityCookieName());
-        setProbe(backendHttpConfiguration.probe() != null ? backendHttpConfiguration.probe().name() : null);
-        setHostHeader(backendHttpConfiguration.hostHeader());
-        setHostHeaderFromBackend(backendHttpConfiguration.isHostHeaderFromBackend());
-        setBackendPath(backendHttpConfiguration.path());
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
-     * Name of the backend http configuration. (Required)
+     * Port for the Backend Http Configuration. (Required)
      */
-    public String getBackendHttpConfigurationName() {
-        return backendHttpConfigurationName;
-    }
-
-    public void setBackendHttpConfigurationName(String backendHttpConfigurationName) {
-        this.backendHttpConfigurationName = backendHttpConfigurationName;
-    }
-
-    /**
-     * Port for the backend http configuration. (Required)
-     */
+    @Required
     @Updatable
     public Integer getPort() {
         return port;
@@ -79,7 +67,7 @@ public class BackendHttpConfiguration extends Diffable {
     }
 
     /**
-     * Cookie name for the backend http configuration.
+     * Cookie name for the Backend Http Configuration.
      */
     @Updatable
     public String getCookieName() {
@@ -91,7 +79,7 @@ public class BackendHttpConfiguration extends Diffable {
     }
 
     /**
-     * Enable cookie based affinity for the backend http configuration. Defaults to false.
+     * Enable cookie based affinity for the Backend Http Configuration. Defaults to ``false``.
      */
     @Updatable
     public Boolean getEnableAffinityCookie() {
@@ -107,7 +95,7 @@ public class BackendHttpConfiguration extends Diffable {
     }
 
     /**
-     * Connection draining timeout for the backend http configuration. defaults to 0.
+     * Connection draining timeout for the Backend Http Configuration. defaults to ``0``.
      */
     @Updatable
     public Integer getConnectionDrainingTimeout() {
@@ -123,7 +111,7 @@ public class BackendHttpConfiguration extends Diffable {
     }
 
     /**
-     * Name of a probe to be associated with the backend http configuration.
+     * Name of a probe to be associated with the Backend Http Configuration.
      */
     @Updatable
     public String getProbe() {
@@ -135,7 +123,7 @@ public class BackendHttpConfiguration extends Diffable {
     }
 
     /**
-     * Override hostname for the backend http configuration.
+     * Override hostname for the Backend Http Configuration.
      */
     @Updatable
     public String getHostHeader() {
@@ -147,7 +135,7 @@ public class BackendHttpConfiguration extends Diffable {
     }
 
     /**
-     * Get host header from the backend for the backend http configuration. Defaults to false.
+     * Get host header from the backend for the Backend Http Configuration. Defaults to ``false``.
      */
     @Updatable
     public Boolean getHostHeaderFromBackend() {
@@ -163,7 +151,7 @@ public class BackendHttpConfiguration extends Diffable {
     }
 
     /**
-     * Override backend path for the backend http configuration.
+     * Override backend path for the Backend Http Configuration.
      */
     @Updatable
     public String getBackendPath() {
@@ -180,12 +168,25 @@ public class BackendHttpConfiguration extends Diffable {
     }
 
     @Override
+    public void copyFrom(ApplicationGatewayBackendHttpConfiguration backendHttpConfiguration) {
+        setName(backendHttpConfiguration.name());
+        setPort(backendHttpConfiguration.port());
+        setConnectionDrainingTimeout(backendHttpConfiguration.connectionDrainingTimeoutInSeconds());
+        setEnableAffinityCookie(backendHttpConfiguration.cookieBasedAffinity());
+        setCookieName(backendHttpConfiguration.affinityCookieName());
+        setProbe(backendHttpConfiguration.probe() != null ? backendHttpConfiguration.probe().name() : null);
+        setHostHeader(backendHttpConfiguration.hostHeader());
+        setHostHeaderFromBackend(backendHttpConfiguration.isHostHeaderFromBackend());
+        setBackendPath(backendHttpConfiguration.path());
+    }
+
+    @Override
     public String primaryKey() {
-        return getBackendHttpConfigurationName();
+        return getName();
     }
 
     WithCreate createBackendHttpConfiguration(WithCreate attach) {
-        WithAttach<WithCreate> withCreateWithAttach = attach.defineBackendHttpConfiguration(getBackendHttpConfigurationName())
+        WithAttach<WithCreate> withCreateWithAttach = attach.defineBackendHttpConfiguration(getName())
             .withPort(getPort());
 
         if (getEnableAffinityCookie()) {
@@ -222,7 +223,7 @@ public class BackendHttpConfiguration extends Diffable {
     }
 
     Update createBackendHttpConfiguration(Update update) {
-        update = update.defineBackendHttpConfiguration(getBackendHttpConfigurationName())
+        update = update.defineBackendHttpConfiguration(getName())
             .withPort(getPort()).attach();
 
         update = updateBackendHttpConfiguration(update);
@@ -232,7 +233,7 @@ public class BackendHttpConfiguration extends Diffable {
 
     Update updateBackendHttpConfiguration(Update update) {
         ApplicationGatewayBackendHttpConfiguration.Update tempUpdate = update
-            .updateBackendHttpConfiguration(getBackendHttpConfigurationName())
+            .updateBackendHttpConfiguration(getName())
             .withPort(getPort());
 
         if (getEnableAffinityCookie()) {
