@@ -1,7 +1,10 @@
 package gyro.azure.dns;
 
 import gyro.azure.AzureResource;
+import gyro.azure.Copyable;
 import gyro.core.GyroUI;
+import gyro.core.resource.Id;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
@@ -15,12 +18,15 @@ import com.microsoft.azure.management.dns.SrvRecordSet;
 import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.WithSrvRecordEntryOrAttachable;
 import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.SrvRecordSetBlank;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Creates an SRV Record Set.
@@ -32,8 +38,8 @@ import java.util.Set;
  *
  *     azure::srv-record-set
  *         name: "srvrecexample"
- *         time-to-live: "4"
- *         dns-zone-id: $(azure::dns-zone dns-zone-example-zones | id)
+ *         ttl: 4
+ *         dns-zone: $(azure::dns-zone dns-zone-example-zones)
  *
  *         srv-record
  *             port: 80
@@ -44,27 +50,29 @@ import java.util.Set;
  *     end
  */
 @Type("srv-record-set")
-public class SrvRecordSetResource extends AzureResource {
+public class SrvRecordSetResource extends AzureResource implements Copyable<SrvRecordSet> {
 
-    private String dnsZoneId;
+    private DnsZoneResource dnsZone;
     private Map<String, String> metadata;
     private String name;
-    private List<SrvRecord> srvRecord;
-    private String timeToLive;
+    private Set<SrvRecord> srvRecord;
+    private Long ttl;
+    private String id;
 
     /**
-     * The dns zone where the record resides. (Required)
+     * The DNS Zone where the Srv Record Set resides. (Required)
      */
-    public String getDnsZoneId() {
-        return dnsZoneId;
+    @Required
+    public DnsZoneResource getDnsZone() {
+        return dnsZone;
     }
 
-    public void setDnsZoneId(String dnsZoneId) {
-        this.dnsZoneId = dnsZoneId;
+    public void setDnsZone(DnsZoneResource dnsZone) {
+        this.dnsZone = dnsZone;
     }
 
     /**
-     * The metadata for the record. (Optional)
+     * The metadata for the Srv Record Set. (Optional)
      */
     @Updatable
     public Map<String, String> getMetadata() {
@@ -80,8 +88,9 @@ public class SrvRecordSetResource extends AzureResource {
     }
 
     /**
-     * The name of the record. (Required)
+     * The name of the Srv Record Set. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }
@@ -91,48 +100,73 @@ public class SrvRecordSetResource extends AzureResource {
     }
 
     /**
-     * The list of srv records. (Required)
+     * The list of srv Srv Records Set. (Required)
      */
+    @Required
     @Updatable
-    public List<SrvRecord> getSrvRecord() {
+    public Set<SrvRecord> getSrvRecord() {
         if (srvRecord == null) {
-            srvRecord = new ArrayList<>();
+            srvRecord = new HashSet<>();
         }
 
         return srvRecord;
     }
 
-    public void setSrvRecord(List<SrvRecord> srvRecord) {
+    public void setSrvRecord(Set<SrvRecord> srvRecord) {
         this.srvRecord = srvRecord;
     }
 
     /**
-     * The Time To Live for the records in the set. (Required)
+     * The Time To Live in Seconds for the Srv Record Set in the set. (Required)
      */
+    @Required
     @Updatable
-    public String getTimeToLive() {
-        return timeToLive;
+    public Long getTtl() {
+        return ttl;
     }
 
-    public void setTimeToLive(String timeToLive) {
-        this.timeToLive = timeToLive;
+    public void setTtl(Long ttl) {
+        this.ttl = ttl;
+    }
+
+    /**
+     * The ID of the Srv Record Set.
+     */
+    @Id
+    @Output
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    @Override
+    public void copyFrom(SrvRecordSet srvRecordSet) {
+        setSrvRecord(srvRecordSet.records().stream().map(o -> {
+            SrvRecord srvRecord = newSubresource(SrvRecord.class);
+            srvRecord.copyFrom(o);
+            return srvRecord;
+        }).collect(Collectors.toSet()));
+        setMetadata(srvRecordSet.metadata());
+        setName(srvRecordSet.name());
+        setTtl(srvRecordSet.timeToLive());
+        setDnsZone(findById(DnsZoneResource.class, srvRecordSet.parent().id()));
+        setId(srvRecordSet.id());
     }
 
     @Override
     public boolean refresh() {
         Azure client = createClient();
 
-        SrvRecordSet srvRecordSet = client.dnsZones().getById(getDnsZoneId()).srvRecordSets().getByName(getName());
+        SrvRecordSet srvRecordSet = client.dnsZones().getById(getDnsZone().getId()).srvRecordSets().getByName(getName());
 
         if (srvRecordSet == null) {
             return false;
         }
 
-        getSrvRecord().clear();
-        srvRecordSet.records().forEach(record -> getSrvRecord().add(new SrvRecord(record)));
-        setMetadata(srvRecordSet.metadata());
-        setName(srvRecordSet.name());
-        setTimeToLive(Long.toString(srvRecordSet.timeToLive()));
+        copyFrom(srvRecordSet);
 
         return true;
     }
@@ -142,7 +176,7 @@ public class SrvRecordSetResource extends AzureResource {
         Azure client = createClient();
 
         SrvRecordSetBlank<DnsZone.Update> defineSrvRecordSet =
-                client.dnsZones().getById(getDnsZoneId()).update().defineSrvRecordSet(getName());
+                client.dnsZones().getById(getDnsZone().getId()).update().defineSrvRecordSet(getName());
 
         WithSrvRecordEntryOrAttachable<DnsZone.Update> createSrvRecordSet = null;
         for (SrvRecord srvRecord : getSrvRecord()) {
@@ -150,8 +184,8 @@ public class SrvRecordSetResource extends AzureResource {
                     .withRecord(srvRecord.getTarget(), srvRecord.getPort(), srvRecord.getPriority(), srvRecord.getWeight());
         }
 
-        if (getTimeToLive() != null) {
-            createSrvRecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
+        if (getTtl() != null) {
+            createSrvRecordSet.withTimeToLive(getTtl());
         }
 
         for (Map.Entry<String,String> e : getMetadata().entrySet()) {
@@ -167,10 +201,10 @@ public class SrvRecordSetResource extends AzureResource {
         Azure client = createClient();
 
         DnsRecordSet.UpdateSrvRecordSet updateSrvRecordSet =
-                client.dnsZones().getById(getDnsZoneId()).update().updateSrvRecordSet(getName());
+                client.dnsZones().getById(getDnsZone().getId()).update().updateSrvRecordSet(getName());
 
-        if (getTimeToLive() != null) {
-            updateSrvRecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
+        if (getTtl() != null) {
+            updateSrvRecordSet.withTimeToLive(getTtl());
         }
 
         SrvRecordSetResource oldRecord = (SrvRecordSetResource) current;
@@ -212,10 +246,10 @@ public class SrvRecordSetResource extends AzureResource {
     public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
-        client.dnsZones().getById(getDnsZoneId()).update().withoutSrvRecordSet(getName()).apply();
+        client.dnsZones().getById(getDnsZone().getId()).update().withoutSrvRecordSet(getName()).apply();
     }
 
-    private List<SrvRecord> comparator(List<SrvRecord> original, List<SrvRecord> compareTo) {
+    private List<SrvRecord> comparator(Set<SrvRecord> original, Set<SrvRecord> compareTo) {
         List<SrvRecord> differences = new ArrayList<>(original);
 
         for (SrvRecord record : original) {

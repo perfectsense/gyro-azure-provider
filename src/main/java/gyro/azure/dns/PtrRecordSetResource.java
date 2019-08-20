@@ -1,8 +1,10 @@
 package gyro.azure.dns;
 
 import gyro.azure.AzureResource;
-import gyro.core.GyroException;
+import gyro.azure.Copyable;
 import gyro.core.GyroUI;
+import gyro.core.resource.Id;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
@@ -16,9 +18,11 @@ import com.microsoft.azure.management.dns.PtrRecordSet;
 import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.PtrRecordSetBlank;
 import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.WithPtrRecordTargetDomainNameOrAttachable;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,32 +38,34 @@ import java.util.Set;
  *     azure::ptr-record-set
  *         name: "ptrrecexample"
  *         target-domain-names: ["domain1.com", "domain2.com"]
- *         time-to-live: "3"
- *         dns-zone-id: $(azure::dns-zone dns-zone-example-zones | id)
+ *         ttl: 3
+ *         dns-zone: $(azure::dns-zone dns-zone-example-zones)
  *     end
  */
 @Type("ptr-record-set")
-public class PtrRecordSetResource extends AzureResource {
+public class PtrRecordSetResource extends AzureResource implements Copyable<PtrRecordSet> {
 
-    private String dnsZoneId;
+    private DnsZoneResource dnsZone;
     private Map<String, String> metadata;
     private String name;
-    private List<String> targetDomainNames;
-    private String timeToLive;
+    private Set<String> targetDomainNames;
+    private Long ttl;
+    private String id;
 
     /**
-     * The dns zone where the record resides. (Required)
+     * The DNS Zone where the Ptr Record Set resides. (Required)
      */
-    public String getDnsZoneId() {
-        return dnsZoneId;
+    @Required
+    public DnsZoneResource getDnsZone() {
+        return dnsZone;
     }
 
-    public void setDnsZoneId(String dnsZoneId) {
-        this.dnsZoneId = dnsZoneId;
+    public void setDnsZone(DnsZoneResource dnsZone) {
+        this.dnsZone = dnsZone;
     }
 
     /**
-     * The metadata for the record. (Optional)
+     * The metadata for the Ptr Record Set. (Optional)
      */
     @Updatable
     public Map<String, String> getMetadata() {
@@ -75,8 +81,9 @@ public class PtrRecordSetResource extends AzureResource {
     }
 
     /**
-     * The name of the record. (Required)
+     * The name of the Ptr Record Set. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }
@@ -86,68 +93,86 @@ public class PtrRecordSetResource extends AzureResource {
     }
 
     /**
-     * The domain names associated with the record. (Required)
+     * The domain names associated with the Ptr Record Set. (Required)
      */
+    @Required
     @Updatable
-    public List<String> getTargetDomainNames() {
+    public Set<String> getTargetDomainNames() {
         if (targetDomainNames == null) {
-            targetDomainNames = new ArrayList<>();
+            targetDomainNames = new HashSet<>();
         }
 
         return targetDomainNames;
     }
 
-    public void setTargetDomainNames(List<String> targetDomainNames) {
+    public void setTargetDomainNames(Set<String> targetDomainNames) {
         this.targetDomainNames = targetDomainNames;
     }
 
     /**
-     * The Time To Live for the records in the set. (Required)
+     * The Time To Live in Seconds for the Ptr Record Set in the set. (Required)
      */
+    @Required
     @Updatable
-    public String getTimeToLive() {
-        return timeToLive;
+    public Long getTtl() {
+        return ttl;
     }
 
-    public void setTimeToLive(String timeToLive) {
-        this.timeToLive = timeToLive;
+    public void setTtl(Long ttl) {
+        this.ttl = ttl;
+    }
+
+    /**
+     * The ID of the Ptr Record Set.
+     */
+    @Id
+    @Output
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    @Override
+    public void copyFrom(PtrRecordSet ptrRecordSet) {
+        setMetadata(ptrRecordSet.metadata());
+        setName(ptrRecordSet.name());
+        setTargetDomainNames(new HashSet<>(ptrRecordSet.targetDomainNames()));
+        setTtl(ptrRecordSet.timeToLive());
+        setDnsZone(findById(DnsZoneResource.class, ptrRecordSet.parent().id()));
+        setId(ptrRecordSet.id());
     }
 
     @Override
     public boolean refresh() {
         Azure client = createClient();
 
-        PtrRecordSet ptrRecordSet = client.dnsZones().getById(getDnsZoneId()).ptrRecordSets().getByName(getName());
+        PtrRecordSet ptrRecordSet = client.dnsZones().getById(getDnsZone().getId()).ptrRecordSets().getByName(getName());
 
         if (ptrRecordSet == null) {
             return false;
         }
 
-        setMetadata(ptrRecordSet.metadata());
-        setName(ptrRecordSet.name());
-        setTargetDomainNames(ptrRecordSet.targetDomainNames());
-        setTimeToLive(Long.toString(ptrRecordSet.timeToLive()));
+        copyFrom(ptrRecordSet);
 
         return true;
     }
 
     public void create(GyroUI ui, State state) {
-        if (getTargetDomainNames() == null || getTargetDomainNames().size() == 0) {
-            throw new GyroException("At least one target domain name must be provided.");
-        }
-
         Azure client = createClient();
 
         PtrRecordSetBlank<DnsZone.Update> definePtrRecordSet =
-                client.dnsZones().getById(getDnsZoneId()).update().definePtrRecordSet(getName());
+                client.dnsZones().getById(getDnsZone().getId()).update().definePtrRecordSet(getName());
 
         WithPtrRecordTargetDomainNameOrAttachable<DnsZone.Update> createPtrRecordSet = null;
         for (String targetDomainName : getTargetDomainNames()) {
             createPtrRecordSet = definePtrRecordSet.withTargetDomainName(targetDomainName);
         }
 
-        if (getTimeToLive() != null) {
-            createPtrRecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
+        if (getTtl() != null) {
+            createPtrRecordSet.withTimeToLive(getTtl());
         }
 
         for (Map.Entry<String,String> e : getMetadata().entrySet()) {
@@ -155,7 +180,8 @@ public class PtrRecordSetResource extends AzureResource {
         }
 
         DnsZone.Update attach = createPtrRecordSet.attach();
-        attach.apply();
+        DnsZone dnsZone = attach.apply();
+        copyFrom(dnsZone.ptrRecordSets().getByName(getName()));
     }
 
     @Override
@@ -163,10 +189,10 @@ public class PtrRecordSetResource extends AzureResource {
         Azure client = createClient();
 
         DnsRecordSet.UpdatePtrRecordSet updatePtrRecordSet =
-                client.dnsZones().getById(getDnsZoneId()).update().updatePtrRecordSet(getName());
+                client.dnsZones().getById(getDnsZone().getId()).update().updatePtrRecordSet(getName());
 
-        if (getTimeToLive() != null) {
-            updatePtrRecordSet.withTimeToLive(Long.parseLong(getTimeToLive()));
+        if (getTtl() != null) {
+            updatePtrRecordSet.withTimeToLive(getTtl());
         }
 
         PtrRecordSetResource oldRecord = (PtrRecordSetResource) current;
@@ -203,14 +229,14 @@ public class PtrRecordSetResource extends AzureResource {
         }
 
         DnsZone.Update parent = updatePtrRecordSet.parent();
-        parent.apply();
+        DnsZone dnsZone = parent.apply();
+        copyFrom(dnsZone.ptrRecordSets().getByName(getName()));
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
-        client.dnsZones().getById(getDnsZoneId()).update().withoutPtrRecordSet(getName()).apply();
+        client.dnsZones().getById(getDnsZone().getId()).update().withoutPtrRecordSet(getName()).apply();
     }
-
 }
