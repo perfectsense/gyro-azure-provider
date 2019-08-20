@@ -1,0 +1,214 @@
+azure::resource-group scale-set-resource-group-example
+    name: "scale-set-resource-group-example"
+
+    tags: {
+        Name: "scale-set-resource-group-example"
+    }
+end
+
+azure::network scale-set-network-example
+    name: "scale-set-network-example"
+    resource-group: $(azure::resource-group scale-set-resource-group-example)
+    address-spaces:  [
+         "10.0.0.0/27",
+         "10.1.0.0/27"
+    ]
+
+    subnet
+        address-prefix: "10.0.0.0/28"
+        name: "subnet1"
+    end
+
+    subnet
+        address-prefix: "10.0.0.16/28"
+        name: "subnet2"
+    end
+
+    tags: {
+        Name: "scale-set-network-example"
+    }
+end
+
+azure::public-ip-address scale-set-public-ip-address-example
+    name: "scale-set-public-ip-address-example"
+    resource-group: $(azure::resource-group scale-set-resource-group-example)
+    idle-timeout-in-minute: 4
+
+    tags: {
+        Name: "scale-set-public-ip-address-example"
+    }
+end
+
+azure::load-balancer scale-set-load-balancer-example-internal
+    name: "scale-set-load-balancer-example-internal"
+    resource-group: $(azure::resource-group scale-set-resource-group-example)
+    private-frontend
+        name: "private-frontend"
+        network: $(azure::network scale-set-network-example)
+        subnet-name: "subnet2"
+
+        inbound-nat-pool
+            name: "test-nat-pool"
+            frontend-name: "private-frontend"
+            backend-port: 81
+            protocol: "TCP"
+            frontend-port-start: 81
+            frontend-port-end: 90
+        end
+    end
+
+    load-balancer-rule
+        name: "test-rule-1"
+        backend-port: 443
+        floating-ip: false
+        frontend-name: "private-frontend"
+        frontend-port: 443
+        idle-timeout-in-minutes: 9
+        protocol: "TCP"
+        backend-name: "backend-one"
+        health-check-probe-name: "health-check-http"
+    end
+
+    load-balancer-rule
+        name: "test-rule-2"
+        backend-port: 445
+        floating-ip: false
+        frontend-name: "private-frontend"
+        frontend-port: 445
+        idle-timeout-in-minutes: 9
+        protocol: "UDP"
+        backend-name: "backend-two"
+        health-check-probe-name: "health-check-tcp"
+    end
+
+    health-check-probe-http
+        name: "health-check-http"
+        interval: 13
+        request-path: "/"
+        port: 81
+        probes: 3
+    end
+
+    health-check-probe-tcp
+        name: "health-check-tcp"
+        interval: 7
+        port: 80
+        probes: 2
+    end
+
+    tags: {
+        Name: "load-balancer-example-internal"
+    }
+end
+
+azure::load-balancer scale-set-load-balancer-example-internet-facing
+    name: "scale-set-load-balancer-example-internet-facing"
+    resource-group: $(azure::resource-group scale-set-resource-group-example)
+
+    public-frontend
+        name: "public-frontend"
+        public-ip-address: $(azure::public-ip-address scale-set-public-ip-address-example)
+
+        inbound-nat-pool
+            name: "test-nat-pool-public"
+            frontend-name: "public-frontend"
+            backend-port: 81
+            protocol: "TCP"
+            frontend-port-start: 81
+            frontend-port-end: 90
+        end
+    end
+
+    load-balancer-rule
+        name: "test-rule-1"
+        backend-port: 443
+        floating-ip: false
+        frontend-name: "public-frontend"
+        frontend-port: 443
+        idle-timeout-in-minutes: 9
+        protocol: "TCP"
+        backend-name: "backend-one"
+        health-check-probe-name: "health-check-http"
+    end
+
+    load-balancer-rule
+        name: "test-rule-2"
+        backend-port: 445
+        floating-ip: false
+        frontend-name: "public-frontend"
+        frontend-port: 445
+        idle-timeout-in-minutes: 9
+        protocol: "UDP"
+        backend-name: "backend-two"
+        health-check-probe-name: "health-check-tcp"
+    end
+
+    health-check-probe-http
+        name: "health-check-http"
+        interval: 13
+        request-path: "/"
+        port: 81
+        probes: 3
+    end
+
+    health-check-probe-tcp
+        name: "health-check-tcp"
+        interval: 7
+        port: 80
+        probes: 2
+    end
+
+    tags: {
+        Name: "load-balancer-example-internet-facing"
+    }
+end
+
+azure::scale-set scale-set-example
+    name: "scale-set-example"
+    resource-group: $(azure::resource-group scale-set-resource-group-example)
+    sku-name: "Standard_A0"
+    sku-tier: "Standard"
+
+    os-type: "linux"
+    image-type: "popular"
+    known-virtual-image: "UBUNTU_SERVER_14_04_LTS"
+    admin-user-name: "qwerty@123"
+    admin-password: "qwerty@123"
+    capacity: 2
+    #os-disk-caching: "NONE"
+    #os-disk-name: "disk"
+
+    proximity-placement-group
+        name: "proximity-placement-group-example"
+        type: "STANDARD"
+    end
+
+    network: $(azure::network scale-set-network-example)
+    subnet-name: "subnet2"
+
+    primary-internet-facing-load-balancer
+        load-balancer: $(azure::load-balancer scale-set-load-balancer-example-internet-facing)
+        backends: [
+            "backend-one",
+            "backend-two"
+        ]
+        inbound-nat-pools: [
+            "test-nat-pool-public"
+        ]
+    end
+
+    primary-internal-load-balancer
+        load-balancer: $(azure::load-balancer scale-set-load-balancer-example-internal)
+        backends: [
+            "backend-one",
+            "backend-two"
+        ]
+        inbound-nat-pools: [
+            "test-nat-pool"
+        ]
+    end
+
+    tags: {
+        Name: "scale-set-example"
+    }
+end
