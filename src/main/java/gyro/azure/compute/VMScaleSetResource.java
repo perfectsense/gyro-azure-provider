@@ -93,7 +93,7 @@ import java.util.stream.Collectors;
  *     end
  */
 @Type("scale-set")
-public class VMScaleSet extends AzureResource implements Copyable<VirtualMachineScaleSet> {
+public class VMScaleSetResource extends AzureResource implements Copyable<VirtualMachineScaleSet> {
     private String name;
     private ResourceGroupResource resourceGroup;
     private String skuName;
@@ -943,7 +943,7 @@ public class VMScaleSet extends AzureResource implements Copyable<VirtualMachine
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        
+
     }
 
     @Override
