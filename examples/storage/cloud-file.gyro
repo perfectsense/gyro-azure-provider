@@ -30,7 +30,7 @@ azure::cloud-file-share cloud-file-share-example
 end
 
 azure::cloud-file-directory cloud-file-directory
-    cloud-file-directory-path: "/example/directory/path"
+    path: "/example/directory/path"
     cloud-file-share: $(azure::cloud-file-share cloud-file-share-example)
     storage-account: $(azure::storage-account file-storage-account-example)
 end

@@ -33,7 +33,7 @@ import java.util.Set;
  * .. code-block:: gyro
  *
  *     azure::cloud-file-directory cloud-file-directory
- *         cloud-file-directory-path: "/example/directory/path"
+ *         path: "/example/directory/path"
  *         cloud-file-share: $(azure::cloud-file-share cloud-file-share-example)
  *         storage-account: $(azure::storage-account blob-storage-account-example)
  *     end
@@ -41,8 +41,8 @@ import java.util.Set;
 @Type("cloud-file-directory")
 public class CloudFileDirectoryResource extends AzureResource implements Copyable<CloudFileDirectory> {
 
-    private String cloudFileDirectoryPath;
-    private String cloudFileDirectoryName;
+    private String path;
+    private String name;
     private CloudFileShareResource cloudFileShare;
     private StorageAccountResource storageAccount;
 
@@ -51,28 +51,28 @@ public class CloudFileDirectoryResource extends AzureResource implements Copyabl
      */
     @Required
     @Id
-    public String getCloudFileDirectoryPath() {
-        if (cloudFileDirectoryPath != null && !cloudFileDirectoryPath.startsWith("/")) {
-            cloudFileDirectoryPath = "/" + cloudFileDirectoryPath;
+    public String getPath() {
+        if (path != null && !path.startsWith("/")) {
+            path = "/" + path;
         }
 
-        return cloudFileDirectoryPath;
+        return path;
     }
 
-    public void setCloudFileDirectoryPath(String cloudFileDirectoryPath) {
-        this.cloudFileDirectoryPath = cloudFileDirectoryPath;
+    public void setPath(String path) {
+        this.path = path;
     }
 
     /**
      * The name of the Cloud File Directory.
      */
     @Output
-    public String getCloudFileDirectoryName() {
-        return Paths.get(getCloudFileDirectoryPath()).getFileName().toString();
+    public String getName() {
+        return Paths.get(getPath()).getFileName().toString();
     }
 
-    public void setCloudFileDirectoryName(String cloudFileDirectoryName) {
-        this.cloudFileDirectoryName = cloudFileDirectoryName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -103,8 +103,8 @@ public class CloudFileDirectoryResource extends AzureResource implements Copyabl
     public void copyFrom(CloudFileDirectory directory) {
         try {
             setStorageAccount(findById(StorageAccountResource.class, directory.getStorageUri().getPrimaryUri().getAuthority().split(".file.core")[0]));
-            setCloudFileDirectoryPath(directory.getStorageUri().getPrimaryUri().getPath().split(directory.getShare().getName())[1]);
-            setCloudFileDirectoryName(directory.getName());
+            setPath(directory.getStorageUri().getPrimaryUri().getPath().split(directory.getShare().getName())[1]);
+            setName(directory.getName());
             setCloudFileShare(findById(CloudFileShareResource.class, directory.getShare().getName()));
         } catch (Exception ex) {
             throw new GyroException(ex.getMessage());
