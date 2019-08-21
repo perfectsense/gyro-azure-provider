@@ -25,8 +25,10 @@ import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -53,9 +55,7 @@ import java.util.stream.Collectors;
  *         known-virtual-image: "UBUNTU_SERVER_14_04_LTS"
  *         admin-user-name: "qwerty@123"
  *         admin-password: "qwerty@123"
- *         capacity: 2
- *         #os-disk-caching: "NONE"
- *         #os-disk-name: "disk"
+ *         capacity: 2"
  *
  *         proximity-placement-group
  *             name: "proximity-placement-group-example"
@@ -217,6 +217,7 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
     /**
      * Additional capability for the Scale set to enable Ultra SSD. Defaults to disabled.
      */
+    @Updatable
     public AdditionalCapability getAdditionalCapability() {
         if (additionalCapability == null) {
             additionalCapability = newSubresource(AdditionalCapability.class);
@@ -256,6 +257,7 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
     /**
      * The primary internet facing Load Balancer to be associated with the Scale Set.
      */
+    @Updatable
     public LoadBalancerAttachment getPrimaryInternetFacingLoadBalancer() {
         return primaryInternetFacingLoadBalancer;
     }
@@ -267,6 +269,7 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
     /**
      * The primary internal Load Balancer to be associated with the Scale Set.
      */
+    @Updatable
     public LoadBalancerAttachment getPrimaryInternalLoadBalancer() {
         return primaryInternalLoadBalancer;
     }
@@ -276,9 +279,10 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
     }
 
     /**
-     * The type of os for the VMs deployed by the Scale Set. (Required)
+     * The type of os for the VMs deployed by the Scale Set. Valid values are ``linux`` or ``windows``. (Required)
      */
     @Required
+    @ValidStrings({"linux", "windows"})
     public String getOsType() {
         return osType;
     }
@@ -288,9 +292,10 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
     }
 
     /**
-     * The type of image to be used for the VMs deployed by the Scale Set. (Required)
+     * The type of image to be used for the VMs deployed by the Scale Set. Valid values are ``latest`` or ``popular`` or ``specific`` or ``custom`` or ``stored``. (Required)
      */
     @Required
+    @ValidStrings({"latest", "popular", "specific", "custom", "stored"})
     public String getImageType() {
         return imageType;
     }
@@ -425,6 +430,7 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
      * The max supported VMs in a the Scale Set.
      */
     @Required
+    @Updatable
     public Integer getCapacity() {
         return capacity;
     }
@@ -436,6 +442,7 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
     /**
      * A set of associated Application Security Groups with the Scale Set.
      */
+    @Updatable
     public Set<ApplicationSecurityGroupResource> getApplicationSecurityGroups() {
         if (applicationSecurityGroups == null) {
             applicationSecurityGroups = new HashSet<>();
@@ -451,6 +458,7 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
     /**
      * A set of associated Application Gateway Backend Pool IDs with the Scale Set.
      */
+    @Updatable
     public Set<String> getApplicationGatewayBackendPoolIds() {
         if (applicationGatewayBackendPoolIds == null) {
             applicationGatewayBackendPoolIds = new HashSet<>();
@@ -466,6 +474,7 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
     /**
      * Associated Network Security Group with the Scale Set.
      */
+    @Updatable
     public NetworkSecurityGroupResource getNetworkSecurityGroup() {
         return networkSecurityGroup;
     }
@@ -488,6 +497,7 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
     /**
      * A set of tags for the Scale Set.
      */
+    @Updatable
     public Map<String, String> getTags() {
         return tags;
     }
@@ -499,6 +509,7 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
     /**
      * Enable/Disable accelerated networking for the Scale Set. Defaults to ``false``.
      */
+    @Updatable
     public Boolean getEnableAcceleratedNetworking() {
         if (enableAcceleratedNetworking == null) {
             enableAcceleratedNetworking = false;
@@ -514,6 +525,7 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
     /**
      * Enable/Disable boot diagnostic for the Scale Set. Defaults to ``false``.
      */
+    @Updatable
     public Boolean getEnableBootDiagnostic() {
         if (enableBootDiagnostic == null) {
             enableBootDiagnostic = false;
@@ -529,6 +541,7 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
     /**
      * Set the Storage Account to store the boot diagnostic for the Scale Set. Allowed only if 'enable-boot-diagnostic' is set to ``true``.
      */
+    @Updatable
     public StorageAccountResource getBootDiagnosticStorage() {
         return bootDiagnosticStorage;
     }
@@ -540,6 +553,7 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
     /**
      * Set the Storage Account Blob to store the boot diagnostic for the Scale Set. Allowed only if 'enable-boot-diagnostic' is set to ``true``.
      */
+    @Updatable
     public CloudBlobResource getBootDiagnosticBlob() {
         return bootDiagnosticBlob;
     }
@@ -573,6 +587,7 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
     /**
      * Enable/Disable IP forwarding for the VMs launched by this Scale Set. Defaults to ``false``.
      */
+    @Updatable
     public Boolean getEnableIpForwarding() {
         if (enableIpForwarding == null) {
             enableIpForwarding = false;
@@ -586,9 +601,14 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
     }
 
     /**
-     * Set the OS Disk caching type for the VMs launched by this Scale Set.
+     * Set the OS Disk caching type for the VMs launched by this Scale Set. Valid values are ``NONE`` or ``READ_ONLY`` or ``READ_WRITE``.
      */
+    @ValidStrings({"NONE", "READ_ONLY", "READ_WRITE"})
     public String getOsDiskCaching() {
+        if (OsDiskCaching != null) {
+            OsDiskCaching = OsDiskCaching.toUpperCase();
+        }
+
         return OsDiskCaching;
     }
 
@@ -638,8 +658,9 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
     }
 
     /**
-     * Set the policy for eviction of the flagged low priority VMs launched by this Scale Set. Allowed only of 'enable-low-priority-vm' is set to ``true``.
+     * Set the policy for eviction of the flagged low priority VMs launched by this Scale Set. Allowed only of 'enable-low-priority-vm' is set to ``true``. Valid values are ``DEALLOCATE`` or ``DELETE``.
      */
+    @ValidStrings({"DEALLOCATE", "DELETE"})
     public String getLowPriorityVmPolicy() {
         return lowPriorityVmPolicy;
     }
@@ -716,14 +737,6 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
             } else {
                 setPrimaryInternetFacingLoadBalancer(null);
             }
-
-
-
-            scaleSet.storageProfile().imageReference().offer();
-            scaleSet.storageProfile().dataDisks();
-            scaleSet.storageProfile().osDisk().osType();
-            scaleSet.storageProfile().dataDisks();
-            scaleSet.inner();
         } catch (IOException ex) {
             throw new GyroException(ex.getMessage());
         }
@@ -943,7 +956,101 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
+        Azure client = createClient();
 
+        VirtualMachineScaleSet scaleSet = client.virtualMachineScaleSets().getById(getId());
+
+        VirtualMachineScaleSet.UpdateStages.WithPrimaryInternalLoadBalancer a1 = null;
+        VirtualMachineScaleSet.UpdateStages.WithApply update;
+
+        if (getPrimaryInternetFacingLoadBalancer() != null) {
+            a1 = scaleSet.update().withExistingPrimaryInternetFacingLoadBalancer(client.loadBalancers().getById(getPrimaryInternetFacingLoadBalancer().getLoadBalancer().getId()))
+                .withPrimaryInternetFacingLoadBalancerBackends(getPrimaryInternetFacingLoadBalancer().getBackends().toArray(new String[0]))
+                .withPrimaryInternetFacingLoadBalancerInboundNatPools(getPrimaryInternetFacingLoadBalancer().getInboundNatPools().toArray(new String[0]));
+        }
+
+        if (getPrimaryInternalLoadBalancer() != null) {
+            if (a1 != null) {
+                update = a1.withExistingPrimaryInternalLoadBalancer(client.loadBalancers().getById(getPrimaryInternalLoadBalancer().getLoadBalancer().getId()))
+                    .withPrimaryInternalLoadBalancerBackends(getPrimaryInternalLoadBalancer().getBackends().toArray(new String[0]))
+                    .withPrimaryInternalLoadBalancerInboundNatPools(getPrimaryInternalLoadBalancer().getInboundNatPools().toArray(new String[0]));
+            } else {
+                update = scaleSet.update().withExistingPrimaryInternalLoadBalancer(client.loadBalancers().getById(getPrimaryInternalLoadBalancer().getLoadBalancer().getId()))
+                    .withPrimaryInternalLoadBalancerBackends(getPrimaryInternalLoadBalancer().getBackends().toArray(new String[0]))
+                    .withPrimaryInternalLoadBalancerInboundNatPools(getPrimaryInternalLoadBalancer().getInboundNatPools().toArray(new String[0]));
+            }
+        } else {
+            if (a1 != null) {
+                update = a1.withoutPrimaryInternalLoadBalancer();
+            } else {
+                update = scaleSet.update().withoutPrimaryInternalLoadBalancer();
+            }
+        }
+
+        if (getPrimaryInternetFacingLoadBalancer() == null) {
+            update = update.withoutPrimaryInternetFacingLoadBalancer();
+        }
+
+        update = update.withTags(getTags());
+
+        update = update.withCapacity(getCapacity());
+
+        VMScaleSetResource currentScaleSetResource = (VMScaleSetResource) current;
+
+        if (changedFieldNames.contains("application-gateway-backend-pool-ids")) {
+            for (String backendPoolId : currentScaleSetResource.getApplicationGatewayBackendPoolIds()) {
+                update = update.withoutApplicationGatewayBackendPool(backendPoolId);
+            }
+
+            for (String backendPoolId : getApplicationGatewayBackendPoolIds()) {
+                update = update.withExistingApplicationGatewayBackendPool(backendPoolId);
+            }
+        }
+
+        if (changedFieldNames.contains("application-security-group")) {
+            for (ApplicationSecurityGroupResource securityGroup : currentScaleSetResource.getApplicationSecurityGroups()) {
+                update = update.withoutApplicationSecurityGroup(securityGroup.getId());
+            }
+
+            for (ApplicationSecurityGroupResource securityGroup : getApplicationSecurityGroups()) {
+                update = update.withExistingApplicationSecurityGroupId(securityGroup.getId());
+            }
+        }
+
+        if (getNetworkSecurityGroup() != null) {
+            update = update.withExistingNetworkSecurityGroupId(getNetworkSecurityGroup().getId());
+        } else {
+            update = update.withoutNetworkSecurityGroup();
+        }
+
+        if (getEnableAcceleratedNetworking()) {
+            update = update.withAcceleratedNetworking();
+        } else {
+            update = update.withoutAcceleratedNetworking();
+        }
+
+        if (getEnableBootDiagnostic()) {
+            if (getBootDiagnosticBlob() != null) {
+                update = update.withBootDiagnostics(getBootDiagnosticBlob().getUri());
+            }
+            else if (getBootDiagnosticStorage() != null) {
+                update = update.withBootDiagnostics(client.storageAccounts().getById(getBootDiagnosticStorage().getId()));
+            } else {
+                update = update.withBootDiagnostics();
+            }
+        } else {
+            update = update.withoutBootDiagnostics();
+        }
+
+        if (getEnableIpForwarding()) {
+            update = update.withIpForwarding();
+        } else {
+            update = update.withoutIpForwarding();
+        }
+
+        update = update.withAdditionalCapabilities(getAdditionalCapability().toAdditionalCapabilities());
+
+        update.apply();
     }
 
     @Override

@@ -3,6 +3,7 @@ package gyro.azure.compute;
 import com.microsoft.azure.management.compute.AdditionalCapabilities;
 import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 
 public class AdditionalCapability extends Diffable implements Copyable<AdditionalCapabilities> {
     private Boolean ultraSSDEnabled;
@@ -10,6 +11,7 @@ public class AdditionalCapability extends Diffable implements Copyable<Additiona
     /**
      * Enable ultra SSD. Defaults to ``false``.
      */
+    @Updatable
     public Boolean getUltraSSDEnabled() {
         if (ultraSSDEnabled == null) {
             ultraSSDEnabled = false;

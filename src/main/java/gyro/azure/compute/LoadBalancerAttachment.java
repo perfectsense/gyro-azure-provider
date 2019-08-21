@@ -2,6 +2,7 @@ package gyro.azure.compute;
 
 import gyro.azure.network.LoadBalancerResource;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 
 import java.util.Set;
@@ -15,6 +16,7 @@ public class LoadBalancerAttachment extends Diffable {
      * The Load Balancer to be attached as internal/public-internet type to a Scale Set.
      */
     @Required
+    @Updatable
     public LoadBalancerResource getLoadBalancer() {
         return loadBalancer;
     }
@@ -27,6 +29,7 @@ public class LoadBalancerAttachment extends Diffable {
      * The Corresponding Load Balancer Backends.
      */
     @Required
+    @Updatable
     public Set<String> getBackends() {
         return backends;
     }
@@ -39,6 +42,7 @@ public class LoadBalancerAttachment extends Diffable {
      * The Corresponding Load Balancer Inbound Nat Pools.
      */
     @Required
+    @Updatable
     public Set<String> getInboundNatPools() {
         return inboundNatPools;
     }

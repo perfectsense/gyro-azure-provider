@@ -117,6 +117,15 @@ azure::load-balancer scale-set-load-balancer-example-internet-facing
             frontend-port-start: 81
             frontend-port-end: 90
         end
+
+        inbound-nat-pool
+            name: "test-nat-pool-public-2"
+            frontend-name: "public-frontend"
+            backend-port: 82
+            protocol: "TCP"
+            frontend-port-start: 92
+            frontend-port-end: 98
+        end
     end
 
     load-balancer-rule
@@ -189,8 +198,7 @@ azure::scale-set scale-set-example
     primary-internet-facing-load-balancer
         load-balancer: $(azure::load-balancer scale-set-load-balancer-example-internet-facing)
         backends: [
-            "backend-one",
-            "backend-two"
+            "backend-one"
         ]
         inbound-nat-pools: [
             "test-nat-pool-public"
