@@ -1,6 +1,8 @@
 package gyro.azure.dns;
 
+import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.validation.Required;
 
 /**
  * Creates an CAA Record.
@@ -16,23 +18,16 @@ import gyro.core.resource.Diffable;
  *         value: "val1"
  *     end
  */
-public class CaaRecord extends Diffable {
+public class CaaRecord extends Diffable implements Copyable<com.microsoft.azure.management.dns.CaaRecord> {
 
     private Integer flags;
     private String tag;
     private String value;
 
-    public CaaRecord() {}
-
-    public CaaRecord(com.microsoft.azure.management.dns.CaaRecord caaRecord) {
-        setFlags(caaRecord.flags());
-        setTag(caaRecord.tag());
-        setValue(caaRecord.value());
-    }
-
     /**
      * The flags for the record. Valid values are integers between 0 and 255. (Required)
      */
+    @Required
     public Integer getFlags() {
         return flags;
     }
@@ -44,6 +39,7 @@ public class CaaRecord extends Diffable {
     /**
      * The tag for the record. (Required)
      */
+    @Required
     public String getTag() {
         return tag;
     }
@@ -55,12 +51,20 @@ public class CaaRecord extends Diffable {
     /**
      * The value for the record. (Required)
      */
+    @Required
     public String getValue() {
         return value;
     }
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    @Override
+    public void copyFrom(com.microsoft.azure.management.dns.CaaRecord caaRecord) {
+        setFlags(caaRecord.flags());
+        setTag(caaRecord.tag());
+        setValue(caaRecord.value());
     }
 
     @Override

@@ -1,7 +1,10 @@
 package gyro.azure.network;
 
 import gyro.azure.AzureResource;
+import gyro.azure.Copyable;
+import gyro.azure.resources.ResourceGroupResource;
 import gyro.core.GyroUI;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
@@ -19,13 +22,14 @@ import com.microsoft.azure.management.network.LoadBalancerTcpProbe;
 import com.microsoft.azure.management.network.Network;
 import com.microsoft.azure.management.network.PublicIPAddress;
 import com.microsoft.azure.management.network.TransportProtocol;
-import com.microsoft.azure.management.network.model.HasNetworkInterfaces;
 import com.microsoft.azure.management.network.LoadBalancer.DefinitionStages.WithCreate;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,12 +44,11 @@ import java.util.Set;
  *
  *         azure::load-balancer load-balancer-example
  *             name: "load-balancer-example"
- *             resource-group-name: $(azure::resource-group resource-group-lb-example | resource-group-name)
- *             sku-basic: true
+ *             resource-group: $(azure::resource-group resource-group-lb-example)
  *
  *             public-frontend
  *                 name: "public-frontend"
- *                 public-ip-address-name: $(azure::public-ip-address public-ip-address | public-ip-address-name)
+ *                 public-ip-address: $(azure::public-ip-address public-ip-address)
  *
  *                 inbound-nat-rule
  *                     name: "test-nat-rule"
@@ -53,15 +56,6 @@ import java.util.Set;
  *                     frontend-port: 80
  *                     protocol: "TCP"
  *                 end
- *             end
- *
- *             backend-pool
- *                 name: "backend-pool-name"
- *                 target-network-ip-configuration
- *                     ip-configuration-name: "primary"
- *                     network-id: $(azure::network-interface load-balancer-network-interface-example | network-interface-id)
- *                 end
- *                 virtual-machine-ids: [$(azure::virtual-machine virtual-machine-example-lb | virtual-machine-id)]
  *             end
  *
  *             load-balancer-rule
@@ -72,7 +66,7 @@ import java.util.Set;
  *                 frontend-port: 443
  *                 idle-timeout-in-minutes: 8
  *                 protocol: "TCP"
- *                 backend-pool-name: "backend-pool-name"
+ *                 backend-name: "backend-name"
  *                 health-check-probe-name: "healthcheck-tcp"
  *             end
  *
@@ -90,71 +84,57 @@ import java.util.Set;
  *         end
  */
 @Type("load-balancer")
-public class LoadBalancerResource extends AzureResource {
+public class LoadBalancerResource extends AzureResource implements Copyable<LoadBalancer> {
 
-    private Map<String, Frontend> frontends;
-    private List<HealthCheckProbeHttp> healthCheckProbeHttp;
-    private List<HealthCheckProbeTcp> healthCheckProbeTcp;
+    private Set<HealthCheckProbeHttp> healthCheckProbeHttp;
+    private Set<HealthCheckProbeTcp> healthCheckProbeTcp;
     private String id;
     private String name;
-    private List<LoadBalancerRule> loadBalancerRule;
-    private List<PrivateFrontend> privateFrontend;
-    private List<PublicFrontend> publicFrontend;
-    private String resourceGroupName;
-    private Boolean skuBasic;
+    private Set<LoadBalancerRule> loadBalancerRule;
+    private Set<PrivateFrontend> privateFrontend;
+    private Set<PublicFrontend> publicFrontend;
+    private ResourceGroupResource resourceGroup;
+    private SKU_TYPE skuType;
     private Map<String, String> tags;
 
-    @Updatable
-    public Map<String, Frontend> frontends() {
-        if (frontends == null) {
-            frontends = new HashMap<>();
-        }
-
-        getPrivateFrontend()
-                .stream()
-                .forEach(frontend -> frontends.put(frontend.getName(), frontend));
-
-        getPublicFrontend().stream()
-                .forEach(frontend -> frontends.put(frontend.getName(), frontend));
-
-        return frontends;
-    }
+    public enum SKU_TYPE { STANDARD, BASIC }
 
     /**
-     * The http probes associated with the load balancer. (Optional)
+     * The Health Check Http Probes associated with the Load Balancer. (Optional)
      */
     @Updatable
-    public List<HealthCheckProbeHttp> getHealthCheckProbeHttp() {
+    public Set<HealthCheckProbeHttp> getHealthCheckProbeHttp() {
         if (healthCheckProbeHttp == null) {
-            healthCheckProbeHttp = new ArrayList<>();
+            healthCheckProbeHttp = new HashSet<>();
         }
 
         return healthCheckProbeHttp;
     }
 
-    public void setHealthCheckProbeHttp(List<HealthCheckProbeHttp> healthCheckProbeHttp) {
+    public void setHealthCheckProbeHttp(Set<HealthCheckProbeHttp> healthCheckProbeHttp) {
         this.healthCheckProbeHttp = healthCheckProbeHttp;
     }
 
     /**
-     * The tcp probes associated with the load balancer. (Optional)
+     * The Health Check Tcp Probes associated with the Load Balancer. (Optional)
      */
     @Updatable
-    public List<HealthCheckProbeTcp> getHealthCheckProbeTcp() {
+    public Set<HealthCheckProbeTcp> getHealthCheckProbeTcp() {
         if (healthCheckProbeTcp == null) {
-            healthCheckProbeTcp = new ArrayList<>();
+            healthCheckProbeTcp = new HashSet<>();
         }
 
         return healthCheckProbeTcp;
     }
 
-    public void setHealthCheckProbeTcp(List<HealthCheckProbeTcp> healthCheckProbeTcp) {
+    public void setHealthCheckProbeTcp(Set<HealthCheckProbeTcp> healthCheckProbeTcp) {
         this.healthCheckProbeTcp = healthCheckProbeTcp;
     }
 
     /**
-     * The id of the load balancer.
+     * The ID of the Load Balancer.
      */
+    @Id
     @Output
     public String getId() {
         return id;
@@ -165,8 +145,9 @@ public class LoadBalancerResource extends AzureResource {
     }
 
     /**
-     * The name of the load balancer. (Required)
+     * The name of the Load Balancer. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }
@@ -176,77 +157,84 @@ public class LoadBalancerResource extends AzureResource {
     }
 
     /**
-     * The load balancer rules associated with the load balancer. (Required)
+     * The Load Balancer rules associated with the Load Balancer. (Required)
      */
+    @Required
     @Updatable
-    public List<LoadBalancerRule> getLoadBalancerRule() {
+    public Set<LoadBalancerRule> getLoadBalancerRule() {
         if (loadBalancerRule == null) {
-            loadBalancerRule = new ArrayList<>();
+            loadBalancerRule = new HashSet<>();
         }
 
         return loadBalancerRule;
     }
 
-    public void setLoadBalancerRule(List<LoadBalancerRule> loadBalancerRule) {
+    public void setLoadBalancerRule(Set<LoadBalancerRule> loadBalancerRule) {
         this.loadBalancerRule = loadBalancerRule;
     }
 
     /**
-     * The private frontends associated with the load balancer. (Optional)
+     * The Private Frontend associated with the Load Balancer. (Optional)
      */
-    public List<PrivateFrontend> getPrivateFrontend() {
+    @Updatable
+    public Set<PrivateFrontend> getPrivateFrontend() {
         if (privateFrontend == null) {
-            privateFrontend = new ArrayList<>();
+            privateFrontend = new HashSet<>();
         }
 
         return privateFrontend;
     }
 
-    public void setPrivateFrontend(List<PrivateFrontend> privateFrontend) {
+    public void setPrivateFrontend(Set<PrivateFrontend> privateFrontend) {
         this.privateFrontend = privateFrontend;
     }
 
     /**
-     * The public frontends associated with the load balancer. (Optional)
+     * The Public Frontend associated with the Load Balancer. (Optional)
      */
-    public List<PublicFrontend> getPublicFrontend() {
+    @Updatable
+    public Set<PublicFrontend> getPublicFrontend() {
         if (publicFrontend == null) {
-            publicFrontend = new ArrayList<>();
+            publicFrontend = new HashSet<>();
         }
 
         return publicFrontend;
     }
 
-    public void setPublicFrontend(List<PublicFrontend> publicFrontend) {
+    public void setPublicFrontend(Set<PublicFrontend> publicFrontend) {
         this.publicFrontend = publicFrontend;
     }
 
-    public String getResourceGroupName() {
-        return resourceGroupName;
+    /**
+     * The Resource Group under which the Load Balancer would reside. (Required)
+     */
+    @Required
+    public ResourceGroupResource getResourceGroup() {
+        return resourceGroup;
     }
 
-    public void setResourceGroupName(String resourceGroupName) {
-        this.resourceGroupName = resourceGroupName;
+    public void setResourceGroup(ResourceGroupResource resourceGroup) {
+        this.resourceGroup = resourceGroup;
     }
 
     /**
-     * Specifies if the sku type is basic or standard. Defaults to true. (Required)
+     * Specifies the sku type for the Load Balancer. Valid Values are ``BASIC`` or ``STANDARD``. Defaults to ``BASIC``.
      */
     @Updatable
-    public Boolean getSkuBasic() {
-        if (skuBasic == null) {
-            skuBasic = true;
+    public SKU_TYPE getSkuType() {
+        if (skuType == null) {
+            skuType = SKU_TYPE.BASIC;
         }
 
-        return skuBasic;
+        return skuType;
     }
 
-    public void setSkuBasic(Boolean skuBasic) {
-        this.skuBasic = skuBasic;
+    public void setSkuType(SKU_TYPE skuType) {
+        this.skuType = skuType;
     }
 
     /**
-     * The tags associated with the load balancer. (Optional)
+     * The tags associated with the Load Balancer. (Optional)
      */
     @Updatable
     public Map<String, String> getTags() {
@@ -262,6 +250,56 @@ public class LoadBalancerResource extends AzureResource {
     }
 
     @Override
+    public void copyFrom(LoadBalancer loadBalancer) {
+        //http probes
+        getHealthCheckProbeHttp().clear();
+        for (Map.Entry<String, LoadBalancerHttpProbe> httpProbe : loadBalancer.httpProbes().entrySet()) {
+            HealthCheckProbeHttp probeHttp = newSubresource(HealthCheckProbeHttp.class);
+            probeHttp.copyFrom(httpProbe.getValue());
+            getHealthCheckProbeHttp().add(probeHttp);
+        }
+
+        //tcp probes
+        getHealthCheckProbeTcp().clear();
+        for (Map.Entry<String, LoadBalancerTcpProbe> tcpProbe : loadBalancer.tcpProbes().entrySet()) {
+            HealthCheckProbeTcp probeTcp = newSubresource(HealthCheckProbeTcp.class);
+            probeTcp.copyFrom(tcpProbe.getValue());
+            getHealthCheckProbeTcp().add(probeTcp);
+        }
+
+        //public getAllFrontend
+        getPublicFrontend().clear();
+        for (Map.Entry<String, LoadBalancerPublicFrontend> publicFrontend : loadBalancer.publicFrontends().entrySet()) {
+            PublicFrontend frontendPublic = newSubresource(PublicFrontend.class);
+            frontendPublic.copyFrom(publicFrontend.getValue());
+            getPublicFrontend().add(frontendPublic);
+        }
+
+        //private getAllFrontend
+        getPrivateFrontend().clear();
+        for (Map.Entry<String, LoadBalancerPrivateFrontend> privateFrontend : loadBalancer.privateFrontends().entrySet()) {
+            PrivateFrontend frontendPrivate = newSubresource(PrivateFrontend.class);
+            frontendPrivate.copyFrom(privateFrontend.getValue());
+            getPrivateFrontend().add(frontendPrivate);
+        }
+
+        //load balancing rules
+        getLoadBalancerRule().clear();
+        for (Map.Entry<String, LoadBalancingRule> rule  : loadBalancer.loadBalancingRules().entrySet()) {
+            LoadBalancerRule loadBalancerRule = newSubresource(LoadBalancerRule.class);
+            loadBalancerRule.copyFrom(rule.getValue());
+            getLoadBalancerRule().add(loadBalancerRule);
+        }
+
+        setId(loadBalancer.id());
+        setName(loadBalancer.name());
+        setResourceGroup(findById(ResourceGroupResource.class, loadBalancer.resourceGroupName()));
+        setSkuType(loadBalancer.sku() == LoadBalancerSkuType.BASIC ? SKU_TYPE.BASIC : SKU_TYPE.STANDARD);
+
+        setTags(loadBalancer.tags());
+    }
+
+    @Override
     public boolean refresh() {
         Azure client = createClient();
 
@@ -271,43 +309,7 @@ public class LoadBalancerResource extends AzureResource {
             return false;
         }
 
-        //http probes
-        getHealthCheckProbeHttp().clear();
-        for (Map.Entry<String, LoadBalancerHttpProbe> httpProbe : loadBalancer.httpProbes().entrySet()) {
-            getHealthCheckProbeHttp()
-                    .add(new HealthCheckProbeHttp(httpProbe.getValue()));
-        }
-
-        //tcp probes
-        getHealthCheckProbeTcp().clear();
-        for (Map.Entry<String, LoadBalancerTcpProbe> tcpProbe : loadBalancer.tcpProbes().entrySet()) {
-            getHealthCheckProbeTcp()
-                    .add(new HealthCheckProbeTcp(tcpProbe.getValue()));
-        }
-
-        //public frontends
-        getPublicFrontend().clear();
-        for (Map.Entry<String, LoadBalancerPublicFrontend> publicFrontend : loadBalancer.publicFrontends().entrySet()) {
-            getPublicFrontend().add(new PublicFrontend(publicFrontend.getValue()));
-        }
-
-        //private frontends
-        getPrivateFrontend().clear();
-        for (Map.Entry<String, LoadBalancerPrivateFrontend> privateFrontend : loadBalancer.privateFrontends().entrySet()) {
-            getPrivateFrontend().add(new PrivateFrontend(privateFrontend.getValue()));
-        }
-
-        //load balancing rules
-        getLoadBalancerRule().clear();
-        for (Map.Entry<String, LoadBalancingRule> rule  : loadBalancer.loadBalancingRules().entrySet()) {
-            getLoadBalancerRule().add(new LoadBalancerRule(rule.getValue()));
-        }
-
-        setId(loadBalancer.id());
-        setSkuBasic(loadBalancer.sku() == LoadBalancerSkuType.BASIC ? true : false);
-
-        getTags().clear();
-        setTags(loadBalancer.tags());
+        copyFrom(loadBalancer);
 
         return true;
     }
@@ -317,80 +319,93 @@ public class LoadBalancerResource extends AzureResource {
         Azure client = createClient();
 
         LoadBalancer.DefinitionStages.WithLBRuleOrNat lb = client.loadBalancers()
-                .define(getName())
-                .withRegion(Region.fromName(getRegion()))
-                .withExistingResourceGroup(getResourceGroupName());
+            .define(getName())
+            .withRegion(Region.fromName(getRegion()))
+            .withExistingResourceGroup(getResourceGroup().getName());
 
         WithCreate buildLoadBalancer = null;
 
         //define the nat pools and rules
-        for (Map.Entry<String, Frontend> frontends : frontends().entrySet()) {
+        for (Map.Entry<String, Frontend> frontends : getAllFrontends().entrySet()) {
             Frontend front = frontends.getValue();
             if (front.getInboundNatPool() != null) {
                 for (InboundNatPool natPool: front.getInboundNatPool()) {
 
                     buildLoadBalancer = lb.defineInboundNatPool(natPool.getName())
-                            .withProtocol(TransportProtocol.fromString(natPool.getProtocol()))
-                            .fromFrontend(natPool.getFrontendName())
-                            .fromFrontendPortRange(natPool.getFrontendPortRangeStart(), natPool.getFrontendPortRangeEnd())
-                            .toBackendPort(natPool.getBackendPort())
-                            .attach();
+                        .withProtocol(TransportProtocol.fromString(natPool.getProtocol()))
+                        .fromFrontend(natPool.getFrontendName())
+                        .fromFrontendPortRange(natPool.getFrontendPortStart(), natPool.getFrontendPortEnd())
+                        .toBackendPort(natPool.getBackendPort())
+                        .attach();
                 }
             }
 
             if (front.getInboundNatRule() != null) {
                 for (InboundNatRule natRule : front.getInboundNatRule()) {
-
                     buildLoadBalancer = lb.defineInboundNatRule(natRule.getName())
-                            .withProtocol(TransportProtocol.fromString(natRule.getProtocol()))
-                            .fromFrontend(natRule.getFrontendName())
-                            .fromFrontendPort(natRule.getFrontendPort())
-                            .withFloatingIP(natRule.getFloatingIp())
-                            .toBackendPort(natRule.getBackendPort())
-                            .attach();
+                        .withProtocol(TransportProtocol.fromString(natRule.getProtocol()))
+                        .fromFrontend(natRule.getFrontendName())
+                        .fromFrontendPort(natRule.getFrontendPort())
+                        .withFloatingIP(natRule.getFloatingIp())
+                        .toBackendPort(natRule.getBackendPort())
+                        .attach();
                 }
             }
+        }
+
+        //define load balancer rules
+        for (LoadBalancerRule rule : getLoadBalancerRule()) {
+
+            buildLoadBalancer = lb.defineLoadBalancingRule(rule.getName())
+                .withProtocol(TransportProtocol.fromString(rule.getProtocol()))
+                .fromFrontend(rule.getFrontendName())
+                .fromFrontendPort(rule.getFrontendPort())
+                .toBackend(rule.getBackendName())
+                .toBackendPort(rule.getBackendPort())
+                .withProbe(rule.getHealthCheckProbeName())
+                .withIdleTimeoutInMinutes(rule.getIdleTimeoutInMinutes())
+                .withFloatingIP(rule.getFloatingIp())
+                .attach();
         }
 
         //define the health check probes
         for (HealthCheckProbeHttp probe : getHealthCheckProbeHttp()) {
             //http
             buildLoadBalancer.defineHttpProbe(probe.getName())
-                        .withRequestPath(probe.getRequestPath())
-                        .withPort(probe.getPort())
-                        .withIntervalInSeconds(probe.getInterval())
-                        .withNumberOfProbes(probe.getProbes())
-                        .attach();
+                .withRequestPath(probe.getRequestPath())
+                .withPort(probe.getPort())
+                .withIntervalInSeconds(probe.getInterval())
+                .withNumberOfProbes(probe.getProbes())
+                .attach();
         }
 
         for (HealthCheckProbeTcp probe : getHealthCheckProbeTcp()) {
             //tcp
             buildLoadBalancer.defineTcpProbe(probe.getName())
-                    .withPort(probe.getPort())
-                    .withIntervalInSeconds(probe.getInterval())
-                    .withNumberOfProbes(probe.getProbes())
-                    .attach();
+                .withPort(probe.getPort())
+                .withIntervalInSeconds(probe.getInterval())
+                .withNumberOfProbes(probe.getProbes())
+                .attach();
         }
 
-        //define the public frontends
+        //define the public getAllFrontend
         for (PublicFrontend publicFrontend : getPublicFrontend()) {
 
-            PublicIPAddress ip = client.publicIPAddresses()
-                    .getByResourceGroup(getResourceGroupName(), publicFrontend.getPublicIpAddressName());
+            PublicIPAddress ip = client.publicIPAddresses().getById(publicFrontend.getPublicIpAddress().getId());
 
             buildLoadBalancer.definePublicFrontend(publicFrontend.getName())
-                    .withExistingPublicIPAddress(ip)
-                    .attach();
+                .withExistingPublicIPAddress(ip)
+                .attach();
         }
 
-        //define the private frontends
+        //define the private getAllFrontend
         LoadBalancerPrivateFrontend.DefinitionStages.WithAttach withAttachPrivate;
         for (PrivateFrontend privateFrontend : getPrivateFrontend()) {
 
-            Network network = client.networks().getById(privateFrontend.getNetworkId());
+            Network network = client.networks().getById(privateFrontend.getNetwork().getId());
 
             withAttachPrivate = buildLoadBalancer.definePrivateFrontend(privateFrontend.getName())
-                    .withExistingSubnet(network, privateFrontend.getSubnetName());
+                .withExistingSubnet(network, privateFrontend.getSubnetName());
 
             if (privateFrontend.getPrivateIpAddress() != null) {
                 withAttachPrivate.withPrivateIPAddressStatic(privateFrontend.getPrivateIpAddress());
@@ -400,26 +415,11 @@ public class LoadBalancerResource extends AzureResource {
             withAttachPrivate.attach();
         }
 
-        //define load balancer rules
-        for (LoadBalancerRule rule : getLoadBalancerRule()) {
-
-            buildLoadBalancer = lb.defineLoadBalancingRule(rule.getName())
-                    .withProtocol(TransportProtocol.fromString(rule.getProtocol()))
-                    .fromFrontend(rule.getFrontendName())
-                    .fromFrontendPort(rule.getFrontendPort())
-                    .toBackend(rule.getBackendPoolName())
-                    .toBackendPort(rule.getBackendPort())
-                    .withProbe(rule.getHealthCheckProbeName())
-                    .withIdleTimeoutInMinutes(rule.getIdleTimeoutInMinutes())
-                    .withFloatingIP(rule.getFloatingIp())
-                    .attach();
-        }
-
         LoadBalancer loadBalancer = buildLoadBalancer
-                    .withSku(getSkuBasic() ? LoadBalancerSkuType.BASIC : LoadBalancerSkuType.STANDARD)
-                    .withTags(getTags()).create();
+            .withSku(getSkuType() == SKU_TYPE.BASIC ? LoadBalancerSkuType.BASIC : LoadBalancerSkuType.STANDARD)
+            .withTags(getTags()).create();
 
-        setId(loadBalancer.id());
+        copyFrom(loadBalancer);
     }
 
     @Override
@@ -432,280 +432,148 @@ public class LoadBalancerResource extends AzureResource {
 
         LoadBalancer.Update updateLoadBalancer = loadBalancer.update();
 
-        //Performs creates and deletes of new and removed elements
 
-        //create added and delete removed health check probes
-        //http
-        List<HealthCheckProbeHttp> httpProbeAdditions = new ArrayList<>(getHealthCheckProbeHttp());
-        httpProbeAdditions.removeAll(currentResource.getHealthCheckProbeHttp());
+        //Update health check probe Http
+        if (changedFieldNames.contains("health-check-probe-http")) {
+            for (HealthCheckProbeHttp httpProbe : currentResource.getHealthCheckProbeHttp()) {
+                updateLoadBalancer = updateLoadBalancer.withoutProbe(httpProbe.getName());
+            }
 
-        List<HealthCheckProbeHttp> httpProbeSubtractions = new ArrayList<>(currentResource.getHealthCheckProbeHttp());
-        httpProbeSubtractions.removeAll(getHealthCheckProbeHttp());
-
-        for (HealthCheckProbeHttp httpProbe : httpProbeAdditions) {
-
-            updateLoadBalancer
+            for (HealthCheckProbeHttp httpProbe : getHealthCheckProbeHttp()) {
+                updateLoadBalancer = updateLoadBalancer
                     .defineHttpProbe(httpProbe.getName())
                     .withRequestPath(httpProbe.getRequestPath())
                     .withIntervalInSeconds(httpProbe.getInterval())
                     .withNumberOfProbes(httpProbe.getProbes())
                     .withPort(httpProbe.getPort())
                     .attach();
+            }
         }
 
-        for (HealthCheckProbeHttp httpProbe : httpProbeSubtractions) {
+        //Update health check probe Tcp
+        if (changedFieldNames.contains("health-check-probe-tcp")) {
+            for (HealthCheckProbeTcp tcpProbe : currentResource.getHealthCheckProbeTcp()) {
+                updateLoadBalancer = updateLoadBalancer.withoutProbe(tcpProbe.getName());
+            }
 
-            updateLoadBalancer
-                    .withoutProbe(httpProbe.getName());
-        }
-
-        //tcp
-        List<HealthCheckProbeTcp> tcpProbeAdditions = new ArrayList<>(getHealthCheckProbeTcp());
-        tcpProbeAdditions.removeAll(currentResource.getHealthCheckProbeTcp());
-
-        List<HealthCheckProbeTcp> tcpProbeSubtractions = new ArrayList<>(currentResource.getHealthCheckProbeTcp());
-        tcpProbeSubtractions.removeAll(getHealthCheckProbeTcp());
-
-        for (HealthCheckProbeTcp tcpProbe : tcpProbeAdditions) {
-
-            updateLoadBalancer
+            for (HealthCheckProbeTcp tcpProbe : getHealthCheckProbeTcp()) {
+                updateLoadBalancer = updateLoadBalancer
                     .defineTcpProbe(tcpProbe.getName())
                     .withPort(tcpProbe.getPort())
                     .withIntervalInSeconds(tcpProbe.getInterval())
                     .withNumberOfProbes(tcpProbe.getProbes())
                     .attach();
+            }
         }
 
-        for (HealthCheckProbeTcp tcpProbe : tcpProbeSubtractions) {
+        //Update private frontend
+        if (changedFieldNames.contains("private-frontend")) {
+            for (PrivateFrontend privateFrontend : currentResource.getPrivateFrontend()) {
+                for (InboundNatRule rule : privateFrontend.getInboundNatRule()) {
+                    updateLoadBalancer = updateLoadBalancer.withoutInboundNatRule(rule.getName());
+                }
 
-            updateLoadBalancer
-                    .withoutProbe(tcpProbe.getName());
-        }
+                for (InboundNatPool pool : privateFrontend.getInboundNatPool()) {
+                    updateLoadBalancer = updateLoadBalancer.withoutInboundNatPool(pool.getName());
+                }
 
-        //create added and delete removed private frontends
-        List<PrivateFrontend> privateAdditions = new ArrayList<>(getPrivateFrontend());
-        privateAdditions.removeAll(currentResource.getPrivateFrontend());
+                updateLoadBalancer = updateLoadBalancer.withoutFrontend(privateFrontend.getName());
+            }
 
-        List<PrivateFrontend> privateSubtractions = new ArrayList<>(currentResource.getPrivateFrontend());
-        privateSubtractions.removeAll(getPrivateFrontend());
+            LoadBalancerPrivateFrontend.UpdateDefinitionStages.WithAttach withAttachPrivate;
+            for (PrivateFrontend privateFrontend : getPrivateFrontend()) {
 
-        LoadBalancerPrivateFrontend.UpdateDefinitionStages.WithAttach withAttachPrivate;
-        for (PrivateFrontend privateFrontend : privateAdditions) {
+                Network network = client.networks().getById(privateFrontend.getNetwork().getId());
 
-            Network network = client.networks().getById(privateFrontend.getNetworkId());
-
-            withAttachPrivate = updateLoadBalancer.definePrivateFrontend(privateFrontend.getName())
+                withAttachPrivate = updateLoadBalancer.definePrivateFrontend(privateFrontend.getName())
                     .withExistingSubnet(network, privateFrontend.getSubnetName());
 
-            if (privateFrontend.getPrivateIpAddress() != null) {
-                withAttachPrivate.withPrivateIPAddressStatic(privateFrontend.getPrivateIpAddress());
-            } else {
-                withAttachPrivate.withPrivateIPAddressDynamic();
+                if (privateFrontend.getPrivateIpAddress() != null) {
+                    withAttachPrivate.withPrivateIPAddressStatic(privateFrontend.getPrivateIpAddress());
+                } else {
+                    withAttachPrivate.withPrivateIPAddressDynamic();
+                }
+
+                withAttachPrivate.attach();
+
+                addNatRulesAndPools(privateFrontend, updateLoadBalancer);
             }
-            withAttachPrivate.attach();
-
-            addNatRulesAndPools(privateFrontend, updateLoadBalancer);
         }
 
-        for (PrivateFrontend privateFrontend : privateSubtractions) {
-            removeNatRulesAndPools(privateFrontend, updateLoadBalancer);
-            updateLoadBalancer
-                    .withoutFrontend(privateFrontend.getName());
-        }
+        //Update public frontend
+        if (changedFieldNames.contains("public-frontend")) {
+            for (PublicFrontend publicFrontend : currentResource.getPublicFrontend()) {
+                for (InboundNatRule rule : publicFrontend.getInboundNatRule()) {
+                    updateLoadBalancer = updateLoadBalancer.withoutInboundNatRule(rule.getName());
+                }
 
-        //create added and delete removed public frontends
-        List<PublicFrontend> publicAdditions = new ArrayList<>(getPublicFrontend());
-        publicAdditions.removeAll(currentResource.getPublicFrontend());
+                for (InboundNatPool pool : publicFrontend.getInboundNatPool()) {
+                    updateLoadBalancer = updateLoadBalancer.withoutInboundNatPool(pool.getName());
+                }
 
-        List<PublicFrontend> publicSubtractions = new ArrayList<>(currentResource.getPublicFrontend());
-        publicSubtractions.removeAll(getPublicFrontend());
+                updateLoadBalancer = updateLoadBalancer.withoutFrontend(publicFrontend.getName());
+            }
 
-        for (PublicFrontend publicFrontend : publicAdditions) {
-            PublicIPAddress ip = client.publicIPAddresses()
-                    .getByResourceGroup(getResourceGroupName(), publicFrontend.getPublicIpAddressName());
+            for (PublicFrontend publicFrontend : getPublicFrontend()) {
+                PublicIPAddress ip = client.publicIPAddresses().getById(publicFrontend.getPublicIpAddress().getId());
 
-            updateLoadBalancer
+                updateLoadBalancer = updateLoadBalancer
                     .definePublicFrontend(publicFrontend.getName())
                     .withExistingPublicIPAddress(ip)
                     .attach();
 
-            addNatRulesAndPools(publicFrontend, updateLoadBalancer);
+                addNatRulesAndPools(publicFrontend, updateLoadBalancer);
+            }
         }
 
-        for (PublicFrontend publicFrontend : publicSubtractions) {
-            removeNatRulesAndPools(publicFrontend, updateLoadBalancer);
-            updateLoadBalancer
-                    .withoutFrontend(publicFrontend.getName());
-        }
+        //Update Load balancer rules
+        if (changedFieldNames.contains("load-balancer-rule")) {
+            for (LoadBalancerRule rule : currentResource.getLoadBalancerRule()) {
+                updateLoadBalancer = updateLoadBalancer.withoutLoadBalancingRule(rule.getName());
+            }
 
-        //create added and delete removed load balancer rules
-        List<LoadBalancerRule> ruleAdditions = new ArrayList<>(getLoadBalancerRule());
-        ruleAdditions.removeAll(currentResource.getLoadBalancerRule());
-
-        List<LoadBalancerRule> ruleSubtractions = new ArrayList<>(currentResource.getLoadBalancerRule());
-        ruleSubtractions.removeAll(getLoadBalancerRule());
-
-        for (LoadBalancerRule rule : ruleAdditions) {
-
-            updateLoadBalancer
+            for (LoadBalancerRule rule : getLoadBalancerRule()) {
+                updateLoadBalancer = updateLoadBalancer
                     .defineLoadBalancingRule(rule.getName())
                     .withProtocol(TransportProtocol.fromString(rule.getProtocol()))
                     .fromFrontend(rule.getFrontendName())
                     .fromFrontendPort(rule.getFrontendPort())
-                    .toBackend(rule.getBackendPoolName())
+                    .toBackend(rule.getBackendName())
                     .withProbe(rule.getHealthCheckProbeName())
                     .withIdleTimeoutInMinutes(rule.getIdleTimeoutInMinutes())
                     .withFloatingIP(rule.getFloatingIp())
                     .attach();
-        }
-
-        for (LoadBalancerRule rule : ruleSubtractions) {
-
-            updateLoadBalancer
-                    .withoutLoadBalancingRule(rule.getName());
-        }
-
-        //http probes
-        for (HealthCheckProbeHttp httpProbe : getHealthCheckProbeHttp()) {
-            if (!httpProbeAdditions.contains(httpProbe) && !httpProbeSubtractions.contains(httpProbe)) {
-
-                updateLoadBalancer
-                        .updateHttpProbe(httpProbe.getName())
-                        .withIntervalInSeconds(httpProbe.getInterval())
-                        .withNumberOfProbes(httpProbe.getProbes())
-                        .withRequestPath(httpProbe.getRequestPath())
-                        .withPort(httpProbe.getPort());
-            }
-        }
-
-        //tcp probes
-        for (HealthCheckProbeTcp tcpProbe : getHealthCheckProbeTcp()) {
-            if (!tcpProbeAdditions.contains(tcpProbe) && !tcpProbeSubtractions.contains(tcpProbe)) {
-
-                updateLoadBalancer
-                        .updateTcpProbe(tcpProbe.getName())
-                        .withIntervalInSeconds(tcpProbe.getInterval())
-                        .withNumberOfProbes(tcpProbe.getProbes())
-                        .withPort(tcpProbe.getPort());
-            }
-        }
-
-        //private frontends
-        LoadBalancerPrivateFrontend.Update withAttachPrivateIp;
-        for (PrivateFrontend privateFrontend : getPrivateFrontend()) {
-            if (!privateAdditions.contains(privateFrontend) && !privateSubtractions.contains(privateFrontend)) {
-
-                Network network = client.networks().getById(privateFrontend.getNetworkId());
-
-                withAttachPrivateIp = updateLoadBalancer
-                        .updatePrivateFrontend(privateFrontend.getName())
-                        .withExistingSubnet(network, privateFrontend.getSubnetName());
-
-                if (privateFrontend.getPrivateIpAddress() != null) {
-                    withAttachPrivateIp.withPrivateIPAddressStatic(privateFrontend.getPrivateIpAddress());
-                } else {
-                    withAttachPrivateIp.withPrivateIPAddressDynamic();
-                }
-
-                updateNatPoolsAndRules(privateFrontend, currentResource.frontends().get(privateFrontend.getName()), updateLoadBalancer, loadBalancer);
-            }
-        }
-
-        //public frontends
-        for (PublicFrontend publicFrontend : getPublicFrontend()) {
-            if (!publicAdditions.contains(publicFrontend) && !publicSubtractions.contains(publicFrontend)) {
-
-                PublicIPAddress ip = client.publicIPAddresses()
-                        .getByResourceGroup(getResourceGroupName(), publicFrontend.getPublicIpAddressName());
-
-                updateLoadBalancer
-                        .updatePublicFrontend(publicFrontend.getName())
-                        .withExistingPublicIPAddress(ip);
-
-                updateNatPoolsAndRules(publicFrontend, currentResource.frontends().get(publicFrontend.getName()), updateLoadBalancer, loadBalancer);
-            }
-        }
-
-        //load balancer rules
-        for (LoadBalancerRule rule : getLoadBalancerRule()) {
-            if (!ruleAdditions.contains(rule) && !ruleSubtractions.contains(rule)) {
-
-                updateLoadBalancer
-                        .updateLoadBalancingRule(rule.getName())
-                        .withProtocol(TransportProtocol.fromString(rule.getProtocol()))
-                        .fromFrontend(rule.getFrontendName())
-                        .fromFrontendPort(rule.getFrontendPort())
-                        .toBackendPort(rule.getBackendPort())
-                        .withFloatingIP(rule.getFloatingIp())
-                        .withIdleTimeoutInMinutes(rule.getIdleTimeoutInMinutes())
-                        .withProbe(rule.getHealthCheckProbeName());
             }
         }
 
         //tags
-        updateLoadBalancer
-                .withTags(getTags());
+        updateLoadBalancer.withTags(getTags());
 
-        updateLoadBalancer.apply();
+        LoadBalancer response = updateLoadBalancer.apply();
+
+        copyFrom(response);
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
-        client.loadBalancers()
-                .deleteByResourceGroup(getResourceGroupName(), getName());
+        client.loadBalancers().deleteByResourceGroup(getResourceGroup().getName(), getName());
     }
 
-    private List<HasNetworkInterfaces> toBackend(List<String> vmIds) {
-        Azure client = createClient();
+    private Map<String, Frontend> getAllFrontends() {
+        Map<String, Frontend> frontends = new HashMap<>();
 
-        List<HasNetworkInterfaces> virtualMachines = new ArrayList<>();
-        vmIds.stream().forEach(vm -> virtualMachines.add(client.virtualMachines().getById(vm)));
+        getPrivateFrontend().forEach(frontend -> frontends.put(frontend.getName(), frontend));
 
-        return virtualMachines;
-    }
+        getPublicFrontend().forEach(frontend -> frontends.put(frontend.getName(), frontend));
 
-    private void updateNatPoolsAndRules(Frontend frontend, Frontend currentResource, LoadBalancer.Update updateLoadBalancer, LoadBalancer loadBalancer) {
-        List<InboundNatRule> ruleAdditions = new ArrayList<>(frontend.getInboundNatRule());
-        ruleAdditions.removeAll(currentResource.getInboundNatRule());
-
-        List<InboundNatRule> ruleSubtractions = new ArrayList<>(currentResource.getInboundNatRule());
-        ruleSubtractions.removeAll(frontend.getInboundNatRule());
-
-        List<InboundNatPool> poolAdditions = new ArrayList<>(frontend.getInboundNatPool());
-        poolAdditions.removeAll(currentResource.getInboundNatPool());
-
-        List<InboundNatPool> poolSubtractions = new ArrayList<>(currentResource.getInboundNatPool());
-        poolSubtractions.removeAll(frontend.getInboundNatPool());
-
-        removeNatPools(poolSubtractions, updateLoadBalancer);
-        removeNatRules(ruleSubtractions, updateLoadBalancer);
-
-        addNatPools(poolAdditions, updateLoadBalancer);
-        addNatRules(ruleAdditions, updateLoadBalancer);
-
-        for (InboundNatPool pool : frontend.getInboundNatPool()) {
-            if (!poolAdditions.contains(pool) && !poolSubtractions.contains(pool)) {
-                updateNatPool(pool, updateLoadBalancer);
-            }
-        }
-
-        for (InboundNatRule rule : frontend.getInboundNatRule()) {
-            if (!ruleAdditions.contains(rule) && !ruleSubtractions.contains(rule)) {
-                updateNatRule(rule, updateLoadBalancer);
-            }
-        }
+        return frontends;
     }
 
     private void addNatRulesAndPools(Frontend frontend, LoadBalancer.Update updateLoadBalancer) {
-        addNatPools(frontend.getInboundNatPool(), updateLoadBalancer);
-        addNatRules(frontend.getInboundNatRule(), updateLoadBalancer);
-    }
-
-    private void removeNatRulesAndPools(Frontend frontend, LoadBalancer.Update updateLoadBalancer) {
-        removeNatPools(frontend.getInboundNatPool(), updateLoadBalancer);
-        removeNatRules(frontend.getInboundNatRule(), updateLoadBalancer);
+        addNatPools(new ArrayList<>(frontend.getInboundNatPool()), updateLoadBalancer);
+        addNatRules(new ArrayList<>(frontend.getInboundNatRule()), updateLoadBalancer);
     }
 
     private void addNatPools(List<InboundNatPool> pools, LoadBalancer.Update updateLoadBalancer) {
@@ -720,11 +588,11 @@ public class LoadBalancerResource extends AzureResource {
             withName = updateLoadBalancer.defineInboundNatPool(pool.getName());
 
             withProtocol =
-                    (LoadBalancerInboundNatPool.UpdateDefinitionStages.WithFrontend) withName.withProtocol(TransportProtocol.fromString(pool.getProtocol()));
+                (LoadBalancerInboundNatPool.UpdateDefinitionStages.WithFrontend) withName.withProtocol(TransportProtocol.fromString(pool.getProtocol()));
 
             withFrontend = (LoadBalancerInboundNatPool.UpdateDefinitionStages.WithFrontendPortRange) withProtocol.fromFrontend(pool.getFrontendName());
 
-            withPortRange = (LoadBalancerInboundNatPool.UpdateDefinitionStages.WithBackendPort) withFrontend.fromFrontendPortRange(pool.getFrontendPortRangeStart(), pool.getFrontendPortRangeEnd());
+            withPortRange = (LoadBalancerInboundNatPool.UpdateDefinitionStages.WithBackendPort) withFrontend.fromFrontendPortRange(pool.getFrontendPortStart(), pool.getFrontendPortEnd());
 
             withBackendPort = (LoadBalancerInboundNatPool.UpdateDefinitionStages.WithAttach) withPortRange.toBackendPort(pool.getBackendPort());
 
@@ -734,52 +602,14 @@ public class LoadBalancerResource extends AzureResource {
 
     private void addNatRules(List<InboundNatRule> rules, LoadBalancer.Update updateLoadBalancer) {
         for (InboundNatRule rule : rules) {
-
             updateLoadBalancer
-                    .defineInboundNatRule(rule.getName())
-                    .withProtocol(TransportProtocol.fromString(rule.getProtocol()))
-                    .fromFrontend(rule.getFrontendName())
-                    .fromFrontendPort(rule.getFrontendPort())
-                    .toBackendPort(rule.getBackendPort())
-                    .withFloatingIP(rule.getFloatingIp())
-                    .attach();
+                .defineInboundNatRule(rule.getName())
+                .withProtocol(TransportProtocol.fromString(rule.getProtocol()))
+                .fromFrontend(rule.getFrontendName())
+                .fromFrontendPort(rule.getFrontendPort())
+                .toBackendPort(rule.getBackendPort())
+                .withFloatingIP(rule.getFloatingIp())
+                .attach();
         }
-    }
-
-    private void removeNatPools(List<InboundNatPool> pools, LoadBalancer.Update updateLoadBalancer) {
-        for (InboundNatPool pool : pools) {
-
-            updateLoadBalancer
-                    .withoutInboundNatPool(pool.getName());
-        }
-    }
-
-    private void removeNatRules(List<InboundNatRule> rules, LoadBalancer.Update updateLoadBalancer) {
-        for (InboundNatRule rule : rules) {
-
-            updateLoadBalancer
-                    .withoutInboundNatPool(rule.getName());
-        }
-    }
-
-    private void updateNatPool(InboundNatPool pool, LoadBalancer.Update updateLoadBalancer) {
-
-            updateLoadBalancer
-                    .updateInboundNatPool(pool.getName())
-                    .withProtocol(TransportProtocol.fromString(pool.getProtocol()))
-                    .fromFrontend(pool.getFrontendName())
-                    .fromFrontendPortRange(pool.getFrontendPortRangeStart(), pool.getFrontendPortRangeEnd())
-                    .toBackendPort(pool.getBackendPort());
-    }
-
-    private void updateNatRule(InboundNatRule rule, LoadBalancer.Update updateLoadBalancer) {
-
-            updateLoadBalancer
-                    .updateInboundNatRule(rule.getName())
-                    .withProtocol(TransportProtocol.fromString(rule.getProtocol()))
-                    .fromFrontend(rule.getFrontendName())
-                    .fromFrontendPort(rule.getFrontendPort())
-                    .toBackendPort(rule.getBackendPort())
-                    .withFloatingIP(rule.getFloatingIp());
     }
 }

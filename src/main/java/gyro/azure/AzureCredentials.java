@@ -1,15 +1,24 @@
 package gyro.azure;
 
 import com.microsoft.azure.AzureEnvironment;
+import com.microsoft.azure.AzureResponseBuilder;
 import com.microsoft.azure.credentials.ApplicationTokenCredentials;
 import com.microsoft.azure.credentials.AzureTokenCredentials;
 import com.microsoft.azure.management.Azure;
+import com.microsoft.azure.management.resources.fluentcore.utils.ProviderRegistrationInterceptor;
+import com.microsoft.azure.management.resources.fluentcore.utils.ResourceManagerThrottlingInterceptor;
+import com.microsoft.azure.serializer.AzureJacksonAdapter;
 import com.microsoft.rest.LogLevel;
+import com.microsoft.rest.RestClient;
 import gyro.core.GyroException;
 import gyro.core.auth.Credentials;
+import okhttp3.OkHttpClient;
+import okhttp3.Protocol;
+import retrofit2.Retrofit;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.Properties;
 
 public class AzureCredentials extends Credentials {
@@ -61,11 +70,19 @@ public class AzureCredentials extends Credentials {
             (String) properties.get("key"),
             environment);
 
+        OkHttpClient.Builder httpBuilder = new OkHttpClient.Builder().protocols(Collections.singletonList(Protocol.HTTP_1_1));
+        RestClient restClient = new RestClient.Builder(httpBuilder, new Retrofit.Builder())
+            .withBaseUrl(credentials.environment(), AzureEnvironment.Endpoint.RESOURCE_MANAGER)
+            .withCredentials(credentials)
+            .withSerializerAdapter(new AzureJacksonAdapter())
+            .withResponseBuilderFactory(new AzureResponseBuilder.Factory())
+            .withInterceptor(new ProviderRegistrationInterceptor(credentials))
+            .withInterceptor(new ResourceManagerThrottlingInterceptor())
+            .withLogLevel(LogLevel.valueOf(getLogLevel()))
+            .build();
+
         try {
-            return Azure.configure()
-                .withLogLevel(LogLevel.valueOf(getLogLevel()))
-                .authenticate(credentials)
-                .withDefaultSubscription();
+            return Azure.authenticate(restClient, (String) properties.get("tenant")).withDefaultSubscription();
 
         } catch (IOException error) {
             throw new GyroException(error.getMessage(), error);

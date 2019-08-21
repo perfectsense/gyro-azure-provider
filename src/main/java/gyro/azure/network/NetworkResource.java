@@ -5,14 +5,17 @@ import com.microsoft.azure.management.network.Network;
 import com.microsoft.azure.management.network.Subnet;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import gyro.azure.AzureResource;
+import gyro.azure.Copyable;
+import gyro.azure.resources.ResourceGroupResource;
 import gyro.core.GyroUI;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -30,8 +33,8 @@ import java.util.stream.Collectors;
  * .. code-block:: gyro
  *
  *     azure::network network-example
- *          network-name: "network-example"
- *          resource-group-name: $(azure::resource-group resource-group-network-example | resource-group-name)
+ *          name: "network-example"
+ *          resource-group: $(azure::resource-group resource-group-network-example)
  *          address-spaces:  [
  *               "10.0.0.0/27",
  *               "10.1.0.0/27"
@@ -45,7 +48,7 @@ import java.util.stream.Collectors;
  *          subnet
  *              address-prefix: "10.0.0.16/28"
  *              name: "subnet2"
- *     end
+ *          end
  *
  *          tags: {
  *              Name: "resource-group-network-example"
@@ -53,69 +56,80 @@ import java.util.stream.Collectors;
  *     end
  */
 @Type("network")
-public class NetworkResource extends AzureResource {
-    private String networkName;
-    private String resourceGroupName;
-    private List<String> addressSpaces;
-    private List<SubnetResource> subnet;
+public class NetworkResource extends AzureResource implements Copyable<Network> {
+    private String name;
+    private ResourceGroupResource resourceGroup;
+    private Set<String> addressSpaces;
+    private Set<SubnetResource> subnet;
     private Map<String, String> tags;
-    private String networkId;
+    private String id;
+
+    private Boolean isVmProtectionEnabled;
+    private Boolean isDdosProtectionEnabled;
+    private String ddosProtectionPlanId;
+    private Set<String> dnsServerIPs;
 
     /**
-     * Name of the network. (Required)
+     * Name of the Network. (Required)
      */
-    public String getNetworkName() {
-        return networkName;
+    @Required
+    public String getName() {
+        return name;
     }
 
-    public void setNetworkName(String networkName) {
-        this.networkName = networkName;
-    }
-
-    /**
-     * Name of the resource group under which this would reside. (Required)
-     */
-    public String getResourceGroupName() {
-        return resourceGroupName;
-    }
-
-    public void setResourceGroupName(String resourceGroupName) {
-        this.resourceGroupName = resourceGroupName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
-     * Address spaces for the network. (Required)
+     * The Resource Group under which the Network would reside. (Required)
      */
+    @Required
+    public ResourceGroupResource getResourceGroup() {
+        return resourceGroup;
+    }
+
+    public void setResourceGroup(ResourceGroupResource resourceGroup) {
+        this.resourceGroup = resourceGroup;
+    }
+
+    /**
+     * Address spaces for the Network. (Required)
+     */
+    @Required
     @Updatable
-    public List<String> getAddressSpaces() {
+    public Set<String> getAddressSpaces() {
         if (addressSpaces == null) {
-            addressSpaces = new ArrayList<>();
+            addressSpaces = new HashSet<>();
         }
 
         return addressSpaces;
     }
 
-    public void setAddressSpaces(List<String> addressSpaces) {
+    public void setAddressSpaces(Set<String> addressSpaces) {
         this.addressSpaces = addressSpaces;
     }
 
     /**
-     * Subnets for the network.
+     * Subnets for the Network.
      *
      * @subresource gyro.azure.network.SubnetResource
      */
-    public List<SubnetResource> getSubnet() {
+    public Set<SubnetResource> getSubnet() {
         if (subnet == null) {
-            subnet = new ArrayList<>();
+            subnet = new HashSet<>();
         }
 
         return subnet;
     }
 
-    public void setSubnet(List<SubnetResource> subnet) {
+    public void setSubnet(Set<SubnetResource> subnet) {
         this.subnet = subnet;
     }
 
+    /**
+     * The tags for the Network.
+     */
     @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
@@ -129,32 +143,100 @@ public class NetworkResource extends AzureResource {
         this.tags = tags;
     }
 
+    /**
+     * The ID of the Network.
+     */
+    @Id
     @Output
-    public String getNetworkId() {
-        return networkId;
+    public String getId() {
+        return id;
     }
 
-    public void setNetworkId(String networkId) {
-        this.networkId = networkId;
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    /**
+     * Is VM protection enabled for the Network.
+     */
+    @Output
+    public Boolean getVmProtectionEnabled() {
+        return isVmProtectionEnabled;
+    }
+
+    public void setVmProtectionEnabled(Boolean vmProtectionEnabled) {
+        isVmProtectionEnabled = vmProtectionEnabled;
+    }
+
+    /**
+     * Is DDos protection enabled for the Network.
+     */
+    @Output
+    public Boolean getDdosProtectionEnabled() {
+        return isDdosProtectionEnabled;
+    }
+
+    public void setDdosProtectionEnabled(Boolean ddosProtectionEnabled) {
+        isDdosProtectionEnabled = ddosProtectionEnabled;
+    }
+
+    /**
+     * The Ddos protection ID if present for the Network.
+     */
+    @Output
+    public String getDdosProtectionPlanId() {
+        return ddosProtectionPlanId;
+    }
+
+    public void setDdosProtectionPlanId(String ddosProtectionPlanId) {
+        this.ddosProtectionPlanId = ddosProtectionPlanId;
+    }
+
+    /**
+     * The DNS Server IPs for the Network.
+     */
+    @Output
+    public Set<String> getDnsServerIPs() {
+        return dnsServerIPs;
+    }
+
+    public void setDnsServerIPs(Set<String> dnsServerIPs) {
+        this.dnsServerIPs = dnsServerIPs;
+    }
+
+    @Override
+    public void copyFrom(Network network) {
+        setId(network.id());
+        setTags(network.tags());
+        setAddressSpaces(new HashSet<>(network.addressSpaces()));
+        setName(network.name());
+        setResourceGroup(findById(ResourceGroupResource.class, network.resourceGroupName()));
+        setVmProtectionEnabled(network.isVmProtectionEnabled());
+        setDdosProtectionEnabled(network.isDdosProtectionEnabled());
+        setDdosProtectionPlanId(network.ddosProtectionPlanId());
+        setDnsServerIPs(new HashSet<>(network.dnsServerIPs()));
+
+        getSubnet().clear();
+        if (!network.subnets().isEmpty()) {
+            for (Subnet subnet : network.subnets().values()) {
+                SubnetResource subnetResource = newSubresource(SubnetResource.class);
+                subnetResource.copyFrom(subnet);
+                getSubnet().add(subnetResource);
+            }
+        }
     }
 
     @Override
     public boolean refresh() {
         Azure client = createClient();
 
-        Network network = client.networks().getById(getNetworkId());
+        Network network = client.networks().getById(getId());
 
-        setTags(network.tags());
-        setAddressSpaces(network.addressSpaces()); // change to list
-        setNetworkName(network.name());
-
-        getSubnet().clear();
-        if (!network.subnets().isEmpty()) {
-            for (Subnet key : network.subnets().values()) {
-                SubnetResource subnetResource = new SubnetResource(key);
-                getSubnet().add(subnetResource);
-            }
+        if (network == null) {
+            return false;
         }
+
+        copyFrom(network);
 
         return true;
     }
@@ -164,9 +246,9 @@ public class NetworkResource extends AzureResource {
         Azure client = createClient();
 
         Network.DefinitionStages.WithCreate networkDefWithoutAddress = client.networks()
-            .define(getNetworkName())
+            .define(getName())
             .withRegion(Region.fromName(getRegion()))
-            .withExistingResourceGroup(getResourceGroupName());
+            .withExistingResourceGroup(getResourceGroup().getName());
 
         Network.DefinitionStages.WithCreateAndSubnet withAddressSpace = null;
 
@@ -174,28 +256,18 @@ public class NetworkResource extends AzureResource {
             withAddressSpace = networkDefWithoutAddress.withAddressSpace(addressSpace);
         }
 
-        //other options
-
         Network network = withAddressSpace
             .withTags(getTags())
             .create();
 
-        network.addressSpaces();
-        network.ddosProtectionPlanId();
-        network.dnsServerIPs();
-        network.isDdosProtectionEnabled();
-        network.isVmProtectionEnabled();
-        network.peerings();
-        network.subnets();
-        setNetworkId(network.id());
-
+        copyFrom(network);
     }
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
-        Network network = client.networks().getById(getNetworkId());
+        Network network = client.networks().getById(getId());
 
         Network.Update update = network.update();
 
@@ -233,10 +305,10 @@ public class NetworkResource extends AzureResource {
     public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
-        client.networks().deleteById(getNetworkId());
+        client.networks().deleteById(getId());
     }
 
     Network getNetwork(Azure client) {
-        return client.networks().getByResourceGroup(getResourceGroupName(), getNetworkName());
+        return client.networks().getById(getId());
     }
 }
