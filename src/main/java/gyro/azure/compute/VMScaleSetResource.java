@@ -131,8 +131,8 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
     private String computerNamePrefix;
     private String customData;
     private Boolean enableIpForwarding;
-    private String OsDiskCaching;
-    private String OsDiskName;
+    private String osDiskCaching;
+    private String osDiskName;
     private Boolean enableOverProvision;
     private Boolean enableLowPriorityVm;
     private String lowPriorityVmPolicy;
@@ -605,26 +605,26 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
      */
     @ValidStrings({"NONE", "READ_ONLY", "READ_WRITE"})
     public String getOsDiskCaching() {
-        if (OsDiskCaching != null) {
-            OsDiskCaching = OsDiskCaching.toUpperCase();
+        if (osDiskCaching != null) {
+            osDiskCaching = osDiskCaching.toUpperCase();
         }
 
-        return OsDiskCaching;
+        return osDiskCaching;
     }
 
     public void setOsDiskCaching(String osDiskCaching) {
-        OsDiskCaching = osDiskCaching;
+        this.osDiskCaching = osDiskCaching;
     }
 
     /**
      * Set the OS Disk name for the VMs launched by this Scale Set.
      */
     public String getOsDiskName() {
-        return OsDiskName;
+        return osDiskName;
     }
 
     public void setOsDiskName(String osDiskName) {
-        OsDiskName = osDiskName;
+        this.osDiskName = osDiskName;
     }
 
     /**
