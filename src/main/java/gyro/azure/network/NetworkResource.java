@@ -260,6 +260,8 @@ public class NetworkResource extends AzureResource implements Copyable<Network> 
             .withTags(getTags())
             .create();
 
+        network = network.update().withoutSubnet("subnet1").apply();
+
         copyFrom(network);
     }
 
