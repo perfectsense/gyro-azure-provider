@@ -7,7 +7,7 @@ azure::resource-group storage-account-example
 end
 
 azure::storage-account storage-account-example
-    resource-group-name: $(azure::resource-group storage-account-example | resource-group-name)
+    resource-group: $(azure::resource-group storage-account-example)
     name: "storageaccountex"
 
     cors-rule

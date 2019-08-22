@@ -1,9 +1,12 @@
 package gyro.azure.storage;
 
 import gyro.azure.AzureResource;
+import gyro.azure.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Type;
+import gyro.core.resource.Id;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 
 import com.microsoft.azure.storage.CloudStorageAccount;
@@ -13,14 +16,13 @@ import com.microsoft.azure.storage.file.CloudFileClient;
 import com.microsoft.azure.storage.file.CloudFileDirectory;
 import com.microsoft.azure.storage.file.CloudFileShare;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Iterator;
 import java.util.Set;
-
 
 /**
  * Creates a cloud file directory
@@ -31,63 +33,64 @@ import java.util.Set;
  * .. code-block:: gyro
  *
  *     azure::cloud-file-directory cloud-file-directory
- *         cloud-file-directory-path: "/example/directory/path"
- *         cloud-file-share-name: $(azure::cloud-file-share cloud-file-share-example | cloud-file-share-name)
+ *         path: "/example/directory/path"
+ *         cloud-file-share: $(azure::cloud-file-share cloud-file-share-example)
  *         storage-account: $(azure::storage-account blob-storage-account-example)
  *     end
  */
 @Type("cloud-file-directory")
-public class CloudFileDirectoryResource extends AzureResource {
+public class CloudFileDirectoryResource extends AzureResource implements Copyable<CloudFileDirectory> {
 
-    private String cloudFileDirectoryPath;
-    private String cloudFileDirectoryName;
-    private String cloudFileShareName;
+    private String path;
+    private String name;
+    private CloudFileShareResource cloudFileShare;
     private StorageAccountResource storageAccount;
 
-    public CloudFileDirectoryResource() {}
+    /**
+     * The Cloud File Directory path. (Required)
+     */
+    @Required
+    @Id
+    public String getPath() {
+        if (path != null && !path.startsWith("/")) {
+            path = "/" + path;
+        }
 
-    public CloudFileDirectoryResource(String directoryPath, String cloudFileShareName, StorageAccountResource storageAccount) {
-        this.cloudFileDirectoryPath = directoryPath;
-        this.cloudFileShareName = cloudFileShareName;
-        this.storageAccount = storageAccount;
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
     }
 
     /**
-     * The name of the cloud file path. (Required)
+     * The name of the Cloud File Directory.
      */
-    public String getCloudFileDirectoryPath() {
-        return cloudFileDirectoryPath;
+    @Output
+    public String getName() {
+        return Paths.get(getPath()).getFileName().toString();
     }
 
-    public void setCloudFileDirectoryPath(String cloudFileDirectoryPath) {
-        this.cloudFileDirectoryPath = cloudFileDirectoryPath;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
-     * The name of the cloud file directory. (Required)
+     * The Cloud File Share under which the Cloud File Directory resides. (Required)
      */
-    public String getCloudFileDirectoryName() {
-        return Paths.get(getCloudFileDirectoryPath()).getFileName().toString();
+    @Required
+    public CloudFileShareResource getCloudFileShare() {
+        return cloudFileShare;
     }
 
-    public void setCloudFileDirectoryName(String cloudFileDirectoryName) {
-        this.cloudFileDirectoryName = cloudFileDirectoryName;
+    public void setCloudFileShare(CloudFileShareResource cloudFileShare) {
+        this.cloudFileShare = cloudFileShare;
     }
 
     /**
-     * The name of the cloud file share. (Required)
+     * The Storage Account where the Cloud File Directory will be created. (Required)
      */
-    public String getCloudFileShareName() {
-        return cloudFileShareName;
-    }
-
-    public void setCloudFileShareName(String cloudFileShareName) {
-        this.cloudFileShareName = cloudFileShareName;
-    }
-
-    /**
-     * The storage account resource where the file directory will be created. (Required)
-     */
+    @Required
     public StorageAccountResource getStorageAccount() {
         return storageAccount;
     }
@@ -97,61 +100,64 @@ public class CloudFileDirectoryResource extends AzureResource {
     }
 
     @Override
+    public void copyFrom(CloudFileDirectory directory) {
+        try {
+            setStorageAccount(findById(StorageAccountResource.class, directory.getStorageUri().getPrimaryUri().getAuthority().split(".file.core")[0]));
+            setPath(directory.getStorageUri().getPrimaryUri().getPath().split(directory.getShare().getName())[1]);
+            setName(directory.getName());
+            setCloudFileShare(findById(CloudFileShareResource.class, directory.getShare().getName()));
+        } catch (Exception ex) {
+            throw new GyroException(ex.getMessage());
+        }
+    }
+
+    @Override
     public boolean refresh() {
         try {
             CloudFileDirectory directory = cloudFileDirectory();
-            if (directory.exists()) {
-                setCloudFileDirectoryName(directory.getName());
-                return true;
+            if (!directory.exists()) {
+                return false;
             }
-            return false;
-        }  catch (StorageException ex) {
+
+            copyFrom(directory);
+
+            return true;
+        }  catch (StorageException | URISyntaxException | InvalidKeyException ex) {
             throw new GyroException(ex.getMessage());
         }
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
-        try {
-            CloudFileDirectory directory = cloudFileDirectory();
-            directory.create();
-        } catch (StorageException | URISyntaxException ex) {
-            throw new GyroException(ex.getMessage());
-        }
+    public void create(GyroUI ui, State state) throws StorageException, URISyntaxException, InvalidKeyException {
+        CloudFileDirectory directory = cloudFileDirectory();
+        directory.create();
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {}
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
 
-    @Override
-    public void delete(GyroUI ui, State state) {
-        try {
-            CloudFileDirectory directory = cloudFileDirectory();
-            directory.delete();
-        } catch (StorageException | URISyntaxException ex) {
-            throw new GyroException(ex.getMessage());
-        }
     }
 
-    public CloudFileDirectory cloudFileDirectory() {
-        try {
-            CloudStorageAccount storageAccount = CloudStorageAccount.parse(getStorageAccount().getConnection());
-            CloudFileClient fileClient = storageAccount.createCloudFileClient();
-            CloudFileShare share = fileClient.getShareReference(getCloudFileShareName());
+    @Override
+    public void delete(GyroUI ui, State state) throws StorageException, URISyntaxException, InvalidKeyException {
+        CloudFileDirectory directory = cloudFileDirectory();
+        directory.delete();
+    }
 
-            CloudFileDirectory rootDirectory = share.getRootDirectoryReference();
+    private CloudFileDirectory cloudFileDirectory() throws StorageException, URISyntaxException, InvalidKeyException {
+        CloudStorageAccount storageAccount = CloudStorageAccount.parse(getStorageAccount().getConnection());
+        CloudFileClient fileClient = storageAccount.createCloudFileClient();
+        CloudFileShare share = fileClient.getShareReference(getCloudFileShare().getName());
 
-            Path cloudFilePath = Paths.get(getCloudFileDirectoryPath()).getParent();
-            String finalDirectory = Paths.get(getCloudFileDirectoryPath()).getFileName().toString();
-            Iterator<Path> iter = cloudFilePath.iterator();
-            while (iter.hasNext()) {
-                String currentDirectory = iter.next().toString();
-                rootDirectory = rootDirectory.getDirectoryReference(currentDirectory);
-                rootDirectory.createIfNotExists();
-            }
-            return rootDirectory.getDirectoryReference(finalDirectory);
-        } catch (StorageException | URISyntaxException | InvalidKeyException ex) {
-            throw new GyroException(ex.getMessage());
+        CloudFileDirectory rootDirectory = share.getRootDirectoryReference();
+
+        Path cloudFilePath = Paths.get(getPath()).getParent();
+        String finalDirectory = Paths.get(getPath()).getFileName().toString();
+        for (Path path : cloudFilePath) {
+            String currentDirectory = path.toString();
+            rootDirectory = rootDirectory.getDirectoryReference(currentDirectory);
+            rootDirectory.createIfNotExists();
         }
+        return rootDirectory.getDirectoryReference(finalDirectory);
     }
 }
