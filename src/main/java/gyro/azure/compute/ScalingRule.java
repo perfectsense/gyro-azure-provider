@@ -171,6 +171,7 @@ public class ScalingRule extends Diffable implements Copyable<ScaleRule> {
      */
     @Required
     @Updatable
+    @Range(min = 1, max = 10080)
     public Integer getCooldown() {
         return cooldown;
     }
