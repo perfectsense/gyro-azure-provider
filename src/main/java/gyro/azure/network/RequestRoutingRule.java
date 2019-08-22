@@ -84,7 +84,7 @@ public class RequestRoutingRule extends Diffable implements Copyable<Application
     }
 
     /**
-     * Name of the redirect configuration to be associated with the rule. Required if backend bot present.
+     * Name of the redirect configuration to be associated with the rule. Required if backend not present.
      */
     @Updatable
     public String getRedirectConfiguration() {

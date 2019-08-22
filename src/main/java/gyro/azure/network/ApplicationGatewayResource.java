@@ -317,10 +317,10 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
     }
 
     /**
-     * Teh SKU for the Application Gateway. Valid values are ``Standard_Small`` or ``Standard_Medium`` or ``Standard_Large`` or ``WAF_Medium`` or ``WAF_Large`` or ``Standard_v2`` or ``WAF_v2``. (Required)
+     * The SKU for the Application Gateway. Valid values are ``STANDARD_SMALL`` or ``STANDARD_MEDIUM`` or ``STANDARD_LARGE`` or ``WAF_MEDIUM`` or ``WAF_LARGE`` or ``STANDARD_V2`` or ``WAF_V2``. (Required)
      */
     @Required
-    @ValidStrings({"Standard_Small", "Standard_Medium", "Standard_Large", "WAF_Medium", "WAF_Large", "Standard_v2", "WAF_v2"})
+    @ValidStrings({"STANDARD_SMALL", "STANDARD_MEDIUM", "STANDARD_LARGE", "WAF_MEDIUM", "WAF_LARGE", "STANDARD_V2", "WAF_V2"})
     @Updatable
     public String getSkuSize() {
         return skuSize != null ? skuSize.toUpperCase() : null;
