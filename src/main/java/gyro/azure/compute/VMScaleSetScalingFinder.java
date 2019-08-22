@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 @Type("scale-set-scaling")
-public class VMScaleSetScalingFinder extends AzureFinder<AutoscaleSetting, VMScaleSetScaling> {
+public class VMScaleSetScalingFinder extends AzureFinder<AutoscaleSetting, VMScaleSetScalingResource> {
     private String id;
 
     /**

@@ -102,7 +102,7 @@ import java.util.stream.Collectors;
  *     end
  */
 @Type("scale-set-scaling")
-public class VMScaleSetScaling extends AzureResource implements Copyable<AutoscaleSetting> {
+public class VMScaleSetScalingResource extends AzureResource implements Copyable<AutoscaleSetting> {
 
     private String name;
     private ResourceGroupResource resourceGroup;
@@ -425,7 +425,7 @@ public class VMScaleSetScaling extends AzureResource implements Copyable<Autosca
         }
 
         if (changedFieldNames.contains("profile")) {
-            for (ScalingProfile profile : ((VMScaleSetScaling) current).getProfile()) {
+            for (ScalingProfile profile : ((VMScaleSetScalingResource) current).getProfile()) {
                 if (getProfile().stream().noneMatch(o -> o.getName().equals(profile.getName()) && o.getType().equals(profile.getType()) && o.getType().equals(ScalingProfile.ProfileType.FIXED))) {
                     update = update.withoutAutoscaleProfile(profile.getName());
                 }
