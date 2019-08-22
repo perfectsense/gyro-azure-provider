@@ -54,9 +54,8 @@ public class RouteResource extends Diffable implements Copyable<Route> {
     }
 
     /**
-     * The IP address of the next hop. (Required)
+     * The IP address of the next hop. Required if 'next-hop-type' is set to ``VirtualAppliance``.
      */
-    @Required
     @Updatable
     public String getNextHopIpAddress() {
         return nextHopIpAddress;
