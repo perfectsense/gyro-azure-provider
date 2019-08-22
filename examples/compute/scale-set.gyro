@@ -207,3 +207,84 @@ azure::scale-set scale-set-example
         Name: "scale-set-example"
     }
 end
+
+azure::scale-set-scaling scale-set-scaling-example
+    name: "scale-set-scaling-example"
+    resource-group: $(azure::resource-group scale-set-resource-group-example)
+    enabled: "false"
+    scale-set: $(azure::scale-set scale-set-example)
+
+    profile
+        name: "profile-example-fixed-schedule"
+        type: "FIXED_SCHEDULE"
+        default-instance-count: 2
+        fixed-schedule
+            start-time: "2019-08-23T00:00:00.000Z"
+            end-time: "2019-08-23T23:59:00.000Z"
+            time-zone: "Eastern Standard Time"
+        end
+    end
+
+    profile
+        name: "profile-example-recurrent-schedule"
+        type: "RECURRENT_SCHEDULE"
+        default-instance-count: 1
+        recurrent-schedule
+            time-zone: "Eastern Standard Time"
+            start-time: "12:23"
+            day-of-weeks: [
+                "MONDAY", "TUESDAY", "WEDNESDAY"
+            ]
+        end
+    end
+
+    profile
+        name: "profile-example-recurrent-schedule-2"
+        type: "RECURRENT_SCHEDULE"
+        default-instance-count: 1
+        recurrent-schedule
+            time-zone: "Eastern Standard Time"
+            start-time: "12:23"
+            day-of-weeks: [
+                "MONDAY", "TUESDAY", "WEDNESDAY"
+            ]
+        end
+    end
+
+    profile
+        name: "profile-example-metric"
+        type: "METRIC"
+        default-instance-count: 1
+        max-instance-count: 1
+        min-instance-count: 1
+        rule
+            metric-name: "Percentage CPU"
+            metric-source-id: $(azure::scale-set scale-set-example).id
+            statistic-duration: 1200
+            statistic-frequency: 60
+            statistic-type: "AVERAGE"
+            time-aggregation: "AVERAGE"
+            comparison-operation: "GREATER_THAN"
+            threshold: 70
+            scale-direction: "INCREASE"
+            scale-type: "CHANGE_COUNT"
+            instance-count-change: 1
+            cooldown: 5
+        end
+
+        rule
+            metric-name: "Outbound Flows"
+            metric-source-id: $(azure::scale-set scale-set-example).id
+            statistic-duration: 1200
+            statistic-frequency: 60
+            statistic-type: "AVERAGE"
+            time-aggregation: "AVERAGE"
+            comparison-operation: "GREATER_THAN"
+            threshold: 70
+            scale-direction: "INCREASE"
+            scale-type: "CHANGE_COUNT"
+            instance-count-change: 1
+            cooldown: 5
+        end
+    end
+end
