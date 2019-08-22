@@ -339,7 +339,7 @@ public class VMScaleSetScaling extends AzureResource implements Copyable<Autosca
                     .withRecurrentSchedule(profile.getRecurrentSchedule().getTimeZone(), profile.getRecurrentSchedule().getStartTime(), profile.getRecurrentSchedule().toDayOfWeeks())
                     .attach();
             } else {
-                AutoscaleProfile.DefinitionStages.WithScaleRule withScaleRule = blankProfileStage.withMetricBasedScale(profile.getMaxInstanceCount(), profile.getMinInstanceCount(), profile.getDefaultInstanceCount());
+                AutoscaleProfile.DefinitionStages.WithScaleRule withScaleRule = blankProfileStage.withMetricBasedScale(profile.getMinInstanceCount(), profile.getMaxInstanceCount(), profile.getDefaultInstanceCount());
                 AutoscaleProfile.DefinitionStages.WithScaleRuleOptional scaleRuleStage = null;
                 for (ScalingRule rule : profile.getRule()) {
                     ScaleRule.DefinitionStages.Blank blank;
@@ -448,7 +448,7 @@ public class VMScaleSetScaling extends AzureResource implements Copyable<Autosca
                         .withRecurrentSchedule(profile.getRecurrentSchedule().getTimeZone(), profile.getRecurrentSchedule().getStartTime(), profile.getRecurrentSchedule().toDayOfWeeks())
                         .attach();
                 } else {
-                    AutoscaleProfile.UpdateDefinitionStages.WithScaleRule withScaleRule = profileStage.withMetricBasedScale(profile.getMaxInstanceCount(), profile.getMinInstanceCount(), profile.getDefaultInstanceCount());
+                    AutoscaleProfile.UpdateDefinitionStages.WithScaleRule withScaleRule = profileStage.withMetricBasedScale(profile.getMinInstanceCount(), profile.getMaxInstanceCount(), profile.getDefaultInstanceCount());
                     AutoscaleProfile.UpdateDefinitionStages.WithScaleRuleOptional scaleRuleStage = null;
                     for (ScalingRule rule : profile.getRule()) {
                         if (scaleRuleStage == null) {
