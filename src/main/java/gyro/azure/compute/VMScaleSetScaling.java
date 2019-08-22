@@ -11,6 +11,7 @@ import gyro.azure.Copyable;
 import gyro.azure.resources.ResourceGroupResource;
 import gyro.core.GyroUI;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
@@ -263,6 +264,7 @@ public class VMScaleSetScaling extends AzureResource implements Copyable<Autosca
     /**
      * The ID of the scaling.
      */
+    @Id
     @Output
     public String getId() {
         return id;
