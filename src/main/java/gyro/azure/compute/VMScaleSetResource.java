@@ -188,9 +188,8 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
     }
 
     /**
-     * The Proximity Placement Group for the Scale Set. (Required)
+     * The Proximity Placement Group for the Scale Set.
      */
-    @Required
     public ProximityPlacementGroupResource getProximityPlacementGroup() {
         return proximityPlacementGroup;
     }
@@ -707,8 +706,12 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
             setNetworkSecurityGroup(findById(NetworkSecurityGroupResource.class, scaleSet.networkSecurityGroupId()));
             setImagePublisher(scaleSet.storageProfile().imageReference().publisher());
 
-            setProximityPlacementGroup(newSubresource(ProximityPlacementGroupResource.class));
-            getProximityPlacementGroup().copyFrom(scaleSet.proximityPlacementGroup());
+            if (scaleSet.inner().proximityPlacementGroup() != null) {
+                setProximityPlacementGroup(newSubresource(ProximityPlacementGroupResource.class));
+                getProximityPlacementGroup().copyFrom(scaleSet.proximityPlacementGroup());
+            } else {
+                setProximityPlacementGroup(null);
+            }
 
             if (scaleSet.additionalCapabilities() != null) {
                 AdditionalCapability capability = newSubresource(AdditionalCapability.class);
@@ -761,14 +764,25 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
     public void create(GyroUI ui, State state){
         Azure client = createClient();
 
-        VirtualMachineScaleSet.DefinitionStages.WithPrimaryInternetFacingLoadBalancer primaryStage = client.virtualMachineScaleSets().define(getName())
+        VirtualMachineScaleSet.DefinitionStages.WithProximityPlacementGroup withProximityPlacementGroup = client.virtualMachineScaleSets().define(getName())
             .withRegion(Region.fromName(getRegion()))
             .withExistingResourceGroup(getResourceGroup().getName())
-            .withSku(VirtualMachineScaleSetSkuTypes.fromSkuNameAndTier(getSkuName(), getSkuTier()))
-            .withNewProximityPlacementGroup(getProximityPlacementGroup().getName(), ProximityPlacementGroupType.fromString(getProximityPlacementGroup().getType()))
-            .withDoNotRunExtensionsOnOverprovisionedVMs(getDoNotRunExtensionsOnOverprovisionedVMs())
-            .withAdditionalCapabilities(getAdditionalCapability().toAdditionalCapabilities())
-            .withExistingPrimaryNetworkSubnet(client.networks().getById(getNetwork().getId()), getSubnetName());
+            .withSku(VirtualMachineScaleSetSkuTypes.fromSkuNameAndTier(getSkuName(), getSkuTier()));
+
+        VirtualMachineScaleSet.DefinitionStages.WithPrimaryInternetFacingLoadBalancer primaryStage;
+
+        if (getProximityPlacementGroup() != null) {
+            primaryStage = withProximityPlacementGroup
+                .withNewProximityPlacementGroup(getProximityPlacementGroup().getName(), ProximityPlacementGroupType.fromString(getProximityPlacementGroup().getType()))
+                .withDoNotRunExtensionsOnOverprovisionedVMs(getDoNotRunExtensionsOnOverprovisionedVMs())
+                .withAdditionalCapabilities(getAdditionalCapability().toAdditionalCapabilities())
+                .withExistingPrimaryNetworkSubnet(client.networks().getById(getNetwork().getId()), getSubnetName());
+        } else {
+            primaryStage = withProximityPlacementGroup
+                .withDoNotRunExtensionsOnOverprovisionedVMs(getDoNotRunExtensionsOnOverprovisionedVMs())
+                .withAdditionalCapabilities(getAdditionalCapability().toAdditionalCapabilities())
+                .withExistingPrimaryNetworkSubnet(client.networks().getById(getNetwork().getId()), getSubnetName());
+        }
 
         VirtualMachineScaleSet.DefinitionStages.WithPrimaryInternalLoadBalancer internetFacingLbStage;
 

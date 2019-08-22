@@ -184,13 +184,6 @@ azure::scale-set scale-set-example
     admin-user-name: "qwerty@123"
     admin-password: "qwerty@123"
     capacity: 2
-    #os-disk-caching: "NONE"
-    #os-disk-name: "disk"
-
-    proximity-placement-group
-        name: "proximity-placement-group-example"
-        type: "STANDARD"
-    end
 
     network: $(azure::network scale-set-network-example)
     subnet-name: "subnet2"
@@ -200,9 +193,6 @@ azure::scale-set scale-set-example
         backends: [
             "backend-one"
         ]
-        inbound-nat-pools: [
-            "test-nat-pool-public"
-        ]
     end
 
     primary-internal-load-balancer
@@ -210,9 +200,6 @@ azure::scale-set scale-set-example
         backends: [
             "backend-one",
             "backend-two"
-        ]
-        inbound-nat-pools: [
-            "test-nat-pool"
         ]
     end
 

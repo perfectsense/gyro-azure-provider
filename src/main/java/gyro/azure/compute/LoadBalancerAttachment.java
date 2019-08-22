@@ -5,6 +5,7 @@ import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public class LoadBalancerAttachment extends Diffable {
@@ -13,7 +14,7 @@ public class LoadBalancerAttachment extends Diffable {
     private Set<String> inboundNatPools;
 
     /**
-     * The Load Balancer to be attached as internal/public-internet type to a Scale Set.
+     * The Load Balancer to be attached as internal/public-internet type to a Scale Set. (Required)
      */
     @Required
     @Updatable
@@ -26,11 +27,15 @@ public class LoadBalancerAttachment extends Diffable {
     }
 
     /**
-     * The Corresponding Load Balancer Backends.
+     * The Corresponding Load Balancer Backends. (Required)
      */
     @Required
     @Updatable
     public Set<String> getBackends() {
+        if (backends == null) {
+            backends = new HashSet<>();
+        }
+
         return backends;
     }
 
@@ -41,9 +46,12 @@ public class LoadBalancerAttachment extends Diffable {
     /**
      * The Corresponding Load Balancer Inbound Nat Pools.
      */
-    @Required
     @Updatable
     public Set<String> getInboundNatPools() {
+        if (inboundNatPools == null) {
+            inboundNatPools = new HashSet<>();
+        }
+
         return inboundNatPools;
     }
 
