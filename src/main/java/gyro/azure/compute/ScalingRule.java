@@ -226,6 +226,9 @@ public class ScalingRule extends Diffable implements Copyable<ScaleRule> {
 
     @Override
     public String primaryKey() {
-        return getMetricName();
+        String format = String.format("%s %s %s %s %s %s %s %s %s", getStatisticType(), getStatisticDuration(),
+            getStatisticFrequency(), getTimeAggregation(), getComparisonOperation(),
+            getThreshold(), getScaleType(), getCooldown(), getInstanceCountChange());
+        return String.format("Rule (%s with direction %s for target %s) %s", getMetricName(), getScaleDirection(), getMetricSourceId(), format.hashCode());
     }
 }
