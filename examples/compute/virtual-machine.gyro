@@ -7,8 +7,8 @@ azure::resource-group resource-group-example-VM
 end
 
 azure::network network-example-VM
-    network-name: "network-example-VM"
-    resource-group-name: $(azure::resource-group resource-group-example-VM | resource-group-name)
+    name: "network-example-VM"
+    resource-group: $(azure::resource-group resource-group-example-VM)
     address-spaces:  [
          "10.0.0.0/27",
          "10.1.0.0/27"
@@ -30,10 +30,10 @@ azure::network network-example-VM
 end
 
 azure::public-ip-address public-ip-address-example-VM
-    public-ip-address-name: "public-ip-address-example-VM"
-    resource-group-name: $(azure::resource-group resource-group-example-VM | resource-group-name)
+    name: "public-ip-address-example-VM"
+    resource-group: $(azure::resource-group resource-group-example-VM)
     idle-timeout-in-minute: 4
-    sku-basic: false
+    sku-type: "STANDARD"
 
     tags: {
         Name: "public-ip-address-example-VM"
@@ -41,43 +41,41 @@ azure::public-ip-address public-ip-address-example-VM
 end
 
 azure::disk disk-example-VM
-    disk-name: "disk-example-VM"
-    disk-type: "Standard_LRS"
+    name: "disk-example-VM"
+    type: "Standard_LRS"
     os-type: "LINUX"
     size: 10
-    resource-group-name: $(azure::resource-group resource-group-example-VM | resource-group-name)
+    resource-group: $(azure::resource-group resource-group-example-VM)
     tags: {
         Name: "disk-example-VM"
     }
 end
 
 azure::network-interface network-interface-example-VM
-    network-interface-name: "network-interface-example-VM"
-    resource-group-name: $(azure::resource-group resource-group-example-VM | resource-group-name)
-    network-id: $(azure::network network-example-VM | network-id)
+    name: "network-interface-example-VM"
+    resource-group: $(azure::resource-group resource-group-example-VM)
+    network: $(azure::network network-example-VM)
     subnet: "subnet1"
     tags: {
         Name: "network-interface-example-VM"
     }
 
-    primary-ip-configuration
-        ip-allocation-static: false
-        ip-configuration-name: 'primary'
-        primary: true
+    nic-ip-configuration
+        name: 'primary'
     end
 end
 
 azure::virtual-machine virtual-machine-example
-    virtual-machine-name: "virtual-machine-example"
-    resource-group-name: $(azure::resource-group resource-group-example-VM | resource-group-name)
-    network-id: $(azure::network network-example-VM | network-id)
+    name: "virtual-machine-example"
+    resource-group: $(azure::resource-group resource-group-example-VM)
+    network: $(azure::network network-example-VM)
     subnet: "subnet1"
     os-type: "linux"
-    disk-id: $(azure::disk disk-example-VM| disk-id)
-    network-interface-name: $(azure::network-interface network-interface-example-VM | network-interface-name)
+    disk: $(azure::disk disk-example-VM)
+    network-interface: $(azure::network-interface network-interface-example-VM)
     #private-ip-address: "10.0.0.10"
-    #public-ip-address-name: $(azure::public-ip-address public-ip-address-example-VM | public-ip-address-name)
-    vm-image-type: "popular"
+    #public-ip-address: $(azure::public-ip-address public-ip-address-example-VM)
+    vm-image-type: "specialized"
     known-virtual-image: "UBUNTU_SERVER_14_04_LTS"
     admin-user-name: "qwerty@123"
     admin-password: "qwerty@123"
@@ -86,6 +84,6 @@ azure::virtual-machine virtual-machine-example
     storage-account-type-data-disk: "STANDARD_LRS"
     storage-account-type-os-disk: "STANDARD_LRS"
     tags: {
-            Name: "network-interface-example-VM"
+        Name: "network-interface-example-VM"
     }
 end

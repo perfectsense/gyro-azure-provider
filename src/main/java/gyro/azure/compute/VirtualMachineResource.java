@@ -1,15 +1,16 @@
 package gyro.azure.compute;
 
+import com.microsoft.azure.SubResource;
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.compute.CachingTypes;
 import com.microsoft.azure.management.compute.KnownLinuxVirtualMachineImage;
 import com.microsoft.azure.management.compute.KnownWindowsVirtualMachineImage;
+import com.microsoft.azure.management.compute.NetworkInterfaceReference;
 import com.microsoft.azure.management.compute.OperatingSystemTypes;
 import com.microsoft.azure.management.compute.StorageAccountTypes;
 import com.microsoft.azure.management.compute.VirtualMachine;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithCreate;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithLinuxCreateManaged;
-import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithLinuxCreateManagedOrUnmanaged;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithLinuxCreateUnmanaged;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithLinuxRootPasswordOrPublicKeyManaged;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithLinuxRootPasswordOrPublicKeyManagedOrUnmanaged;
@@ -26,19 +27,27 @@ import com.microsoft.azure.management.compute.VirtualMachineSizeTypes;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
+import gyro.azure.Copyable;
+import gyro.azure.network.NetworkInterfaceResource;
+import gyro.azure.network.NetworkResource;
+import gyro.azure.network.PublicIpAddressResource;
+import gyro.azure.resources.ResourceGroupResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Creates a virtual machine.
@@ -48,43 +57,43 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *     azure::virtual-machine virtual-machine-example
- *          virtual-machine-name: "virtual-machine-example"
- *          resource-group-name: $(azure::resource-group resource-group-example-VM | resource-group-name)
- *          network-id: $(azure::network network-example-VM | network-id)
- *          subnet: "subnet1"
- *          os-type: "linux"
- *          disk-id: $(azure::disk disk-example-VM| disk-id)
- *          network-interface-name: $(azure::network-interface network-interface-example-VM | network-interface-name)
- *          vm-image-type: "popular"
- *          known-virtual-image: "UBUNTU_SERVER_14_04_LTS"
- *          admin-user-name: "qwerty@123"
- *          admin-password: "qwerty@123"
- *          caching-type: "NONE"
- *          vm-size-type: "STANDARD_G1"
- *          storage-account-type-data-disk: "STANDARD_LRS"
- *          storage-account-type-os-disk: "STANDARD_LRS"
+ *    azure::virtual-machine virtual-machine-example
+ *         name: "virtual-machine-example"
+ *         resource-group: $(azure::resource-group resource-group-example-VM)
+ *         network: $(azure::network network-example-VM)
+ *         subnet: "subnet1"
+ *         os-type: "linux"
+ *         disk: $(azure::disk disk-example-VM)
+ *         network-interface: $(azure::network-interface network-interface-example-VM)
+ *         vm-image-type: "popular"
+ *         known-virtual-image: "UBUNTU_SERVER_14_04_LTS"
+ *         admin-user-name: "qwerty@123"
+ *         admin-password: "qwerty@123"
+ *         caching-type: "NONE"
+ *         vm-size-type: "STANDARD_G1"
+ *         storage-account-type-data-disk: "STANDARD_LRS"
+ *         storage-account-type-os-disk: "STANDARD_LRS"
  *
- *          tags: {
- *              Name: "virtual-machine-example"
- *          }
- *     end
+ *         tags: {
+ *             Name: "virtual-machine-example"
+ *         }
+ *    end
  */
 @Type("virtual-machine")
-public class VirtualMachineResource extends AzureResource {
-    private String virtualMachineName;
-    private String resourceGroupName;
-    private String networkId;
-    private String networkInterfaceName;
+public class VirtualMachineResource extends AzureResource implements Copyable<VirtualMachine> {
+    private String name;
+    private ResourceGroupResource resourceGroup;
+    private NetworkResource network;
+    private NetworkInterfaceResource networkInterface;
     private String adminUserName;
     private String adminPassword;
-    private String availabilitySet;
-    private String virtualMachineId;
+    private AvailabilitySetResource availabilitySet;
+    private String id;
     private String vmId;
-    private String publicIpAddressName;
+    private PublicIpAddressResource publicIpAddress;
     private String privateIpAddress;
     private String osType;
-    private String diskId;
+    private DiskResource disk;
     private String subnet;
     private String vmImageType;
     private String ssh;
@@ -102,55 +111,58 @@ public class VirtualMachineResource extends AzureResource {
     private String imageSku;
     private String imageRegion;
     private String imageVersion;
-    private List<String> secondaryNetworkInterfaceNames;
+    private Set<NetworkInterfaceResource> secondaryNetworkInterface;
     private Map<String, String> tags;
 
     /**
-     * Name of the virtual machine. (Required)
+     * Name of the Virtual Machine. (Required)
      */
-    public String getVirtualMachineName() {
-        return virtualMachineName;
+    @Required
+    public String getName() {
+        return name;
     }
 
-    public void setVirtualMachineName(String virtualMachineName) {
-        this.virtualMachineName = virtualMachineName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
-     * Name of the resource group under which this would reside. (Required)
+     * The resource group under which the Virtual Machine would reside. (Required)
      */
-    public String getResourceGroupName() {
-        return resourceGroupName;
+    @Required
+    public ResourceGroupResource getResourceGroup() {
+        return resourceGroup;
     }
 
-    public void setResourceGroupName(String resourceGroupName) {
-        this.resourceGroupName = resourceGroupName;
+    public void setResourceGroup(ResourceGroupResource resourceGroup) {
+        this.resourceGroup = resourceGroup;
     }
 
     /**
-     * Id of the virtual network which would be associated with this. (Required)
+     * The virtual network which would be associated with this. (Required)
      */
-    public String getNetworkId() {
-        return networkId;
+    @Required
+    public NetworkResource getNetwork() {
+        return network;
     }
 
-    public void setNetworkId(String networkId) {
-        this.networkId = networkId;
+    public void setNetwork(NetworkResource network) {
+        this.network = network;
     }
 
     /**
-     * Name of the network interface that the virtual machine would use.
+     * The network interface that the Virtual Machine would use.
      */
-    public String getNetworkInterfaceName() {
-        return networkInterfaceName;
+    public NetworkInterfaceResource getNetworkInterface() {
+        return networkInterface;
     }
 
-    public void setNetworkInterfaceName(String networkInterfaceName) {
-        this.networkInterfaceName = networkInterfaceName;
+    public void setNetworkInterface(NetworkInterfaceResource networkInterface) {
+        this.networkInterface = networkInterface;
     }
 
     /**
-     * Login user name for the virtual machine.
+     * Login user name for the Virtual Machine.
      */
     public String getAdminUserName() {
         return adminUserName;
@@ -161,18 +173,18 @@ public class VirtualMachineResource extends AzureResource {
     }
 
     /**
-     * The availability set of the virtual machine.
+     * The availability set of the Virtual Machine.
      */
-    public String getAvailabilitySet() {
+    public AvailabilitySetResource getAvailabilitySet() {
         return availabilitySet;
     }
 
-    public void setAvailabilitySet(String availabilitySet) {
+    public void setAvailabilitySet(AvailabilitySetResource availabilitySet) {
         this.availabilitySet = availabilitySet;
     }
 
     /**
-     * Login password for the virtual machine.
+     * Login password for the Virtual Machine.
      */
     public String getAdminPassword() {
         return adminPassword;
@@ -182,15 +194,22 @@ public class VirtualMachineResource extends AzureResource {
         this.adminPassword = adminPassword;
     }
 
+    /**
+     * The ID for the Virtual Machine.
+     */
+    @Id
     @Output
-    public String getVirtualMachineId() {
-        return virtualMachineId;
+    public String getId() {
+        return id;
     }
 
-    public void setVirtualMachineId(String virtualMachineId) {
-        this.virtualMachineId = virtualMachineId;
+    public void setId(String id) {
+        this.id = id;
     }
 
+    /**
+     * Shortened ID for the Virtual Machine.
+     */
     @Output
     public String getVmId() {
         return vmId;
@@ -201,18 +220,18 @@ public class VirtualMachineResource extends AzureResource {
     }
 
     /**
-     * The name of the public ip address associated with the virtual machine.
+     * The Public ip address associated with the Virtual Machine.
      */
-    public String getPublicIpAddressName() {
-        return publicIpAddressName;
+    public PublicIpAddressResource getPublicIpAddress() {
+        return publicIpAddress;
     }
 
-    public void setPublicIpAddressName(String publicIpAddressName) {
-        this.publicIpAddressName = publicIpAddressName;
+    public void setPublicIpAddress(PublicIpAddressResource publicIpAddress) {
+        this.publicIpAddress = publicIpAddress;
     }
 
     /**
-     * Private ip address associated with the virtual machine.
+     * Private ip address associated with the Virtual Machine.
      */
     public String getPrivateIpAddress() {
         return privateIpAddress;
@@ -223,10 +242,12 @@ public class VirtualMachineResource extends AzureResource {
     }
 
     /**
-     * The os for the virtual machine. Valid options ['Linux','Unix']. (Required)
+     * The os for the Virtual Machine. Valid values are ``Linux`` or ``Windows``. (Required)
      */
+    @Required
+    @ValidStrings({"linux", "windows"})
     public String getOsType() {
-        return osType;
+        return osType != null ? osType.toLowerCase() : null;
     }
 
     public void setOsType(String osType) {
@@ -234,14 +255,14 @@ public class VirtualMachineResource extends AzureResource {
     }
 
     /**
-     * The id of a disk to be attached to the virtual machine.
+     * The Disk to be attached to the Virtual Machine.
      */
-    public String getDiskId() {
-        return diskId;
+    public DiskResource getDisk() {
+        return disk;
     }
 
-    public void setDiskId(String diskId) {
-        this.diskId = diskId;
+    public void setDisk(DiskResource disk) {
+        this.disk = disk;
     }
 
     /**
@@ -256,8 +277,10 @@ public class VirtualMachineResource extends AzureResource {
     }
 
     /**
-     * Type of virtual machine image. Defaults to specialized. Valid options ['popular', 'specialized', 'latest', 'specific', 'custom', 'gallery'] (Required)
+     * Type of Virtual Machine image. Defaults to specialized. Valid values are ``popular`` or ``specialized`` or ``latest`` or ``specific`` or ``custom`` or ``gallery``. (Required)
      */
+    @Required
+    @ValidStrings({"popular", "specialized", "latest", "specific", "custom", "gallery"})
     public String getVmImageType() {
         if (vmImageType == null) {
             vmImageType = "specialized";
@@ -271,7 +294,7 @@ public class VirtualMachineResource extends AzureResource {
     }
 
     /**
-     * The ssh to be used to log in to the virtual machine.
+     * The ssh public key to be associated to the Virtual Machine.
      */
     public String getSsh() {
         return ssh;
@@ -282,7 +305,7 @@ public class VirtualMachineResource extends AzureResource {
     }
 
     /**
-     * The id of a stored image to create the virtual machine.
+     * The id of a stored image to create the Virtual Machine.
      */
     public String getStoredImage() {
         return storedImage;
@@ -293,7 +316,7 @@ public class VirtualMachineResource extends AzureResource {
     }
 
     /**
-     * The id of a custom image to create the virtual machine.
+     * The id of a custom image to create the Virtual Machine.
      */
     public String getCustomImage() {
         return customImage;
@@ -304,7 +327,7 @@ public class VirtualMachineResource extends AzureResource {
     }
 
     /**
-     * The version of a gallery image to create the virtual machine.
+     * The version of a gallery image to create the Virtual Machine.
      */
     public String getGalleryImageVersion() {
         return galleryImageVersion;
@@ -315,8 +338,9 @@ public class VirtualMachineResource extends AzureResource {
     }
 
     /**
-     * The caching type for the virtual machine.
+     * The caching type for the Virtual Machine.
      */
+    @Updatable
     public String getCachingType() {
         return cachingType;
     }
@@ -326,8 +350,10 @@ public class VirtualMachineResource extends AzureResource {
     }
 
     /**
-     * The data disk storage account type for the virtual machine. Valid options include [ 'STANDARD_LRS', 'PREMIUM_LRS', 'STANDARD_SSD_LRS'].
+     * The data disk storage account type for the Virtual Machine. Valid values are ``STANDARD_LRS`` or ``PREMIUM_LRS`` or ``STANDARD_SSD_LRS``.
      */
+    @ValidStrings({"STANDARD_LRS", "PREMIUM_LRS", "STANDARD_SSD_LRS"})
+    @Updatable
     public String getStorageAccountTypeDataDisk() {
         return storageAccountTypeDataDisk;
     }
@@ -337,8 +363,9 @@ public class VirtualMachineResource extends AzureResource {
     }
 
     /**
-     * The os disk storage account type for the virtual machine. Valid options include [ 'STANDARD_LRS', 'PREMIUM_LRS', 'STANDARD_SSD_LRS'].
+     * The os disk storage account type for the Virtual Machine. Valid values are ``STANDARD_LRS`` or ``PREMIUM_LRS`` or ``STANDARD_SSD_LRS``.
      */
+    @ValidStrings({"STANDARD_LRS", "PREMIUM_LRS", "STANDARD_SSD_LRS"})
     public String getStorageAccountTypeOsDisk() {
         return storageAccountTypeOsDisk;
     }
@@ -348,10 +375,11 @@ public class VirtualMachineResource extends AzureResource {
     }
 
     /**
-     * The size of the virtual machine.
+     * The size of the Virtual Machine.
      */
+    @Updatable
     public String getVmSizeType() {
-        return vmSizeType;
+        return vmSizeType != null ? vmSizeType.toUpperCase() : null;
     }
 
     public void setVmSizeType(String vmSizeType) {
@@ -359,7 +387,7 @@ public class VirtualMachineResource extends AzureResource {
     }
 
     /**
-     * The known virtual machine image type.
+     * The known Virtual Machine image type.
      */
     public String getKnownVirtualImage() {
         return knownVirtualImage;
@@ -370,7 +398,7 @@ public class VirtualMachineResource extends AzureResource {
     }
 
     /**
-     * The time zone for the virtual machine.
+     * The time zone for the Virtual Machine.
      */
     public String getTimeZone() {
         return timeZone;
@@ -381,7 +409,7 @@ public class VirtualMachineResource extends AzureResource {
     }
 
     /**
-     * The publisher of the image to be used for creating the virtual image. Needed if 'vm-image-type' selected as 'latest' or 'specific'
+     * The publisher of the image to be used for creating the Virtual Machine. Required if ``vm-image-type`` selected as ``latest`` or ``specific``.
      */
     public String getImagePublisher() {
         return imagePublisher;
@@ -392,7 +420,7 @@ public class VirtualMachineResource extends AzureResource {
     }
 
     /**
-     * The offer of the image to be used for creating the virtual image. Needed if 'vm-image-type' selected as 'latest' or 'specific'
+     * The offer of the image to be used for creating the Virtual Machine. Required if ``vm-image-type`` selected as ``latest`` or ``specific``.
      */
     public String getImageOffer() {
         return imageOffer;
@@ -403,7 +431,7 @@ public class VirtualMachineResource extends AzureResource {
     }
 
     /**
-     * The SKU of the image to be used for creating the virtual image. Needed if 'vm-image-type' selected as 'latest' or 'specific'
+     * The SKU of the image to be used for creating the Virtual Machine. Required if ``vm-image-type`` selected as ``latest`` or ``specific``.
      */
     public String getImageSku() {
         return imageSku;
@@ -414,7 +442,7 @@ public class VirtualMachineResource extends AzureResource {
     }
 
     /**
-     * The region where the image resides to be used for creating the virtual image. Needed if 'vm-image-type' selected as 'specific'
+     * The region where the image resides to be used for creating the Virtual Machine. Required if ``vm-image-type`` selected as ``specific``.
      */
     public String getImageRegion() {
         return imageRegion;
@@ -425,7 +453,7 @@ public class VirtualMachineResource extends AzureResource {
     }
 
     /**
-     * The version of the image to be used for creating the virtual image. Needed if 'vm-image-type' selected as 'specific'
+     * The version of the image to be used for creating the Virtual Machine. Required if ``vm-image-type`` selected as ``specific``.
      */
     public String getImageVersion() {
         return imageVersion;
@@ -436,20 +464,23 @@ public class VirtualMachineResource extends AzureResource {
     }
 
     /**
-     * A list of secondary network interface that the virtual machine would use.
+     * A list of secondary network interface that the Virtual Machine would use.
      */
-    public List<String> getSecondaryNetworkInterfaceNames() {
-        if (secondaryNetworkInterfaceNames == null) {
-            secondaryNetworkInterfaceNames = new ArrayList<>();
+    public Set<NetworkInterfaceResource> getSecondaryNetworkInterface() {
+        if (secondaryNetworkInterface == null) {
+            secondaryNetworkInterface = new HashSet<>();
         }
 
-        return secondaryNetworkInterfaceNames;
+        return secondaryNetworkInterface;
     }
 
-    public void setSecondaryNetworkInterfaceNames(List<String> secondaryNetworkInterfaceNames) {
-        this.secondaryNetworkInterfaceNames = secondaryNetworkInterfaceNames;
+    public void setSecondaryNetworkInterface(Set<NetworkInterfaceResource> secondaryNetworkInterface) {
+        this.secondaryNetworkInterface = secondaryNetworkInterface;
     }
 
+    /**
+     * Tags for the Virtual Machine.
+     */
     @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
@@ -464,14 +495,47 @@ public class VirtualMachineResource extends AzureResource {
     }
 
     @Override
+    public void copyFrom(VirtualMachine virtualMachine) {
+        setName(virtualMachine.name());
+        setVmId(virtualMachine.vmId());
+        setTags(virtualMachine.tags());
+        setId(virtualMachine.id());
+        setVmId(virtualMachine.vmId());
+
+        setAvailabilitySet(virtualMachine.availabilitySetId() != null ? findById(AvailabilitySetResource.class, virtualMachine.availabilitySetId()) : null);
+        setPublicIpAddress(virtualMachine.getPrimaryPublicIPAddressId() != null ? findById(PublicIpAddressResource.class, virtualMachine.getPrimaryPublicIPAddressId()) : null);
+        setOsType(virtualMachine.osType().name());
+
+        setNetworkInterface(
+            findById(NetworkInterfaceResource.class,
+                virtualMachine.inner().networkProfile()
+                    .networkInterfaces().stream()
+                    .filter(NetworkInterfaceReference::primary).findFirst()
+                    .map(SubResource::id).orElse(null)
+            )
+        );
+        setSecondaryNetworkInterface(
+            virtualMachine.inner().networkProfile()
+                .networkInterfaces().stream()
+                .filter(o -> !o.primary())
+                .map(o -> findById(NetworkInterfaceResource.class, o.id()))
+                .collect(Collectors.toSet())
+        );
+
+        setVmSizeType(virtualMachine.inner().hardwareProfile().vmSize().toString());
+    }
+
+    @Override
     public boolean refresh() {
         Azure client = createClient();
 
-        VirtualMachine virtualMachine = client.virtualMachines().getById(getVirtualMachineId());
+        VirtualMachine virtualMachine = client.virtualMachines().getById(getId());
 
-        setVirtualMachineName(virtualMachine.name());
-        setVmId(virtualMachine.vmId());
-        setTags(virtualMachine.tags());
+        if (virtualMachine == null) {
+            return false;
+        }
+
+        copyFrom(virtualMachine);
 
         return true;
     }
@@ -480,21 +544,21 @@ public class VirtualMachineResource extends AzureResource {
     public void create(GyroUI ui, State state) {
         Azure client = createClient();
 
-        WithNetwork withNetwork = client.virtualMachines().define(getVirtualMachineName())
+        WithNetwork withNetwork = client.virtualMachines().define(getName())
             .withRegion(Region.fromName(getRegion()))
-            .withExistingResourceGroup(getResourceGroupName());
+            .withExistingResourceGroup(getResourceGroup().getName());
 
         WithOS withOS;
 
-        if (!ObjectUtils.isBlank(getNetworkInterfaceName())) {
+        if (!ObjectUtils.isBlank(getNetworkInterface())) {
             withOS = withNetwork.withExistingPrimaryNetworkInterface(
                     client.networkInterfaces().getByResourceGroup(
-                        getResourceGroupName(), getNetworkInterfaceName()
+                        getResourceGroup().getName(), getNetworkInterface().getName()
                     ));
         } else {
 
             WithPrivateIP withPrivateIP = withNetwork
-                .withExistingPrimaryNetwork(client.networks().getById(getNetworkId()))
+                .withExistingPrimaryNetwork(client.networks().getById(getNetwork().getId()))
                 .withSubnet(getSubnet());
 
             WithPublicIPAddress withPublicIpAddress;
@@ -504,17 +568,14 @@ public class VirtualMachineResource extends AzureResource {
                 withPublicIpAddress = withPrivateIP.withPrimaryPrivateIPAddressDynamic();
             }
 
-
-            if (!ObjectUtils.isBlank(getPublicIpAddressName())) {
+            if (!ObjectUtils.isBlank(getPublicIpAddress())) {
                 withOS = withPublicIpAddress.withExistingPrimaryPublicIPAddress(
-                    client.publicIPAddresses().getByResourceGroup(getResourceGroupName(), getPublicIpAddressName())
+                    client.publicIPAddresses().getByResourceGroup(getResourceGroup().getName(), getPublicIpAddress().getName())
                 );
             } else {
                 withOS = withPublicIpAddress.withoutPrimaryPublicIPAddress();
             }
         }
-
-
 
         WithCreate create = null;
         WithManagedCreate managedCreate = null;
@@ -531,7 +592,6 @@ public class VirtualMachineResource extends AzureResource {
 
             if (isLatestPopularOrSpecific) {
                 WithLinuxRootPasswordOrPublicKeyManagedOrUnmanaged managedOrUnmanaged;
-                WithLinuxCreateManagedOrUnmanaged createManagedOrUnmanaged;
 
                 if (getVmImageType().equals("latest")) {
                     managedOrUnmanaged = withOS.withLatestLinuxImage(getImagePublisher(),getImageOffer(),getImageSku())
@@ -590,7 +650,7 @@ public class VirtualMachineResource extends AzureResource {
 
             } else {
                 managedCreate = withOS.withSpecializedOSDisk(
-                    client.disks().getById(getDiskId()), OperatingSystemTypes.LINUX
+                    client.disks().getById(getDisk().getId()), OperatingSystemTypes.LINUX
                 );
             }
 
@@ -622,7 +682,7 @@ public class VirtualMachineResource extends AzureResource {
                 }
 
                 managedCreate = managedOrUnmanaged.withAdminPassword(getAdminPassword())
-                    .withExistingDataDisk(client.disks().getById(getDiskId()));
+                    .withExistingDataDisk(client.disks().getById(getDisk().getId()));
 
             } else if (getVmImageType().equals("stored")) {
                 createUnmanaged = withOS.withStoredWindowsImage(getStoredImage())
@@ -641,7 +701,7 @@ public class VirtualMachineResource extends AzureResource {
                 createManaged = passwordManaged.withAdminPassword(getAdminPassword());
             } else {
                 managedCreate = withOS.withSpecializedOSDisk(
-                    client.disks().getById(getDiskId()), OperatingSystemTypes.WINDOWS
+                    client.disks().getById(getDisk().getId()), OperatingSystemTypes.WINDOWS
                 );
             }
 
@@ -671,21 +731,21 @@ public class VirtualMachineResource extends AzureResource {
             throw new GyroException("Invalid config.");
         }
 
-        if (!getSecondaryNetworkInterfaceNames().isEmpty()) {
-            for (String networkInterfaceName : getSecondaryNetworkInterfaceNames()) {
+        if (!getSecondaryNetworkInterface().isEmpty()) {
+            for (NetworkInterfaceResource nic : getSecondaryNetworkInterface()) {
                 create = create.withExistingSecondaryNetworkInterface(
-                    client.networkInterfaces().getByResourceGroup(getResourceGroupName(), networkInterfaceName)
+                    client.networkInterfaces().getByResourceGroup(getResourceGroup().getName(), nic.getName())
                 );
             }
         }
 
         if (getAvailabilitySet() != null) {
-            create.withExistingAvailabilitySet(client.availabilitySets().getByResourceGroup(getResourceGroupName(), getAvailabilitySet()));
+            create.withExistingAvailabilitySet(client.availabilitySets().getByResourceGroup(getResourceGroup().getName(), getAvailabilitySet().getId()));
         }
 
         VirtualMachine virtualMachine = create.withTags(getTags()).create();
 
-        setVirtualMachineId(virtualMachine.id());
+        setId(virtualMachine.id());
         setVmId(virtualMachine.vmId());
     }
 
@@ -693,7 +753,7 @@ public class VirtualMachineResource extends AzureResource {
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
-        VirtualMachine virtualMachine = client.virtualMachines().getById(getVirtualMachineId());
+        VirtualMachine virtualMachine = client.virtualMachines().getById(getId());
 
         virtualMachine.update()
             .withSize(VirtualMachineSizeTypes.fromString(getVmSizeType()))
@@ -707,7 +767,6 @@ public class VirtualMachineResource extends AzureResource {
     public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
-        client.virtualMachines().deleteById(getVirtualMachineId());
+        client.virtualMachines().deleteById(getId());
     }
-
 }
