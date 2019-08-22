@@ -761,7 +761,7 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
     }
 
     @Override
-    public void create(GyroUI ui, State state){
+    public void create(GyroUI ui, State state) {
         Azure client = createClient();
 
         VirtualMachineScaleSet.DefinitionStages.WithProximityPlacementGroup withProximityPlacementGroup = client.virtualMachineScaleSets().define(getName())

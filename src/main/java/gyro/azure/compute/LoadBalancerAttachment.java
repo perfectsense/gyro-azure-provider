@@ -27,7 +27,7 @@ public class LoadBalancerAttachment extends Diffable {
     }
 
     /**
-     * The Corresponding Load Balancer Backends. (Required)
+     * The corresponding Load Balancer Backends. (Required)
      */
     @Required
     @Updatable
@@ -44,7 +44,7 @@ public class LoadBalancerAttachment extends Diffable {
     }
 
     /**
-     * The Corresponding Load Balancer Inbound Nat Pools.
+     * The corresponding Load Balancer Inbound Nat Pools.
      */
     @Updatable
     public Set<String> getInboundNatPools() {
