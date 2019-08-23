@@ -7,8 +7,8 @@ azure::resource-group resource-group-cosmos-db-example
 end
 
 azure::network network-example
-    network-name: "network-example"
-    resource-group-name: $(azure::resource-group resource-group-cosmos-db-example).name
+    name: "network-example"
+    resource-group: $(azure::resource-group resource-group-cosmos-db-example)
     address-spaces:  [
          "10.0.0.0/27",
          "10.1.0.0/27"
@@ -37,6 +37,6 @@ azure::cosmos-db cosmos-db-example
     tags: {
         Name: "cosmos-db-example"
     }
-    virtual-network-rules: [$(azure::network network-example).subnet.0.id]
+    virtual-network-rules: ["/subscriptions/26c9ce65-e0ea-42e8-9e5e-22d5ccd58343/resourceGroups/resource-group-cosmos-db-example/providers/Microsoft.Network/virtualNetworks/network-example/subnets/subnet1"]
     write-replication-region: "Canada East"
 end
