@@ -37,6 +37,6 @@ azure::cosmos-db cosmos-db-example
     tags: {
         Name: "cosmos-db-example"
     }
-    virtual-network-rules: ["/subscriptions/26c9ce65-e0ea-42e8-9e5e-22d5ccd58343/resourceGroups/resource-group-cosmos-db-example/providers/Microsoft.Network/virtualNetworks/network-example/subnets/subnet1"]
+    virtual-network-rules: ["\($(azure::network network-example).id)/subnets/subnet1"]
     write-replication-region: "Canada East"
 end
