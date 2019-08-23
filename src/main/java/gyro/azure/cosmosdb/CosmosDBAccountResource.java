@@ -332,11 +332,11 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
         }
 
         for (String region : getReadReplicationRegions()) {
-            withCreate.withReadReplication(Region.fromName(region));
+            withCreate = withCreate.withReadReplication(Region.fromName(region));
         }
 
-        withCreate.withVirtualNetworkRules(toVirtualNetworkRules());
-        withCreate.withTags(getTags());
+        withCreate = withCreate.withVirtualNetworkRules(toVirtualNetworkRules());
+        withCreate = withCreate.withTags(getTags());
 
         CosmosDBAccount cosmosDBAccount = withCreate.create();
 
@@ -355,23 +355,15 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
 
         WithOptionals withOptionals = null;
 
-        List<String> addReadReplicationRegions = getReadReplicationRegions().stream()
-                .filter(((Predicate<String>) new HashSet<>(oldAccount.getReadReplicationRegions())::contains).negate())
-                .collect(Collectors.toList());
-
-        for (String readRegions : addReadReplicationRegions) {
+        ArrayList<String> add = new ArrayList<>(getReadReplicationRegions());
+        add.removeAll(oldAccount.getReadReplicationRegions());
+        for (String readRegions : add) {
             update.withReadReplication(Region.fromName(readRegions));
         }
 
-        if (!getReadReplicationRegions().contains(getWriteReplicationRegion())) {
-            update.withReadReplication(Region.fromName(getWriteReplicationRegion()));
-        }
-
-        List<String> removeReadReplicationRegions = oldAccount.getReadReplicationRegions().stream()
-                .filter(((Predicate<String>) new HashSet<>(getReadReplicationRegions())::contains).negate())
-                .collect(Collectors.toList());
-
-        for (String readRegions : removeReadReplicationRegions) {
+        ArrayList<String> remove = new ArrayList<>(oldAccount.getReadReplicationRegions());
+        remove.removeAll(getReadReplicationRegions());
+        for (String readRegions : remove) {
             update.withoutReadReplication(Region.fromName(readRegions));
         }
 
