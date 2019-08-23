@@ -1,8 +1,10 @@
 package gyro.azure.cosmosdb;
 
 import gyro.azure.AzureResource;
-import gyro.core.GyroException;
+import gyro.azure.Copyable;
+import gyro.azure.resources.ResourceGroupResource;
 import gyro.core.GyroUI;
+import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.Type;
@@ -18,16 +20,16 @@ import com.microsoft.azure.management.cosmosdb.CosmosDBAccount.DefinitionStages.
 import com.microsoft.azure.management.cosmosdb.CosmosDBAccount.UpdateStages.WithOptionals;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import gyro.core.scope.State;
+import gyro.core.validation.Range;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * Creates a cosmos database.
@@ -43,16 +45,16 @@ import java.util.stream.Collectors;
  *             ip-range-filter: "10.1.0.0"
  *             name: "cosmos-db-example"
  *             read-replication-regions: ["Central US"]
- *             resource-group-name: $(azure::resource-group resource-group-cosmos-db-example | resource-group-name)
+ *             resource-group: $(azure::resource-group resource-group-cosmos-db-example)
  *             tags: {
  *                 Name: "network-interface-example"
  *             }
- *             virtual-network-rules: ["$(azure::network network-example-fri | network-id)/subnets/subnet1"]
+ *             virtual-network-rules: [$(azure::network network-example).subnet.0.id]
  *             write-replication-region: "Canada East"
  *         end
  */
 @Type("cosmos-db")
-public class CosmosDBAccountResource extends AzureResource {
+public class CosmosDBAccountResource extends AzureResource implements Copyable<CosmosDBAccount> {
 
     private static final String KIND_AZURETABLE = "AzureTable";
     private static final String KIND_CASSANDRA = "Cassandra";
@@ -69,18 +71,19 @@ public class CosmosDBAccountResource extends AzureResource {
     private String id;
     private String ipRangeFilter;
     private Integer maxInterval;
-    private String maxStalenessPrefix;
+    private Long maxStalenessPrefix;
     private String name;
     private List<String> readReplicationRegions;
-    private String resourceGroupName;
+    private ResourceGroupResource resourceGroup;
     private Map<String, String> tags;
     private List<String> virtualNetworkRules;
     private String writeReplicationRegion;
 
     /**
-     * The consistency policy of the account. Valid values are ``AzureTable``, ``Cassandra``,
-     * ``Gremlin``, ``MongoDB``, ``Sql``. (Required)
+     * The database account kind. Valid values are ``AzureTable`` or ``Cassandra`` or ``Gremlin`` or ``MongoDB`` or ``Sql``. (Required)
      */
+    @Required
+    @ValidStrings({"AzureTable", "Cassandra", "Gremlin", "MongoDB", "Sql"})
     public String getDatabaseAccountKind() {
         return databaseAccountKind;
     }
@@ -90,9 +93,10 @@ public class CosmosDBAccountResource extends AzureResource {
     }
 
     /**
-     * The consistency policy of the account. Valid values are ``BoundedStaleness``, ``Eventual``,
-     * ``Session``, and ``Strong``. (Required)
+     * The consistency policy of the account. Valid values are ``BoundedStaleness``or ``Eventual`` or ``Session`` or ``Strong``. (Required)
      */
+    @Required
+    @ValidStrings({"BoundedStaleness", "Eventual", "Session", "Strong"})
     @Updatable
     public String getConsistencyLevel() {
         return consistencyLevel;
@@ -103,8 +107,9 @@ public class CosmosDBAccountResource extends AzureResource {
     }
 
     /**
-     * The id of the database.
+     * The ID of the database.
      */
+    @Id
     @Output
     public String getId() {
         return id;
@@ -115,7 +120,7 @@ public class CosmosDBAccountResource extends AzureResource {
     }
 
     /**
-     * The ip range filter in CIDR notation. (Optional)
+     * This value specifies the set of IP addresses or IP address ranges in CIDR form to be included as the allowed list of client IP's for a given database account. IP addresses/ranges must be comma separated and must not contain any spaces. (Optional)
      */
     @Updatable
     public String getIpRangeFilter() {
@@ -127,8 +132,9 @@ public class CosmosDBAccountResource extends AzureResource {
     }
 
     /**
-     * The max interval, in seconds. Required when used with ``BoundedStaleness`` consistency policy. (Optional)
+     * The time amount of staleness (in seconds) tolerated. Valid values are ``5`` to ``86400``. Required when used with ``BoundedStaleness`` consistency policy. (Optional)
      */
+    @Range(min = 5, max = 86400)
     @Updatable
     public Integer getMaxInterval() {
         return maxInterval;
@@ -139,20 +145,22 @@ public class CosmosDBAccountResource extends AzureResource {
     }
 
     /**
-     * The max staleness prefix. Required when used with ``BoundedStaleness`` consistency policy. (Optional)
+     * This value represents the number of stale requests tolerated. Valid values are ``10`` to ``2147483647``. Required when used with ``BoundedStaleness`` consistency policy. (Optional)
      */
+    @Range(min = 10, max = 2147483647)
     @Updatable
-    public String getMaxStalenessPrefix() {
+    public Long getMaxStalenessPrefix() {
         return maxStalenessPrefix;
     }
 
-    public void setMaxStalenessPrefix(String maxStalenessPrefix) {
+    public void setMaxStalenessPrefix(Long maxStalenessPrefix) {
         this.maxStalenessPrefix = maxStalenessPrefix;
     }
 
     /**
      * Name of the account. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }
@@ -180,12 +188,13 @@ public class CosmosDBAccountResource extends AzureResource {
     /**
      * The resource group where the database is found. (Required)
      */
-    public String getResourceGroupName() {
-        return resourceGroupName;
+    @Required
+    public ResourceGroupResource getResourceGroup() {
+        return resourceGroup;
     }
 
-    public void setResourceGroupName(String resourceGroupName) {
-        this.resourceGroupName = resourceGroupName;
+    public void setResourceGroup(ResourceGroupResource resourceGroup) {
+        this.resourceGroup = resourceGroup;
     }
 
     /**
@@ -205,7 +214,7 @@ public class CosmosDBAccountResource extends AzureResource {
     }
 
     /**
-     * The virtual network rules associated with the account. (Optional)
+     * The virtual network rules associated with the account. A list of Subnet ID is required. (Optional)
      */
     @Updatable
     public List<String> getVirtualNetworkRules() {
@@ -221,8 +230,7 @@ public class CosmosDBAccountResource extends AzureResource {
     }
 
     /**
-     * Sets the write location. Required when used with ``BoundedStaleness``, ``Eventual``, and ``Session``
-     * consistency levels. (Optional)
+     * Sets the write location. Required when used with ``BoundedStaleness``, ``Eventual``, and ``Session`` consistency levels. (Optional)
      */
     @Updatable
     public String getWriteReplicationRegion() {
@@ -234,22 +242,15 @@ public class CosmosDBAccountResource extends AzureResource {
     }
 
     @Override
-    public boolean refresh() {
-        Azure client = createClient();
-
-        CosmosDBAccount cosmosAccount = client.cosmosDBAccounts().getById(getId());
-
-        if (cosmosAccount == null) {
-            return false;
-        }
-
+    public void copyFrom(CosmosDBAccount cosmosAccount) {
+        setResourceGroup(findById(ResourceGroupResource.class, cosmosAccount.resourceGroupName()));
         setConsistencyLevel(cosmosAccount.consistencyPolicy().defaultConsistencyLevel().toString());
         setId(cosmosAccount.id());
         setIpRangeFilter(cosmosAccount.ipRangeFilter());
 
         if (LEVEL_BOUNDED.equalsIgnoreCase(getConsistencyLevel())) {
             setMaxInterval(cosmosAccount.consistencyPolicy().maxIntervalInSeconds());
-            setMaxStalenessPrefix(cosmosAccount.consistencyPolicy().maxStalenessPrefix().toString());
+            setMaxStalenessPrefix(cosmosAccount.consistencyPolicy().maxStalenessPrefix());
         }
         setName(cosmosAccount.name());
 
@@ -266,22 +267,31 @@ public class CosmosDBAccountResource extends AzureResource {
 
         getVirtualNetworkRules().clear();
         cosmosAccount.virtualNetworkRules().forEach(rule -> getVirtualNetworkRules().add(rule.id()));
+    }
+
+    @Override
+    public boolean refresh() {
+        Azure client = createClient();
+
+        CosmosDBAccount cosmosAccount = client.cosmosDBAccounts().getById(getId());
+
+        if (cosmosAccount == null) {
+            return false;
+        }
+
+        copyFrom(cosmosAccount);
 
         return true;
     }
 
     @Override
     public void create(GyroUI ui, State state) {
-        if (getDatabaseAccountKind() == null && getConsistencyLevel() == null) {
-            throw new GyroException("Database account kind and consistency level must be configured");
-        }
-
         Azure client = createClient();
 
         WithKind withKind = client.cosmosDBAccounts()
                 .define(getName())
                 .withRegion(Region.fromName(getRegion()))
-                .withExistingResourceGroup(getResourceGroupName());
+                .withExistingResourceGroup(getResourceGroup().getName());
 
         WithConsistencyPolicy withConsistencyPolicy = null;
         if (KIND_AZURETABLE.equalsIgnoreCase(getDatabaseAccountKind())) {
@@ -294,17 +304,14 @@ public class CosmosDBAccountResource extends AzureResource {
             withConsistencyPolicy = withKind.withDataModelMongoDB();
         } else if (KIND_SQL.equalsIgnoreCase(getDatabaseAccountKind())) {
             withConsistencyPolicy = withKind.withDataModelSql();
-        } else {
-            throw new GyroException("Invalid database account kind. " +
-                    "Valid values are AzureTable, Cassandra, Gremlin, MongoDB, and Sql");
         }
 
-        WithCreate withCreate;
+        WithCreate withCreate = null;
         if (LEVEL_BOUNDED.equalsIgnoreCase(getConsistencyLevel())
                 && getMaxStalenessPrefix() != null
                 && getMaxInterval() != null) {
             withCreate = withConsistencyPolicy
-                    .withBoundedStalenessConsistency(Long.parseLong(getMaxStalenessPrefix()), getMaxInterval())
+                    .withBoundedStalenessConsistency(getMaxStalenessPrefix(), getMaxInterval())
                     .withWriteReplication(Region.fromName(getWriteReplicationRegion()));
         } else if (LEVEL_EVENTUAL.equalsIgnoreCase(getConsistencyLevel())) {
             withCreate = withConsistencyPolicy.withEventualConsistency()
@@ -314,21 +321,18 @@ public class CosmosDBAccountResource extends AzureResource {
                         .withWriteReplication(Region.fromName(getWriteReplicationRegion()));
         } else if (LEVEL_STRONG.equalsIgnoreCase(getConsistencyLevel())) {
             withCreate = withConsistencyPolicy.withStrongConsistency();
-        } else {
-            throw new GyroException("Invalid consistency level. " +
-                    "Valid values are BoundedStaleness, Eventual, Session, and Strong");
         }
 
         if (getIpRangeFilter() != null) {
-            withCreate.withIpRangeFilter(getIpRangeFilter());
+            withCreate = withCreate.withIpRangeFilter(getIpRangeFilter());
         }
 
         for (String region : getReadReplicationRegions()) {
-            withCreate.withReadReplication(Region.fromName(region));
+            withCreate = withCreate.withReadReplication(Region.fromName(region));
         }
 
-        withCreate.withVirtualNetworkRules(toVirtualNetworkRules());
-        withCreate.withTags(getTags());
+        withCreate = withCreate.withVirtualNetworkRules(toVirtualNetworkRules());
+        withCreate = withCreate.withTags(getTags());
 
         CosmosDBAccount cosmosDBAccount = withCreate.create();
 
@@ -347,23 +351,15 @@ public class CosmosDBAccountResource extends AzureResource {
 
         WithOptionals withOptionals = null;
 
-        List<String> addReadReplicationRegions = getReadReplicationRegions().stream()
-                .filter(((Predicate<String>) new HashSet<>(oldAccount.getReadReplicationRegions())::contains).negate())
-                .collect(Collectors.toList());
-
-        for (String readRegions : addReadReplicationRegions) {
+        ArrayList<String> add = new ArrayList<>(getReadReplicationRegions());
+        add.removeAll(oldAccount.getReadReplicationRegions());
+        for (String readRegions : add) {
             update.withReadReplication(Region.fromName(readRegions));
         }
 
-        if (!getReadReplicationRegions().contains(getWriteReplicationRegion())) {
-            update.withReadReplication(Region.fromName(getWriteReplicationRegion()));
-        }
-
-        List<String> removeReadReplicationRegions = oldAccount.getReadReplicationRegions().stream()
-                .filter(((Predicate<String>) new HashSet<>(getReadReplicationRegions())::contains).negate())
-                .collect(Collectors.toList());
-
-        for (String readRegions : removeReadReplicationRegions) {
+        ArrayList<String> remove = new ArrayList<>(oldAccount.getReadReplicationRegions());
+        remove.removeAll(getReadReplicationRegions());
+        for (String readRegions : remove) {
             update.withoutReadReplication(Region.fromName(readRegions));
         }
 
@@ -371,16 +367,13 @@ public class CosmosDBAccountResource extends AzureResource {
                 && getMaxStalenessPrefix() != null
                 && getMaxInterval() != null) {
             withOptionals = update
-                    .withBoundedStalenessConsistency(Long.parseLong(getMaxStalenessPrefix()), getMaxInterval());
+                    .withBoundedStalenessConsistency(getMaxStalenessPrefix(), getMaxInterval());
         } else if (LEVEL_EVENTUAL.equalsIgnoreCase(getConsistencyLevel())) {
             withOptionals = update.withEventualConsistency();
         } else if (LEVEL_SESSION.equalsIgnoreCase(getConsistencyLevel())) {
             withOptionals = update.withSessionConsistency();
         } else if (LEVEL_STRONG.equalsIgnoreCase(getConsistencyLevel())) {
             withOptionals = update.withStrongConsistency();
-        } else {
-            throw new GyroException("Invalid consistency level. " +
-                    "Valid values are BoundedStaleness, Eventual, Session, and Strong.");
         }
 
         withOptionals.withIpRangeFilter(getIpRangeFilter());
@@ -403,7 +396,7 @@ public class CosmosDBAccountResource extends AzureResource {
             locations.add(readLocation);
         }
 
-        client.cosmosDBAccounts().failoverPriorityChange(getResourceGroupName(), getName(), locations);
+        client.cosmosDBAccounts().failoverPriorityChange(getResourceGroup().getName(), getName(), locations);
     }
 
     @Override
