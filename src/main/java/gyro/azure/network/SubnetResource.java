@@ -5,6 +5,7 @@ import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
 
@@ -45,7 +46,8 @@ public class SubnetResource extends AzureResource implements Copyable<Subnet> {
     private NetworkSecurityGroupResource networkSecurityGroup;
     private RouteTableResource routeTable;
     private Map<String, List<String>> serviceEndpoints;
-
+    private String id;
+    
     /**
      * The address prefix in CIDR notation. (Required)
      */
@@ -111,6 +113,18 @@ public class SubnetResource extends AzureResource implements Copyable<Subnet> {
         this.serviceEndpoints = serviceEndpoints;
     }
 
+    /**
+     * The ID of the Subnet.
+     */
+    @Output
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     @Override
     public void copyFrom(Subnet subnet) {
         setAddressPrefix(subnet.addressPrefix());
@@ -151,7 +165,8 @@ public class SubnetResource extends AzureResource implements Copyable<Subnet> {
             }
         }
 
-        updateWithAttach.attach().apply();
+        Network response = updateWithAttach.attach().apply();
+        setId(response.subnets().get(getName()).inner().id());
     }
 
     @Override

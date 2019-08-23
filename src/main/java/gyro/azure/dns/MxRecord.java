@@ -1,7 +1,9 @@
 package gyro.azure.dns;
 
+import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
 
 /**
  * Creates an MX Record.
@@ -11,9 +13,9 @@ import gyro.core.resource.Updatable;
  *
  * .. code-block:: gyro
  *
- *     mx-record-set
+ *     azure::mx-record-set mx-record-set
  *         name: "mxrecexample"
- *         time-to-live: "4"
+ *         ttl: 4
  *
  *         mx-record
  *             exchange: "mail.cont.com"
@@ -26,21 +28,15 @@ import gyro.core.resource.Updatable;
  *         end
  *     end
  */
-public class MxRecord extends Diffable {
+public class MxRecord extends Diffable implements Copyable<com.microsoft.azure.management.dns.MxRecord> {
 
     private String exchange;
     private Integer preference;
 
-    public MxRecord() {}
-
-    public MxRecord(com.microsoft.azure.management.dns.MxRecord mxRecord) {
-        setExchange(mxRecord.exchange());
-        setPreference(mxRecord.preference());
-    }
-
     /**
      * The mail exchange server's host name. (Required)
      */
+    @Required
     public String getExchange() {
         return exchange;
     }
@@ -52,6 +48,7 @@ public class MxRecord extends Diffable {
     /**
      * The priority for the mail exchange host. The lower the value, the higher the priority. (Required)
      */
+    @Required
     @Updatable
     public Integer getPreference() {
         return preference;
@@ -62,8 +59,14 @@ public class MxRecord extends Diffable {
     }
 
     @Override
+    public void copyFrom(com.microsoft.azure.management.dns.MxRecord mxRecord) {
+        setExchange(mxRecord.exchange());
+        setPreference(mxRecord.preference());
+    }
+
+    @Override
     public String primaryKey() {
-        return exchange;
+        return getExchange();
     }
 
 }
