@@ -3,18 +3,20 @@ package gyro.azure;
 import com.microsoft.azure.management.Azure;
 import gyro.core.finder.Finder;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public abstract class AzureFinder<M, R extends AzureResource> extends Finder<R> {
+
     protected abstract List<M> findAllAzure(Azure client);
 
     protected abstract List<M> findAzure(Azure client, Map<String, String> filters);
 
     @Override
-    public List<R> find(Map<String, String> filters) {
-        return findAzure(newClient(), filters).stream()
+    public List<R> find(Map<String, Object> filters) {
+        return findAzure(newClient(), convertFilters(filters)).stream()
             .map(this::newResource)
             .collect(Collectors.toList());
     }
@@ -40,4 +42,16 @@ public abstract class AzureFinder<M, R extends AzureResource> extends Finder<R> 
 
         return resource;
     }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, String> convertFilters(Map<String, Object> query) {
+        Map<String, String> filters = new HashMap<>();
+
+        for (Map.Entry<String, Object> e : query.entrySet()) {
+            filters.put(e.getKey(), e.getValue().toString());
+        }
+
+        return filters;
+    }
+
 }
