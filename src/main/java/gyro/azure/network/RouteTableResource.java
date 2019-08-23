@@ -211,24 +211,16 @@ public class RouteTableResource extends AzureResource implements Copyable<RouteT
 
         RouteTableResource currentResource = (RouteTableResource) current;
 
-        List<RouteResource> additions = new ArrayList<>(getRoute());
-        additions.removeAll(currentResource.getRoute());
-
-        List<RouteResource> subtractions = new ArrayList<>(currentResource.getRoute());
-        subtractions.removeAll(getRoute());
-
         RouteTable.Update update = client.routeTables()
             .getById(getId())
             .update();
 
-        if (getBgpRoutePropagationDisabled()) {
-            update.withDisableBgpRoutePropagation();
-        } else {
-            update.withEnableBgpRoutePropagation();
+        for (RouteResource route : currentResource.getRoute()) {
+            update.withoutRoute(route.getName());
         }
 
         Route.UpdateDefinitionStages.WithNextHopType<RouteTable.Update> updateWithNextHopType;
-        for (RouteResource route : additions) {
+        for (RouteResource route : getRoute()) {
             updateWithNextHopType =
                 update.defineRoute(route.getName())
                     .withDestinationAddressPrefix(route.getDestinationAddressPrefix());
@@ -239,17 +231,10 @@ public class RouteTableResource extends AzureResource implements Copyable<RouteT
             }
         }
 
-        for (RouteResource route : subtractions) {
-            update.withoutRoute(route.getName());
-        }
-
-        for (RouteResource route : getRoute()) {
-            if (!additions.contains(route) && !subtractions.contains(route)) {
-                update.updateRoute(route.getName())
-                    .withNextHopToVirtualAppliance(route.getNextHopIpAddress())
-                    .withNextHop(RouteNextHopType.fromString(route.getNextHopType()))
-                    .withDestinationAddressPrefix(route.getDestinationAddressPrefix());
-            }
+        if (getBgpRoutePropagationDisabled()) {
+            update = update.withDisableBgpRoutePropagation();
+        } else {
+            update = update.withEnableBgpRoutePropagation();
         }
 
         update.withTags(getTags()).apply();
