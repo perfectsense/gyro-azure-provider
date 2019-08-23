@@ -26,6 +26,7 @@ import com.microsoft.azure.management.network.LoadBalancer.DefinitionStages.With
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidationError;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,6 +34,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Creates a load balancer.
@@ -49,13 +51,6 @@ import java.util.Set;
  *             public-frontend
  *                 name: "public-frontend"
  *                 public-ip-address: $(azure::public-ip-address public-ip-address)
- *
- *                 inbound-nat-rule
- *                     name: "test-nat-rule"
- *                     frontend-name: "public-frontend"
- *                     frontend-port: 80
- *                     protocol: "TCP"
- *                 end
  *             end
  *
  *             load-balancer-rule
@@ -96,6 +91,8 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
     private ResourceGroupResource resourceGroup;
     private SKU_TYPE skuType;
     private Map<String, String> tags;
+    private Set<InboundNatPool> inboundNatPool;
+    private Set<InboundNatRule> inboundNatRule;
 
     public enum SKU_TYPE { STANDARD, BASIC }
 
@@ -249,6 +246,38 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
         this.tags = tags;
     }
 
+    /**
+     * The Inbound Nat Pools Associated with the Load Balancer. (Optional)
+     */
+    @Updatable
+    public Set<InboundNatPool> getInboundNatPool() {
+        if (inboundNatPool == null) {
+            inboundNatPool = new HashSet<>();
+        }
+
+        return inboundNatPool;
+    }
+
+    public void setInboundNatPool(Set<InboundNatPool> inboundNatPool) {
+        this.inboundNatPool = inboundNatPool;
+    }
+
+    /**
+     * The Inbound Nat Rules associated with the Load Balancer. Nat rules may not be associated with a Load Balancer if a Nat Pool is associated. (Optional)
+     */
+    @Updatable
+    public Set<InboundNatRule> getInboundNatRule() {
+        if (inboundNatRule == null) {
+            inboundNatRule = new HashSet<>();
+        }
+
+        return inboundNatRule;
+    }
+
+    public void setInboundNatRule(Set<InboundNatRule> inboundNatRule) {
+        this.inboundNatRule = inboundNatRule;
+    }
+
     @Override
     public void copyFrom(LoadBalancer loadBalancer) {
         //http probes
@@ -267,12 +296,26 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
             getHealthCheckProbeTcp().add(probeTcp);
         }
 
+        getInboundNatPool().clear();
+        getInboundNatRule().clear();
+
         //public getAllFrontend
         getPublicFrontend().clear();
         for (Map.Entry<String, LoadBalancerPublicFrontend> publicFrontend : loadBalancer.publicFrontends().entrySet()) {
             PublicFrontend frontendPublic = newSubresource(PublicFrontend.class);
             frontendPublic.copyFrom(publicFrontend.getValue());
             getPublicFrontend().add(frontendPublic);
+            getInboundNatPool().addAll(publicFrontend.getValue().inboundNatPools().values().stream().map(o -> {
+                InboundNatPool inboundNatPool = newSubresource(InboundNatPool.class);
+                inboundNatPool.copyFrom(o);
+                return inboundNatPool;
+            }).collect(Collectors.toSet()));
+
+            getInboundNatRule().addAll(publicFrontend.getValue().inboundNatRules().values().stream().map(o -> {
+                InboundNatRule inboundNatRule = newSubresource(InboundNatRule.class);
+                inboundNatRule.copyFrom(o);
+                return inboundNatRule;
+            }).collect(Collectors.toSet()));
         }
 
         //private getAllFrontend
@@ -281,6 +324,18 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
             PrivateFrontend frontendPrivate = newSubresource(PrivateFrontend.class);
             frontendPrivate.copyFrom(privateFrontend.getValue());
             getPrivateFrontend().add(frontendPrivate);
+
+            getInboundNatPool().addAll(privateFrontend.getValue().inboundNatPools().values().stream().map(o -> {
+                InboundNatPool inboundNatPool = newSubresource(InboundNatPool.class);
+                inboundNatPool.copyFrom(o);
+                return inboundNatPool;
+            }).collect(Collectors.toSet()));
+
+            getInboundNatRule().addAll(privateFrontend.getValue().inboundNatRules().values().stream().map(o -> {
+                InboundNatRule inboundNatRule = newSubresource(InboundNatRule.class);
+                inboundNatRule.copyFrom(o);
+                return inboundNatRule;
+            }).collect(Collectors.toSet()));
         }
 
         //load balancing rules
@@ -325,35 +380,32 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
 
         WithCreate buildLoadBalancer = null;
 
-        //define the nat pools and rules
-        for (Map.Entry<String, Frontend> frontends : getAllFrontends().entrySet()) {
-            Frontend front = frontends.getValue();
-            if (front.getInboundNatPool() != null) {
-                for (InboundNatPool natPool: front.getInboundNatPool()) {
+        // define the nat pools and rules
+        if (!getInboundNatPool().isEmpty()) {
+            for (InboundNatPool natPool: getInboundNatPool()) {
 
-                    buildLoadBalancer = lb.defineInboundNatPool(natPool.getName())
-                        .withProtocol(TransportProtocol.fromString(natPool.getProtocol()))
-                        .fromFrontend(natPool.getFrontendName())
-                        .fromFrontendPortRange(natPool.getFrontendPortStart(), natPool.getFrontendPortEnd())
-                        .toBackendPort(natPool.getBackendPort())
-                        .attach();
-                }
-            }
-
-            if (front.getInboundNatRule() != null) {
-                for (InboundNatRule natRule : front.getInboundNatRule()) {
-                    buildLoadBalancer = lb.defineInboundNatRule(natRule.getName())
-                        .withProtocol(TransportProtocol.fromString(natRule.getProtocol()))
-                        .fromFrontend(natRule.getFrontendName())
-                        .fromFrontendPort(natRule.getFrontendPort())
-                        .withFloatingIP(natRule.getFloatingIp())
-                        .toBackendPort(natRule.getBackendPort())
-                        .attach();
-                }
+                buildLoadBalancer = lb.defineInboundNatPool(natPool.getName())
+                    .withProtocol(TransportProtocol.fromString(natPool.getProtocol()))
+                    .fromFrontend(natPool.getFrontendName())
+                    .fromFrontendPortRange(natPool.getFrontendPortStart(), natPool.getFrontendPortEnd())
+                    .toBackendPort(natPool.getBackendPort())
+                    .attach();
             }
         }
 
-        //define load balancer rules
+        if (!getInboundNatRule().isEmpty()) {
+            for (InboundNatRule natRule : getInboundNatRule()) {
+                buildLoadBalancer = lb.defineInboundNatRule(natRule.getName())
+                    .withProtocol(TransportProtocol.fromString(natRule.getProtocol()))
+                    .fromFrontend(natRule.getFrontendName())
+                    .fromFrontendPort(natRule.getFrontendPort())
+                    .withFloatingIP(natRule.getFloatingIp())
+                    .toBackendPort(natRule.getBackendPort())
+                    .attach();
+            }
+        }
+
+        // define load balancer rules
         for (LoadBalancerRule rule : getLoadBalancerRule()) {
 
             buildLoadBalancer = lb.defineLoadBalancingRule(rule.getName())
@@ -368,9 +420,9 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
                 .attach();
         }
 
-        //define the health check probes
+        // define the health check probes
         for (HealthCheckProbeHttp probe : getHealthCheckProbeHttp()) {
-            //http
+            // http
             buildLoadBalancer.defineHttpProbe(probe.getName())
                 .withRequestPath(probe.getRequestPath())
                 .withPort(probe.getPort())
@@ -380,7 +432,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
         }
 
         for (HealthCheckProbeTcp probe : getHealthCheckProbeTcp()) {
-            //tcp
+            // tcp
             buildLoadBalancer.defineTcpProbe(probe.getName())
                 .withPort(probe.getPort())
                 .withIntervalInSeconds(probe.getInterval())
@@ -388,7 +440,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
                 .attach();
         }
 
-        //define the public getAllFrontend
+        // define the public getAllFrontend
         for (PublicFrontend publicFrontend : getPublicFrontend()) {
 
             PublicIPAddress ip = client.publicIPAddresses().getById(publicFrontend.getPublicIpAddress().getId());
@@ -398,7 +450,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
                 .attach();
         }
 
-        //define the private getAllFrontend
+        // define the private getAllFrontend
         LoadBalancerPrivateFrontend.DefinitionStages.WithAttach withAttachPrivate;
         for (PrivateFrontend privateFrontend : getPrivateFrontend()) {
 
@@ -433,7 +485,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
         LoadBalancer.Update updateLoadBalancer = loadBalancer.update();
 
 
-        //Update health check probe Http
+        // Update health check probe Http
         if (changedFieldNames.contains("health-check-probe-http")) {
             for (HealthCheckProbeHttp httpProbe : currentResource.getHealthCheckProbeHttp()) {
                 updateLoadBalancer = updateLoadBalancer.withoutProbe(httpProbe.getName());
@@ -450,7 +502,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
             }
         }
 
-        //Update health check probe Tcp
+        // Update health check probe Tcp
         if (changedFieldNames.contains("health-check-probe-tcp")) {
             for (HealthCheckProbeTcp tcpProbe : currentResource.getHealthCheckProbeTcp()) {
                 updateLoadBalancer = updateLoadBalancer.withoutProbe(tcpProbe.getName());
@@ -466,17 +518,9 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
             }
         }
 
-        //Update private frontend
+        // Update private frontend
         if (changedFieldNames.contains("private-frontend")) {
             for (PrivateFrontend privateFrontend : currentResource.getPrivateFrontend()) {
-                for (InboundNatRule rule : privateFrontend.getInboundNatRule()) {
-                    updateLoadBalancer = updateLoadBalancer.withoutInboundNatRule(rule.getName());
-                }
-
-                for (InboundNatPool pool : privateFrontend.getInboundNatPool()) {
-                    updateLoadBalancer = updateLoadBalancer.withoutInboundNatPool(pool.getName());
-                }
-
                 updateLoadBalancer = updateLoadBalancer.withoutFrontend(privateFrontend.getName());
             }
 
@@ -495,22 +539,12 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
                 }
 
                 withAttachPrivate.attach();
-
-                addNatRulesAndPools(privateFrontend, updateLoadBalancer);
             }
         }
 
-        //Update public frontend
+        // Update public frontend
         if (changedFieldNames.contains("public-frontend")) {
             for (PublicFrontend publicFrontend : currentResource.getPublicFrontend()) {
-                for (InboundNatRule rule : publicFrontend.getInboundNatRule()) {
-                    updateLoadBalancer = updateLoadBalancer.withoutInboundNatRule(rule.getName());
-                }
-
-                for (InboundNatPool pool : publicFrontend.getInboundNatPool()) {
-                    updateLoadBalancer = updateLoadBalancer.withoutInboundNatPool(pool.getName());
-                }
-
                 updateLoadBalancer = updateLoadBalancer.withoutFrontend(publicFrontend.getName());
             }
 
@@ -521,12 +555,10 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
                     .definePublicFrontend(publicFrontend.getName())
                     .withExistingPublicIPAddress(ip)
                     .attach();
-
-                addNatRulesAndPools(publicFrontend, updateLoadBalancer);
             }
         }
 
-        //Update Load balancer rules
+        // Update Load balancer rules
         if (changedFieldNames.contains("load-balancer-rule")) {
             for (LoadBalancerRule rule : currentResource.getLoadBalancerRule()) {
                 updateLoadBalancer = updateLoadBalancer.withoutLoadBalancingRule(rule.getName());
@@ -546,7 +578,23 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
             }
         }
 
-        //tags
+        if (changedFieldNames.contains("inbound-nat-pool")) {
+            for (InboundNatPool natPool : currentResource.getInboundNatPool()) {
+                updateLoadBalancer = updateLoadBalancer.withoutInboundNatPool(natPool.getName());
+            }
+
+            addNatPools(getInboundNatPool(), updateLoadBalancer);
+        }
+
+        if (changedFieldNames.contains("inbound-nat-rule")) {
+            for (InboundNatRule rule : currentResource.getInboundNatRule()) {
+                updateLoadBalancer = updateLoadBalancer.withoutInboundNatRule(rule.getName());
+            }
+
+            addNatRules(getInboundNatRule(), updateLoadBalancer);
+        }
+
+        // tags
         updateLoadBalancer.withTags(getTags());
 
         LoadBalancer response = updateLoadBalancer.apply();
@@ -561,22 +609,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
         client.loadBalancers().deleteByResourceGroup(getResourceGroup().getName(), getName());
     }
 
-    private Map<String, Frontend> getAllFrontends() {
-        Map<String, Frontend> frontends = new HashMap<>();
-
-        getPrivateFrontend().forEach(frontend -> frontends.put(frontend.getName(), frontend));
-
-        getPublicFrontend().forEach(frontend -> frontends.put(frontend.getName(), frontend));
-
-        return frontends;
-    }
-
-    private void addNatRulesAndPools(Frontend frontend, LoadBalancer.Update updateLoadBalancer) {
-        addNatPools(new ArrayList<>(frontend.getInboundNatPool()), updateLoadBalancer);
-        addNatRules(new ArrayList<>(frontend.getInboundNatRule()), updateLoadBalancer);
-    }
-
-    private void addNatPools(List<InboundNatPool> pools, LoadBalancer.Update updateLoadBalancer) {
+    private void addNatPools(Set<InboundNatPool> pools, LoadBalancer.Update updateLoadBalancer) {
         LoadBalancerInboundNatPool.UpdateDefinitionStages.WithProtocol withName;
         LoadBalancerInboundNatPool.UpdateDefinitionStages.WithFrontend withProtocol;
         LoadBalancerInboundNatPool.UpdateDefinitionStages.WithFrontendPortRange withFrontend;
@@ -600,7 +633,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
         }
     }
 
-    private void addNatRules(List<InboundNatRule> rules, LoadBalancer.Update updateLoadBalancer) {
+    private void addNatRules(Set<InboundNatRule> rules, LoadBalancer.Update updateLoadBalancer) {
         for (InboundNatRule rule : rules) {
             updateLoadBalancer
                 .defineInboundNatRule(rule.getName())
@@ -611,5 +644,16 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
                 .withFloatingIP(rule.getFloatingIp())
                 .attach();
         }
+    }
+
+    @Override
+    public List<ValidationError> validate() {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if (!getInboundNatRule().isEmpty() && !getInboundNatPool().isEmpty()) {
+            errors.add(new ValidationError(this, "inbound-nat-rule", "'inbound-nat-rule' cannot be set when 'inbound-nat-pool' is set."));
+        }
+
+        return errors;
     }
 }

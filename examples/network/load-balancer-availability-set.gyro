@@ -46,15 +46,6 @@ azure::load-balancer load-balancer-example
         name: "private-frontend"
         network: $(azure::network load-balancer-network-example)
         subnet-name: "subnet2"
-
-        inbound-nat-pool
-            name: "test-nat-pool"
-            frontend-name: "private-frontend"
-            backend-port: 81
-            protocol: "TCP"
-            frontend-port-start: 81
-            frontend-port-end: 90
-        end
     end
 
     load-balancer-rule
@@ -99,85 +90,31 @@ azure::load-balancer load-balancer-example
     tags: {
         Name: "load-balancer-example"
     }
-end
 
-azure::public-ip-address load-balancer-public-frontend-public-ip-address-example
-    name: "load-balancer-public-frontend-public-ip-address-example"
-    resource-group: $(azure::resource-group load-balancer-resource-group-example)
-    idle-timeout-in-minute: 4
+    #inbound-nat-pool
+    #    name: "test-nat-pool"
+    #    frontend-name: "private-frontend"
+    #    backend-port: 81
+    #    protocol: "TCP"
+    #    frontend-port-start: 81
+    #    frontend-port-end: 90
+    #end
 
-    tags: {
-        Name: "load-balancer-public-frontend-public-ip-address-example"
-    }
-end
-
-azure::load-balancer load-balancer-example-2
-    name: "load-balancer-example-2"
-    resource-group: $(azure::resource-group load-balancer-resource-group-example)
-
-    public-frontend
-        name: "public-frontend"
-        public-ip-address: $(azure::public-ip-address load-balancer-public-frontend-public-ip-address-example)
-
-        inbound-nat-rule
-            name: "test-nat-rule"
-            floating-ip: false
-            frontend-port: 447
-            frontend-name: "public-frontend"
-            backend-port: 85
-            protocol: "TCP"
-        end
-
-        inbound-nat-rule
-            name: "test-nat-rule-two"
-            floating-ip: false
-            frontend-port: 448
-            frontend-name: "public-frontend"
-            backend-port: 86
-            protocol: "TCP"
-        end
-    end
-
-    load-balancer-rule
-        name: "test-rule"
-        backend-port: 81
+    inbound-nat-rule
+        name: "test-nat-rule"
         floating-ip: false
-        frontend-name: "public-frontend"
-        frontend-port: 443
-        idle-timeout-in-minutes: 9
+        frontend-port: 447
+        frontend-name: "private-frontend"
+        backend-port: 85
         protocol: "TCP"
-        backend-name: "backend-one"
-        health-check-probe-name: "health-check-http"
     end
 
-    load-balancer-rule
-        name: "test-rule-more-rules"
-        backend-port: 82
+    inbound-nat-rule
+        name: "test-nat-rule-two"
         floating-ip: false
-        frontend-name: "public-frontend"
-        frontend-port: 445
-        idle-timeout-in-minutes: 9
-        protocol: "UDP"
-        backend-name: "backend-two"
-        health-check-probe-name: "health-check-tcp"
+        frontend-port: 448
+        frontend-name: "private-frontend"
+        backend-port: 86
+        protocol: "TCP"
     end
-
-    health-check-probe-tcp
-        name: "health-check-tcp"
-        interval: 7
-        port: 80
-        probes: 2
-    end
-
-    health-check-probe-http
-        name: "health-check-http"
-        interval: 13
-        request-path: "/"
-        port: 80
-        probes: 3
-    end
-
-    tags: {
-            Name: "load-balancer-example"
-    }
 end
