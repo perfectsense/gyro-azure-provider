@@ -217,7 +217,6 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
     /**
      * Specifies the sku type for the Load Balancer. Valid Values are ``BASIC`` or ``STANDARD``. Defaults to ``BASIC``.
      */
-    @Updatable
     public SKU_TYPE getSkuType() {
         if (skuType == null) {
             skuType = SKU_TYPE.BASIC;
