@@ -3,7 +3,6 @@ package gyro.azure.cosmosdb;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.azure.resources.ResourceGroupResource;
-import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
@@ -27,13 +26,10 @@ import gyro.core.validation.ValidStrings;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * Creates a cosmos database.
