@@ -21,6 +21,9 @@ import com.microsoft.azure.management.cosmosdb.CosmosDBAccount.DefinitionStages.
 import com.microsoft.azure.management.cosmosdb.CosmosDBAccount.UpdateStages.WithOptionals;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import gyro.core.scope.State;
+import gyro.core.validation.Range;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -83,6 +86,8 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
     /**
      * The database account kind. Valid values are ``AzureTable`` or ``Cassandra`` or ``Gremlin`` or ``MongoDB`` or ``Sql``. (Required)
      */
+    @Required
+    @ValidStrings({"AzureTable", "Cassandra", "Gremlin", "MongoDB", "Sql"})
     public String getDatabaseAccountKind() {
         return databaseAccountKind;
     }
@@ -94,6 +99,8 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
     /**
      * The consistency policy of the account. Valid values are ``BoundedStaleness``or ``Eventual`` or ``Session`` or ``Strong``. (Required)
      */
+    @Required
+    @ValidStrings({"BoundedStaleness", "Eventual", "Session", "Strong"})
     @Updatable
     public String getConsistencyLevel() {
         return consistencyLevel;
@@ -131,6 +138,7 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
     /**
      * The time amount of staleness (in seconds) tolerated. Valid values are ``5`` to ``86400``. Required when used with ``BoundedStaleness`` consistency policy. (Optional)
      */
+    @Range(min = 5, max = 86400)
     @Updatable
     public Integer getMaxInterval() {
         return maxInterval;
@@ -143,6 +151,7 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
     /**
      * This value represents the number of stale requests tolerated. Valid values are ``10`` to ``2147483647``. Required when used with ``BoundedStaleness`` consistency policy. (Optional)
      */
+    @Range(min = 10, max = 2147483647)
     @Updatable
     public Long getMaxStalenessPrefix() {
         return maxStalenessPrefix;
@@ -155,6 +164,7 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
     /**
      * Name of the account. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }
@@ -182,6 +192,7 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
     /**
      * The resource group where the database is found. (Required)
      */
+    @Required
     public ResourceGroupResource getResourceGroup() {
         return resourceGroup;
     }
@@ -279,10 +290,6 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
 
     @Override
     public void create(GyroUI ui, State state) {
-        if (getDatabaseAccountKind() == null && getConsistencyLevel() == null) {
-            throw new GyroException("Database account kind and consistency level must be configured");
-        }
-
         Azure client = createClient();
 
         WithKind withKind = client.cosmosDBAccounts()
@@ -301,12 +308,9 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
             withConsistencyPolicy = withKind.withDataModelMongoDB();
         } else if (KIND_SQL.equalsIgnoreCase(getDatabaseAccountKind())) {
             withConsistencyPolicy = withKind.withDataModelSql();
-        } else {
-            throw new GyroException("Invalid database account kind. " +
-                    "Valid values are AzureTable, Cassandra, Gremlin, MongoDB, and Sql");
         }
 
-        WithCreate withCreate;
+        WithCreate withCreate = null;
         if (LEVEL_BOUNDED.equalsIgnoreCase(getConsistencyLevel())
                 && getMaxStalenessPrefix() != null
                 && getMaxInterval() != null) {
@@ -321,13 +325,10 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
                         .withWriteReplication(Region.fromName(getWriteReplicationRegion()));
         } else if (LEVEL_STRONG.equalsIgnoreCase(getConsistencyLevel())) {
             withCreate = withConsistencyPolicy.withStrongConsistency();
-        } else {
-            throw new GyroException("Invalid consistency level. " +
-                    "Valid values are BoundedStaleness, Eventual, Session, and Strong");
         }
 
         if (getIpRangeFilter() != null) {
-            withCreate.withIpRangeFilter(getIpRangeFilter());
+            withCreate = withCreate.withIpRangeFilter(getIpRangeFilter());
         }
 
         for (String region : getReadReplicationRegions()) {
@@ -385,9 +386,6 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
             withOptionals = update.withSessionConsistency();
         } else if (LEVEL_STRONG.equalsIgnoreCase(getConsistencyLevel())) {
             withOptionals = update.withStrongConsistency();
-        } else {
-            throw new GyroException("Invalid consistency level. " +
-                    "Valid values are BoundedStaleness, Eventual, Session, and Strong.");
         }
 
         withOptionals.withIpRangeFilter(getIpRangeFilter());
