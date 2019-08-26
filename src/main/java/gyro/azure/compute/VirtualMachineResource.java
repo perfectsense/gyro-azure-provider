@@ -537,7 +537,6 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
         );
 
         setVmSizeType(virtualMachine.inner().hardwareProfile().vmSize().toString());
-        setCustomData(virtualMachine.osProfile() != null ? getDecodedCustomData(virtualMachine.osProfile().customData()) : null);
     }
 
     @Override
