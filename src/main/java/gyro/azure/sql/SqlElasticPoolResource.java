@@ -24,6 +24,7 @@ import com.microsoft.azure.management.sql.SqlElasticPoolStandardMinEDTUs;
 import com.microsoft.azure.management.sql.SqlElasticPoolStandardStorage;
 import com.microsoft.azure.management.sql.SqlElasticPoolOperations.DefinitionStages.WithEdition;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -84,6 +85,7 @@ public class SqlElasticPoolResource extends AzureResource implements Copyable<Sq
     /**
      * The maximum eDTU for the each database in the Elastic Pool. (Required)
      */
+    @Required
     @Updatable
     public String getDtuMax() {
         return dtuMax;
@@ -96,6 +98,7 @@ public class SqlElasticPoolResource extends AzureResource implements Copyable<Sq
     /**
      * The minimum of eDTU for each database in the Elastic Pool. (Required)
      */
+    @Required
     @Updatable
     public String getDtuMin() {
         return dtuMin;
@@ -108,6 +111,7 @@ public class SqlElasticPoolResource extends AzureResource implements Copyable<Sq
     /**
      * The total shared eDTU for the Elastic Pool. (Required)
      */
+    @Required
     @Updatable
     public String getDtuReserved() {
         return dtuReserved;
@@ -120,6 +124,7 @@ public class SqlElasticPoolResource extends AzureResource implements Copyable<Sq
     /**
      * The edition of the Elastic Pool. (Required)
      */
+    @Required
     @Updatable
     public String getEdition() {
         return edition;
@@ -144,6 +149,7 @@ public class SqlElasticPoolResource extends AzureResource implements Copyable<Sq
     /**
      * The name of the Elastic Pool. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }

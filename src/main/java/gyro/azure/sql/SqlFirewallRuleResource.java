@@ -10,6 +10,7 @@ import gyro.core.resource.Updatable;
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.sql.SqlFirewallRule;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 
 import java.util.Set;
 
@@ -49,6 +50,7 @@ public class SqlFirewallRuleResource extends AzureResource implements Copyable<S
     /**
      * The starting or only ip address of the Firewall Rule. (Required)
      */
+    @Required
     @Updatable
     public String getStartIpAddress() {
         return startIpAddress;
@@ -61,6 +63,7 @@ public class SqlFirewallRuleResource extends AzureResource implements Copyable<S
     /**
      * The ending ip address of the Firewall Rule. (Required)
      */
+    @Required
     @Updatable
     public String getEndIpAddress() {
         return endIpAddress;
@@ -73,6 +76,7 @@ public class SqlFirewallRuleResource extends AzureResource implements Copyable<S
     /**
      * The name of the Firewall Rule. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }

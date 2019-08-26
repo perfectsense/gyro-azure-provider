@@ -14,6 +14,7 @@ import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.microsoft.azure.management.sql.SqlServer;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -76,6 +77,7 @@ public class SqlServerResource extends AzureResource implements Copyable<SqlServ
     /**
      * The administrator login for the Sql Server. (Required)
      */
+    @Required
     public String getAdministratorLogin() {
         return administratorLogin;
     }
@@ -87,6 +89,7 @@ public class SqlServerResource extends AzureResource implements Copyable<SqlServ
     /**
      * The administrator password for the Sql Server. (Required)
      */
+    @Required
     @Updatable
     public String getAdministratorPassword() {
         return administratorPassword;
@@ -112,6 +115,7 @@ public class SqlServerResource extends AzureResource implements Copyable<SqlServ
     /**
      * The name of the Sql Server. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }
@@ -123,6 +127,7 @@ public class SqlServerResource extends AzureResource implements Copyable<SqlServ
     /**
      * The Sql Server's region. (Required)
      */
+    @Required
     @Override
     public String getRegion() {
         return region;
@@ -146,6 +151,7 @@ public class SqlServerResource extends AzureResource implements Copyable<SqlServ
     /**
      * Determines if the system will set a local Managed Service Identity (MSI) for the Sql Server. (Optional)
      */
+    @Required
     @Updatable
     public Boolean getSystemAssignedMsi() {
         if (systemAssignedMsi == null) {

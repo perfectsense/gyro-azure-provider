@@ -24,6 +24,8 @@ import com.microsoft.azure.management.sql.SqlDatabaseOperations.DefinitionStages
 import com.microsoft.azure.management.sql.SqlDatabaseOperations.DefinitionStages.WithExistingDatabaseAfterElasticPool;
 import com.microsoft.azure.management.storage.StorageAccount;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.HashMap;
@@ -87,6 +89,7 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
     /**
      * The create mode of the Database. Valid values are ``Copy`` or ``Default`` or ``NonReadableSecondary`` or ``OnlineSecondary`` or ``PointInTimeRestore`` or ``Recovery`` or ``Restore`` or ``RestoreLongTermRetentionBackup``. (Optional)
      */
+    @ValidStrings({"Copy", "Default", "NonReadableSecondary", "OnlineSecondary", "PointInTimeRestore", "Recovery", "Restore", "RestoreLongTermRetentionBackup"})
     public String getCreateMode() {
         return createMode;
     }
@@ -98,6 +101,7 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
     /**
      * The edition of the Database. Valid values are ``Basic`` or ``Premium`` or ``Standard``. (Optional)
      */
+    @ValidStrings({"Basic", "Premium", "Standard"})
     @Updatable
     public String getEdition() {
         return edition;
@@ -197,6 +201,7 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
     /**
      * The name of the Database. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }
@@ -252,6 +257,7 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
     /**
      * The sql server where the database is found. (Required)
      */
+    @Required
     public SqlServerResource getSqlServer() {
         return sqlServer;
     }

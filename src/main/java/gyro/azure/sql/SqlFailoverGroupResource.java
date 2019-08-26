@@ -15,6 +15,7 @@ import com.microsoft.azure.management.sql.ReadOnlyEndpointFailoverPolicy;
 import com.microsoft.azure.management.sql.ReadWriteEndpointFailoverPolicy;
 import com.microsoft.azure.management.sql.SqlFailoverGroupOperations.DefinitionStages.WithPartnerServer;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -83,6 +84,7 @@ public class SqlFailoverGroupResource extends AzureResource implements Copyable<
     /**
      * Determines whether the read and write policy is manual or automatic for the Failover Group. (Required)
      */
+    @Required
     @Updatable
     public Boolean getManualReadAndWritePolicy() {
         return manualReadAndWritePolicy;
@@ -95,6 +97,7 @@ public class SqlFailoverGroupResource extends AzureResource implements Copyable<
     /**
      * The name of the Failover Group. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }
@@ -146,6 +149,7 @@ public class SqlFailoverGroupResource extends AzureResource implements Copyable<
     /**
      * The Sql Server where the failover group is found. (Required)
      */
+    @Required
     public SqlServerResource getSqlServer() {
         return sqlServer;
     }

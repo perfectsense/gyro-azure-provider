@@ -12,6 +12,7 @@ import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.sql.SqlVirtualNetworkRule;
 import com.microsoft.azure.management.sql.SqlVirtualNetworkRuleOperations.DefinitionStages.WithServiceEndpoint;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 
 import java.util.Set;
 
@@ -51,6 +52,7 @@ public class SqlVirtualNetworkRuleResource extends AzureResource implements Copy
     /**
      * The name of the Virtual Network Rule. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }
@@ -62,6 +64,7 @@ public class SqlVirtualNetworkRuleResource extends AzureResource implements Copy
     /**
      * The Network where the to be attached subnet is found for the Virtual Network Rule. (Required)
      */
+    @Required
     @Updatable
     public NetworkResource getNetwork() {
         return network;
@@ -74,6 +77,7 @@ public class SqlVirtualNetworkRuleResource extends AzureResource implements Copy
     /**
      * The name of a Subnet within the specified network for the Virtual Network Rule. (Required)
      */
+    @Required
     @Updatable
     public String getSubnetName() {
         return subnetName;
