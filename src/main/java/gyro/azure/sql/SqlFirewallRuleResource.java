@@ -1,6 +1,5 @@
 package gyro.azure.sql;
 
-import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.core.GyroUI;
@@ -10,8 +9,6 @@ import gyro.core.resource.Updatable;
 
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.sql.SqlFirewallRule;
-import com.microsoft.azure.management.sql.SqlFirewallRuleOperations.DefinitionStages.WithIPAddressRange;
-import com.microsoft.azure.management.sql.SqlFirewallRuleOperations.DefinitionStages.WithCreate;
 import gyro.core.scope.State;
 
 import java.util.Set;
@@ -26,6 +23,7 @@ import java.util.Set;
  *
  *     firewall-rule firewall
  *         start-ip-address: "10.0.0.0"
+ *         end-ip-address: "10.0.0.0"
  *         name: "test firewall rule"
  *     end
  */
@@ -37,7 +35,7 @@ public class SqlFirewallRuleResource extends AzureResource implements Copyable<S
     private String name;
 
     /**
-     * The ID of the Firewall Rule. (Required)
+     * The ID of the Firewall Rule.
      */
     @Output
     public String getId() {
@@ -61,7 +59,7 @@ public class SqlFirewallRuleResource extends AzureResource implements Copyable<S
     }
 
     /**
-     * The ending ip address of the Firewall Rule. (Optional)
+     * The ending ip address of the Firewall Rule. (Required)
      */
     @Updatable
     public String getEndIpAddress() {
@@ -87,7 +85,7 @@ public class SqlFirewallRuleResource extends AzureResource implements Copyable<S
     public void copyFrom(SqlFirewallRule firewallRule) {
         setId(firewallRule.id());
         setStartIpAddress(firewallRule.startIPAddress());
-        setEndIpAddress(!ObjectUtils.isBlank(getEndIpAddress()) ? firewallRule.endIPAddress() : null);
+        setEndIpAddress(firewallRule.endIPAddress());
         setName(firewallRule.name());
     }
 
@@ -107,16 +105,10 @@ public class SqlFirewallRuleResource extends AzureResource implements Copyable<S
 
         SqlServerResource parent = (SqlServerResource) parent();
 
-        WithIPAddressRange rule = client.sqlServers().getById(parent.getId()).firewallRules().define(getName());
-
-        WithCreate withCreate;
-        if (ObjectUtils.isBlank(getEndIpAddress())) {
-            withCreate = rule.withIPAddress(getStartIpAddress());
-        } else {
-            withCreate = rule.withIPAddressRange(getStartIpAddress(), getEndIpAddress());
-        }
-
-        SqlFirewallRule sqlFirewallRule = withCreate.create();
+        SqlFirewallRule sqlFirewallRule = client.sqlServers().getById(parent.getId())
+            .firewallRules().define(getName())
+            .withIPAddressRange(getStartIpAddress(), getEndIpAddress())
+            .create();
 
         setId(sqlFirewallRule.id());
     }
@@ -125,15 +117,7 @@ public class SqlFirewallRuleResource extends AzureResource implements Copyable<S
     public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
-        SqlFirewallRule.Update update = sqlFirewallRule(client).update();
-
-        if (!ObjectUtils.isBlank(getEndIpAddress())) {
-            update.withStartIPAddress(getStartIpAddress())
-                    .withEndIPAddress(getEndIpAddress())
-                    .apply();
-        } else {
-            update.withStartIPAddress(getStartIpAddress()).withEndIPAddress(getStartIpAddress()).apply();
-        }
+        sqlFirewallRule(client).update().withStartIPAddress(getStartIpAddress()).withEndIPAddress(getStartIpAddress()).apply();
     }
 
     @Override
