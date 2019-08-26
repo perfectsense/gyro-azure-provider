@@ -8,12 +8,17 @@ import com.microsoft.azure.management.compute.OperatingSystemTypes;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
+import gyro.azure.Copyable;
+import gyro.azure.resources.ResourceGroupResource;
 import gyro.core.GyroUI;
+import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,63 +32,70 @@ import java.util.Set;
  *
  * .. code-block:: gyro
  *
- *     azure::disk disk-example
- *          disk-name: "disk-example"
- *          disk-type: "Standard_LRS"
- *          os-type: "LINUX"
- *          size: 10
- *          resource-group-name: $(azure::resource-group resource-group-disk-example | resource-group-name)
- *          tags: {
- *              Name: "disk-example"
- *          }
- *     end
+ *    azure::disk disk-example
+ *         name: "disk-example"
+ *         type: "Standard_LRS"
+ *         os-type: "LINUX"
+ *         size: 10
+ *         resource-group: $(azure::resource-group resource-group-disk-example)
+ *         tags: {
+ *             Name: "disk-example"
+ *         }
+ *    end
  */
 @Type("disk")
-public class DiskResource extends AzureResource {
-    private String diskName;
-    private String diskId;
-    private String resourceGroupName;
+public class DiskResource extends AzureResource implements Copyable<Disk> {
+    private String name;
+    private String id;
+    private ResourceGroupResource resourceGroup;
     private Integer size;
     private String osType;
-    private String diskType;
+    private String type;
     private String dataLoadSourceType;
     private String dataLoadSource;
     private Map<String, String> tags;
 
     /**
-     * Name of the disk. (Required)
+     * Name of the Disk. (Required)
      */
-    public String getDiskName() {
-        return diskName;
+    @Required
+    public String getName() {
+        return name;
     }
 
-    public void setDiskName(String diskName) {
-        this.diskName = diskName;
+    public void setName(String name) {
+        this.name = name;
     }
 
+    /**
+     * The ID of the the Disk.
+     */
+    @Id
     @Output
-    public String getDiskId() {
-        return diskId;
+    public String getId() {
+        return id;
     }
 
-    public void setDiskId(String diskId) {
-        this.diskId = diskId;
-    }
-
-    /**
-     * Name of the resource group under which this would reside. (Required)
-     */
-    public String getResourceGroupName() {
-        return resourceGroupName;
-    }
-
-    public void setResourceGroupName(String resourceGroupName) {
-        this.resourceGroupName = resourceGroupName;
+    public void setId(String id) {
+        this.id = id;
     }
 
     /**
-     * Size of the disk in Gb. (Required)
+     * The resource group under which the Disk would reside. (Required)
      */
+    @Required
+    public ResourceGroupResource getResourceGroup() {
+        return resourceGroup;
+    }
+
+    public void setResourceGroup(ResourceGroupResource resourceGroup) {
+        this.resourceGroup = resourceGroup;
+    }
+
+    /**
+     * Size of the Disk in Gb. (Required)
+     */
+    @Required
     @Updatable
     public Integer getSize() {
         return size;
@@ -94,8 +106,10 @@ public class DiskResource extends AzureResource {
     }
 
     /**
-     * Type of OS. Valid options include [ 'LINUX', 'WINDOWS'].
+     * Type of OS. Valid values are ``LINUX`` or ``WINDOWS``.
      */
+    @Required
+    @ValidStrings({"LINUX", "WINDOWS"})
     @Updatable
     public String getOsType() {
         return osType != null ? osType.toUpperCase() : null;
@@ -106,20 +120,23 @@ public class DiskResource extends AzureResource {
     }
 
     /**
-     * Type of Disk. Valid options include [ 'STANDARD_LRS', 'PREMIUM_LRS', 'STANDARD_SSD_LRS'].
+     * Type of Disk. Valid values are ``STANDARD_LRS`` or ``PREMIUM_LRS`` or ``STANDARD_SSD_LRS``. (REQUIRED)
      */
+    @Required
+    @ValidStrings({"STANDARD_LRS", "PREMIUM_LRS", "STANDARD_SSD_LRS"})
     @Updatable
-    public String getDiskType() {
-        return diskType != null ? diskType.toUpperCase() : null;
+    public String getType() {
+        return type != null ? type.toUpperCase() : null;
     }
 
-    public void setDiskType(String diskType) {
-        this.diskType = diskType;
+    public void setType(String type) {
+        this.type = type;
     }
 
     /**
-     * Type of data source. Defaults to 'disk'. Valid options include [ 'disk', 'vhd', 'snapshot'].
+     * Type of data source. Defaults to ``disk``. Valid values are ``disk`` or ``vhd`` or ``snapshot``.
      */
+    @ValidStrings({"disk", "vhd", "snapshot"})
     public String getDataLoadSourceType() {
         if (dataLoadSourceType == null) {
             dataLoadSourceType = "disk";
@@ -142,6 +159,9 @@ public class DiskResource extends AzureResource {
         this.dataLoadSource = dataLoadSource;
     }
 
+    /**
+     * Tags for the Disk.
+     */
     @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
@@ -156,16 +176,27 @@ public class DiskResource extends AzureResource {
     }
 
     @Override
+    public void copyFrom(Disk disk) {
+        setId(disk.id());
+        setName(disk.name());
+        setOsType(disk.osType() != null ? disk.osType().name() : null);
+        setSize(disk.sizeInGB());
+        setType(disk.sku().accountType().toString());
+        setTags(disk.tags());
+        setResourceGroup(findById(ResourceGroupResource.class, disk.resourceGroupName()));
+    }
+
+    @Override
     public boolean refresh() {
         Azure client = createClient();
 
-        Disk disk = client.disks().getById(getDiskId());
-        setDiskName(disk.name());
-        setOsType(disk.osType() != null ? disk.osType().name() : null);
-        setSize(disk.sizeInGB());
-        setDiskType(disk.sku().accountType().toString());
-        setTags(disk.tags());
-        setResourceGroupName(disk.resourceGroupName());
+        Disk disk = client.disks().getById(getId());
+
+        if (disk == null) {
+            return false;
+        }
+
+        copyFrom(disk);
 
         return true;
     }
@@ -175,9 +206,9 @@ public class DiskResource extends AzureResource {
         Azure client = createClient();
 
         Disk.DefinitionStages.WithDiskSource diskDefWithoutData = client.disks()
-            .define(getDiskName())
+            .define(getName())
             .withRegion(Region.fromName(getRegion()))
-            .withExistingResourceGroup(getResourceGroupName());
+            .withExistingResourceGroup(getResourceGroup().getName());
 
         Disk disk;
 
@@ -207,27 +238,27 @@ public class DiskResource extends AzureResource {
 
             disk = diskDefWithData.withSizeInGB(getSize())
                 .withTags(getTags())
-                .withSku(DiskSkuTypes.fromStorageAccountType(DiskStorageAccountTypes.fromString(getDiskType())))
+                .withSku(DiskSkuTypes.fromStorageAccountType(DiskStorageAccountTypes.fromString(getType())))
                 .create();
 
         } else {
             disk = diskDefWithoutData.withData()
                 .withSizeInGB(getSize())
                 .withTags(getTags())
-                .withSku(DiskSkuTypes.fromStorageAccountType(DiskStorageAccountTypes.fromString(getDiskType())))
+                .withSku(DiskSkuTypes.fromStorageAccountType(DiskStorageAccountTypes.fromString(getType())))
                 .create();
 
             disk.update().withOSType(OperatingSystemTypes.fromString(getOsType())).apply();
         }
 
-        setDiskId(disk.id());
+        setId(disk.id());
     }
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
-        Disk disk = client.disks().getById(getDiskId());
+        Disk disk = client.disks().getById(getId());
 
         int changeCount = 0;
 
@@ -244,7 +275,7 @@ public class DiskResource extends AzureResource {
         if (changedFieldNames.size() > changeCount) {
             disk.update()
                 .withSizeInGB(getSize())
-                .withSku(DiskSkuTypes.fromStorageAccountType(DiskStorageAccountTypes.fromString(getDiskType())))
+                .withSku(DiskSkuTypes.fromStorageAccountType(DiskStorageAccountTypes.fromString(getType())))
                 .withTags(getTags())
                 .apply();
         }
@@ -254,7 +285,6 @@ public class DiskResource extends AzureResource {
     public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
-        client.disks().deleteById(getDiskId());
+        client.disks().deleteById(getId());
     }
-
 }

@@ -7,29 +7,31 @@ import com.microsoft.azure.management.network.NetworkSecurityRule;
 import com.microsoft.azure.management.network.SecurityRuleAccess;
 import com.microsoft.azure.management.network.SecurityRuleDirection;
 import com.microsoft.azure.management.network.SecurityRuleProtocol;
-import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
+import gyro.azure.Copyable;
 import gyro.core.GyroUI;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
+import gyro.core.validation.Range;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class NetworkSecurityGroupRuleResource extends AzureResource {
-    private String securityGroupRuleName;
+public class NetworkSecurityGroupRuleResource extends AzureResource implements Copyable<NetworkSecurityRule> {
+    private String name;
     private Boolean inboundRule;
     private Boolean allowRule;
-    private List<String> fromAddresses;
-    private List<String> fromPorts;
-    private List<String> toAddresses;
-    private List<String> toPorts;
-    private String fromApplicationSecurityGroupId;
-    private String toApplicationSecurityGroupId;
+    private Set<String> fromAddresses;
+    private Set<String> fromPorts;
+    private Set<String> toAddresses;
+    private Set<String> toPorts;
+    private ApplicationSecurityGroupResource fromApplicationSecurityGroup;
+    private ApplicationSecurityGroupResource toApplicationSecurityGroup;
     private String description;
     private Integer priority;
     private String protocol;
@@ -40,18 +42,18 @@ public class NetworkSecurityGroupRuleResource extends AzureResource {
             "udp", SecurityRuleProtocol.UDP);
 
     /**
-     * Name of the rule. (Required)
+     * Name of the Network Security Rule. (Required)
      */
-    public String getSecurityGroupRuleName() {
-        return securityGroupRuleName;
+    public String getName() {
+        return name;
     }
 
-    public void setSecurityGroupRuleName(String securityGroupRuleName) {
-        this.securityGroupRuleName = securityGroupRuleName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
-     * Set rule type as inbound or outbound. Defaults to true i.e inbound. (Required)
+     * Set Network Security Rule type as inbound or outbound. Defaults to ``true`` i.e inbound.
      */
     @Updatable
     public Boolean getInboundRule() {
@@ -67,7 +69,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource {
     }
 
     /**
-     * Set rule to allow or block traffic. Defaults to true i.e allow. (Required)
+     * Set Network Security Rule to allow or block traffic. Defaults to ``true`` i.e allow.
      */
     @Updatable
     public Boolean getAllowRule() {
@@ -83,103 +85,97 @@ public class NetworkSecurityGroupRuleResource extends AzureResource {
     }
 
     /**
-     * A list of source addresses for the rule to work. Required if fromApplicationSecurityGroupId is not set.
+     * A list of source addresses for the Network Security Rule to work. Required if ``from-Application-Security-Group`` is not set.
      */
     @Updatable
-    public List<String> getFromAddresses() {
+    public Set<String> getFromAddresses() {
         if (fromAddresses == null) {
-            fromAddresses = new ArrayList<>();
+            fromAddresses = new HashSet<>();
         }
-
-        Collections.sort(fromAddresses);
 
         return fromAddresses;
     }
 
-    public void setFromAddresses(List<String> fromAddresses) {
+    public void setFromAddresses(Set<String> fromAddresses) {
         this.fromAddresses = fromAddresses;
     }
 
     /**
-     * A list of source ports for the rule to work. (Required)
+     * A list of source ports for the Network Security Rule to work. (Required)
      */
+    @Required
     @Updatable
-    public List<String> getFromPorts() {
+    public Set<String> getFromPorts() {
         if (fromPorts == null) {
-            fromPorts = new ArrayList<>();
+            fromPorts = new HashSet<>();
         }
-
-        Collections.sort(fromPorts);
 
         return fromPorts;
     }
 
-    public void setFromPorts(List<String> fromPorts) {
+    public void setFromPorts(Set<String> fromPorts) {
         this.fromPorts = fromPorts;
     }
 
     /**
-     * A list of destination addresses for the rule to work. Required if toApplicationSecurityGroupId is not set.
+     * A list of destination addresses for the Network Security Rule to work. Required if ``to-Application-Security-Group`` is not set.
      */
     @Updatable
-    public List<String> getToAddresses() {
+    public Set<String> getToAddresses() {
         if (toAddresses == null) {
-            toAddresses = new ArrayList<>();
+            toAddresses = new HashSet<>();
         }
-
-        Collections.sort(toAddresses);
 
         return toAddresses;
     }
 
-    public void setToAddresses(List<String> toAddresses) {
+    public void setToAddresses(Set<String> toAddresses) {
         this.toAddresses = toAddresses;
     }
 
     /**
-     * A list of destination ports for the rule to work. (Required)
+     * A list of destination ports for the Network Security Rule to work. (Required)
      */
+    @Required
     @Updatable
-    public List<String> getToPorts() {
+    public Set<String> getToPorts() {
         if (toPorts == null) {
-            toPorts = new ArrayList<>();
+            toPorts = new HashSet<>();
         }
-
-        Collections.sort(toPorts);
 
         return toPorts;
     }
 
-    public void setToPorts(List<String> toPorts) {
+    public void setToPorts(Set<String> toPorts) {
         this.toPorts = toPorts;
     }
 
     /**
-     * Source application security group id. Required if fromAddresses not set.
+     * Source Application Security Group for the Network Security Rule. Required if ``from-Addresses`` not set.
      */
     @Updatable
-    public String getFromApplicationSecurityGroupId() {
-        return fromApplicationSecurityGroupId;
+    public ApplicationSecurityGroupResource getFromApplicationSecurityGroup() {
+        return fromApplicationSecurityGroup;
     }
 
-    public void setFromApplicationSecurityGroupId(String fromApplicationSecurityGroupId) {
-        this.fromApplicationSecurityGroupId = fromApplicationSecurityGroupId;
+    public void setFromApplicationSecurityGroup(ApplicationSecurityGroupResource fromApplicationSecurityGroup) {
+        this.fromApplicationSecurityGroup = fromApplicationSecurityGroup;
     }
 
     /**
-     * Destination application security group id. Required if toAddresses not set.
+     * Destination Application Security Group for the Network Security Rule. Required if ``to-Addresses`` not set.
      */
     @Updatable
-    public String getToApplicationSecurityGroupId() {
-        return toApplicationSecurityGroupId;
+    public ApplicationSecurityGroupResource getToApplicationSecurityGroup() {
+        return toApplicationSecurityGroup;
     }
 
-    public void setToApplicationSecurityGroupId(String toApplicationSecurityGroupId) {
-        this.toApplicationSecurityGroupId = toApplicationSecurityGroupId;
+    public void setToApplicationSecurityGroup(ApplicationSecurityGroupResource toApplicationSecurityGroup) {
+        this.toApplicationSecurityGroup = toApplicationSecurityGroup;
     }
 
     /**
-     * Description for the rule.
+     * Description for the Network Security Rule.
      */
     @Updatable
     public String getDescription() {
@@ -191,8 +187,9 @@ public class NetworkSecurityGroupRuleResource extends AzureResource {
     }
 
     /**
-     * Priority for the rule. Valid values [ Integer 100 to 4096 ]. (Required)
+     * Priority for the Network Security Rule. Valid values are any Integer from ``100`` to ``4096``. (Required)
      */
+    @Range(min = 100, max = 4096)
     @Updatable
     public Integer getPriority() {
         return priority;
@@ -203,8 +200,9 @@ public class NetworkSecurityGroupRuleResource extends AzureResource {
     }
 
     /**
-     * Priority for the rule. Valid values [ all, tcp, udp ]. Defaults to all. (Required)
+     * Protocol for the Network Security Rule. Valid values are ``all`` or ``tcp`` or ``udp``. Defaults to ``all``.
      */
+    @ValidStrings({"all", "tcp", "udp"})
     @Updatable
     public String getProtocol() {
         if (protocol == null) {
@@ -218,37 +216,34 @@ public class NetworkSecurityGroupRuleResource extends AzureResource {
         this.protocol = protocol;
     }
 
-    public NetworkSecurityGroupRuleResource() {
-
-    }
-
-    public NetworkSecurityGroupRuleResource(NetworkSecurityRule networkSecurityRule) {
-        setSecurityGroupRuleName(networkSecurityRule.name());
+    @Override
+    public void copyFrom(NetworkSecurityRule networkSecurityRule) {
+        setName(networkSecurityRule.name());
         setInboundRule(networkSecurityRule.direction().equals(SecurityRuleDirection.INBOUND));
         setAllowRule(networkSecurityRule.access().equals(SecurityRuleAccess.ALLOW));
 
         if (networkSecurityRule.sourceAddressPrefix() != null) {
-            setFromAddresses(Collections.singletonList(networkSecurityRule.sourceAddressPrefix()));
+            setFromAddresses(new HashSet<>(Collections.singletonList(networkSecurityRule.sourceAddressPrefix())));
         } else if (!networkSecurityRule.sourceAddressPrefixes().isEmpty()) {
-            setFromAddresses(new ArrayList<>(networkSecurityRule.sourceAddressPrefixes()));
+            setFromAddresses(new HashSet<>(networkSecurityRule.sourceAddressPrefixes()));
         }
 
         if (networkSecurityRule.sourcePortRange() != null) {
-            setFromPorts(Collections.singletonList(networkSecurityRule.sourcePortRange()));
+            setFromPorts(new HashSet<>(Collections.singletonList(networkSecurityRule.sourcePortRange())));
         } else if (!networkSecurityRule.sourcePortRanges().isEmpty()) {
-            setFromPorts(new ArrayList<>(networkSecurityRule.sourcePortRanges()));
+            setFromPorts(new HashSet<>(networkSecurityRule.sourcePortRanges()));
         }
 
         if (networkSecurityRule.destinationAddressPrefix() != null) {
-            setToAddresses(Collections.singletonList(networkSecurityRule.destinationAddressPrefix()));
+            setToAddresses(new HashSet<>(Collections.singletonList(networkSecurityRule.destinationAddressPrefix())));
         } else if (!networkSecurityRule.destinationAddressPrefixes().isEmpty()) {
-            setToAddresses(new ArrayList<>(networkSecurityRule.destinationAddressPrefixes()));
+            setToAddresses(new HashSet<>(networkSecurityRule.destinationAddressPrefixes()));
         }
 
         if (networkSecurityRule.destinationPortRange() != null) {
-            setToPorts(Collections.singletonList(networkSecurityRule.destinationPortRange()));
+            setToPorts(new HashSet<>(Collections.singletonList(networkSecurityRule.destinationPortRange())));
         } else if (!networkSecurityRule.destinationPortRanges().isEmpty()) {
-            setToPorts(new ArrayList<>(networkSecurityRule.destinationPortRanges()));
+            setToPorts(new HashSet<>(networkSecurityRule.destinationPortRanges()));
         }
 
         setDescription(networkSecurityRule.description());
@@ -256,11 +251,11 @@ public class NetworkSecurityGroupRuleResource extends AzureResource {
         setProtocol(networkSecurityRule.protocol().toString().equals("*") ? "all" : networkSecurityRule.protocol().toString());
 
         if (!networkSecurityRule.sourceApplicationSecurityGroupIds().isEmpty()) {
-            setFromApplicationSecurityGroupId(networkSecurityRule.sourceApplicationSecurityGroupIds().iterator().next());
+            setFromApplicationSecurityGroup(findById(ApplicationSecurityGroupResource.class, networkSecurityRule.sourceApplicationSecurityGroupIds().iterator().next()));
         }
 
         if (!networkSecurityRule.destinationApplicationSecurityGroupIds().isEmpty()) {
-            setToApplicationSecurityGroupId(networkSecurityRule.destinationApplicationSecurityGroupIds().iterator().next());
+            setToApplicationSecurityGroup(findById(ApplicationSecurityGroupResource.class, networkSecurityRule.destinationApplicationSecurityGroupIds().iterator().next()));
         }
     }
 
@@ -275,11 +270,11 @@ public class NetworkSecurityGroupRuleResource extends AzureResource {
 
         NetworkSecurityGroupResource parent = (NetworkSecurityGroupResource) parent();
 
-        NetworkSecurityGroup networkSecurityGroup = client.networkSecurityGroups().getById(parent.getNetworkSecurityGroupId());
+        NetworkSecurityGroup networkSecurityGroup = client.networkSecurityGroups().getById(parent.getId());
 
         NetworkSecurityRule.UpdateDefinitionStages
             .Blank<NetworkSecurityGroup.Update> updateBlank = networkSecurityGroup
-            .update().defineRule(getSecurityGroupRuleName());
+            .update().defineRule(getName());
 
         NetworkSecurityRule.UpdateDefinitionStages.WithSourceAddressOrSecurityGroup<NetworkSecurityGroup.Update> withDirection;
 
@@ -291,10 +286,10 @@ public class NetworkSecurityGroupRuleResource extends AzureResource {
 
         NetworkSecurityRule.UpdateDefinitionStages.WithSourcePort<NetworkSecurityGroup.Update> withFromAddress;
 
-        if (!ObjectUtils.isBlank(getFromApplicationSecurityGroupId())) {
-            withFromAddress = withDirection.withSourceApplicationSecurityGroup(getFromApplicationSecurityGroupId());
+        if (getFromApplicationSecurityGroup() != null) {
+            withFromAddress = withDirection.withSourceApplicationSecurityGroup(getFromApplicationSecurityGroup().getId());
         } else {
-            if (getFromAddresses().size() == 1 && getFromAddresses().get(0).equals("*")) {
+            if (getFromAddresses().size() == 1 && getFromAddresses().contains("*")) {
                 withFromAddress = withDirection.fromAnyAddress();
             } else {
                 withFromAddress = withDirection.fromAddresses(getFromAddresses().toArray(new String[0]));
@@ -303,7 +298,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource {
 
         NetworkSecurityRule.UpdateDefinitionStages.WithDestinationAddressOrSecurityGroup<NetworkSecurityGroup.Update> withFromPorts;
 
-        if (getFromPorts().size() == 1 && getFromPorts().get(0).equals("*")) {
+        if (getFromPorts().size() == 1 && getFromPorts().contains("*")) {
             withFromPorts = withFromAddress.fromAnyPort();
         } else {
             withFromPorts = withFromAddress.fromPortRanges(getFromPorts().toArray(new String[0]));
@@ -311,10 +306,10 @@ public class NetworkSecurityGroupRuleResource extends AzureResource {
 
         NetworkSecurityRule.UpdateDefinitionStages.WithDestinationPort<NetworkSecurityGroup.Update> withToAddress;
 
-        if (!ObjectUtils.isBlank(getToApplicationSecurityGroupId())) {
-            withToAddress = withFromPorts.withDestinationApplicationSecurityGroup(getToApplicationSecurityGroupId());
+        if (getToApplicationSecurityGroup() != null) {
+            withToAddress = withFromPorts.withDestinationApplicationSecurityGroup(getToApplicationSecurityGroup().getId());
         } else {
-            if (getToAddresses().size() == 1 && getToAddresses().get(0).equals("*")) {
+            if (getToAddresses().size() == 1 && getToAddresses().contains("*")) {
                 withToAddress = withFromPorts.toAnyAddress();
             } else {
                 withToAddress = withFromPorts.toAddresses(getToAddresses().toArray(new String[0]));
@@ -322,7 +317,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource {
         }
 
         NetworkSecurityRule.UpdateDefinitionStages.WithProtocol<NetworkSecurityGroup.Update> withToPorts;
-        if (getToPorts().size() == 1 && getToPorts().get(0).equals("*")) {
+        if (getToPorts().size() == 1 && getToPorts().contains("*")) {
             withToPorts = withToAddress.toAnyPort();
         } else {
             withToPorts = withToAddress.toPortRanges(getToPorts().toArray(new String[0]));
@@ -341,9 +336,9 @@ public class NetworkSecurityGroupRuleResource extends AzureResource {
 
         NetworkSecurityGroupResource parent = (NetworkSecurityGroupResource) parent();
 
-        NetworkSecurityGroup networkSecurityGroup = client.networkSecurityGroups().getById(parent.getNetworkSecurityGroupId());
+        NetworkSecurityGroup networkSecurityGroup = client.networkSecurityGroups().getById(parent.getId());
 
-        NetworkSecurityRule.Update update = networkSecurityGroup.update().updateRule(getSecurityGroupRuleName());
+        NetworkSecurityRule.Update update = networkSecurityGroup.update().updateRule(getName());
 
         if (getInboundRule()) {
             update = getAllowRule() ? update.allowInbound() : update.denyInbound();
@@ -351,33 +346,33 @@ public class NetworkSecurityGroupRuleResource extends AzureResource {
             update = getAllowRule() ? update.allowOutbound() : update.denyOutbound();
         }
 
-        if (!ObjectUtils.isBlank(getFromApplicationSecurityGroupId())) {
-            update = update.withSourceApplicationSecurityGroup(getFromApplicationSecurityGroupId());
+        if (getFromApplicationSecurityGroup() != null) {
+            update = update.withSourceApplicationSecurityGroup(getFromApplicationSecurityGroup().getId());
         } else {
-            if (getFromAddresses().size() == 1 && getFromAddresses().get(0).equals("*")) {
+            if (getFromAddresses().size() == 1 && getFromAddresses().contains("*")) {
                 update = update.fromAnyAddress();
             } else {
                 update = update.fromAddresses(getFromAddresses().toArray(new String[0]));
             }
         }
 
-        if (getFromPorts().size() == 1 && getFromPorts().get(0).equals("*")) {
+        if (getFromPorts().size() == 1 && getFromPorts().contains("*")) {
             update = update.fromAnyPort();
         } else {
             update = update.fromPortRanges(getFromPorts().toArray(new String[0]));
         }
 
-        if (!ObjectUtils.isBlank(getToApplicationSecurityGroupId())) {
-            update = update.withDestinationApplicationSecurityGroup(getToApplicationSecurityGroupId());
+        if (getToApplicationSecurityGroup() != null) {
+            update = update.withDestinationApplicationSecurityGroup(getToApplicationSecurityGroup().getId());
         } else {
-            if (getToAddresses().size() == 1 && getToAddresses().get(0).equals("*")) {
+            if (getToAddresses().size() == 1 && getToAddresses().contains("*")) {
                 update = update.toAnyAddress();
             } else {
                 update = update.toAddresses(getToAddresses().toArray(new String[0]));
             }
         }
 
-        if (getToPorts().size() == 1 && getToPorts().get(0).equals("*")) {
+        if (getToPorts().size() == 1 && getToPorts().contains("*")) {
             update = update.toAnyPort();
         } else {
             update = update.toPortRanges(getToPorts().toArray(new String[0]));
@@ -396,14 +391,13 @@ public class NetworkSecurityGroupRuleResource extends AzureResource {
 
         NetworkSecurityGroupResource parent = (NetworkSecurityGroupResource) parent();
 
-        NetworkSecurityGroup networkSecurityGroup = client.networkSecurityGroups().getById(parent.getNetworkSecurityGroupId());
+        NetworkSecurityGroup networkSecurityGroup = client.networkSecurityGroups().getById(parent.getId());
 
-        networkSecurityGroup.update().withoutRule(getSecurityGroupRuleName()).apply();
+        networkSecurityGroup.update().withoutRule(getName()).apply();
     }
 
     @Override
     public String primaryKey() {
-        return String.format("%s", getSecurityGroupRuleName());
+        return String.format("%s", getName());
     }
-
 }

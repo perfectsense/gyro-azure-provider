@@ -7,7 +7,7 @@ azure::resource-group cloud-file-resource-group-example
 end
 
 azure::storage-account cloud-file-account-example
-    resource-group-name: $(azure::resource-group cloud-file-resource-group-example | resource-group-name)
+    resource-group: $(azure::resource-group cloud-file-resource-group-example)
     name: "cloudfileexample"
 
     cors-rule
@@ -25,12 +25,12 @@ azure::storage-account cloud-file-account-example
 end
 
 azure::cloud-file-share cloud-file-share-example
-    cloud-file-share-name: "cloudfileshare"
+    name: "cloudfileshare"
     storage-account: $(azure::storage-account cloud-file-account-example)
 end
 
 azure::cloud-file-directory cloud-file-directory
-    cloud-file-directory-path: "/example/directory/path"
-    cloud-file-share-name: $(azure::cloud-file-share cloud-file-share-example | cloud-file-share-name)
+    path: "/example/directory/path"
+    cloud-file-share: $(azure::cloud-file-share cloud-file-share-example)
     storage-account: $(azure::storage-account cloud-file-account-example)
 end

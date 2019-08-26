@@ -1,10 +1,13 @@
 package gyro.azure.network;
 
+import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 
 import com.microsoft.azure.management.network.LoadBalancerInboundNatRule;
 import com.microsoft.azure.management.network.TransportProtocol;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 
 /**
  * Creates a nat rule.
@@ -21,7 +24,7 @@ import com.microsoft.azure.management.network.TransportProtocol;
  *             protocol: "TCP"
  *         end
  */
-public class InboundNatRule extends Diffable {
+public class InboundNatRule extends Diffable implements Copyable<LoadBalancerInboundNatRule> {
 
     private Integer backendPort;
     private Boolean floatingIp;
@@ -30,20 +33,10 @@ public class InboundNatRule extends Diffable {
     private String name;
     private String protocol;
 
-    public InboundNatRule() {}
-
-    public InboundNatRule(LoadBalancerInboundNatRule natRule) {
-        setBackendPort(natRule.backendPort());
-        setFloatingIp(natRule.floatingIPEnabled());
-        setFrontendName(natRule.frontend() != null ? natRule.frontend().name() : null);
-        setFrontendPort(natRule.frontendPort());
-        setName(natRule.name());
-        setProtocol(natRule.protocol() == TransportProtocol.TCP ? "TCP" : "UDP");
-    }
-
     /**
-     * The backend port that receives network traffic. (Required)
+     * The backend port that receives network traffic for the Inbound Nat Rule. (Required)
      */
+    @Required
     @Updatable
     public Integer getBackendPort() {
         return backendPort;
@@ -54,7 +47,7 @@ public class InboundNatRule extends Diffable {
     }
 
     /**
-     * Determines whether floating ip support is enabled. Defaults to false (Required)
+     * Determines whether floating ip support is enabled for the Inbound Nat Rule. Defaults to ``false``.
      */
     @Updatable
     public Boolean getFloatingIp() {
@@ -70,8 +63,9 @@ public class InboundNatRule extends Diffable {
     }
 
     /**
-     * The frontend associated with the inbound nat rule. (Required)
+     * The frontend associated with the Inbound Nat Rule. (Required)
      */
+    @Required
     @Updatable
     public String getFrontendName() {
         return frontendName;
@@ -82,8 +76,9 @@ public class InboundNatRule extends Diffable {
     }
 
     /**
-     * The name of the inbound nat rule. (Required)
+     * The name of the Inbound Nat Rule. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }
@@ -93,8 +88,9 @@ public class InboundNatRule extends Diffable {
     }
 
     /**
-     * The frontend port that receives network traffic. (Required)
+     * The frontend port that receives network traffic for the Inbound Nat Rule. (Required)
      */
+    @Required
     @Updatable
     public Integer getFrontendPort() {
         return frontendPort;
@@ -105,8 +101,10 @@ public class InboundNatRule extends Diffable {
     }
 
     /**
-     * The protocol used by the nat rule. (Required)
+     * The protocol used by the Inbound Nat Rule. (Required)
      */
+    @Required
+    @ValidStrings({"TCP", "UDP"})
     @Updatable
     public String getProtocol() {
         return protocol;
@@ -116,8 +114,18 @@ public class InboundNatRule extends Diffable {
         this.protocol = protocol;
     }
 
+    @Override
+    public void copyFrom(LoadBalancerInboundNatRule natRule) {
+        setBackendPort(natRule.backendPort());
+        setFloatingIp(natRule.floatingIPEnabled());
+        setFrontendName(natRule.frontend() != null ? natRule.frontend().name() : null);
+        setFrontendPort(natRule.frontendPort());
+        setName(natRule.name());
+        setProtocol(natRule.protocol() == TransportProtocol.TCP ? "TCP" : "UDP");
+    }
+
     public String primaryKey() {
-        return String.format("%s", getName());
+        return getName();
     }
 
 }

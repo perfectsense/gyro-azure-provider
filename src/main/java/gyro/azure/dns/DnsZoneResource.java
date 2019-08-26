@@ -1,22 +1,26 @@
 package gyro.azure.dns;
 
 import gyro.azure.AzureResource;
+import gyro.azure.Copyable;
+import gyro.azure.network.NetworkResource;
+import gyro.azure.resources.ResourceGroupResource;
 import gyro.core.GyroUI;
+import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
-
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.dns.DnsZone;
 import com.microsoft.azure.management.dns.ZoneType;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Creates a DNS Zone.
@@ -29,26 +33,27 @@ import java.util.Set;
  *     azure::dns-zone dns-zone-example-zones
  *         name: "zones.example.com"
  *         public-access: false
- *         resource-group-name: $(azure::resource-group resource-group-dns-zone-example | resource-group-name)
+ *         resource-group: $(azure::resource-group resource-group-dns-zone-example)
  *         tags: {
  *            Name: "resource-group-dns-zone-example"
  *         }
  *     end
  */
 @Type("dns-zone")
-public class DnsZoneResource extends AzureResource {
+public class DnsZoneResource extends AzureResource implements Copyable<DnsZone> {
 
     private String id;
     private Boolean publicAccess;
     private String name;
-    private List<String> registrationVirtualNetworkIds;
-    private List<String> resolutionVirtualNetworkIds;
-    private String resourceGroupName;
+    private Set<NetworkResource> registrationNetwork;
+    private Set<NetworkResource> resolutionNetwork;
+    private ResourceGroupResource resourceGroup;
     private Map<String, String> tags;
 
     /**
-     * The id of the dns zone.
+     * The ID of the Dns Zone.
      */
+    @Id
     @Output
     public String getId() {
         return id;
@@ -59,7 +64,7 @@ public class DnsZoneResource extends AzureResource {
     }
 
     /**
-     * Determines if the dns zone is public or private. Defaults to public (true). (Optional)
+     * Determines if the Dns Zone is public or private. Defaults to public ``true``. (Optional)
      */
     public Boolean getPublicAccess() {
         if (publicAccess == null) {
@@ -74,8 +79,9 @@ public class DnsZoneResource extends AzureResource {
     }
 
     /**
-     * The name of the dns zone. (Required)
+     * The name of the Dns Zone. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }
@@ -85,52 +91,51 @@ public class DnsZoneResource extends AzureResource {
     }
 
     /**
-     * A list of virtual network id's that register hostnames in a private dns zone.
-     * Can be used when the access is private. (Optional)
+     * A list of virtual network id's that register hostnames in a private Dns Zone. Can be used when the access is private. (Optional)
      */
     @Updatable
-    public List<String> getRegistrationVirtualNetworkIds() {
-        if (registrationVirtualNetworkIds == null) {
-            registrationVirtualNetworkIds = new ArrayList<>();
+    public Set<NetworkResource> getRegistrationNetwork() {
+        if (registrationNetwork == null) {
+            registrationNetwork = new HashSet<>();
         }
 
-        return registrationVirtualNetworkIds;
+        return registrationNetwork;
     }
 
-    public void setRegistrationVirtualNetworkIds(List<String> registrationVirtualNetworkIds) {
-        this.registrationVirtualNetworkIds = registrationVirtualNetworkIds;
+    public void setRegistrationNetwork(Set<NetworkResource> registrationNetwork) {
+        this.registrationNetwork = registrationNetwork;
     }
 
     /**
-     * A list of virtual network id's that resolve records in a private dns zone.
-     * Can be used when the access is private. (Optional)
+     * A list of virtual network id's that resolve records in a private Dns Zone. Can be used when the access is private. (Optional)
      */
     @Updatable
-    public List<String> getResolutionVirtualNetworkIds() {
-        if (resolutionVirtualNetworkIds == null) {
-            resolutionVirtualNetworkIds = new ArrayList<>();
+    public Set<NetworkResource> getResolutionNetwork() {
+        if (resolutionNetwork == null) {
+            resolutionNetwork = new HashSet<>();
         }
 
-        return resolutionVirtualNetworkIds;
+        return resolutionNetwork;
     }
 
-    public void setResolutionVirtualNetworkIds(List<String> resolutionVirtualNetworkIds) {
-        this.resolutionVirtualNetworkIds = resolutionVirtualNetworkIds;
+    public void setResolutionNetwork(Set<NetworkResource> resolutionNetwork) {
+        this.resolutionNetwork = resolutionNetwork;
     }
 
     /**
-     * The name of the resource group where the dns zone is found. (Required)
+     * The Resource Group where the Dns Zone is found. (Required)
      */
-    public String getResourceGroupName() {
-        return resourceGroupName;
+    @Required
+    public ResourceGroupResource getResourceGroup() {
+        return resourceGroup;
     }
 
-    public void setResourceGroupName(String resourceGroupName) {
-        this.resourceGroupName = resourceGroupName;
+    public void setResourceGroup(ResourceGroupResource resourceGroup) {
+        this.resourceGroup = resourceGroup;
     }
 
     /**
-     * The tags associated with the dns zone. (Optional)
+     * The tags associated with the Dns Zone. (Optional)
      */
     @Updatable
     public Map<String, String> getTags() {
@@ -146,6 +151,17 @@ public class DnsZoneResource extends AzureResource {
     }
 
     @Override
+    public void copyFrom(DnsZone dnsZone) {
+        setId(dnsZone.id());
+        setPublicAccess(dnsZone.accessType() == ZoneType.PUBLIC);
+        setName(dnsZone.name());
+        setRegistrationNetwork(dnsZone.registrationVirtualNetworkIds().stream().map(o -> findById(NetworkResource.class, o)).collect(Collectors.toSet()));
+        setResolutionNetwork(dnsZone.resolutionVirtualNetworkIds().stream().map(o -> findById(NetworkResource.class, o)).collect(Collectors.toSet()));
+        setResourceGroup(findById(ResourceGroupResource.class, dnsZone.resourceGroupName()));
+        setTags(dnsZone.tags());
+    }
+
+    @Override
     public boolean refresh() {
         Azure client = createClient();
 
@@ -155,13 +171,7 @@ public class DnsZoneResource extends AzureResource {
             return false;
         }
 
-        setId(dnsZone.id());
-        setPublicAccess(dnsZone.accessType() == ZoneType.PUBLIC);
-        setName(dnsZone.name());
-        setRegistrationVirtualNetworkIds(dnsZone.registrationVirtualNetworkIds());
-        setResolutionVirtualNetworkIds(dnsZone.resolutionVirtualNetworkIds());
-        setResourceGroupName(dnsZone.resourceGroupName());
-        setTags(dnsZone.tags());
+        copyFrom(dnsZone);
 
         return true;
     }
@@ -172,11 +182,12 @@ public class DnsZoneResource extends AzureResource {
 
         DnsZone.DefinitionStages.WithCreate withCreate;
 
-        withCreate = client.dnsZones().define(getName()).withExistingResourceGroup(getResourceGroupName());
+        withCreate = client.dnsZones().define(getName()).withExistingResourceGroup(getResourceGroup().getName());
 
         if (getPublicAccess() != null && !getPublicAccess()) {
-            if (getRegistrationVirtualNetworkIds().isEmpty() && getResolutionVirtualNetworkIds().isEmpty()) {
-                withCreate.withPrivateAccess(getRegistrationVirtualNetworkIds(), getResolutionVirtualNetworkIds());
+            if (getRegistrationNetwork().isEmpty() && getResolutionNetwork().isEmpty()) {
+                withCreate.withPrivateAccess(getRegistrationNetwork().stream().map(NetworkResource::getId).collect(Collectors.toList()),
+                    getResolutionNetwork().stream().map(NetworkResource::getId).collect(Collectors.toList()));
             } else {
                 withCreate.withPrivateAccess();
             }
@@ -188,7 +199,7 @@ public class DnsZoneResource extends AzureResource {
 
         DnsZone dnsZone = withCreate.create();
 
-        setId(dnsZone.id());
+        copyFrom(dnsZone);
     }
 
     @Override
@@ -198,7 +209,10 @@ public class DnsZoneResource extends AzureResource {
         DnsZone.Update update = client.dnsZones().getById(getId()).update();
 
         update.withTags(getTags());
-        update.apply();
+
+        DnsZone dnsZone = update.apply();
+
+        copyFrom(dnsZone);
     }
 
     @Override
@@ -207,5 +221,4 @@ public class DnsZoneResource extends AzureResource {
 
         client.dnsZones().deleteById(getId());
     }
-
 }
