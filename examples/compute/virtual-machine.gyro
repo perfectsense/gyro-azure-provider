@@ -75,7 +75,7 @@ azure::virtual-machine virtual-machine-example
     network-interface: $(azure::network-interface network-interface-example-VM)
     #private-ip-address: "10.0.0.10"
     #public-ip-address: $(azure::public-ip-address public-ip-address-example-VM)
-    vm-image-type: "specialized"
+    vm-image-type: "popular"
     known-virtual-image: "UBUNTU_SERVER_14_04_LTS"
     admin-user-name: "qwerty@123"
     admin-password: "qwerty@123"
@@ -83,6 +83,7 @@ azure::virtual-machine virtual-machine-example
     vm-size-type: "STANDARD_G1"
     storage-account-type-data-disk: "STANDARD_LRS"
     storage-account-type-os-disk: "STANDARD_LRS"
+    custom-data: "custom data"
     tags: {
         Name: "network-interface-example-VM"
     }

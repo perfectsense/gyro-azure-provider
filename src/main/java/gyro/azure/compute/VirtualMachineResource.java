@@ -16,6 +16,7 @@ import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.Wi
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithLinuxRootPasswordOrPublicKeyManagedOrUnmanaged;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithLinuxRootPasswordOrPublicKeyUnmanaged;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithManagedCreate;
+import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithFromImageCreateOptionsManaged;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithNetwork;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithOS;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithPrivateIP;
@@ -43,6 +44,7 @@ import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -113,6 +115,7 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
     private String imageVersion;
     private Set<NetworkInterfaceResource> secondaryNetworkInterface;
     private Map<String, String> tags;
+    private String customData;
 
     /**
      * Name of the Virtual Machine. (Required)
@@ -494,6 +497,17 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
         this.tags = tags;
     }
 
+    /**
+     * The custom data for the Virtual Machine. Not supported if ``vm-image-type`` selected as ``specialized``.
+     */
+    public String getCustomData() {
+        return customData;
+    }
+
+    public void setCustomData(String customData) {
+        this.customData = customData;
+    }
+
     @Override
     public void copyFrom(VirtualMachine virtualMachine) {
         setName(virtualMachine.name());
@@ -579,6 +593,7 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
 
         WithCreate create = null;
         WithManagedCreate managedCreate = null;
+        WithFromImageCreateOptionsManaged withFromImageCreateOptionsManaged = null;
 
         boolean isLatestPopularOrSpecific = getVmImageType().equals("latest")
             || getVmImageType().equals("popular")
@@ -609,11 +624,14 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
                 }
 
                 if (!ObjectUtils.isBlank(getAdminPassword()) && !ObjectUtils.isBlank(getSsh())) {
-                    managedCreate = managedOrUnmanaged.withRootPassword(getAdminPassword()).withSsh(getSsh());
+                    withFromImageCreateOptionsManaged = managedOrUnmanaged.withRootPassword(getAdminPassword()).withSsh(getSsh())
+                        .withCustomData(getEncodedCustomData());
                 } else if (!ObjectUtils.isBlank(getAdminPassword())) {
-                    managedCreate = managedOrUnmanaged.withRootPassword(getAdminPassword());
+                    withFromImageCreateOptionsManaged = managedOrUnmanaged.withRootPassword(getAdminPassword())
+                        .withCustomData(getEncodedCustomData());
                 } else {
-                    managedCreate = managedOrUnmanaged.withSsh(getSsh());
+                    withFromImageCreateOptionsManaged = managedOrUnmanaged.withSsh(getSsh())
+                        .withCustomData(getEncodedCustomData());
                 }
 
             } else if (getVmImageType().equals("stored")) {
@@ -655,9 +673,11 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
             }
 
             if (createUnmanaged != null) {
-                create = createUnmanaged.withSize(VirtualMachineSizeTypes.fromString(getVmSizeType()));
+                create = createUnmanaged.withCustomData(getEncodedCustomData())
+                    .withSize(VirtualMachineSizeTypes.fromString(getVmSizeType()));
             } else if (createManaged != null) {
-                create = createManaged.withSize(VirtualMachineSizeTypes.fromString(getVmSizeType()));
+                create = createManaged.withCustomData(getEncodedCustomData())
+                    .withSize(VirtualMachineSizeTypes.fromString(getVmSizeType()));
             }
         } else {
             //windows
@@ -682,6 +702,7 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
                 }
 
                 managedCreate = managedOrUnmanaged.withAdminPassword(getAdminPassword())
+                    .withCustomData(getEncodedCustomData())
                     .withExistingDataDisk(client.disks().getById(getDisk().getId()));
 
             } else if (getVmImageType().equals("stored")) {
@@ -710,18 +731,25 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
                     .withoutAutoUpdate()
                     .withoutVMAgent()
                     .withTimeZone(getTimeZone())
+                    .withCustomData(getEncodedCustomData())
                     .withSize(VirtualMachineSizeTypes.fromString(getVmSizeType()));
             } else if (createManaged != null) {
                 create = createManaged
                     .withoutAutoUpdate()
                     .withoutVMAgent()
                     .withTimeZone(getTimeZone())
+                    .withCustomData(getEncodedCustomData())
                     .withSize(VirtualMachineSizeTypes.fromString(getVmSizeType()));
             }
         }
 
         if (managedCreate != null) {
             create = managedCreate.withDataDiskDefaultCachingType(CachingTypes.fromString(getCachingType()))
+                .withDataDiskDefaultStorageAccountType(StorageAccountTypes.fromString(getStorageAccountTypeDataDisk()))
+                .withOSDiskStorageAccountType(StorageAccountTypes.fromString(getStorageAccountTypeOsDisk()))
+                .withSize(VirtualMachineSizeTypes.fromString(getVmSizeType()));
+        } else if (withFromImageCreateOptionsManaged != null) {
+            create = withFromImageCreateOptionsManaged.withDataDiskDefaultCachingType(CachingTypes.fromString(getCachingType()))
                 .withDataDiskDefaultStorageAccountType(StorageAccountTypes.fromString(getStorageAccountTypeDataDisk()))
                 .withOSDiskStorageAccountType(StorageAccountTypes.fromString(getStorageAccountTypeOsDisk()))
                 .withSize(VirtualMachineSizeTypes.fromString(getVmSizeType()));
@@ -768,5 +796,13 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
         Azure client = createClient();
 
         client.virtualMachines().deleteById(getId());
+    }
+
+    private String getEncodedCustomData() {
+        return !ObjectUtils.isBlank(getCustomData()) ? Base64.getEncoder().encodeToString(getCustomData().getBytes()) : null;
+    }
+
+    private String getDecodedCustomData(String data) {
+        return !ObjectUtils.isBlank(data) ? new String(Base64.getDecoder().decode(data.getBytes())) : null;
     }
 }
