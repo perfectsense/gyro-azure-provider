@@ -1,5 +1,7 @@
 package gyro.azure.sql;
 
+import com.microsoft.rest.ExpandableStringEnum;
+import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.azure.storage.StorageAccountResource;
@@ -26,11 +28,16 @@ import com.microsoft.azure.management.storage.StorageAccount;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
+import gyro.core.validation.ValidationError;
 import org.apache.commons.lang.StringUtils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Creates a sql database.
@@ -461,5 +468,34 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
 
     private SqlDatabase sqlDatabase(Azure client) {
         return client.sqlServers().getById(getSqlServer().getId()).databases().get(getName());
+    }
+
+    @Override
+    public List<ValidationError> validate() {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if (PREMIUM_EDITION.equalsIgnoreCase(getEdition())) {
+            if (!Arrays.stream(SqlDatabasePremiumStorage.values()).map(Enum::toString).collect(Collectors.toSet()).contains(getMaxStorageCapacity())) {
+                errors.add(new ValidationError(this, "max-storage-capacity", "Invalid value for 'max-storage-capacity' when 'edition' set to 'Premium'."));
+            } else if (!SqlDatabasePremiumServiceObjective.values().stream().map(ExpandableStringEnum::toString).collect(Collectors.toSet()).contains(getEditionServiceObjective())) {
+                errors.add(new ValidationError(this, "edition-service-objective", "Invalid value for 'edition-service-objective' when 'edition' set to 'Premium'."));
+            }
+        } else if (STANDARD_EDITION.equalsIgnoreCase(getEdition())) {
+            if (!Arrays.stream(SqlDatabaseStandardStorage.values()).map(Enum::toString).collect(Collectors.toSet()).contains(getMaxStorageCapacity())) {
+                errors.add(new ValidationError(this, "max-storage-capacity", "Invalid value for 'max-storage-capacity' when 'edition' set to 'Standard'."));
+            } else if (!SqlDatabaseStandardServiceObjective.values().stream().map(ExpandableStringEnum::toString).collect(Collectors.toSet()).contains(getEditionServiceObjective())) {
+                errors.add(new ValidationError(this, "edition-service-objective", "Invalid value for 'edition-service-objective' when 'edition' set to 'Standard'."));
+            }
+        } else if (BASIC_EDITION.equalsIgnoreCase(getEdition())) {
+            if (!Arrays.stream(SqlDatabaseBasicStorage.values()).map(Enum::toString).collect(Collectors.toSet()).contains(getMaxStorageCapacity())) {
+                errors.add(new ValidationError(this, "max-storage-capacity", "Invalid value for 'max-storage-capacity' when 'edition' set to 'Basic'."));
+            }
+
+            if (!ObjectUtils.isBlank(getEditionServiceObjective())) {
+                errors.add(new ValidationError(this, "edition-service-objective", "Cannot set 'edition-service-objective' when 'edition' set to 'Basic'."));
+            }
+        }
+
+        return errors;
     }
 }
