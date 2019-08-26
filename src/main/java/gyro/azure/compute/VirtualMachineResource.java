@@ -625,8 +625,7 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
 
                 if (!ObjectUtils.isBlank(getAdminPassword()) && !ObjectUtils.isBlank(getSsh())) {
                     withFromImageCreateOptionsManaged = managedOrUnmanaged.withRootPassword(getAdminPassword()).withSsh(getSsh())
-                        .withCustomData(getEncodedCustomData())
-                    ;
+                        .withCustomData(getEncodedCustomData());
                 } else if (!ObjectUtils.isBlank(getAdminPassword())) {
                     withFromImageCreateOptionsManaged = managedOrUnmanaged.withRootPassword(getAdminPassword())
                         .withCustomData(getEncodedCustomData());
