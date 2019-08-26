@@ -3,11 +3,9 @@ package gyro.azure.sql;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
-import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
-import gyro.core.Type;
 import gyro.core.resource.Updatable;
 
 import com.microsoft.azure.management.Azure;
@@ -89,7 +87,7 @@ public class SqlFirewallRuleResource extends AzureResource implements Copyable<S
     public void copyFrom(SqlFirewallRule firewallRule) {
         setId(firewallRule.id());
         setStartIpAddress(firewallRule.startIPAddress());
-        setEndIpAddress(firewallRule.endIPAddress());
+        setEndIpAddress(!ObjectUtils.isBlank(getEndIpAddress()) ? firewallRule.endIPAddress() : null);
         setName(firewallRule.name());
     }
 
@@ -129,12 +127,12 @@ public class SqlFirewallRuleResource extends AzureResource implements Copyable<S
 
         SqlFirewallRule.Update update = sqlFirewallRule(client).update();
 
-        if (!ObjectUtils.isBlank(getStartIpAddress()) && !ObjectUtils.isBlank(getEndIpAddress())) {
+        if (!ObjectUtils.isBlank(getEndIpAddress())) {
             update.withStartIPAddress(getStartIpAddress())
                     .withEndIPAddress(getEndIpAddress())
                     .apply();
         } else {
-            update.withStartIPAddress(getStartIpAddress()).apply();
+            update.withStartIPAddress(getStartIpAddress()).withEndIPAddress(getStartIpAddress()).apply();
         }
     }
 
