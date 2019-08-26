@@ -8,7 +8,7 @@ end
 
 azure::network sql-network-example
     network-name: "sql-network-example"
-    resource-group-name: $(azure::resource-group resource-group-sql-database-example).name
+    resource-group: $(azure::resource-group resource-group-sql-database-example)
     address-spaces:  [
          "10.0.0.0/27",
          "10.1.0.0/27"
@@ -34,7 +34,7 @@ end
 
 azure::network sql-network-example-2
     network-name: "sql-network-example-2"
-    resource-group-name: $(azure::resource-group resource-group-sql-database-example).name
+    resource-group: $(azure::resource-group resource-group-sql-database-example)
     address-spaces:  [
          "10.0.0.0/27",
          "10.1.0.0/27"

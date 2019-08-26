@@ -108,7 +108,7 @@ public class SqlVirtualNetworkRuleResource extends AzureResource implements Copy
         SqlServerResource parent = (SqlServerResource) parent();
 
         WithServiceEndpoint withServiceEndpoint = client.sqlServers().getById(parent.getId()).virtualNetworkRules().define(getName())
-                .withSubnet(getNetwork().getNetworkId(), getSubnetName());
+                .withSubnet(getNetwork().getId(), getSubnetName());
 
         SqlVirtualNetworkRule virtualNetworkRule = withServiceEndpoint.create();
 
@@ -121,7 +121,7 @@ public class SqlVirtualNetworkRuleResource extends AzureResource implements Copy
 
         SqlVirtualNetworkRule.Update update = virtualNetworkRule(client)
                 .update()
-                .withSubnet(getNetwork().getNetworkId(), getSubnetName());
+                .withSubnet(getNetwork().getId(), getSubnetName());
 
         SqlVirtualNetworkRule virtualNetworkRule = update.apply();
 
