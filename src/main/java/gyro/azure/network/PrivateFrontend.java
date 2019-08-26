@@ -1,12 +1,11 @@
 package gyro.azure.network;
 
 import gyro.azure.Copyable;
+import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 
 import com.microsoft.azure.management.network.LoadBalancerPrivateFrontend;
 import gyro.core.validation.Required;
-
-import java.util.stream.Collectors;
 
 /**
  * Creates a private frontend.
@@ -20,18 +19,9 @@ import java.util.stream.Collectors;
  *        name: "private-frontend"
  *        network: $(azure::network load-balancer-network-example)
  *        subnet-name: "subnet2"
- *
- *        inbound-nat-pool
- *            name: "test-nat-pool"
- *            frontend-name: "test-frontend"
- *            backend-port: 80
- *            protocol: "TCP"
- *            frontend-port-range-start: 80
- *            frontend-port-range-end: 89
- *        end
  *    end
  */
-public class PrivateFrontend extends Frontend implements Copyable<LoadBalancerPrivateFrontend> {
+public class PrivateFrontend extends Diffable implements Copyable<LoadBalancerPrivateFrontend> {
     private String name;
     private String privateIpAddress;
     private String subnetName;
@@ -93,16 +83,6 @@ public class PrivateFrontend extends Frontend implements Copyable<LoadBalancerPr
         setPrivateIpAddress(privateFrontend.privateIPAddress());
         setSubnetName(privateFrontend.subnetName());
         setNetwork(findById(NetworkResource.class, privateFrontend.networkId()));
-        setInboundNatPool(privateFrontend.inboundNatPools().values().stream().map(o -> {
-            InboundNatPool inboundNatPool = newSubresource(InboundNatPool.class);
-            inboundNatPool.copyFrom(o);
-            return inboundNatPool;
-        }).collect(Collectors.toSet()));
-        setInboundNatRule(privateFrontend.inboundNatRules().values().stream().map(o -> {
-            InboundNatRule inboundNatRule = newSubresource(InboundNatRule.class);
-            inboundNatRule.copyFrom(o);
-            return inboundNatRule;
-        }).collect(Collectors.toSet()));
     }
 
     public String primaryKey() {
