@@ -9,6 +9,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query network security group.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    network-security-group: $(external-query azure::network-security-group {})
+ */
 @Type("network-security-group")
 public class NetworkSecurityGroupFinder extends AzureFinder<NetworkSecurityGroup, NetworkSecurityGroupResource> {
     private String id;

@@ -9,6 +9,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query load balancer.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    load-balancer: $(external-query azure::load-balancer {})
+ */
 @Type("load-balancer")
 public class LoadBalancerFinder extends AzureFinder<LoadBalancer, LoadBalancerResource> {
     private String id;

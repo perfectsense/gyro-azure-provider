@@ -13,6 +13,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Query caa record set.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    caa-record-set: $(external-query azure::caa-record-set {})
+ */
 @Type("caa-record-set")
 public class CaaRecordSetFinder extends AzureFinder<CaaRecordSet, CaaRecordSetResource> {
     private String dnsZoneId;

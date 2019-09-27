@@ -13,6 +13,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Query txt record set.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    txt-record-set: $(external-query azure::txt-record-set {})
+ */
 @Type("txt-record-set")
 public class TxtRecordSetFinder extends AzureFinder<TxtRecordSet, TxtRecordSetResource> {
     private String dnsZoneId;

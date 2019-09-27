@@ -13,6 +13,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Query mx record set.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    mx-record-set: $(external-query azure::mx-record-set {})
+ */
 @Type("mx-record-set")
 public class MxRecordSetFinder extends AzureFinder<MXRecordSet, MxRecordSetResource> {
     private String dnsZoneId;

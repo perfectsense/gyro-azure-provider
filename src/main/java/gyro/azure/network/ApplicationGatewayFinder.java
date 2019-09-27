@@ -9,6 +9,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query application gateway.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    application-gateway: $(external-query azure::application-gateway {})
+ */
 @Type("application-gateway")
 public class ApplicationGatewayFinder extends AzureFinder<ApplicationGateway, ApplicationGatewayResource> {
     private String id;

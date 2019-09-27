@@ -9,6 +9,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query route table.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    route-table: $(external-query azure::route-table {})
+ */
 @Type("route-table")
 public class RouteTableFinder extends AzureFinder<RouteTable, RouteTableResource> {
     private String id;

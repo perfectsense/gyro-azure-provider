@@ -9,6 +9,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query application security group.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    application-security-group: $(external-query azure::application-security-group {})
+ */
 @Type("application-security-group")
 public class ApplicationSecurityGroupFinder extends AzureFinder<ApplicationSecurityGroup, ApplicationSecurityGroupResource> {
     private String id;

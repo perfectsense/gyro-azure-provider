@@ -9,6 +9,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query network interface.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    network-interface: $(external-query azure::network-interface {})
+ */
 @Type("network-interface")
 public class NetworkInterfaceFinder extends AzureFinder<NetworkInterface, NetworkInterfaceResource> {
     private String id;

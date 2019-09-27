@@ -11,6 +11,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query dns zone.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    dns-zone: $(external-query azure::dns-zone {})
+ */
 @Type("dns-zone")
 public class DnsZoneFinder extends AzureFinder<DnsZone, DnsZoneResource> {
     private String id;
