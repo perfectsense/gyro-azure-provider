@@ -64,6 +64,8 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
 
     /**
      * The Load Balancer Backends associated with the IP Configuration.
+     *
+     * @subresource gyro.azure.network.NicBackend
      */
     @Updatable
     public Set<NicBackend> getNicBackend() {
@@ -80,6 +82,8 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
 
     /**
      * The Load Balancer Nat Rules associated with the IP Configuration.
+     *
+     * @subresource gyro.azure.network.NicNatRule
      */
     @Updatable
     public Set<NicNatRule> getNicNatRule() {

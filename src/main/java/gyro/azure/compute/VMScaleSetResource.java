@@ -189,6 +189,8 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
 
     /**
      * The Proximity Placement Group for the Scale Set.
+     *
+     * @subresource gyro.azure.compute.ProximityPlacementGroupResource
      */
     public ProximityPlacementGroupResource getProximityPlacementGroup() {
         return proximityPlacementGroup;
@@ -215,6 +217,8 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
 
     /**
      * Additional capability for the Scale set to enable Ultra SSD. Defaults to disabled.
+     *
+     * @subresource gyro.azure.compute.AdditionalCapability
      */
     @Updatable
     public AdditionalCapability getAdditionalCapability() {
@@ -255,6 +259,8 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
 
     /**
      * The primary internet facing Load Balancer to be associated with the Scale Set.
+     *
+     * @subresource gyro.azure.compute.LoadBalancerAttachment
      */
     @Updatable
     public LoadBalancerAttachment getPrimaryInternetFacingLoadBalancer() {
@@ -267,6 +273,8 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
 
     /**
      * The primary internal Load Balancer to be associated with the Scale Set.
+     *
+     * @subresource gyro.azure.compute.LoadBalancerAttachment
      */
     @Updatable
     public LoadBalancerAttachment getPrimaryInternalLoadBalancer() {

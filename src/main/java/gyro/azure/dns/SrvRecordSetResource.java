@@ -101,6 +101,8 @@ public class SrvRecordSetResource extends AzureResource implements Copyable<SrvR
 
     /**
      * The list of srv Srv Records Set. (Required)
+     *
+     * @subresource gyro.azure.dns.SrvRecord
      */
     @Required
     @Updatable

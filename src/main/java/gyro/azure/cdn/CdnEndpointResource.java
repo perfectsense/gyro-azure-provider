@@ -128,6 +128,8 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
 
     /**
      * The set of geo-filters associated with the endpoint. (Optional)
+     *
+     * @subresource gyro.azure.cdn.GeoFilter
      */
     @Updatable
     public Set<GeoFilter> getGeoFilter() {

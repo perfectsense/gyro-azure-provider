@@ -66,6 +66,8 @@ public class CaaRecordSetResource extends AzureResource implements Copyable<CaaR
 
     /**
      * The set of CAA Records associated with the CAA Record Set. (Required)
+     *
+     * @subresource gyro.azure.dns.CaaRecord
      */
     @Required
     @Updatable

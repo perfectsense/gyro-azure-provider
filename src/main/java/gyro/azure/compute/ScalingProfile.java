@@ -85,6 +85,8 @@ public class ScalingProfile extends Diffable implements Copyable<AutoscaleProfil
 
     /**
      * The recurrent schedule configuration for the profile. Required when 'profile-type' is set to ``RECURRENT_SCHEDULE``.
+     *
+     * @subresource gyro.azure.compute.ScalingRecurrentSchedule
      */
     @Updatable
     public ScalingRecurrentSchedule getRecurrentSchedule() {
@@ -97,6 +99,8 @@ public class ScalingProfile extends Diffable implements Copyable<AutoscaleProfil
 
     /**
      * The fixed schedule configuration for the profile. Required when 'profile-type' is set to ``FIXED_SCHEDULE``.
+     *
+     * @subresource gyro.azure.compute.ScalingFixedSchedule
      */
     @Updatable
     public ScalingFixedSchedule getFixedSchedule() {
@@ -109,6 +113,8 @@ public class ScalingProfile extends Diffable implements Copyable<AutoscaleProfil
 
     /**
      * The set of scaling schedule configuration for the profile. Required when 'profile-type' is set to ``METRIC``.
+     *
+     * @subresource gyro.azure.compute.ScalingRule
      */
     @Updatable
     public Set<ScalingRule> getRule() {
