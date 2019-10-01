@@ -1,6 +1,6 @@
 /**
- * Azure Provider
- * ------------------
+ * Azure
+ * -----
  */
 @DocNamespace("azure")
 @Namespace("azure")
