@@ -13,6 +13,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Query aaaa record set.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    aaaa-record-set: $(external-query azure::aaaa-record-set {})
+ */
 @Type("aaaa-record-set")
 public class AaaaRecordSetFinder extends AzureFinder<AaaaRecordSet, AaaaRecordSetResource> {
     private String dnsZoneId;

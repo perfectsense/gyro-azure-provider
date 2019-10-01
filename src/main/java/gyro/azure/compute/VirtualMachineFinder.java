@@ -9,6 +9,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query virtual machine.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    virtual-machine: $(external-query azure::virtual-machine {})
+ */
 @Type("virtual-machine")
 public class VirtualMachineFinder extends AzureFinder<VirtualMachine, VirtualMachineResource> {
     private String id;

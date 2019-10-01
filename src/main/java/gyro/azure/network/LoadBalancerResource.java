@@ -98,6 +98,8 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
 
     /**
      * The Health Check Http Probes associated with the Load Balancer. (Optional)
+     *
+     * @subresource gyro.azure.network.HealthCheckProbeHttp
      */
     @Updatable
     public Set<HealthCheckProbeHttp> getHealthCheckProbeHttp() {
@@ -114,6 +116,8 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
 
     /**
      * The Health Check Tcp Probes associated with the Load Balancer. (Optional)
+     *
+     * @subresource gyro.azure.network.HealthCheckProbeTcp
      */
     @Updatable
     public Set<HealthCheckProbeTcp> getHealthCheckProbeTcp() {
@@ -155,6 +159,8 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
 
     /**
      * The Load Balancer rules associated with the Load Balancer. (Required)
+     *
+     * @subresource gyro.azure.network.LoadBalancerRule
      */
     @Required
     @Updatable
@@ -172,6 +178,8 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
 
     /**
      * The Private Frontend associated with the Load Balancer. (Optional)
+     *
+     * @subresource gyro.azure.network.PrivateFrontend
      */
     @Updatable
     public Set<PrivateFrontend> getPrivateFrontend() {
@@ -188,6 +196,8 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
 
     /**
      * The Public Frontend associated with the Load Balancer. (Optional)
+     *
+     * @subresource gyro.azure.network.PublicFrontend
      */
     @Updatable
     public Set<PublicFrontend> getPublicFrontend() {
@@ -247,6 +257,8 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
 
     /**
      * The Inbound Nat Pools Associated with the Load Balancer. (Optional)
+     *
+     * @subresource gyro.azure.network.InboundNatPool
      */
     @Updatable
     public Set<InboundNatPool> getInboundNatPool() {
@@ -263,6 +275,8 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
 
     /**
      * The Inbound Nat Rules associated with the Load Balancer. Nat rules may not be associated with a Load Balancer if a Nat Pool is associated. (Optional)
+     *
+     * @subresource gyro.azure.network.InboundNatRule
      */
     @Updatable
     public Set<InboundNatRule> getInboundNatRule() {

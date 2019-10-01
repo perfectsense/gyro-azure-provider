@@ -13,6 +13,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Query srv record set.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    srv-record-set: $(external-query azure::srv-record-set {})
+ */
 @Type("srv-record-set")
 public class SrvRecordSetFinder extends AzureFinder<SrvRecordSet, SrvRecordSetResource> {
     private String dnsZoneId;

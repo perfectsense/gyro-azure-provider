@@ -9,6 +9,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query resource group.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    resource-group: $(external-query azure::resource-group {})
+ */
 @Type("resource-group")
 public class ResourceGroupFinder extends AzureFinder<ResourceGroup, ResourceGroupResource> {
     private String name;

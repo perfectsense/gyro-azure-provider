@@ -154,6 +154,8 @@ public class VMScaleSetScalingResource extends AzureResource implements Copyable
 
     /**
      * The set of profiles for the Scaling. (Required)
+     *
+     * @subresource gyro.azure.compute.ScalingProfile
      */
     @Required
     @Updatable

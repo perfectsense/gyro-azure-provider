@@ -13,6 +13,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Query ptr record set.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    ptr-record-set: $(external-query azure::ptr-record-set {})
+ */
 @Type("ptr-record-set")
 public class PtrRecordSetFinder extends AzureFinder<PtrRecordSet, PtrRecordSetResource> {
     private String dnsZoneId;

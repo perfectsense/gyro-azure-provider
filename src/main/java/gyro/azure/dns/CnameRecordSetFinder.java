@@ -13,6 +13,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Query cname record set.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    cname-record-set: $(external-query azure::cname-record-set {})
+ */
 @Type("cname-record-set")
 public class CnameRecordSetFinder extends AzureFinder<CNameRecordSet, CnameRecordSetResource> {
     private String dnsZoneId;

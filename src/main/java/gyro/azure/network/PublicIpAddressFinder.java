@@ -9,6 +9,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query public ip address.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    public-ip-address: $(external-query azure::public-ip-address {})
+ */
 @Type("public-ip-address")
 public class PublicIpAddressFinder extends AzureFinder<PublicIPAddress, PublicIpAddressResource> {
     private String id;

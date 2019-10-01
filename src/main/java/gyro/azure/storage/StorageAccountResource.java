@@ -63,6 +63,8 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
 
     /**
      * The cors rules associated with the Storage Account. (Optional)
+     *
+     * @subresource gyro.azure.storage.Cors
      */
     @Updatable
     public Set<Cors> getCorsRule() {

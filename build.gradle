@@ -10,7 +10,7 @@ if (System.getenv('TRAVIS_BRANCH') && System.getenv('TRAVIS_PULL_REQUEST') == 'f
 }
 
 group = 'gyro'
-version = '0.15-SNAPSHOT'
+version = '0..99.0-SNAPSHOT'
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
@@ -37,7 +37,7 @@ configurations {
 def azureSdkVersion = '1.24.1'
 
 dependencies {
-    api 'gyro:gyro-core:0.15-SNAPSHOT'
+    api 'gyro:gyro-core:0.99.0-SNAPSHOT'
 
     implementation 'com.psddev:dari-util:3.3.607-xe0f27a'
     implementation 'com.google.guava:guava:23.0'
@@ -50,13 +50,13 @@ dependencies {
     implementation 'com.microsoft.azure:azure-storage:8.0.0'
     implementation 'com.github.seancfoley:ipaddress:5.0.2'
 
-    gyroDoclet 'gyro:gyro-doclet:0.15-SNAPSHOT'
+    gyroDoclet 'gyro:gyro-doclet:0.99.0-SNAPSHOT'
 }
 
 task referenceDocs(type: Javadoc) {
     title = null // Prevents -doctitle and -windowtitle from being passed to GyroDoclet
     source = sourceSets.main.allJava
-    classpath = configurations.compile
+    classpath = configurations.runtimeClasspath
     options.doclet = "gyro.doclet.GyroDoclet"
     options.docletpath = configurations.gyroDoclet.files.asType(List)
 }

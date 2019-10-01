@@ -9,6 +9,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query cdn profile.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    cdn-profile: $(external-query azure::cdn-profile {})
+ */
 @Type("cdn-profile")
 public class CdnProfileFinder extends AzureFinder<CdnProfile, CdnProfileResource> {
     private String id;

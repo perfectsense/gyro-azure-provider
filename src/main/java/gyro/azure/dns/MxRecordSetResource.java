@@ -76,6 +76,8 @@ public class MxRecordSetResource extends AzureResource implements Copyable<MXRec
 
     /**
      * The list of mx MX Records Set. (Required)
+     *
+     * @subresource gyro.azure.dns.MxRecord
      */
     @Required
     @Updatable

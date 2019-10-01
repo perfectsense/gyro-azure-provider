@@ -119,6 +119,8 @@ public class CdnProfileResource extends AzureResource implements Copyable<CdnPro
 
     /**
      * A set of endpoints for the CDN Profile.
+     *
+     * @subresource gyro.azure.cdn.CdnEndpointResource
      */
     @Updatable
     public Set<CdnEndpointResource> getEndpoint() {

@@ -9,6 +9,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Query scale set scaling.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    scale-set-scaling: $(external-query azure::scale-set-scaling {})
+ */
 @Type("scale-set-scaling")
 public class VMScaleSetScalingFinder extends AzureFinder<AutoscaleSetting, VMScaleSetScalingResource> {
     private String id;
