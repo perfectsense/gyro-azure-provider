@@ -4,6 +4,18 @@
  *
  * The Azure provider implements support for Azure cloud provider.
  *
+ * Usage
+ *  * +++++
+ *  *
+ *  * The Azure provider is implemented as a plugin. To use it add the plugin to your init file.
+ *  * It uses the format ``@plugin: gyro:gyro-azure-provider:<version>``.
+ *  *
+ *  * .. code:: shell
+ *  *
+ *  *     {@literal @}plugin: 'gyro:gyro-azure-provider:0.99.0-SNAPSHOT'
+ *  *
+ *  * This lets Gyro load the Azure provider plugin and lets you start managing Azure resources using Gyro.
+ *
  * Authentication
  * ++++++++++++++
  *
