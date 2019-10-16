@@ -16,6 +16,7 @@ import gyro.core.resource.Resource;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -127,7 +128,8 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
     @Override
     public void create(GyroUI ui, State state) {
         if (isPrimary()) {
-            return;
+            //Update nic ip, as primary nic ip already present when nic was created.
+            update(ui, state, this, Collections.singleton("public-ip-address"));
         }
 
         Azure client = createClient();
