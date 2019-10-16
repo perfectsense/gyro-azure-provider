@@ -1,8 +1,10 @@
 package gyro.azure.sql;
 
+import com.microsoft.azure.management.sql.SqlServer;
 import gyro.azure.AzureResource;
-import gyro.core.GyroException;
+import gyro.azure.Copyable;
 import gyro.core.GyroUI;
+import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.Type;
@@ -15,11 +17,10 @@ import com.microsoft.azure.management.sql.ReadOnlyEndpointFailoverPolicy;
 import com.microsoft.azure.management.sql.ReadWriteEndpointFailoverPolicy;
 import com.microsoft.azure.management.sql.SqlFailoverGroupOperations.DefinitionStages.WithPartnerServer;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -33,46 +34,45 @@ import java.util.Set;
  *
  *     azure::sql-failover-group failover-example
  *         name: "sql-failover-example"
- *         database-ids: [$(azure::sql-database sql-database-example | id)]
+ *         database-ids: [$(azure::sql-database sql-database-example).id]
  *         sql-server: $(azure::sql-server sql-server-example)
  *         manual-read-and-write-policy: false
  *         read-write-grace-period: 2
- *         partner-server-ids: [$(azure::sql-server sql-server-example-partner-server | id)]
- *        read-only-policy-enabled: false
+ *         partner-server-ids: [$(azure::sql-server sql-server-example-partner-server).id]
+ *         read-only-policy-enabled: false
  *     end
  */
 @Type("sql-failover-group")
-public class SqlFailoverGroupResource extends AzureResource {
+public class SqlFailoverGroupResource extends AzureResource implements Copyable<SqlFailoverGroup> {
 
-    private List<String> databaseIds;
+    private Set<String> databaseIds;
     private String id;
     private Boolean manualReadAndWritePolicy;
     private String name;
-    private List<String> partnerServerIds;
+    private Set<String> partnerServerIds;
     private Boolean readOnlyPolicyEnabled;
     private Integer readWriteGracePeriod;
-    private SqlFailoverGroup sqlFailoverGroup;
     private SqlServerResource sqlServer;
     private Map<String, String> tags;
 
     /**
-     * The databases within the failover group. (Optional)
+     * The databases within the Failover Group. (Optional)
      */
     @Updatable
-    public List<String> getDatabaseIds() {
+    public Set<String> getDatabaseIds() {
         if (databaseIds == null) {
-            databaseIds = new ArrayList<>();
+            databaseIds = new HashSet<>();
         }
 
         return databaseIds;
     }
 
-    public void setDatabaseIds(List<String> databaseIds) {
+    public void setDatabaseIds(Set<String> databaseIds) {
         this.databaseIds = databaseIds;
     }
 
     /**
-     * The id of the elastic pool.
+     * The ID of the Failover Group.
      */
     @Output
     public String getId() {
@@ -84,10 +84,14 @@ public class SqlFailoverGroupResource extends AzureResource {
     }
 
     /**
-     * Determines whether the read and write policy is manual or automatic. (Required)
+     * Determines whether the read and write policy is manual or automatic. Defaults to ``false``.
      */
     @Updatable
     public Boolean getManualReadAndWritePolicy() {
+        if (manualReadAndWritePolicy == null) {
+            manualReadAndWritePolicy = false;
+        }
+
         return manualReadAndWritePolicy;
     }
 
@@ -96,8 +100,10 @@ public class SqlFailoverGroupResource extends AzureResource {
     }
 
     /**
-     * The name of the failover group. (Required)
+     * The name of the Failover Group. (Required)
      */
+    @Required
+    @Id
     public String getName() {
         return name;
     }
@@ -107,18 +113,18 @@ public class SqlFailoverGroupResource extends AzureResource {
     }
 
     /**
-     * The ids of the partner servers. (Optional)
+     * The IDs of the partner servers. (Optional)
      */
     @Updatable
-    public List<String> getPartnerServerIds() {
+    public Set<String> getPartnerServerIds() {
         if (partnerServerIds == null) {
-            partnerServerIds = new ArrayList<>();
+            partnerServerIds = new HashSet<>();
         }
 
         return partnerServerIds;
     }
 
-    public void setPartnerServerIds(List<String> partnerServerIds) {
+    public void setPartnerServerIds(Set<String> partnerServerIds) {
         this.partnerServerIds = partnerServerIds;
     }
 
@@ -147,8 +153,9 @@ public class SqlFailoverGroupResource extends AzureResource {
     }
 
     /**
-     * The sql server where the failover group is found. (Required)
+     * The SQL Server where the Failover Group is found. (Required)
      */
+    @Required
     public SqlServerResource getSqlServer() {
         return sqlServer;
     }
@@ -158,7 +165,7 @@ public class SqlFailoverGroupResource extends AzureResource {
     }
 
     /**
-     * The tags for the failover group. (Optional)
+     * The tags for the Failover Group. (Optional)
      */
     @Updatable
     public Map<String, String> getTags() {
@@ -174,16 +181,8 @@ public class SqlFailoverGroupResource extends AzureResource {
     }
 
     @Override
-    public boolean refresh() {
-        Azure client = createClient();
-
-        SqlFailoverGroup failoverGroup = sqlFailoverGroup(client);
-
-        if (failoverGroup == null) {
-            return false;
-        }
-
-        setDatabaseIds(failoverGroup.databases());
+    public void copyFrom(SqlFailoverGroup failoverGroup) {
+        setDatabaseIds(new HashSet<>(failoverGroup.databases()));
         setId(failoverGroup.id());
         setManualReadAndWritePolicy(failoverGroup.readWriteEndpointPolicy() == ReadWriteEndpointFailoverPolicy.MANUAL);
         setName(failoverGroup.name());
@@ -192,16 +191,26 @@ public class SqlFailoverGroupResource extends AzureResource {
         setReadOnlyPolicyEnabled(failoverGroup.readOnlyEndpointPolicy() == ReadOnlyEndpointFailoverPolicy.ENABLED);
         setReadWriteGracePeriod(failoverGroup.readWriteEndpointDataLossGracePeriodMinutes());
         setTags(failoverGroup.tags());
+        setSqlServer(findById(SqlServerResource.class, failoverGroup.sqlServerName()));
+    }
+
+    @Override
+    public boolean refresh() {
+        Azure client = createClient();
+
+        SqlFailoverGroup failoverGroup = getSqlFailoverGroup(client);
+
+        if (failoverGroup == null) {
+            return false;
+        }
+
+        copyFrom(failoverGroup);
 
         return true;
     }
 
     @Override
     public void create(GyroUI ui, State state) {
-        if (getSqlServer() == null) {
-            throw new GyroException("You must provide a sql server resource.");
-        }
-
         Azure client = createClient();
 
         WithReadWriteEndpointPolicy buildFailoverGroup = client.sqlServers().getById(getSqlServer().getId()).failoverGroups().define(getName());
@@ -233,6 +242,8 @@ public class SqlFailoverGroupResource extends AzureResource {
             SqlFailoverGroup failoverGroup = withPartnerServer.withTags(getTags()).create();
 
             setId(failoverGroup.id());
+
+            copyFrom(failoverGroup);
         }
     }
 
@@ -240,7 +251,7 @@ public class SqlFailoverGroupResource extends AzureResource {
     public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
-        SqlFailoverGroup.Update update = sqlFailoverGroup(client).update();
+        SqlFailoverGroup.Update update = getSqlFailoverGroup(client).update();
 
         SqlFailoverGroupResource oldResource = (SqlFailoverGroupResource) current;
 
@@ -282,12 +293,18 @@ public class SqlFailoverGroupResource extends AzureResource {
     public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
-        sqlFailoverGroup(client).delete();
+        SqlFailoverGroup sqlFailoverGroup = getSqlFailoverGroup(client);
+
+        if (sqlFailoverGroup != null) {
+            sqlFailoverGroup.delete();
+        }
     }
 
-    private SqlFailoverGroup sqlFailoverGroup(Azure client) {
-        if (sqlFailoverGroup == null) {
-            sqlFailoverGroup = client.sqlServers().getById(getSqlServer().getId()).failoverGroups().get(getName());
+    private SqlFailoverGroup getSqlFailoverGroup(Azure client) {
+        SqlFailoverGroup sqlFailoverGroup = null;
+        SqlServer sqlServer = client.sqlServers().getById(getSqlServer().getId());
+        if (sqlServer != null) {
+            sqlFailoverGroup = sqlServer.failoverGroups().get(getName());
         }
 
         return sqlFailoverGroup;
