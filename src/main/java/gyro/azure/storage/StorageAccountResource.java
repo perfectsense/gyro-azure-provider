@@ -47,6 +47,15 @@ import java.util.Set;
  *         resource-group: $(azure::resource-group file-resource-group)
  *         name: "storageaccount"
  *
+ *         cors-rule
+ *             allowed-headers: ["*"]
+ *             allowed-methods: ["PUT"]
+ *             allowed-origins: ["*"]
+ *             exposed-headers: ["*"]
+ *             max-age: 6
+ *             type: "table"
+ *         end
+ *
  *         lifecycle
  *         rule
  *             name: "rule1"
