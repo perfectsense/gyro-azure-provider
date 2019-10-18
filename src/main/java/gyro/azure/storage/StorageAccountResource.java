@@ -47,6 +47,31 @@ import java.util.Set;
  *         resource-group: $(azure::resource-group file-resource-group)
  *         name: "storageaccount"
  *
+ *         lifecycle
+ *         rule
+ *             name: "rule1"
+ *             enabled: false
+ *             definition
+ *                 action
+ *                     base-blob
+ *                         delete-days: 1
+ *                         tier-to-archive-days: 1
+ *                         tier-to-cool-days: 1
+ *                     end
+ *
+ *                     snapshot
+ *                         delete-days: 1
+ *                     end
+ *                 end
+ *
+ *                 filter
+ *                     prefix-matches: [
+ *                         container/box1
+ *                     ]
+ *                 end
+ *             end
+ *         end
+ *
  *         tags: {
  *             Name: "storageaccount"
  *         }
@@ -61,6 +86,7 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
     private String id;
     private String name;
     private Map<String, String> tags;
+    private StorageLifeCycle lifecycle;
     private Boolean upgradeAccountV2;
 
     /**
@@ -151,6 +177,20 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
     }
 
     /**
+     * The lifecycle associated with the Storage Account. Only supported when 'upgrade-account-v2' set to ```true`.
+     *
+     * @subresource gyro.azure.storage.StorageLifeCycle
+     */
+    @Updatable
+    public StorageLifeCycle getLifecycle() {
+        return lifecycle;
+    }
+
+    public void setLifecycle(StorageLifeCycle lifecycle) {
+        this.lifecycle = lifecycle;
+    }
+
+    /**
      * Upgrade account to General Purpose Account Kind V2. Cannot be downgraded.
      */
     @Updatable
@@ -223,6 +263,13 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
 
         getTags().clear();
         storageAccount.tags().forEach((key, value) -> getTags().put(key, value));
+
+        StorageLifeCycle lifeCycleManager = null;
+        if (storageAccount.manager().managementPolicies().inner().get(getResourceGroup().getName(), getName()) != null) {
+            lifeCycleManager = newSubresource(StorageLifeCycle.class);
+            lifeCycleManager.copyFrom(storageAccount.manager().managementPolicies().getAsync(getResourceGroup().getName(), getName()).toBlocking().single());
+        }
+        setLifecycle(lifeCycleManager);
     }
 
     @Override
