@@ -328,7 +328,7 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
         tableClient.uploadServiceProperties(tableProperties);
     }
 
-    public String getConnection() {
+    String getConnection() {
         return "DefaultEndpointsProtocol=https;"
                 + "AccountName=" + getName() + ";"
                 + "AccountKey=" + getKeys().get("key1");
