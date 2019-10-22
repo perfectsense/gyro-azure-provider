@@ -1,0 +1,13 @@
+azure::resource-group resource-group-example-role
+    name: "resource-group-example-role"
+
+    tags: {
+        Name: "resource-group-example-role"
+    }
+end
+
+azure::role-assignment role-assignment-example
+    principal-id: "ae4d20c4-31ce-42b9-8418-2dcdc8ba1f68"
+    scope: $(azure::resource-group resource-group-example-role).id
+    role: "Reader"
+end
