@@ -21,7 +21,7 @@
  * ++++++++++++++
  *
  * This provider expects credentials to be provided using a file containing the
- * credentials of a `Azure service principal <https://https://docs.microsoft.com/en-us/azure/active-directory/develop/app-objects-and-service-principals>`_ in the following format
+ * credentials of a `Azure service principal <https://docs.microsoft.com/en-us/azure/active-directory/develop/app-objects-and-service-principals>`_ in the following format
  *
  * .. code:: shell
  *
@@ -34,6 +34,26 @@
  *      baseURL=https\://management.azure.com/
  *      authURL=https\://login.windows.net/
  *      graphURL=https\://graph.windows.net/
+ *
+ * The simplest way to create a *Service Principal* is using the azure cli. See `Azure CLI <https://docs.microsoft.com/en-us/cli/azure/get-started-with-azure-cli?view=azure-cli-latest>`_ for more info related to installing the cli and setting it up.
+ *
+ * Once set up, run `az login` to login to the Azure Portal and have an active session. If you have multiple subscriptions on your Azure Portal, use `az login --subscription <Subscription_ID>` to login to a specific subscription.
+ *
+ * Run `az ad sp create-for-rbac --name <Service_Principal_Name>` to create a *Service Principal* with the following output.
+ *
+ * .. code:: shell
+ *
+ *      {
+ *          "appId": ########-####-####-####-############,
+ *          "displayName": <Service_Principal_Name>,
+ *          "name": "http://<Service_Principal_Name>",
+ *          "password": ########-####-####-####-############,
+ *          "tenant": ########-####-####-####-############
+ *      }
+ *
+ * In the properties file, put the value of `appId` in the `client`, `password` in the `key` and `tenant` in the `tenant` field.
+ *
+ * Fill in the the `subscription` with the subscription value used during login. You can also run `az account show` to view this value displayed as `ID`.
  *
  * For more info refer `Azure file based authentication <https://docs.microsoft.com/en-us/azure/java/java-sdk-azure-authenticate#file-based-authentication-preview>`_
  *
