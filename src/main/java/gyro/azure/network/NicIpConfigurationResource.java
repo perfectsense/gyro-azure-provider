@@ -128,7 +128,8 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
     @Override
     public void create(GyroUI ui, State state) {
         if (isPrimary()) {
-            //Update nic ip, as primary nic ip already present when nic was created.
+            // If a primary nic ip configuration has modified fields, then gyro needs to update it.
+            // This is because the primary nic is automatically created on Network interface resource creation.
             update(ui, state, this, Collections.singleton("public-ip-address"));
         }
 
