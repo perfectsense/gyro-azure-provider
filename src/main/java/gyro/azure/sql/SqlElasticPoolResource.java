@@ -175,7 +175,7 @@ public class SqlElasticPoolResource extends AzureResource implements Copyable<Sq
     }
 
     /**
-     * The storage limit for the database elastic pool. Required when used with ``Standard`` and ``Premium`` editions. (Optional)
+     * The storage limit for the database elastic pool. Required when used with ``Standard`` or ``Premium`` editions. (Optional)
      */
     @Updatable
     public String getStorageCapacity() {

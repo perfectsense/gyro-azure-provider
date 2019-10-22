@@ -120,7 +120,7 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
     }
 
     /**
-     * The edition service objective of the database. Required when used with editions ``Basic``, ``Premium``, and ``Standard``. (Optional)
+     * The edition service objective of the database. Required when used with editions ``Basic``, ``Premium``, or ``Standard``. (Optional)
      */
     @Updatable
     public String getEditionServiceObjective() {
