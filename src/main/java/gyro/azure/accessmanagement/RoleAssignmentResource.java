@@ -1,8 +1,11 @@
 package gyro.azure.accessmanagement;
 
 import com.microsoft.azure.management.Azure;
+import com.microsoft.azure.management.graphrbac.ActiveDirectoryGroup;
+import com.microsoft.azure.management.graphrbac.ActiveDirectoryUser;
 import com.microsoft.azure.management.graphrbac.BuiltInRole;
 import com.microsoft.azure.management.graphrbac.RoleAssignment;
+import com.microsoft.azure.management.graphrbac.ServicePrincipal;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.core.GyroUI;
@@ -11,9 +14,14 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidationError;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 /**
  * Creates a role assignment.
@@ -35,12 +43,14 @@ public class RoleAssignmentResource extends AzureResource implements Copyable<Ro
     private String scope;
     private String role;
     private String principalId;
+    private ActiveDirectoryGroupResource group;
+    private ActiveDirectoryUserResource user;
+    private ServicePrincipalResource servicePrincipal;
     private String id;
 
     /**
-     * The scope for the Role Assignment. ID of the level (Subscription, Resource Group etc.). (Required)
+     * The scope for the role assignment. ID of the level (Subscription, Resource Group etc.). (Required)
      */
-    @Required
     public String getScope() {
         return scope;
     }
@@ -50,7 +60,7 @@ public class RoleAssignmentResource extends AzureResource implements Copyable<Ro
     }
 
     /**
-     * Role for the Role Assignment. `See Built In Roles <https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles>`_. (Required)
+     * Role for the role assignment. `See Built In Roles <https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles>`_. (Required)
      */
     @Required
     public String getRole() {
@@ -62,9 +72,8 @@ public class RoleAssignmentResource extends AzureResource implements Copyable<Ro
     }
 
     /**
-     * The Principal ID of a Identity or User or Group on which teh role would be assigned. (Required)
+     * The principal ID of a identity or user or group on which the role would be assigned. One of 'principal-id' or 'user' or 'group' or 'service-principal' is required.
      */
-    @Required
     public String getPrincipalId() {
         return principalId;
     }
@@ -74,7 +83,40 @@ public class RoleAssignmentResource extends AzureResource implements Copyable<Ro
     }
 
     /**
-     * The ID of the Role Assignment.
+     * The active directory group which the role would be assigned. One of 'principal-id' or 'user' or 'group' or 'service-principal' is required.
+     */
+    public ActiveDirectoryGroupResource getGroup() {
+        return group;
+    }
+
+    public void setGroup(ActiveDirectoryGroupResource group) {
+        this.group = group;
+    }
+
+    /**
+     * The active directory group which the role would be assigned. One of 'principal-id' or 'user' or 'group' or 'service-principal' is required.
+     */
+    public ActiveDirectoryUserResource getUser() {
+        return user;
+    }
+
+    public void setUser(ActiveDirectoryUserResource user) {
+        this.user = user;
+    }
+
+    /**
+     * The service principal which the role would be assigned. One of 'principal-id' or 'user' or 'group' or 'service-principal' is required.
+     */
+    public ServicePrincipalResource getServicePrincipal() {
+        return servicePrincipal;
+    }
+
+    public void setServicePrincipal(ServicePrincipalResource servicePrincipal) {
+        this.servicePrincipal = servicePrincipal;
+    }
+
+    /**
+     * The ID of the role assignment.
      */
     @Output
     public String getId() {
@@ -86,7 +128,7 @@ public class RoleAssignmentResource extends AzureResource implements Copyable<Ro
     }
 
     /**
-     * The name of the Role Assignment.
+     * The name of the role assignment.
      */
     @Output
     public String getName() {
@@ -106,6 +148,21 @@ public class RoleAssignmentResource extends AzureResource implements Copyable<Ro
 
         Azure client = createClient();
         setRole(client.accessManagement().roleDefinitions().getById(roleAssignment.roleDefinitionId()).roleName());
+
+        ActiveDirectoryUser user = client.accessManagement().activeDirectoryUsers().getById(getPrincipalId());
+        ActiveDirectoryGroup group = client.accessManagement().activeDirectoryGroups().getById(getPrincipalId());
+        ServicePrincipal servicePrincipal = client.accessManagement().servicePrincipals().getById(getPrincipalId());
+
+        if (user != null) {
+            setUser(findById(ActiveDirectoryUserResource.class, user.id()));
+            setPrincipalId(null);
+        } else if (group != null) {
+            setGroup(findById(ActiveDirectoryGroupResource.class, getPrincipalId()));
+            setPrincipalId(null);
+        } else if (servicePrincipal != null) {
+            setServicePrincipal(findById(ServicePrincipalResource.class, getPrincipalId()));
+            setPrincipalId(null);
+        }
     }
 
     @Override
@@ -127,11 +184,33 @@ public class RoleAssignmentResource extends AzureResource implements Copyable<Ro
     public void create(GyroUI ui, State state) throws Exception {
         Azure client = createClient();
 
-        RoleAssignment roleAssignment = client.accessManagement().roleAssignments().define(UUID.randomUUID().toString())
-            .forObjectId(getPrincipalId())
-            .withBuiltInRole(BuiltInRole.fromString(getRole()))
-            .withScope(getScope())
-            .create();
+        RoleAssignment roleAssignment = null;
+
+        if (getPrincipalId() != null) {
+            roleAssignment = client.accessManagement().roleAssignments().define(UUID.randomUUID().toString())
+                .forObjectId(getPrincipalId())
+                .withBuiltInRole(BuiltInRole.fromString(getRole()))
+                .withScope(getScope())
+                .create();
+        } else if (getGroup() != null) {
+            roleAssignment = client.accessManagement().roleAssignments().define(UUID.randomUUID().toString())
+                .forGroup(client.accessManagement().activeDirectoryGroups().getById(getGroup().getId()))
+                .withBuiltInRole(BuiltInRole.fromString(getRole()))
+                .withScope(getScope())
+                .create();
+        } else if (getUser() != null) {
+            roleAssignment = client.accessManagement().roleAssignments().define(UUID.randomUUID().toString())
+                .forUser(client.accessManagement().activeDirectoryUsers().getById(getUser().getId()))
+                .withBuiltInRole(BuiltInRole.fromString(getRole()))
+                .withScope(getScope())
+                .create();
+        } else if (getServicePrincipal() != null) {
+            roleAssignment = client.accessManagement().roleAssignments().define(UUID.randomUUID().toString())
+                .forServicePrincipal(client.accessManagement().servicePrincipals().getById(getServicePrincipal().getId()))
+                .withBuiltInRole(BuiltInRole.fromString(getRole()))
+                .withScope(getScope())
+                .create();
+        }
 
         copyFrom(roleAssignment);
     }
@@ -146,5 +225,16 @@ public class RoleAssignmentResource extends AzureResource implements Copyable<Ro
         Azure client = createClient();
 
         client.accessManagement().roleAssignments().deleteById(getId());
+    }
+
+    @Override
+    public List<ValidationError> validate() {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if (Stream.of(getPrincipalId(), getUser(), getGroup(), getServicePrincipal()).filter(Objects::nonNull).count() != 1) {
+            errors.add(new ValidationError(this, null, "Only one of 'principal-id' or 'user' or 'group' or 'service-principal' is allowed."));
+        }
+
+        return errors;
     }
 }
