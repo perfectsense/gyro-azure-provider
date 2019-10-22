@@ -57,14 +57,15 @@ public class SqlDatabaseFinder extends AzureFinder<SqlDatabase, SqlDatabaseResou
     @Override
     protected List<SqlDatabase> findAzure(Azure client, Map<String, String> filters) {
         SqlServer sqlServer = client.sqlServers().getById(filters.get("sql-server-id"));
-        if (sqlServer != null) {
-            if (filters.containsKey("name")) {
-                return Collections.singletonList(sqlServer.databases().get(filters.get("name")));
-            } else {
-                return sqlServer.databases().list();
-            }
-        } else {
+
+        if (sqlServer == null) {
             return Collections.emptyList();
+        }
+
+        if (filters.containsKey("name")) {
+            return Collections.singletonList(sqlServer.databases().get(filters.get("name")));
+        } else {
+            return sqlServer.databases().list();
         }
     }
 }

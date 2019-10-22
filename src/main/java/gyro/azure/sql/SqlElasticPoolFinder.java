@@ -57,14 +57,15 @@ public class SqlElasticPoolFinder extends AzureFinder<SqlElasticPool, SqlElastic
     @Override
     protected List<SqlElasticPool> findAzure(Azure client, Map<String, String> filters) {
         SqlServer sqlServer = client.sqlServers().getById(filters.get("sql-server-id"));
-        if (sqlServer != null) {
-            if (filters.containsKey("name")) {
-                return Collections.singletonList(sqlServer.elasticPools().get(filters.get("name")));
-            } else {
-                return sqlServer.elasticPools().list();
-            }
-        } else {
+
+        if (sqlServer == null) {
             return Collections.emptyList();
+        }
+
+        if (filters.containsKey("name")) {
+            return Collections.singletonList(sqlServer.elasticPools().get(filters.get("name")));
+        } else {
+            return sqlServer.elasticPools().list();
         }
     }
 }

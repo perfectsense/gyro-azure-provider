@@ -57,14 +57,15 @@ public class SqlFirewallRuleFinder extends AzureFinder<SqlFirewallRule, SqlFirew
     @Override
     protected List<SqlFirewallRule> findAzure(Azure client, Map<String, String> filters) {
         SqlServer sqlServer = client.sqlServers().getById(filters.get("sql-server-id"));
-        if (sqlServer != null) {
-            if (filters.containsKey("name")) {
-                return Collections.singletonList(sqlServer.firewallRules().get(filters.get("name")));
-            } else {
-                return sqlServer.firewallRules().list();
-            }
-        } else {
+
+        if (sqlServer == null) {
             return Collections.emptyList();
+        }
+
+        if (filters.containsKey("name")) {
+            return Collections.singletonList(sqlServer.firewallRules().get(filters.get("name")));
+        } else {
+            return sqlServer.firewallRules().list();
         }
     }
 }

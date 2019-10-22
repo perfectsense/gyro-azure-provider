@@ -57,14 +57,15 @@ public class SqlFailoverGroupFinder extends AzureFinder<SqlFailoverGroup, SqlFai
     @Override
     protected List<SqlFailoverGroup> findAzure(Azure client, Map<String, String> filters) {
         SqlServer sqlServer = client.sqlServers().getById(filters.get("sql-server-id"));
-        if (sqlServer != null) {
-            if (filters.containsKey("name")) {
-                return Collections.singletonList(sqlServer.failoverGroups().get(filters.get("name")));
-            } else {
-                return sqlServer.failoverGroups().list();
-            }
-        } else {
+
+        if (sqlServer == null) {
             return Collections.emptyList();
+        }
+
+        if (filters.containsKey("name")) {
+            return Collections.singletonList(sqlServer.failoverGroups().get(filters.get("name")));
+        } else {
+            return sqlServer.failoverGroups().list();
         }
     }
 }
