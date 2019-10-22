@@ -54,7 +54,7 @@ public class SqlServerResource extends AzureResource implements Copyable<SqlServ
     private Map<String, String> tags;
 
     /**
-     * Determines if the azure portal will have access to the SQL Server. (Required)
+     * Determines if the azure portal will have access to the sql server. (Required)
      */
     @Required
     public Boolean getWithAccessFromAzureServices() {
@@ -95,7 +95,7 @@ public class SqlServerResource extends AzureResource implements Copyable<SqlServ
     }
 
     /**
-     * The ID of the SQL Server.
+     * The ID of the sql server.
      */
     @Output
     public String getId() {
@@ -107,7 +107,7 @@ public class SqlServerResource extends AzureResource implements Copyable<SqlServ
     }
 
     /**
-     * The name of the SQL Server. (Required)
+     * The name of the sql server. (Required)
      */
     @Id
     @Required
@@ -120,7 +120,7 @@ public class SqlServerResource extends AzureResource implements Copyable<SqlServ
     }
 
     /**
-     * The region of the SQL Server. (Required)
+     * The region of the sql server. (Required)
      */
     @Required
     @Override
@@ -133,7 +133,7 @@ public class SqlServerResource extends AzureResource implements Copyable<SqlServ
     }
 
     /**
-     * The Resource Group under which this SQL Server would reside. (Required)
+     * The Resource Group under which this sql server would reside. (Required)
      */
     @Required
     public ResourceGroupResource getResourceGroup() {
@@ -145,7 +145,7 @@ public class SqlServerResource extends AzureResource implements Copyable<SqlServ
     }
 
     /**
-     * Determines if the system will set a local Managed Service Identity (MSI) for the server. (Optional)
+     * Determines if the system will set a local Managed Service Identity (MSI) for the sql server. (Optional)
      */
     @Updatable
     public Boolean getSystemAssignedMsi() {

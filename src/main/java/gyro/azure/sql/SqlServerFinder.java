@@ -24,7 +24,7 @@ public class SqlServerFinder extends AzureFinder<SqlServer, SqlServerResource> {
     private String id;
 
     /**
-     * The ID of the SQL Server.
+     * The ID of the sql server.
      */
     public String getId() {
         return id;

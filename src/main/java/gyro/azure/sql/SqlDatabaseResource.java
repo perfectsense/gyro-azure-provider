@@ -84,7 +84,7 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
     private Map<String, String> tags;
 
     /**
-     * The collation of the Database. (Optional)
+     * The collation of the database. (Optional)
      */
     public String getCollation() {
         return collation;
@@ -95,7 +95,7 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
     }
 
     /**
-     * The create mode of the Database. Valid values are ``Copy`` or ``Default`` or ``NonReadableSecondary`` or ``OnlineSecondary`` or ``PointInTimeRestore`` or ``Recovery`` or ``Restore`` or ``RestoreLongTermRetentionBackup``. (Optional)
+     * The create mode of the database. Valid values are ``Copy``, ``Default``, ``NonReadableSecondary``, ``OnlineSecondary``, ``PointInTimeRestore``, ``Recovery``, ``Restore``, or ``RestoreLongTermRetentionBackup``. (Optional)
      */
     @ValidStrings({"Copy", "Default", "NonReadableSecondary", "OnlineSecondary", "PointInTimeRestore", "Recovery", "Restore", "RestoreLongTermRetentionBackup"})
     public String getCreateMode() {
@@ -107,7 +107,7 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
     }
 
     /**
-     * The edition of the Database. Options include ``Basic`` or ``Premium`` or and ``Standard``. (Optional)
+     * The edition of the database. Options include ``Basic`` or ``Premium`` or and ``Standard``. (Optional)
      */
     @ValidStrings({"Basic", "Premium", "Standard"})
     @Updatable
@@ -120,7 +120,7 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
     }
 
     /**
-     * The edition service objective of the Database. Required when used with editions ``Basic``, ``Premium``, and ``Standard``. (Optional)
+     * The edition service objective of the database. Required when used with editions ``Basic``, ``Premium``, and ``Standard``. (Optional)
      */
     @Updatable
     public String getEditionServiceObjective() {
@@ -133,7 +133,7 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
     }
 
     /**
-     * The Elastic Pool associated with the Database. (Optional)
+     * The Elastic Pool associated with the database. (Optional)
      */
     @Updatable
     public SqlElasticPoolResource getElasticPool() {
@@ -145,7 +145,7 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
     }
 
     /**
-     * The ID of the Database.
+     * The ID of the database.
      */
     @Output
     public String getId() {
@@ -190,7 +190,7 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
     }
 
     /**
-     * The maximum size of the Database. Required when used with ``Premium`` or ``Standard`` editions. (Optional)
+     * The maximum size of the database. Required when used with ``Premium`` or ``Standard`` editions. (Optional)
      */
     @Updatable
     public String getMaxStorageCapacity() {
@@ -206,7 +206,7 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
     }
 
     /**
-     * The name of the Database. (Required)
+     * The name of the database. (Required)
      */
     @Required
     public String getName() {
@@ -218,7 +218,7 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
     }
 
     /**
-     * Determines if the sample Database is used. (Optional)
+     * Determines if the sample database is used. (Optional)
      */
     public Boolean getWithSampleDatabase() {
         return withSampleDatabase;
@@ -229,7 +229,7 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
     }
 
     /**
-     * The name of the source Database. (Optional)
+     * The name of the source database. (Optional)
      */
     public String getSourceDatabaseName() {
         return sourceDatabaseName;
@@ -240,7 +240,7 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
     }
 
     /**
-     * The source uri of the Database to be imported. (Optional)
+     * The source uri of the database to be imported. (Optional)
      */
     public String getStorageUri() {
         return storageUri;
@@ -251,7 +251,7 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
     }
 
     /**
-     * The Storage Account related to a Database to be imported. (Optional)
+     * The Storage Account related to a database to be imported. (Optional)
      */
     public StorageAccountResource getStorageAccount() {
         return storageAccount;
@@ -262,7 +262,7 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
     }
 
     /**
-     * The SQL Server where the Database is found. (Required)
+     * The SQL Server where the database is found. (Required)
      */
     @Required
     public SqlServerResource getSqlServer() {
@@ -274,7 +274,7 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
     }
 
     /**
-     * The tags associated with the Database. (Optional)
+     * The tags associated with the database. (Optional)
      */
     @Updatable
     public Map<String, String> getTags() {

@@ -81,7 +81,7 @@ public class SqlElasticPoolResource extends AzureResource implements Copyable<Sq
     private Map<String, String> tags;
 
     /**
-     * The databases within the Elastic Pool. (Optional)
+     * The databases within the elastic pool. (Optional)
      */
     @Updatable
     public Set<String> getDatabaseNames() {
@@ -97,7 +97,7 @@ public class SqlElasticPoolResource extends AzureResource implements Copyable<Sq
     }
 
     /**
-     * The maximum eDTU for the each database in the pool. (Required)
+     * The maximum eDTU for the each database in the elastic pool. (Required)
      */
     @Required
     @Updatable
@@ -110,7 +110,7 @@ public class SqlElasticPoolResource extends AzureResource implements Copyable<Sq
     }
 
     /**
-     * The minimum of eDTU for each database in the pool. (Required)
+     * The minimum of eDTU for each database in the elastic pool. (Required)
      */
     @Required
     @Updatable
@@ -123,7 +123,7 @@ public class SqlElasticPoolResource extends AzureResource implements Copyable<Sq
     }
 
     /**
-     * The total shared eDTU for the Elastic Pool. (Required)
+     * The total shared eDTU for the elastic pool. (Required)
      */
     @Required
     @Updatable
@@ -136,7 +136,7 @@ public class SqlElasticPoolResource extends AzureResource implements Copyable<Sq
     }
 
     /**
-     * The edition of the Elastic Pool. (Required)
+     * The edition of the elastic pool. Valid values are ``Basic``, ``Premium``, or  ``Standard`` (Required)
      */
     @Required
     @ValidStrings({"Basic", "Premium", "Standard"})
@@ -150,7 +150,7 @@ public class SqlElasticPoolResource extends AzureResource implements Copyable<Sq
     }
 
     /**
-     * The ID of the Elastic Pool.
+     * The ID of the elastic pool.
      */
     @Output
     public String getId() {
@@ -162,7 +162,7 @@ public class SqlElasticPoolResource extends AzureResource implements Copyable<Sq
     }
 
     /**
-     * The name of the Elastic Pool. (Required)
+     * The name of the elastic pool. (Required)
      */
     @Required
     @Id
@@ -175,7 +175,7 @@ public class SqlElasticPoolResource extends AzureResource implements Copyable<Sq
     }
 
     /**
-     * The storage limit for the database Elastic Pool. Required when used with ``Standard`` and ``Premium`` editions. (Optional)
+     * The storage limit for the database elastic pool. Required when used with ``Standard`` and ``Premium`` editions. (Optional)
      */
     @Updatable
     public String getStorageCapacity() {
@@ -187,7 +187,7 @@ public class SqlElasticPoolResource extends AzureResource implements Copyable<Sq
     }
 
     /**
-     * The SQL Server where the Elastic Pool is found. (Required)
+     * The SQL Server where the elastic pool is found. (Required)
      */
     @Required
     public SqlServerResource getSqlServer() {
@@ -199,7 +199,7 @@ public class SqlElasticPoolResource extends AzureResource implements Copyable<Sq
     }
 
     /**
-     * The tags associated with the Elastic Pool. (Optional)
+     * The tags associated with the elastic pool. (Optional)
      */
     @Updatable
     public Map<String, String> getTags() {

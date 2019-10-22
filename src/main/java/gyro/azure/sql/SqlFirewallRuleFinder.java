@@ -28,7 +28,7 @@ public class SqlFirewallRuleFinder extends AzureFinder<SqlFirewallRule, SqlFirew
     private String name;
 
     /**
-     * The ID of the SQL Server.
+     * The ID of the sql server.
      */
     public String getSqlServerId() {
         return sqlServerId;
@@ -39,7 +39,7 @@ public class SqlFirewallRuleFinder extends AzureFinder<SqlFirewallRule, SqlFirew
     }
 
     /**
-     * The name of the Firewall Rule.
+     * The name of the firewall rule.
      */
     public String getName() {
         return name;

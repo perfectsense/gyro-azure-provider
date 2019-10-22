@@ -28,7 +28,7 @@ public class SqlDatabaseFinder extends AzureFinder<SqlDatabase, SqlDatabaseResou
     private String name;
 
     /**
-     * The ID of the SQL Server.
+     * The ID of the sql server.
      */
     public String getSqlServerId() {
         return sqlServerId;
@@ -39,7 +39,7 @@ public class SqlDatabaseFinder extends AzureFinder<SqlDatabase, SqlDatabaseResou
     }
 
     /**
-     * The name of the Database.
+     * The name of the database.
      */
     public String getName() {
         return name;

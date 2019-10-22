@@ -28,7 +28,7 @@ public class SqlFailoverGroupFinder extends AzureFinder<SqlFailoverGroup, SqlFai
     private String name;
 
     /**
-     * The ID of the SQL Server.
+     * The ID of the sql server.
      */
     public String getSqlServerId() {
         return sqlServerId;
@@ -39,7 +39,7 @@ public class SqlFailoverGroupFinder extends AzureFinder<SqlFailoverGroup, SqlFai
     }
 
     /**
-     * The name of the Failover Group.
+     * The name of the failover group.
      */
     public String getName() {
         return name;

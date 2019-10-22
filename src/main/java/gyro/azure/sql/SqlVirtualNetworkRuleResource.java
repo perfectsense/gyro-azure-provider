@@ -44,7 +44,7 @@ public class SqlVirtualNetworkRuleResource extends AzureResource implements Copy
     private String subnetName;
 
     /**
-     * The ID of the Virtual Network Rule.
+     * The ID of the virtual network rule.
      */
     @Output
     public String getId() {
@@ -56,7 +56,7 @@ public class SqlVirtualNetworkRuleResource extends AzureResource implements Copy
     }
 
     /**
-     * The name of the Virtual Network Rule. (Required)
+     * The name of the virtual network rule. (Required)
      */
     @Required
     public String getName() {
@@ -68,7 +68,7 @@ public class SqlVirtualNetworkRuleResource extends AzureResource implements Copy
     }
 
     /**
-     * The Network where the Virtual Network Rule. (Required)
+     * The Network where the virtual network rule. (Required)
      */
     @Required
     @Updatable
@@ -81,7 +81,7 @@ public class SqlVirtualNetworkRuleResource extends AzureResource implements Copy
     }
 
     /**
-     * The sql server where the Virtual Network Rule is found. (Required)
+     * The sql server where the virtual network rule is found. (Required)
      */
     @Required
     public SqlServerResource getSqlServer() {

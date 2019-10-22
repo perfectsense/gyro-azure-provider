@@ -28,7 +28,7 @@ public class SqlVirtualNetworkRuleFinder extends AzureFinder<SqlVirtualNetworkRu
     private String name;
 
     /**
-     * The ID of the SQL Server.
+     * The ID of the sql server.
      */
     public String getSqlServerId() {
         return sqlServerId;
@@ -39,7 +39,7 @@ public class SqlVirtualNetworkRuleFinder extends AzureFinder<SqlVirtualNetworkRu
     }
 
     /**
-     * The name of the Virtual Network Rule.
+     * The name of the virtual network rule.
      */
     public String getName() {
         return name;

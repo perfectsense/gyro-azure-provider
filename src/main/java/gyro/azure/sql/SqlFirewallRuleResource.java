@@ -43,7 +43,7 @@ public class SqlFirewallRuleResource extends AzureResource implements Copyable<S
     private SqlServerResource sqlServer;
 
     /**
-     * The ID of the Firewall Rule. (Required)
+     * The ID of the firewall rule. (Required)
      */
     @Output
     public String getId() {
@@ -55,7 +55,7 @@ public class SqlFirewallRuleResource extends AzureResource implements Copyable<S
     }
 
     /**
-     * The starting or only ip address of the Firewall Rule. (Required)
+     * The starting or only ip address of the firewall rule. (Required)
      */
     @Updatable
     public String getStartIpAddress() {
@@ -67,7 +67,7 @@ public class SqlFirewallRuleResource extends AzureResource implements Copyable<S
     }
 
     /**
-     * The ending ip address of the Firewall Rule. (Optional)
+     * The ending ip address of the firewall rule. (Optional)
      */
     @Updatable
     public String getEndIpAddress() {
@@ -79,7 +79,7 @@ public class SqlFirewallRuleResource extends AzureResource implements Copyable<S
     }
 
     /**
-     * The name of the Firewall Rule. (Required)
+     * The name of the firewall rule. (Required)
      */
     public String getName() {
         return name;

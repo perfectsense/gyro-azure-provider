@@ -56,7 +56,7 @@ public class SqlFailoverGroupResource extends AzureResource implements Copyable<
     private Map<String, String> tags;
 
     /**
-     * The databases within the Failover Group. (Optional)
+     * The databases within the failover group. (Optional)
      */
     @Updatable
     public Set<String> getDatabaseIds() {
@@ -72,7 +72,7 @@ public class SqlFailoverGroupResource extends AzureResource implements Copyable<
     }
 
     /**
-     * The ID of the Failover Group.
+     * The ID of the failover group.
      */
     @Output
     public String getId() {
@@ -100,7 +100,7 @@ public class SqlFailoverGroupResource extends AzureResource implements Copyable<
     }
 
     /**
-     * The name of the Failover Group. (Required)
+     * The name of the failover group. (Required)
      */
     @Required
     @Id
@@ -153,7 +153,7 @@ public class SqlFailoverGroupResource extends AzureResource implements Copyable<
     }
 
     /**
-     * The SQL Server where the Failover Group is found. (Required)
+     * The sql server where the failover group is found. (Required)
      */
     @Required
     public SqlServerResource getSqlServer() {
@@ -165,7 +165,7 @@ public class SqlFailoverGroupResource extends AzureResource implements Copyable<
     }
 
     /**
-     * The tags for the Failover Group. (Optional)
+     * The tags for the failover group. (Optional)
      */
     @Updatable
     public Map<String, String> getTags() {

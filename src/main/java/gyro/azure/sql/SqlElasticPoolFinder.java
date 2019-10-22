@@ -28,7 +28,7 @@ public class SqlElasticPoolFinder extends AzureFinder<SqlElasticPool, SqlElastic
     private String name;
 
     /**
-     * The ID of the SQL Server.
+     * The ID of the sql server.
      */
     public String getSqlServerId() {
         return sqlServerId;
@@ -39,7 +39,7 @@ public class SqlElasticPoolFinder extends AzureFinder<SqlElasticPool, SqlElastic
     }
 
     /**
-     * The name of the Elastic Pool.
+     * The name of the elastic pool.
      */
     public String getName() {
         return name;
