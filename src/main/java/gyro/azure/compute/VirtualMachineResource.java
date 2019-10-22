@@ -47,6 +47,7 @@ import gyro.core.validation.ValidStrings;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -65,7 +66,8 @@ import java.util.stream.Collectors;
  *         network: $(azure::network network-example-VM)
  *         subnet: "subnet1"
  *         os-type: "linux"
- *         disk: $(azure::disk disk-example-VM)
+ *         os-disk: $(azure::disk os-disk-example-VM)
+ *         data-disks: [ $(azure::disk data-disk-example-VM) ]
  *         network-interface: $(azure::network-interface network-interface-example-VM)
  *         vm-image-type: "popular"
  *         known-virtual-image: "UBUNTU_SERVER_14_04_LTS"
@@ -95,7 +97,8 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
     private PublicIpAddressResource publicIpAddress;
     private String privateIpAddress;
     private String osType;
-    private DiskResource disk;
+    private DiskResource osDisk;
+    private Set<DiskResource> dataDisks;
     private String subnet;
     private String vmImageType;
     private String ssh;
@@ -258,14 +261,27 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
     }
 
     /**
-     * The Disk to be attached to the Virtual Machine.
+     * The OS Disk to be attached to the Virtual Machine.
      */
-    public DiskResource getDisk() {
-        return disk;
+    public DiskResource getOsDisk() {
+        return osDisk;
     }
 
-    public void setDisk(DiskResource disk) {
-        this.disk = disk;
+    public void setOsDisk(DiskResource osDisk) {
+        this.osDisk = osDisk;
+    }
+
+    /**
+     * The Data Disks to be attached to the Virtual Machine.
+     */
+    public Set<DiskResource> getDataDisks() {
+        return dataDisks == null
+                ? dataDisks = new LinkedHashSet<>()
+                : dataDisks;
+    }
+
+    public void setDataDisks(Set<DiskResource> dataDisks) {
+        this.dataDisks = dataDisks;
     }
 
     /**
@@ -668,7 +684,7 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
 
             } else {
                 managedCreate = withOS.withSpecializedOSDisk(
-                    client.disks().getById(getDisk().getId()), OperatingSystemTypes.LINUX
+                    client.disks().getById(getOsDisk().getId()), OperatingSystemTypes.LINUX
                 );
             }
 
@@ -703,7 +719,7 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
 
                 managedCreate = managedOrUnmanaged.withAdminPassword(getAdminPassword())
                     .withCustomData(getEncodedCustomData())
-                    .withExistingDataDisk(client.disks().getById(getDisk().getId()));
+                    .withExistingDataDisk(client.disks().getById(getOsDisk().getId()));
 
             } else if (getVmImageType().equals("stored")) {
                 createUnmanaged = withOS.withStoredWindowsImage(getStoredImage())
@@ -722,7 +738,7 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
                 createManaged = passwordManaged.withAdminPassword(getAdminPassword());
             } else {
                 managedCreate = withOS.withSpecializedOSDisk(
-                    client.disks().getById(getDisk().getId()), OperatingSystemTypes.WINDOWS
+                    client.disks().getById(getOsDisk().getId()), OperatingSystemTypes.WINDOWS
                 );
             }
 
