@@ -107,7 +107,7 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
     }
 
     /**
-     * The edition of the database. Options include ``Basic`` or ``Premium`` or and ``Standard``. (Optional)
+     * The edition of the database. Valid values are ``Basic``, ``Premium`` or ``Standard``. (Optional)
      */
     @ValidStrings({"Basic", "Premium", "Standard"})
     @Updatable
