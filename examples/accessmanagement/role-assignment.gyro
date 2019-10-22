@@ -6,6 +6,12 @@ azure::resource-group resource-group-example-role
     }
 end
 
+azure::active-directory-user user-example
+    name: "gyro-test-user"
+    email: "gyro-test-user-email"
+    password: "Pa55w@rd"
+end
+
 azure::service-principal service-principal-example
     name: "service-principal-example"
     application-id: "4f420059-9e0e-4872-8bb8-325141fe60e1"
