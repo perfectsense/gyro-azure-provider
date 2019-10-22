@@ -67,6 +67,7 @@ import java.util.stream.Collectors;
  *         subnet: "subnet1"
  *         os-type: "linux"
  *         os-disk: $(azure::disk os-disk-example-VM)
+ *         delete-os-disk-on-terminate: true
  *         data-disks: [ $(azure::disk data-disk-example-VM) ]
  *         network-interface: $(azure::network-interface network-interface-example-VM)
  *         vm-image-type: "popular"
@@ -98,6 +99,7 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
     private String privateIpAddress;
     private String osType;
     private DiskResource osDisk;
+    private boolean deleteOsDiskOnTerminate;
     private Set<DiskResource> dataDisks;
     private String subnet;
     private String vmImageType;
@@ -269,6 +271,17 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
 
     public void setOsDisk(DiskResource osDisk) {
         this.osDisk = osDisk;
+    }
+
+    /**
+     * Determines if the OS Disk should be deleted when the VM is terminated.
+     */
+    public boolean isDeleteOsDiskOnTerminate() {
+        return deleteOsDiskOnTerminate;
+    }
+
+    public void setDeleteOsDiskOnTerminate(boolean deleteOsDiskOnTerminate) {
+        this.deleteOsDiskOnTerminate = deleteOsDiskOnTerminate;
     }
 
     /**
@@ -811,7 +824,13 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
     public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
+        VirtualMachine virtualMachine = client.virtualMachines().getById(getId());
         client.virtualMachines().deleteById(getId());
+
+        if (isDeleteOsDiskOnTerminate()
+                && virtualMachine != null) {
+            client.disks().deleteById(virtualMachine.osDiskId());
+        }
     }
 
     private String getEncodedCustomData() {
