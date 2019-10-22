@@ -10,6 +10,7 @@ import gyro.core.GyroException;
 import gyro.core.Type;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
@@ -62,8 +63,8 @@ public class CloudBlobFileBackend extends FileBackend {
             public void close() {
                 try {
                     container().getBlockBlobReference(prefixed(file)).uploadFromByteArray(toByteArray(), 0, toByteArray().length);
-                } catch (Exception e) {
-
+                } catch (StorageException | URISyntaxException  | IOException e) {
+                    throw new GyroException(e.getMessage());
                 }
             }
         };
