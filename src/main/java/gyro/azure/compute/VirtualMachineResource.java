@@ -510,7 +510,7 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
     }
 
     /**
-     * Enable system managed service identity for teh Virtual Machine.
+     * Enable system managed service identity for the Virtual Machine. Defaults to ``false``.
      */
     @Updatable
     public Boolean getEnableSystemManagedServiceIdentity() {
