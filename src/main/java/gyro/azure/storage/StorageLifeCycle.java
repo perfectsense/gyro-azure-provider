@@ -150,7 +150,16 @@ public class StorageLifeCycle extends AzureResource implements Copyable<Manageme
 
         ManagementPolicy policy = create.create();
 
-        copyFrom(policy);
+        state.save();
+
+        // A storage lifecycle policy's create api needs to define at least one policy rule within it.
+        // The policy rule definition stage within the lifecycle storage policy's create api, does not support disabling the rule itself.
+        // If the configs have one or more rules configured to be disabled a corresponding update needs to be made to disable the rule.
+        if (getRule().stream().anyMatch(o -> !o.getEnabled())) {
+            update(ui, state, this, new HashSet<>());
+        } else {
+            copyFrom(policy);
+        }
     }
 
     @Override
