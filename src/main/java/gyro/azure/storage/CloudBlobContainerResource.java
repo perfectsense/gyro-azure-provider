@@ -5,6 +5,7 @@ import gyro.azure.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.resource.Id;
+import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
@@ -43,6 +44,7 @@ public class CloudBlobContainerResource extends AzureResource implements Copyabl
     private String name;
     private String publicAccess;
     private StorageAccountResource storageAccount;
+    private String id;
 
     /**
      * The name of the container. (Required)
@@ -83,11 +85,24 @@ public class CloudBlobContainerResource extends AzureResource implements Copyabl
         this.storageAccount = storageAccount;
     }
 
+    /**
+     * The ID of the blob container.
+     */
+    @Output
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     @Override
     public void copyFrom(CloudBlobContainer container) {
         setStorageAccount(findById(StorageAccountResource.class, container.getStorageUri().getPrimaryUri().getAuthority().split(".blob.core")[0]));
         setPublicAccess(container.getProperties().getPublicAccess().toString());
         setName(container.getName());
+        setId(String.format("%s/blobServices/default/containers/%s",getStorageAccount().getId(),getName()));
     }
 
     @Override
@@ -114,6 +129,7 @@ public class CloudBlobContainerResource extends AzureResource implements Copyabl
             BlobContainerPermissions permissions = new BlobContainerPermissions();
             permissions.setPublicAccess(BlobContainerPublicAccessType.valueOf(getPublicAccess()));
             container.uploadPermissions(permissions);
+            setId(String.format("%s/blobServices/default/containers/%s",getStorageAccount().getId(),getName()));
         } catch (StorageException ex) {
             throw new GyroException(ex.getMessage());
         }

@@ -6,6 +6,7 @@ import gyro.azure.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Type;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 
 import com.microsoft.azure.storage.CloudStorageAccount;
@@ -37,6 +38,7 @@ public class CloudQueueResource extends AzureResource implements Copyable<CloudQ
 
     private String name;
     private StorageAccountResource storageAccount;
+    private String id;
 
     /**
      * The name of the Queue (Required)
@@ -62,10 +64,23 @@ public class CloudQueueResource extends AzureResource implements Copyable<CloudQ
         this.storageAccount = storageAccount;
     }
 
+    /**
+     * The ID of the queue.
+     */
+    @Output
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     @Override
     public void copyFrom(CloudQueue queue) {
         setName(queue.getName());
         setStorageAccount(findById(StorageAccountResource.class, queue.getStorageUri().getPrimaryUri().getAuthority().split(".queue.core")[0]));
+        setId(String.format("%s/queueServices/default/queues/%s",getStorageAccount().getId(),getName()));
     }
 
     @Override
@@ -88,6 +103,7 @@ public class CloudQueueResource extends AzureResource implements Copyable<CloudQ
     public void create(GyroUI ui, State state) throws StorageException, URISyntaxException, InvalidKeyException {
         CloudQueue queue = cloudQueue();
         queue.create();
+        setId(String.format("%s/queueServices/default/queues/%s",getStorageAccount().getId(),getName()));
     }
 
     @Override
