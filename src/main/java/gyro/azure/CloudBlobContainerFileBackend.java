@@ -17,8 +17,8 @@ import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 import java.util.stream.Stream;
 
-@Type("cloudblob")
-public class CloudBlobFileBackend extends FileBackend {
+@Type("cloud-blob-container")
+public class CloudBlobContainerFileBackend extends FileBackend {
     private String storageAccount;
     private String cloudBlobContainer;
     private String prefix;
