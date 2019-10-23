@@ -32,7 +32,7 @@ public class StorageLifeCycle extends AzureResource implements Copyable<Manageme
     private Set<PolicyRule> rule;
 
     /**
-     *  The name of the Lifecycle Policy. Currently only supported value is ``DefaultManagementPolicy``. Defaults to ``DefaultManagementPolicy``.
+     *  The name of the lifecycle policy. Currently only supported value is ``DefaultManagementPolicy``. Defaults to ``DefaultManagementPolicy``.
      */
     @ValidStrings("DefaultManagementPolicy")
     public String getName() {
@@ -48,7 +48,7 @@ public class StorageLifeCycle extends AzureResource implements Copyable<Manageme
     }
 
     /**
-     * A set of Rules for the Lifecycle Policy. (Required)
+     * A set of rules for the lifecycle policy. (Required)
      *
      * @subresource gyro.azure.storage.PolicyRule
      */
@@ -67,7 +67,7 @@ public class StorageLifeCycle extends AzureResource implements Copyable<Manageme
     }
 
     /**
-     * The ID of the Lifecycle Policy
+     * The ID of the lifecycle policy.
      */
     @Output
     public String getId() {
@@ -79,7 +79,7 @@ public class StorageLifeCycle extends AzureResource implements Copyable<Manageme
     }
 
     /**
-     * The last modification time of the Lifecycle Policy.
+     * The last modification time of the lifecycle policy.
      */
     @Output
     public Date getLastModified() {

@@ -13,7 +13,7 @@ public class PolicyRule extends Diffable implements Copyable<ManagementPolicyRul
     private PolicyDefinition definition;
 
     /**
-     * Name of the Rule.
+     * Name of the rule.
      */
     @Required
     public String getName() {
@@ -25,7 +25,7 @@ public class PolicyRule extends Diffable implements Copyable<ManagementPolicyRul
     }
 
     /**
-     * Type of Rule. Currently only supported value is ``Lifecycle``. Defaults to ``Lifecycle``.
+     * Type of rule. Currently only supported value is ``Lifecycle``. Defaults to ``Lifecycle``.
      */
     public String getType() {
         if (type == null) {
@@ -40,7 +40,7 @@ public class PolicyRule extends Diffable implements Copyable<ManagementPolicyRul
     }
 
     /**
-     * Enable/Disable the Rule. Defaults to ``true`` i.e Enabled.
+     * Enable/Disable the rule. Defaults to ``true`` i.e Enabled.
      */
     @Updatable
     public Boolean getEnabled() {
@@ -56,7 +56,7 @@ public class PolicyRule extends Diffable implements Copyable<ManagementPolicyRul
     }
 
     /**
-     * The Rule details. (Required)
+     * The rule details. (Required)
      *
      * @sunresource gyro.azure.storage.PolicyDefinition
      */

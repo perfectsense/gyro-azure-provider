@@ -11,7 +11,7 @@ public class PolicyAction extends Diffable implements Copyable<ManagementPolicyA
     private PolicySnapshot snapshot;
 
     /**
-     * Policy Action for the base blob. (Required)
+     * The policy action for the base blob. (Required)
      */
     @Required
     @Updatable
@@ -24,7 +24,7 @@ public class PolicyAction extends Diffable implements Copyable<ManagementPolicyA
     }
 
     /**
-     * Policy Action for snapshot.
+     * The policy action for snapshot.
      */
     @Updatable
     public PolicySnapshot getSnapshot() {

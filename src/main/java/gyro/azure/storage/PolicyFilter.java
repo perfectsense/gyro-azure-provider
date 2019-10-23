@@ -14,7 +14,7 @@ public class PolicyFilter extends Diffable implements Copyable<ManagementPolicyF
     private Set<String> prefixMatches;
 
     /**
-     * Allowed blob types for the Filter. Currently only supported value is ``blockBlob``. Defaults to ``blockBlob``.
+     * Allowed blob types for the filter. Currently only supported value is ``blockBlob``. Defaults to ``blockBlob``.
      */
     public Set<String> getBlobTypes() {
         if (blobTypes == null) {
