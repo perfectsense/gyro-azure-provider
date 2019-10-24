@@ -11,22 +11,33 @@ import com.microsoft.azure.management.compute.StorageAccountTypes;
 import com.microsoft.azure.management.compute.VirtualMachine;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithCreate;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithLinuxCreateManaged;
+import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithLinuxCreateManagedOrUnmanaged;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithLinuxCreateUnmanaged;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithLinuxRootPasswordOrPublicKeyManaged;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithLinuxRootPasswordOrPublicKeyManagedOrUnmanaged;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithLinuxRootPasswordOrPublicKeyUnmanaged;
+import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithLinuxRootUsernameManaged;
+import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithLinuxRootUsernameManagedOrUnmanaged;
+import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithLinuxRootUsernameUnmanaged;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithManagedCreate;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithFromImageCreateOptionsManaged;
+import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithFromImageCreateOptionsManagedOrUnmanaged;
+import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithFromImageCreateOptionsUnmanaged;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithNetwork;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithOS;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithPrivateIP;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithPublicIPAddress;
-import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithWindowsAdminPasswordManaged;
+import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithWindowsAdminUsernameManaged;
+import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithWindowsAdminUsernameManagedOrUnmanaged;
+import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithWindowsAdminUsernameUnmanaged;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithWindowsCreateManaged;
+import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithWindowsCreateManagedOrUnmanaged;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithWindowsCreateUnmanaged;
 import com.microsoft.azure.management.compute.VirtualMachineSizeTypes;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.StringUtils;
+
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.azure.network.NetworkInterfaceResource;
@@ -585,24 +596,77 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
 
     @Override
     public void create(GyroUI ui, State state) {
-        Azure client = createClient();
+        VirtualMachine virtualMachine = doVMFluentWorkflow(createClient()).create();
+        setId(virtualMachine.id());
+        setVmId(virtualMachine.vmId());
+    }
 
-        WithNetwork withNetwork = client.virtualMachines().define(getName())
-            .withRegion(Region.fromName(getRegion()))
-            .withExistingResourceGroup(getResourceGroup().getName());
+    /**
+     * Executes Fluent Virtual Machine workflow. The workflow executes in the following order:
+     * Configure Azure Region and Resource Groups
+     * Configure VM network. Including Private IP and Public IP
+     * Configure OS Disk
+     * Configure Default Admin or Root Account
+     * Configure Data Disks
+     * Configure Generic Host attributes
+     * @return {@link WithCreate} VM Definition object ready for creation
+     */
+    private WithCreate doVMFluentWorkflow(Azure client) {
+        WithNetwork initialVMBuilder = configureRegionAndResourceGroups(client.virtualMachines().define(getName()));
+        WithOS networkConfigured = configureNetwork(client, initialVMBuilder);
+        WithCreate osConfiguredVMBuilder = configureOS(client, networkConfigured);
 
-        WithOS withOS;
+        if (osConfiguredVMBuilder == null) {
+            throw new GyroException("Invalid config.");
+        }
+
+        if (!getSecondaryNetworkInterface().isEmpty()) {
+            for (NetworkInterfaceResource nic : getSecondaryNetworkInterface()) {
+                osConfiguredVMBuilder = osConfiguredVMBuilder.withExistingSecondaryNetworkInterface(
+                    client.networkInterfaces().getByResourceGroup(getResourceGroup().getName(), nic.getName())
+                );
+            }
+        }
+
+        if (getAvailabilitySet() != null) {
+            osConfiguredVMBuilder = osConfiguredVMBuilder.withExistingAvailabilitySet(client.availabilitySets().getByResourceGroup(getResourceGroup().getName(), getAvailabilitySet().getId()));
+        }
+
+        return osConfiguredVMBuilder
+                .withSize(getVmSizeType())
+                .withTags(getTags());
+    }
+
+    /**
+     * First step in Fluent Virtual Machine workflow.
+     * Configures Azure Region and Resource Groups
+     * @return {@link WithNetwork} VM Definition object ready for Network configurations
+     */
+    private WithNetwork configureRegionAndResourceGroups(VirtualMachine.DefinitionStages.Blank initialVMBuilder) {
+        return initialVMBuilder.withRegion(Region.fromName(getRegion()))
+                .withExistingResourceGroup(getResourceGroup().getName());
+    }
+
+    /**
+     * Second step in Virtual Machine Fluent workflow.
+     * Configures Network. Uses existing network interface if defined or
+     * creates one with either a defined or generated private and public IP.
+     * @return {@link WithOS} VM Definition object ready for OS configurations
+     */
+    private WithOS configureNetwork(Azure client, WithNetwork initialVMBuilder) {
+
+        WithOS networkConfigured;
 
         if (!ObjectUtils.isBlank(getNetworkInterface())) {
-            withOS = withNetwork.withExistingPrimaryNetworkInterface(
+            networkConfigured = initialVMBuilder.withExistingPrimaryNetworkInterface(
                     client.networkInterfaces().getByResourceGroup(
-                        getResourceGroup().getName(), getNetworkInterface().getName()
+                            getResourceGroup().getName(), getNetworkInterface().getName()
                     ));
         } else {
 
-            WithPrivateIP withPrivateIP = withNetwork
-                .withExistingPrimaryNetwork(client.networks().getById(getNetwork().getId()))
-                .withSubnet(getSubnet());
+            WithPrivateIP withPrivateIP = initialVMBuilder
+                    .withExistingPrimaryNetwork(client.networks().getById(getNetwork().getId()))
+                    .withSubnet(getSubnet());
 
             WithPublicIPAddress withPublicIpAddress;
             if (!ObjectUtils.isBlank(getPrivateIpAddress())) {
@@ -612,198 +676,301 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
             }
 
             if (!ObjectUtils.isBlank(getPublicIpAddress())) {
-                withOS = withPublicIpAddress.withExistingPrimaryPublicIPAddress(
-                    client.publicIPAddresses().getByResourceGroup(getResourceGroup().getName(), getPublicIpAddress().getName())
+                networkConfigured = withPublicIpAddress.withExistingPrimaryPublicIPAddress(
+                        client.publicIPAddresses().getByResourceGroup(getResourceGroup().getName(), getPublicIpAddress().getName())
                 );
             } else {
-                withOS = withPublicIpAddress.withoutPrimaryPublicIPAddress();
+                networkConfigured = withPublicIpAddress.withoutPrimaryPublicIPAddress();
             }
         }
 
-        WithCreate create = null;
-        WithManagedCreate managedCreate = null;
-        WithFromImageCreateOptionsManaged withFromImageCreateOptionsManaged = null;
+        return networkConfigured;
+    }
 
-        boolean isLatestPopularOrSpecific = getVmImageType().equals("latest")
-            || getVmImageType().equals("popular")
-            || getVmImageType().equals("specific");
+    /**
+     * Entry point into Third through Fifth step in Virtual Machine Fluent workflow.
+     * Splits workflow by OS.
+     * Configures OS Disk, Admin User, and Data Disks
+     * @return {@link WithCreate} VM Definition object ready for final generic configurations
+     */
+    private WithCreate configureOS(Azure client, WithOS withOS) {
+        switch(getOsType()) {
+            case "linux":
+                return configureLinux(client, withOS);
+            case "windows":
+                return configureWindows(client, withOS);
+            default:
+                throw new GyroException(String.format("OS Type [%s] is unsupported!", getOsType()));
+        }
+    }
 
-        if (getOsType().equals("linux")) {
-            //linux
+    /**
+     * Third step in Virtual Machine Fluent workflow. Splits workflow path by Image Type (OS Disk)
+     * Configures OS Disk, Admin User, and Data Disks
+     * @return {@link WithCreate} VM Definition object ready for final generic configurations
+     */
+    private WithCreate configureLinux(Azure client, WithOS withOS) {
+        switch (getVmImageType()) {
+            case "custom":
+                return configureLinuxManaged(
+                        withOS.withLinuxCustomImage(getCustomImage()));
+            case "gallery":
+                return configureLinuxManaged(
+                        withOS.withLinuxGalleryImageVersion(getGalleryImageVersion()));
+            case "latest":
+                return configureLinuxManagedOrUnmanaged(
+                        withOS.withLatestLinuxImage(getImagePublisher(), getImageOffer(), getImageSku()));
+            case "popular":
+                return configureLinuxManagedOrUnmanaged(
+                        withOS.withPopularLinuxImage(KnownLinuxVirtualMachineImage.valueOf(getKnownVirtualImage())));
+            case "specific":
+                return configureLinuxManagedOrUnmanaged(
+                        withOS.withSpecificLinuxImageVersion(
+                                client.virtualMachineImages()
+                                .getImage(getImageRegion(), getImagePublisher(), getImageOffer(), getImageSku(), getImageVersion())
+                                .imageReference()));
+            case "stored":
+                return configureLinuxUnmanaged(
+                        withOS.withStoredLinuxImage(getStoredImage()));
+            case "specialized":
+                //TODO handle unmanaged OS disks?
+                return withOS.withSpecializedOSDisk(
+                        client.disks().getById(getOsDisk().getId()), OperatingSystemTypes.LINUX);
+            default:
+                throw new GyroException(String.format("Linux VM Image Type [%s] is Unsupported!", getVmImageType()));
+        }
+    }
 
-            WithLinuxCreateUnmanaged createUnmanaged = null;
-            WithLinuxCreateManaged createManaged = null;
+    /**
+     * Helper method in Virtual Machine workflow. Handles Managed Disk types.
+     * @return {@link WithCreate} VM Definition object ready for final generic configurations
+     */
+    private WithCreate configureLinuxManaged(WithLinuxRootUsernameManaged vmImageTypeConfigured) {
+        return configureDisks(configureLinuxAdmin(vmImageTypeConfigured));
+    }
 
-            if (isLatestPopularOrSpecific) {
-                WithLinuxRootPasswordOrPublicKeyManagedOrUnmanaged managedOrUnmanaged;
+    /**
+     * Helper method in Virtual Machine workflow. Handles ManagedOrUnmanaged Disk types.
+     * @return {@link WithCreate} VM Definition object ready for final generic configurations
+     */
+    private WithCreate configureLinuxManagedOrUnmanaged(WithLinuxRootUsernameManagedOrUnmanaged vmImageTypeConfigured) {
+        return configureDisks(configureLinuxAdmin(vmImageTypeConfigured));
+    }
 
-                if (getVmImageType().equals("latest")) {
-                    managedOrUnmanaged = withOS.withLatestLinuxImage(getImagePublisher(),getImageOffer(),getImageSku())
-                        .withRootUsername(getAdminUserName());
-                } else if (getVmImageType().equals("popular")) {
-                    managedOrUnmanaged = withOS.withPopularLinuxImage(
-                        KnownLinuxVirtualMachineImage.valueOf(getKnownVirtualImage())
-                    ).withRootUsername(getAdminUserName());
-                } else {
-                    managedOrUnmanaged = withOS.withSpecificLinuxImageVersion(
-                        client.virtualMachineImages()
-                            .getImage(getImageRegion(),getImagePublisher(),getImageOffer(),getImageSku(),getImageVersion())
-                            .imageReference()
-                    ).withRootUsername(getAdminUserName());
-                }
+    /**
+     * Helper method in Virtual Machine workflow. Handles Unmanaged Disk types.
+     * @return {@link WithCreate} VM Definition object ready for final generic configurations
+     */
+    private WithCreate configureLinuxUnmanaged(WithLinuxRootUsernameUnmanaged vmImageTypeConfigured) {
+        return configureDisks(configureLinuxAdmin(vmImageTypeConfigured));
+    }
 
-                if (!ObjectUtils.isBlank(getAdminPassword()) && !ObjectUtils.isBlank(getSsh())) {
-                    withFromImageCreateOptionsManaged = managedOrUnmanaged.withRootPassword(getAdminPassword()).withSsh(getSsh())
-                        .withCustomData(getEncodedCustomData());
-                } else if (!ObjectUtils.isBlank(getAdminPassword())) {
-                    withFromImageCreateOptionsManaged = managedOrUnmanaged.withRootPassword(getAdminPassword())
-                        .withCustomData(getEncodedCustomData());
-                } else {
-                    withFromImageCreateOptionsManaged = managedOrUnmanaged.withSsh(getSsh())
-                        .withCustomData(getEncodedCustomData());
-                }
+    /**
+     * Fourth step in Virtual Machine Fluent workflow. Configures Admin User for Managed Disk types
+     * @return {@link WithFromImageCreateOptionsManaged} VM Definition object ready for data disk configurations
+     */
+    private WithFromImageCreateOptionsManaged configureLinuxAdmin(WithLinuxRootUsernameManaged vmImageTypeConfigured) {
+        WithLinuxCreateManaged adminConfigured = null;
+        WithLinuxRootPasswordOrPublicKeyManaged rootUserConfigured = vmImageTypeConfigured.withRootUsername(getAdminUserName());
+        if (!StringUtils.isBlank(getAdminPassword())) {
+            adminConfigured = rootUserConfigured.withRootPassword(getAdminPassword());
+        }
 
-            } else if (getVmImageType().equals("stored")) {
-                WithLinuxRootPasswordOrPublicKeyUnmanaged publicKeyUnmanaged = withOS
-                    .withStoredLinuxImage(getStoredImage())
-                    .withRootUsername(getAdminUserName());
-
-                if (!ObjectUtils.isBlank(getAdminPassword()) && !ObjectUtils.isBlank(getSsh())) {
-                    createUnmanaged = publicKeyUnmanaged.withRootPassword(getAdminPassword()).withSsh(getSsh());
-                } else if (!ObjectUtils.isBlank(getAdminPassword())) {
-                    createUnmanaged = publicKeyUnmanaged.withRootPassword(getAdminPassword());
-                } else {
-                    createUnmanaged = publicKeyUnmanaged.withSsh(getSsh());
-                }
-
-            } else if (getVmImageType().equals("custom") || getVmImageType().equals("gallery")) {
-                WithLinuxRootPasswordOrPublicKeyManaged publicKeyManaged;
-
-                if (getVmImageType().equals("custom")) {
-                    publicKeyManaged = withOS.withLinuxCustomImage(getCustomImage())
-                        .withRootUsername(getAdminUserName());
-                } else {
-                    publicKeyManaged = withOS.withLinuxGalleryImageVersion(getGalleryImageVersion())
-                        .withRootUsername(getAdminUserName());
-                }
-
-                if (!ObjectUtils.isBlank(getAdminPassword()) && !ObjectUtils.isBlank(getSsh())) {
-                    createManaged = publicKeyManaged.withRootPassword(getAdminPassword()).withSsh(getSsh());
-                } else if (!ObjectUtils.isBlank(getAdminPassword())) {
-                    createManaged = publicKeyManaged.withRootPassword(getAdminPassword());
-                } else {
-                    createManaged = publicKeyManaged.withSsh(getSsh());
-                }
-
+        if (!StringUtils.isBlank(getSsh())) {
+            if (adminConfigured == null) {
+                adminConfigured = rootUserConfigured.withSsh(getSsh());
             } else {
-                managedCreate = withOS.withSpecializedOSDisk(
-                    client.disks().getById(getOsDisk().getId()), OperatingSystemTypes.LINUX
-                );
+                adminConfigured = adminConfigured.withSsh(getSsh());
             }
+        }
 
-            if (createUnmanaged != null) {
-                create = createUnmanaged.withCustomData(getEncodedCustomData())
-                    .withSize(VirtualMachineSizeTypes.fromString(getVmSizeType()));
-            } else if (createManaged != null) {
-                create = createManaged.withCustomData(getEncodedCustomData())
-                    .withSize(VirtualMachineSizeTypes.fromString(getVmSizeType()));
+        return adminConfigured;
+    }
+
+    /**
+     * Fourth step in Virtual Machine Fluent workflow. Configures Admin User for ManagedOrUnmanaged Disk types
+     * @return {@link WithFromImageCreateOptionsManagedOrUnmanaged} VM Definition object ready for data disk configurations
+     */
+    private WithFromImageCreateOptionsManagedOrUnmanaged configureLinuxAdmin(WithLinuxRootUsernameManagedOrUnmanaged vmImageTypeConfigured) {
+        WithLinuxCreateManagedOrUnmanaged adminConfigured = null;
+        WithLinuxRootPasswordOrPublicKeyManagedOrUnmanaged rootUserConfigured = vmImageTypeConfigured.withRootUsername(getAdminUserName());
+        if (!StringUtils.isBlank(getAdminPassword())) {
+            adminConfigured = rootUserConfigured.withRootPassword(getAdminPassword());
+        }
+
+        if (!StringUtils.isBlank(getSsh())) {
+            if (adminConfigured == null) {
+                adminConfigured = rootUserConfigured.withSsh(getSsh());
+            } else {
+                adminConfigured = adminConfigured.withSsh(getSsh());
             }
+        }
+
+        return adminConfigured;
+    }
+
+    /**
+     * Fourth step in Virtual Machine Fluent workflow. Configures Admin User for Unmanaged Disk types
+     * @return {@link WithFromImageCreateOptionsUnmanaged} VM Definition object ready for data disk configurations
+     */
+    private WithFromImageCreateOptionsUnmanaged configureLinuxAdmin(WithLinuxRootUsernameUnmanaged vmImageTypeConfigured) {
+        WithLinuxCreateUnmanaged adminConfigured = null;
+        WithLinuxRootPasswordOrPublicKeyUnmanaged rootUserConfigured = vmImageTypeConfigured.withRootUsername(getAdminUserName());
+        if (!StringUtils.isBlank(getAdminPassword())) {
+            adminConfigured = rootUserConfigured.withRootPassword(getAdminPassword());
+        }
+
+        if (!StringUtils.isBlank(getSsh())) {
+            if (adminConfigured == null) {
+                adminConfigured = rootUserConfigured.withSsh(getSsh());
+            } else {
+                adminConfigured = adminConfigured.withSsh(getSsh());
+            }
+        }
+
+        return adminConfigured;
+    }
+
+    /**
+     * Third step in Virtual Machine Fluent workflow. Splits workflow path by Image Type (OS Disk)
+     * Configures OS Disk, Admin User, and Data Disks
+     * @return {@link WithCreate} VM Definition object ready for final generic configurations
+     */
+    private WithCreate configureWindows(Azure client, WithOS withOS) {
+
+        switch (getVmImageType()) {
+            case "custom":
+                return configureWindowsManaged(
+                        withOS.withWindowsCustomImage(getCustomImage()));
+            case "gallery":
+                return configureWindowsManaged(
+                        withOS.withWindowsGalleryImageVersion(getGalleryImageVersion()));
+            case "latest":
+                return configureWindowsManagedOrUnmanaged(
+                        withOS.withLatestWindowsImage(getImagePublisher(), getImageOffer(), getImageSku()));
+            case "popular":
+                return configureWindowsManagedOrUnmanaged(
+                        withOS.withPopularWindowsImage(KnownWindowsVirtualMachineImage.valueOf(getKnownVirtualImage())));
+            case "specific":
+                return configureWindowsManagedOrUnmanaged(
+                        withOS.withSpecificWindowsImageVersion(
+                                client.virtualMachineImages()
+                                .getImage(getImageRegion(), getImagePublisher(), getImageOffer(), getImageSku(), getImageVersion())
+                                .imageReference()));
+            case "stored":
+                return configureWindowsUnmanaged(
+                        withOS.withStoredWindowsImage(getStoredImage()));
+            case "specialized":
+                //TODO handle unmanaged OS disks?
+                return withOS.withSpecializedOSDisk(
+                        client.disks().getById(getOsDisk().getId()), OperatingSystemTypes.WINDOWS);
+            default:
+                throw new GyroException(String.format("Windows VM Image Type [%s] is Unsupported!", getVmImageType()));
+        }
+    }
+
+    /**
+     * Helper method in Virtual Machine Fluent workflow. Handles Managed Disk types.
+     * @return {@link WithCreate} VM Definition object ready for final generic configurations
+     */
+    private WithCreate configureWindowsManaged(WithWindowsAdminUsernameManaged vmImageTypeConfigured) {
+        WithWindowsCreateManaged adminConfigured = configureWindowsAdmin(vmImageTypeConfigured);
+        return configureDisks(
+                adminConfigured.withoutAutoUpdate()
+                        .withoutVMAgent()
+                        .withTimeZone(getTimeZone()));
+    }
+
+    /**
+     * Helper method in Virtual Machine Fluent workflow. Handles ManagedOrUnmanaged Disk types.
+     * @return {@link WithCreate} VM Definition object ready for final generic configurations
+     */
+    private WithCreate configureWindowsManagedOrUnmanaged(WithWindowsAdminUsernameManagedOrUnmanaged vmImageTypeConfigured) {
+        WithWindowsCreateManaged adminConfigured = configureWindowsAdmin(vmImageTypeConfigured);
+        return configureDisks(
+                adminConfigured.withoutAutoUpdate()
+                        .withoutVMAgent()
+                        .withTimeZone(getTimeZone()));
+    }
+
+    /**
+     * Helper method in Virtual Machine Fluent workflow. Handles Unmanaged Disk types.
+     * @return {@link WithCreate} VM Definition object ready for final generic configurations
+     */
+    private WithCreate configureWindowsUnmanaged(WithWindowsAdminUsernameUnmanaged vmImageTypeConfigured) {
+        return configureDisks(
+                configureWindowsAdmin(vmImageTypeConfigured));
+    }
+
+    /**
+     * Fourth step in Virtual Machine Fluent workflow. Configures Admin User for Managed Disk types
+     * @return {@link WithWindowsCreateManaged} VM Definition object ready for data disk configurations
+     */
+    private WithWindowsCreateManaged configureWindowsAdmin(WithWindowsAdminUsernameManaged vmImageTypeConfigured) {
+        return vmImageTypeConfigured.withAdminUsername(getAdminUserName())
+                .withAdminPassword(getAdminPassword());
+    }
+
+    /**
+     * Fourth step in Virtual Machine Fluent workflow. Configures Admin User for ManagedOrUnmanaged Disk types
+     * @return {@link WithWindowsCreateManagedOrUnmanaged} VM Definition object ready for data disk configurations
+     */
+    private WithWindowsCreateManagedOrUnmanaged configureWindowsAdmin(WithWindowsAdminUsernameManagedOrUnmanaged vmImageTypeConfigured) {
+        return vmImageTypeConfigured.withAdminUsername(getAdminUserName())
+                .withAdminPassword(getAdminPassword());
+    }
+
+    /**
+     * Fourth step in Virtual Machine Fluent workflow. Configures Admin User for Unmanaged Disk types
+     * @return {@link WithWindowsCreateUnmanaged} VM Definition object ready for data disk configurations
+     */
+    private WithWindowsCreateUnmanaged configureWindowsAdmin(WithWindowsAdminUsernameUnmanaged vmImageTypeConfigured) {
+        return vmImageTypeConfigured.withAdminUsername(getAdminUserName())
+                .withAdminPassword(getAdminPassword());
+    }
+
+    /**
+     * Fifth step in Virtual Machine Fluent workflow.
+     * Configures Managed Data Disks and Managed Data Disk defaults.
+     * @return {@link WithCreate} VM Definition object ready for final generic configurations
+     */
+    private WithCreate configureDisks(WithFromImageCreateOptionsManaged adminConfigured) {
+        WithManagedCreate diskDefaultsConfigured = adminConfigured
+                .withCustomData(getEncodedCustomData())
+                .withDataDiskDefaultCachingType(CachingTypes.fromString(getCachingType()))
+                .withDataDiskDefaultStorageAccountType(StorageAccountTypes.fromString(getStorageAccountTypeDataDisk()))
+                .withOSDiskStorageAccountType(StorageAccountTypes.fromString(getStorageAccountTypeOsDisk()));
+
+        // TODO Attach data disks
+
+        // Availability Zones?
+
+        return diskDefaultsConfigured;
+    }
+
+    /**
+     * Fifth step in Virtual Machine Fluent workflow. Configures Data disks
+     * @return {@link WithCreate} VM Definition object ready for final generic configurations
+     */
+    private <T extends VirtualMachine.DefinitionStages.WithFromImageCreateOptionsManagedOrUnmanaged> WithCreate configureDisks(T adminConfigured) {
+
+        // TODO how to to determine if data disks are managed?
+        boolean managed = true;
+        // if managed
+        if (managed) {
+            return configureDisks((WithFromImageCreateOptionsManaged) adminConfigured);
         } else {
-            //windows
-            WithWindowsCreateUnmanaged createUnmanaged = null;
-            WithWindowsCreateManaged createManaged = null;
-            if (isLatestPopularOrSpecific) {
-                VirtualMachine.DefinitionStages.WithWindowsAdminPasswordManagedOrUnmanaged managedOrUnmanaged;
-
-                if (getVmImageType().equals("latest")) {
-                    managedOrUnmanaged = withOS.withLatestWindowsImage(getImagePublisher(),getImageOffer(),getImageSku())
-                        .withAdminUsername(getAdminUserName());
-                } else if (getVmImageType().equals("popular")) {
-                    managedOrUnmanaged = withOS.withPopularWindowsImage(
-                        KnownWindowsVirtualMachineImage.valueOf(getKnownVirtualImage())
-                    ).withAdminUsername(getAdminUserName());
-                } else {
-                    managedOrUnmanaged = withOS.withSpecificWindowsImageVersion(
-                        client.virtualMachineImages()
-                            .getImage(getImageRegion(),getImagePublisher(),getImageOffer(),getImageSku(),getImageVersion())
-                            .imageReference()
-                    ).withAdminUsername(getAdminUserName());
-                }
-
-                managedCreate = managedOrUnmanaged.withAdminPassword(getAdminPassword())
-                    .withCustomData(getEncodedCustomData())
-                    .withExistingDataDisk(client.disks().getById(getOsDisk().getId()));
-
-            } else if (getVmImageType().equals("stored")) {
-                createUnmanaged = withOS.withStoredWindowsImage(getStoredImage())
-                    .withAdminUsername(getAdminUserName()).withAdminPassword(getAdminPassword());
-
-            } else if (getVmImageType().equals("custom") || getVmImageType().equals("gallery")) {
-                WithWindowsAdminPasswordManaged passwordManaged;
-                if (getVmImageType().equals("custom")) {
-                    passwordManaged = withOS.withWindowsCustomImage(getCustomImage())
-                        .withAdminUsername(getAdminUserName());
-                } else {
-                    passwordManaged = withOS.withWindowsGalleryImageVersion(getGalleryImageVersion())
-                        .withAdminUsername(getAdminUserName());
-                }
-
-                createManaged = passwordManaged.withAdminPassword(getAdminPassword());
-            } else {
-                managedCreate = withOS.withSpecializedOSDisk(
-                    client.disks().getById(getOsDisk().getId()), OperatingSystemTypes.WINDOWS
-                );
-            }
-
-            if (createUnmanaged != null) {
-                create = createUnmanaged
-                    .withoutAutoUpdate()
-                    .withoutVMAgent()
-                    .withTimeZone(getTimeZone())
-                    .withCustomData(getEncodedCustomData())
-                    .withSize(VirtualMachineSizeTypes.fromString(getVmSizeType()));
-            } else if (createManaged != null) {
-                create = createManaged
-                    .withoutAutoUpdate()
-                    .withoutVMAgent()
-                    .withTimeZone(getTimeZone())
-                    .withCustomData(getEncodedCustomData())
-                    .withSize(VirtualMachineSizeTypes.fromString(getVmSizeType()));
-            }
+            return configureDisks(adminConfigured.withUnmanagedDisks());
         }
+    }
 
-        if (managedCreate != null) {
-            create = managedCreate.withDataDiskDefaultCachingType(CachingTypes.fromString(getCachingType()))
-                .withDataDiskDefaultStorageAccountType(StorageAccountTypes.fromString(getStorageAccountTypeDataDisk()))
-                .withOSDiskStorageAccountType(StorageAccountTypes.fromString(getStorageAccountTypeOsDisk()))
-                .withSize(VirtualMachineSizeTypes.fromString(getVmSizeType()));
-        } else if (withFromImageCreateOptionsManaged != null) {
-            create = withFromImageCreateOptionsManaged.withDataDiskDefaultCachingType(CachingTypes.fromString(getCachingType()))
-                .withDataDiskDefaultStorageAccountType(StorageAccountTypes.fromString(getStorageAccountTypeDataDisk()))
-                .withOSDiskStorageAccountType(StorageAccountTypes.fromString(getStorageAccountTypeOsDisk()))
-                .withSize(VirtualMachineSizeTypes.fromString(getVmSizeType()));
-        }
-
-        if (create == null) {
-            throw new GyroException("Invalid config.");
-        }
-
-        if (!getSecondaryNetworkInterface().isEmpty()) {
-            for (NetworkInterfaceResource nic : getSecondaryNetworkInterface()) {
-                create = create.withExistingSecondaryNetworkInterface(
-                    client.networkInterfaces().getByResourceGroup(getResourceGroup().getName(), nic.getName())
-                );
-            }
-        }
-
-        if (getAvailabilitySet() != null) {
-            create.withExistingAvailabilitySet(client.availabilitySets().getByResourceGroup(getResourceGroup().getName(), getAvailabilitySet().getId()));
-        }
-
-        VirtualMachine virtualMachine = create.withTags(getTags()).create();
-
-        setId(virtualMachine.id());
-        setVmId(virtualMachine.vmId());
+    /**
+     * Fifth step in Virtual Machine Fluent workflow. Configures Data disks
+     * @return {@link WithCreate} VM Definition object ready for final generic configurations
+     */
+    private WithCreate configureDisks(WithFromImageCreateOptionsUnmanaged adminConfigured) {
+        // TODO Attach unmanaged data disks
+        return adminConfigured;
     }
 
     @Override
