@@ -12,6 +12,7 @@ import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
+import gyro.azure.identity.IdentityResource;
 import gyro.azure.network.ApplicationSecurityGroupResource;
 import gyro.azure.network.LoadBalancerResource;
 import gyro.azure.network.NetworkResource;
@@ -138,6 +139,7 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
     private String lowPriorityVmPolicy;
     private String timeZone;
     private String id;
+    private Set<IdentityResource> identities;
 
     /**
      * The name of the Scale Set. (Required)
@@ -688,6 +690,22 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
     }
 
     /**
+     * A list of identities associated with the Scale Set.
+     */
+    @Updatable
+    public Set<IdentityResource> getIdentities() {
+        if (identities == null) {
+            identities = new HashSet<>();
+        }
+
+        return identities;
+    }
+
+    public void setIdentities(Set<IdentityResource> identities) {
+        this.identities = identities;
+    }
+
+    /**
      * The ID of the Scale Set.
      */
     @Id
@@ -747,6 +765,12 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
                 setPrimaryInternetFacingLoadBalancer(attachment);
             } else {
                 setPrimaryInternetFacingLoadBalancer(null);
+            }
+
+            getIdentities().clear();
+            if (scaleSet.userAssignedManagedServiceIdentityIds() != null) {
+                getIdentities().addAll(scaleSet.userAssignedManagedServiceIdentityIds().stream().map(o -> findById(IdentityResource.class, o)).collect(Collectors.toSet()));
+
             }
         } catch (IOException ex) {
             throw new GyroException(ex.getMessage());
@@ -972,6 +996,10 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
             }
         }
 
+        for (IdentityResource identity : getIdentities()) {
+            finalStage = finalStage.withExistingUserAssignedManagedServiceIdentity(client.identities().getById(identity.getId()));
+        }
+
         VirtualMachineScaleSet scaleSet = finalStage.create();
         setId(scaleSet.id());
     }
@@ -1068,6 +1096,16 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
             update = update.withIpForwarding();
         } else {
             update = update.withoutIpForwarding();
+        }
+
+        if (changedFieldNames.contains("identities")) {
+            for (IdentityResource identity : ((VMScaleSetResource) current).getIdentities()) {
+                update = update.withoutUserAssignedManagedServiceIdentity(identity.getId());
+            }
+
+            for (IdentityResource identity : getIdentities()) {
+                update = update.withExistingUserAssignedManagedServiceIdentity(client.identities().getById(identity.getId()));
+            }
         }
 
         update = update.withAdditionalCapabilities(getAdditionalCapability().toAdditionalCapabilities());
