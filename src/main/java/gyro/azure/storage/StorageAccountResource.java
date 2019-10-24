@@ -1,5 +1,6 @@
 package gyro.azure.storage;
 
+import com.microsoft.azure.management.storage.Kind;
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.ServiceProperties;
 import com.microsoft.azure.storage.StorageException;
@@ -46,6 +47,40 @@ import java.util.Set;
  *         resource-group: $(azure::resource-group file-resource-group)
  *         name: "storageaccount"
  *
+ *         cors-rule
+ *             allowed-headers: ["*"]
+ *             allowed-methods: ["PUT"]
+ *             allowed-origins: ["*"]
+ *             exposed-headers: ["*"]
+ *             max-age: 6
+ *             type: "table"
+ *         end
+ *
+ *         lifecycle
+ *         rule
+ *             name: "rule1"
+ *             enabled: false
+ *             definition
+ *                 action
+ *                     base-blob
+ *                         delete-days: 1
+ *                         tier-to-archive-days: 1
+ *                         tier-to-cool-days: 1
+ *                     end
+ *
+ *                     snapshot
+ *                         delete-days: 1
+ *                     end
+ *                 end
+ *
+ *                 filter
+ *                     prefix-matches: [
+ *                         container/box1
+ *                     ]
+ *                 end
+ *             end
+ *         end
+ *
  *         tags: {
  *             Name: "storageaccount"
  *         }
@@ -60,6 +95,8 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
     private String id;
     private String name;
     private Map<String, String> tags;
+    private StorageLifeCycle lifecycle;
+    private Boolean upgradeAccountV2;
 
     /**
      * The cors rules associated with the Storage Account. (Optional)
@@ -148,6 +185,36 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
         this.tags = tags;
     }
 
+    /**
+     * The lifecycle associated with the Storage Account. Only supported when 'upgrade-account-v2' set to ```true`.
+     *
+     * @subresource gyro.azure.storage.StorageLifeCycle
+     */
+    @Updatable
+    public StorageLifeCycle getLifecycle() {
+        return lifecycle;
+    }
+
+    public void setLifecycle(StorageLifeCycle lifecycle) {
+        this.lifecycle = lifecycle;
+    }
+
+    /**
+     * Upgrade account to General Purpose Account Kind V2. Cannot be downgraded.
+     */
+    @Updatable
+    public Boolean getUpgradeAccountV2() {
+        if (upgradeAccountV2 == null) {
+            upgradeAccountV2 = false;
+        }
+
+        return upgradeAccountV2;
+    }
+
+    public void setUpgradeAccountV2(Boolean upgradeAccountV2) {
+        this.upgradeAccountV2 = upgradeAccountV2;
+    }
+
     @Override
     public void copyFrom(StorageAccount storageAccount) {
         try {
@@ -198,12 +265,26 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
         setResourceGroup(findById(ResourceGroupResource.class, storageAccount.resourceGroupName()));
         setId(storageAccount.id());
         setName(storageAccount.name());
+        setUpgradeAccountV2(storageAccount.kind().equals(Kind.STORAGE_V2));
 
         getKeys().clear();
         storageAccount.getKeys().forEach(e -> getKeys().put(e.keyName(), e.value()));
 
         getTags().clear();
         storageAccount.tags().forEach((key, value) -> getTags().put(key, value));
+
+        StorageLifeCycle lifeCycleManager = null;
+        if (storageAccount.manager().managementPolicies().inner().get(getResourceGroup().getName(), getName()) != null) {
+            lifeCycleManager = newSubresource(StorageLifeCycle.class);
+            lifeCycleManager.copyFrom(
+                storageAccount.manager()
+                    .managementPolicies()
+                    .getAsync(getResourceGroup().getName(), getName())
+                    .toBlocking()
+                    .single()
+            );
+        }
+        setLifecycle(lifeCycleManager);
     }
 
     @Override
@@ -225,12 +306,17 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
     public void create(GyroUI ui, State state) throws StorageException, URISyntaxException, InvalidKeyException {
         Azure client = createClient();
 
-        StorageAccount storageAccount = client.storageAccounts()
-                .define(getName())
-                .withRegion(Region.fromName(getRegion()))
-                .withExistingResourceGroup(getResourceGroup().getName())
-                .withTags(getTags())
-                .create();
+        StorageAccount.DefinitionStages.WithCreate withCreate = client.storageAccounts()
+            .define(getName())
+            .withRegion(Region.fromName(getRegion()))
+            .withExistingResourceGroup(getResourceGroup().getName())
+            .withTags(getTags());
+
+        if (getUpgradeAccountV2()) {
+            withCreate = withCreate.withGeneralPurposeAccountKindV2();
+        }
+
+        StorageAccount storageAccount = withCreate.create();
 
         setId(storageAccount.id());
 
@@ -247,7 +333,19 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
         Azure client = createClient();
 
         StorageAccount storageAccount = client.storageAccounts().getById(getId());
-        storageAccount.update().withTags(getTags()).apply();
+        StorageAccount.Update update = storageAccount.update();
+
+        update = update.withTags(getTags());
+
+        if (changedFieldNames.contains("upgrade-account-v2")) {
+            if (!getUpgradeAccountV2()) {
+                throw new GyroException("Cannot downgrade from storage account V2");
+            } else {
+                update.upgradeToGeneralPurposeAccountKindV2();
+            }
+        }
+
+        update.apply();
 
         updateCorsRules();
     }
@@ -292,7 +390,7 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
         tableClient.uploadServiceProperties(tableProperties);
     }
 
-    public String getConnection() {
+    String getConnection() {
         return "DefaultEndpointsProtocol=https;"
                 + "AccountName=" + getName() + ";"
                 + "AccountKey=" + getKeys().get("key1");
