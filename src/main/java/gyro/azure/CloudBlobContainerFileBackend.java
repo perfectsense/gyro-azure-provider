@@ -55,7 +55,7 @@ public class CloudBlobContainerFileBackend extends FileBackend {
     public Stream<String> list() throws Exception {
         Stream<ListBlobItem> blobItemStream = StreamSupport.stream(container().listBlobs(getPrefix(), true).spliterator(), false);
         return blobItemStream.map(ListBlobItem::getUri)
-                              .map(URI::getPath);
+                .map(URI::getPath);
     }
 
     @Override
