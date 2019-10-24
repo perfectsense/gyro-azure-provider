@@ -1,5 +1,6 @@
 package gyro.azure.sql;
 
+import com.microsoft.azure.management.sql.DatabaseEdition;
 import gyro.azure.AzureResource;
 import gyro.azure.storage.StorageAccountResource;
 import gyro.core.GyroException;
@@ -11,7 +12,6 @@ import gyro.core.resource.Updatable;
 
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.sql.CreateMode;
-import com.microsoft.azure.management.sql.DatabaseEditions;
 import com.microsoft.azure.management.sql.SampleName;
 import com.microsoft.azure.management.sql.SqlDatabase;
 import com.microsoft.azure.management.sql.SqlDatabaseBasicStorage;
@@ -373,7 +373,7 @@ public class SqlDatabaseResource extends AzureResource {
                         buildDatabase.withBasicEdition();
                     }
                 } else {
-                    buildDatabase.withEdition(DatabaseEditions.fromString(getEdition()));
+                    buildDatabase.withEdition(DatabaseEdition.fromString(getEdition()));
                 }
             }
         }
