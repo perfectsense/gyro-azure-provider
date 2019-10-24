@@ -165,12 +165,10 @@ public class StorageLifeCycle extends AzureResource implements Copyable<Manageme
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         Azure client = createClient();
 
-        ManagementPolicy.Update update = getManagementPolicy(client).update();
-
         ManagementPolicySchema policySchema = new ManagementPolicySchema();
-
         policySchema.withRules(getRule().stream().map(PolicyRule::toManagementPolicyRule).collect(Collectors.toList()));
 
+        ManagementPolicy.Update update = getManagementPolicy(client).update();
         ManagementPolicy policy = update.withPolicy(policySchema).apply();
 
         copyFrom(policy);
@@ -181,15 +179,16 @@ public class StorageLifeCycle extends AzureResource implements Copyable<Manageme
         Azure client = createClient();
 
         StorageAccountResource parent = (StorageAccountResource) parent();
-
         StorageAccount storageAccount = client.storageAccounts().getById(parent.getId());
 
-        storageAccount.manager().managementPolicies().inner().delete(parent.getResourceGroup().getName(), parent.getName());
+        storageAccount.manager()
+            .managementPolicies()
+            .inner()
+            .delete(parent.getResourceGroup().getName(), parent.getName());
     }
 
     private ManagementPolicy getManagementPolicy(Azure client) {
         StorageAccountResource parent = (StorageAccountResource) parent();
-
         StorageAccount storageAccount = client.storageAccounts().getById(parent.getId());
 
         return storageAccount.manager().managementPolicies().getAsync(parent.getResourceGroup().getName(), parent.getName()).toBlocking().single();
