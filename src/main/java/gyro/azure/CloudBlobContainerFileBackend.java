@@ -4,6 +4,7 @@ import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
+import com.microsoft.azure.storage.blob.ListBlobItem;
 import gyro.azure.storage.StorageAccountResource;
 import gyro.core.FileBackend;
 import gyro.core.GyroException;
@@ -13,9 +14,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
+import java.util.Spliterator;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 @Type("cloud-blob-container")
 public class CloudBlobContainerFileBackend extends FileBackend {
@@ -49,7 +53,9 @@ public class CloudBlobContainerFileBackend extends FileBackend {
 
     @Override
     public Stream<String> list() throws Exception {
-        return null;
+        Stream<ListBlobItem> blobItemStream = StreamSupport.stream(container().listBlobs(getPrefix(), true).spliterator(), false);
+        return blobItemStream.map(ListBlobItem::getUri)
+                              .map(URI::getPath);
     }
 
     @Override
