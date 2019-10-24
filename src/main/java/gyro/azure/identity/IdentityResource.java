@@ -8,6 +8,7 @@ import gyro.azure.Copyable;
 import gyro.azure.resources.ResourceGroupResource;
 import gyro.core.GyroUI;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
@@ -88,6 +89,7 @@ public class IdentityResource extends AzureResource implements Copyable<Identity
     /**
      * The ID of the Identity.
      */
+    @Id
     @Output
     public String getId() {
         return id;
