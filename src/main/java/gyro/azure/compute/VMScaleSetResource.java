@@ -769,7 +769,12 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
 
             getIdentities().clear();
             if (scaleSet.userAssignedManagedServiceIdentityIds() != null) {
-                getIdentities().addAll(scaleSet.userAssignedManagedServiceIdentityIds().stream().map(o -> findById(IdentityResource.class, o)).collect(Collectors.toSet()));
+                getIdentities().addAll(
+                    scaleSet.userAssignedManagedServiceIdentityIds()
+                        .stream()
+                        .map(o -> findById(IdentityResource.class, o))
+                        .collect(Collectors.toSet())
+                );
 
             }
         } catch (IOException ex) {

@@ -558,7 +558,12 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
 
         getIdentities().clear();
         if (virtualMachine.userAssignedManagedServiceIdentityIds() != null) {
-            getIdentities().addAll(virtualMachine.userAssignedManagedServiceIdentityIds().stream().map(o -> findById(IdentityResource.class, o)).collect(Collectors.toSet()));
+            getIdentities().addAll(
+                virtualMachine.userAssignedManagedServiceIdentityIds()
+                    .stream()
+                    .map(o -> findById(IdentityResource.class, o))
+                    .collect(Collectors.toSet())
+            );
         }
     }
 

@@ -179,7 +179,6 @@ public class IdentityResource extends AzureResource implements Copyable<Identity
         Azure client = createClient();
 
         Identity.Update update = client.identities().getById(getId()).update();
-
         IdentityResource oldResource = (IdentityResource) current;
 
         for (String key : oldResource.getTags().keySet()) {
