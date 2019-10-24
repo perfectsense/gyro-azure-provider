@@ -789,7 +789,7 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
             create.withExistingAvailabilitySet(client.availabilitySets().getByResourceGroup(getResourceGroup().getName(), getAvailabilitySet().getId()));
         }
 
-        if (true) {
+        if (getEnableSystemManagedServiceIdentity()) {
             create = create.withSystemAssignedManagedServiceIdentity();
         }
 
