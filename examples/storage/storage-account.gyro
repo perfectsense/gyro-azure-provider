@@ -9,6 +9,7 @@ end
 azure::storage-account storage-account-example
     resource-group: $(azure::resource-group storage-account-example)
     name: "storageaccountex"
+    upgrade-account-v2: true
 
     cors-rule
         allowed-headers: ["*"]
@@ -49,4 +50,30 @@ azure::storage-account storage-account-example
     tags: {
         Name: "storage-account-example"
     }
+
+    lifecycle
+        rule
+            name: "rule1"
+            enabled: false
+            definition
+                action
+                    base-blob
+                        delete-days: 1
+                        tier-to-archive-days: 1
+                        tier-to-cool-days: 1
+                    end
+
+                    snapshot
+                        delete-days: 1
+                    end
+                end
+
+                filter
+                    prefix-matches: [
+                        container/box1
+                    ]
+                end
+            end
+        end
+    end
 end
