@@ -29,6 +29,7 @@ import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
+import gyro.azure.identity.IdentityResource;
 import gyro.azure.network.NetworkInterfaceResource;
 import gyro.azure.network.NetworkResource;
 import gyro.azure.network.PublicIpAddressResource;
@@ -116,6 +117,7 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
     private Set<NetworkInterfaceResource> secondaryNetworkInterface;
     private Map<String, String> tags;
     private String customData;
+    private Set<IdentityResource> identities;
 
     /**
      * Name of the Virtual Machine. (Required)
@@ -508,6 +510,22 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
         this.customData = customData;
     }
 
+    /**
+     * A list of identities associated with the virtual machine.
+     */
+    @Updatable
+    public Set<IdentityResource> getIdentities() {
+        if (identities == null) {
+            identities = new HashSet<>();
+        }
+
+        return identities;
+    }
+
+    public void setIdentities(Set<IdentityResource> identities) {
+        this.identities = identities;
+    }
+
     @Override
     public void copyFrom(VirtualMachine virtualMachine) {
         setName(virtualMachine.name());
@@ -537,6 +555,11 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
         );
 
         setVmSizeType(virtualMachine.inner().hardwareProfile().vmSize().toString());
+
+        getIdentities().clear();
+        if (virtualMachine.userAssignedManagedServiceIdentityIds() != null) {
+            getIdentities().addAll(virtualMachine.userAssignedManagedServiceIdentityIds().stream().map(o -> findById(IdentityResource.class, o)).collect(Collectors.toSet()));
+        }
     }
 
     @Override
@@ -771,6 +794,10 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
             create.withExistingAvailabilitySet(client.availabilitySets().getByResourceGroup(getResourceGroup().getName(), getAvailabilitySet().getId()));
         }
 
+        for (IdentityResource identity : getIdentities()) {
+            create = create.withExistingUserAssignedManagedServiceIdentity(client.identities().getById(identity.getId()));
+        }
+
         VirtualMachine virtualMachine = create.withTags(getTags()).create();
 
         setId(virtualMachine.id());
@@ -783,12 +810,23 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
 
         VirtualMachine virtualMachine = client.virtualMachines().getById(getId());
 
-        virtualMachine.update()
+        VirtualMachine.Update update = virtualMachine.update()
             .withSize(VirtualMachineSizeTypes.fromString(getVmSizeType()))
             .withDataDiskDefaultCachingType(CachingTypes.fromString(getCachingType()))
             .withDataDiskDefaultStorageAccountType(StorageAccountTypes.fromString(getStorageAccountTypeDataDisk()))
-            .withTags(getTags())
-            .apply();
+            .withTags(getTags());
+
+        if (changedFieldNames.contains("identities")) {
+            for (IdentityResource identity : ((VirtualMachineResource) current).getIdentities()) {
+                update = update.withoutUserAssignedManagedServiceIdentity(identity.getId());
+            }
+
+            for (IdentityResource identity : getIdentities()) {
+                update = update.withExistingUserAssignedManagedServiceIdentity(client.identities().getById(identity.getId()));
+            }
+        }
+
+        update.apply();
     }
 
     @Override
