@@ -138,6 +138,7 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
     private String lowPriorityVmPolicy;
     private String timeZone;
     private String id;
+    private Boolean enableSystemManagedServiceIdentity;
 
     /**
      * The name of the Scale Set. (Required)
@@ -688,6 +689,22 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
     }
 
     /**
+     * Enable system managed service identity for scale sets. Defaults to ``false``.
+     */
+    @Updatable
+    public Boolean getEnableSystemManagedServiceIdentity() {
+        if (enableSystemManagedServiceIdentity == null) {
+            enableSystemManagedServiceIdentity = false;
+        }
+
+        return enableSystemManagedServiceIdentity;
+    }
+
+    public void setEnableSystemManagedServiceIdentity(Boolean enableSystemManagedServiceIdentity) {
+        this.enableSystemManagedServiceIdentity = enableSystemManagedServiceIdentity;
+    }
+
+    /**
      * The ID of the Scale Set.
      */
     @Id
@@ -748,6 +765,8 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
             } else {
                 setPrimaryInternetFacingLoadBalancer(null);
             }
+
+            setEnableSystemManagedServiceIdentity(!ObjectUtils.isBlank(scaleSet.systemAssignedManagedServiceIdentityPrincipalId()));
         } catch (IOException ex) {
             throw new GyroException(ex.getMessage());
         }
@@ -972,6 +991,10 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
             }
         }
 
+        if (getEnableSystemManagedServiceIdentity()) {
+            finalStage = finalStage.withSystemAssignedManagedServiceIdentity();
+        }
+
         VirtualMachineScaleSet scaleSet = finalStage.create();
         setId(scaleSet.id());
     }
@@ -1068,6 +1091,14 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
             update = update.withIpForwarding();
         } else {
             update = update.withoutIpForwarding();
+        }
+
+        if (changedFieldNames.contains("enable-system-managed-service-identity")) {
+            if (getEnableSystemManagedServiceIdentity()) {
+                update = update.withSystemAssignedManagedServiceIdentity();
+            } else {
+                update = update.withoutSystemAssignedManagedServiceIdentity();
+            }
         }
 
         update = update.withAdditionalCapabilities(getAdditionalCapability().toAdditionalCapabilities());
