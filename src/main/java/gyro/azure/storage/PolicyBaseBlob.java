@@ -16,7 +16,7 @@ public class PolicyBaseBlob extends Diffable implements Copyable<ManagementPolic
     private Integer tierToCoolDays;
 
     /**
-     * Days after which blob object to be deleted. At least one of 'delete-days' or 'tier-to-cool-days' or 'tier-to-archive-days' is required.
+     * Days after which a blob object will be deleted. At least one of 'delete-days' or 'tier-to-cool-days' or 'tier-to-archive-days' is required.
      */
     @Updatable
     public Integer getDeleteDays() {
@@ -28,7 +28,7 @@ public class PolicyBaseBlob extends Diffable implements Copyable<ManagementPolic
     }
 
     /**
-     * Days after which blob object moved to archive. At least one of 'delete-days' or 'tier-to-cool-days' or 'tier-to-archive-days' is required.
+     * Days after which a blob object will be moved to archive. At least one of 'delete-days' or 'tier-to-cool-days' or 'tier-to-archive-days' is required.
      */
     @Updatable
     public Integer getTierToArchiveDays() {
@@ -40,7 +40,7 @@ public class PolicyBaseBlob extends Diffable implements Copyable<ManagementPolic
     }
 
     /**
-     * Days after which blob object moved to cool storage. At least one of 'delete-days' or 'tier-to-cool-days' or 'tier-to-archive-days' is required.
+     * Days after which a blob object will be moved to cool storage. At least one of 'delete-days' or 'tier-to-cool-days' or 'tier-to-archive-days' is required.
      */
     @Updatable
     public Integer getTierToCoolDays() {
