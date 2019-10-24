@@ -191,6 +191,10 @@ public class StorageLifeCycle extends AzureResource implements Copyable<Manageme
         StorageAccountResource parent = (StorageAccountResource) parent();
         StorageAccount storageAccount = client.storageAccounts().getById(parent.getId());
 
-        return storageAccount.manager().managementPolicies().getAsync(parent.getResourceGroup().getName(), parent.getName()).toBlocking().single();
+        return storageAccount.manager()
+            .managementPolicies()
+            .getAsync(parent.getResourceGroup().getName(), parent.getName())
+            .toBlocking()
+            .single();
     }
 }

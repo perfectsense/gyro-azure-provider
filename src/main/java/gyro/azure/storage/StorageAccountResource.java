@@ -276,7 +276,13 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
         StorageLifeCycle lifeCycleManager = null;
         if (storageAccount.manager().managementPolicies().inner().get(getResourceGroup().getName(), getName()) != null) {
             lifeCycleManager = newSubresource(StorageLifeCycle.class);
-            lifeCycleManager.copyFrom(storageAccount.manager().managementPolicies().getAsync(getResourceGroup().getName(), getName()).toBlocking().single());
+            lifeCycleManager.copyFrom(
+                storageAccount.manager()
+                    .managementPolicies()
+                    .getAsync(getResourceGroup().getName(), getName())
+                    .toBlocking()
+                    .single()
+            );
         }
         setLifecycle(lifeCycleManager);
     }
