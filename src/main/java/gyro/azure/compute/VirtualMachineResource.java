@@ -713,24 +713,30 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
         switch (getVmImageType()) {
             case "custom":
                 return configureLinuxManaged(
+                        client,
                         withOS.withLinuxCustomImage(getCustomImage()));
             case "gallery":
                 return configureLinuxManaged(
+                        client,
                         withOS.withLinuxGalleryImageVersion(getGalleryImageVersion()));
             case "latest":
                 return configureLinuxManagedOrUnmanaged(
+                        client,
                         withOS.withLatestLinuxImage(getImagePublisher(), getImageOffer(), getImageSku()));
             case "popular":
                 return configureLinuxManagedOrUnmanaged(
+                        client,
                         withOS.withPopularLinuxImage(KnownLinuxVirtualMachineImage.valueOf(getKnownVirtualImage())));
             case "specific":
                 return configureLinuxManagedOrUnmanaged(
+                        client,
                         withOS.withSpecificLinuxImageVersion(
                                 client.virtualMachineImages()
                                 .getImage(getImageRegion(), getImagePublisher(), getImageOffer(), getImageSku(), getImageVersion())
                                 .imageReference()));
             case "stored":
                 return configureLinuxUnmanaged(
+                        client,
                         withOS.withStoredLinuxImage(getStoredImage()));
             case "specialized":
                 //TODO handle unmanaged OS disks?
@@ -745,24 +751,24 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
      * Helper method in Virtual Machine workflow. Handles Managed Disk types.
      * @return {@link WithCreate} VM Definition object ready for final generic configurations
      */
-    private WithCreate configureLinuxManaged(WithLinuxRootUsernameManaged vmImageTypeConfigured) {
-        return configureDisks(configureLinuxAdmin(vmImageTypeConfigured));
+    private WithCreate configureLinuxManaged(Azure client, WithLinuxRootUsernameManaged vmImageTypeConfigured) {
+        return configureDisks(client, configureLinuxAdmin(vmImageTypeConfigured));
     }
 
     /**
      * Helper method in Virtual Machine workflow. Handles ManagedOrUnmanaged Disk types.
      * @return {@link WithCreate} VM Definition object ready for final generic configurations
      */
-    private WithCreate configureLinuxManagedOrUnmanaged(WithLinuxRootUsernameManagedOrUnmanaged vmImageTypeConfigured) {
-        return configureDisks(configureLinuxAdmin(vmImageTypeConfigured));
+    private WithCreate configureLinuxManagedOrUnmanaged(Azure client, WithLinuxRootUsernameManagedOrUnmanaged vmImageTypeConfigured) {
+        return configureDisks(client, configureLinuxAdmin(vmImageTypeConfigured));
     }
 
     /**
      * Helper method in Virtual Machine workflow. Handles Unmanaged Disk types.
      * @return {@link WithCreate} VM Definition object ready for final generic configurations
      */
-    private WithCreate configureLinuxUnmanaged(WithLinuxRootUsernameUnmanaged vmImageTypeConfigured) {
-        return configureDisks(configureLinuxAdmin(vmImageTypeConfigured));
+    private WithCreate configureLinuxUnmanaged(Azure client, WithLinuxRootUsernameUnmanaged vmImageTypeConfigured) {
+        return configureDisks(client, configureLinuxAdmin(vmImageTypeConfigured));
     }
 
     /**
@@ -841,24 +847,30 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
         switch (getVmImageType()) {
             case "custom":
                 return configureWindowsManaged(
+                        client,
                         withOS.withWindowsCustomImage(getCustomImage()));
             case "gallery":
                 return configureWindowsManaged(
+                        client,
                         withOS.withWindowsGalleryImageVersion(getGalleryImageVersion()));
             case "latest":
                 return configureWindowsManagedOrUnmanaged(
+                        client,
                         withOS.withLatestWindowsImage(getImagePublisher(), getImageOffer(), getImageSku()));
             case "popular":
                 return configureWindowsManagedOrUnmanaged(
+                        client,
                         withOS.withPopularWindowsImage(KnownWindowsVirtualMachineImage.valueOf(getKnownVirtualImage())));
             case "specific":
                 return configureWindowsManagedOrUnmanaged(
+                        client,
                         withOS.withSpecificWindowsImageVersion(
                                 client.virtualMachineImages()
                                 .getImage(getImageRegion(), getImagePublisher(), getImageOffer(), getImageSku(), getImageVersion())
                                 .imageReference()));
             case "stored":
                 return configureWindowsUnmanaged(
+                        client,
                         withOS.withStoredWindowsImage(getStoredImage()));
             case "specialized":
                 //TODO handle unmanaged OS disks?
@@ -873,9 +885,10 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
      * Helper method in Virtual Machine Fluent workflow. Handles Managed Disk types.
      * @return {@link WithCreate} VM Definition object ready for final generic configurations
      */
-    private WithCreate configureWindowsManaged(WithWindowsAdminUsernameManaged vmImageTypeConfigured) {
+    private WithCreate configureWindowsManaged(Azure client, WithWindowsAdminUsernameManaged vmImageTypeConfigured) {
         WithWindowsCreateManaged adminConfigured = configureWindowsAdmin(vmImageTypeConfigured);
         return configureDisks(
+                client,
                 adminConfigured.withoutAutoUpdate()
                         .withoutVMAgent()
                         .withTimeZone(getTimeZone()));
@@ -885,9 +898,10 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
      * Helper method in Virtual Machine Fluent workflow. Handles ManagedOrUnmanaged Disk types.
      * @return {@link WithCreate} VM Definition object ready for final generic configurations
      */
-    private WithCreate configureWindowsManagedOrUnmanaged(WithWindowsAdminUsernameManagedOrUnmanaged vmImageTypeConfigured) {
+    private WithCreate configureWindowsManagedOrUnmanaged(Azure client, WithWindowsAdminUsernameManagedOrUnmanaged vmImageTypeConfigured) {
         WithWindowsCreateManaged adminConfigured = configureWindowsAdmin(vmImageTypeConfigured);
         return configureDisks(
+                client,
                 adminConfigured.withoutAutoUpdate()
                         .withoutVMAgent()
                         .withTimeZone(getTimeZone()));
@@ -897,8 +911,9 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
      * Helper method in Virtual Machine Fluent workflow. Handles Unmanaged Disk types.
      * @return {@link WithCreate} VM Definition object ready for final generic configurations
      */
-    private WithCreate configureWindowsUnmanaged(WithWindowsAdminUsernameUnmanaged vmImageTypeConfigured) {
+    private WithCreate configureWindowsUnmanaged(Azure client, WithWindowsAdminUsernameUnmanaged vmImageTypeConfigured) {
         return configureDisks(
+                client,
                 configureWindowsAdmin(vmImageTypeConfigured));
     }
 
@@ -934,7 +949,7 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
      * Configures Managed Data Disks and Managed Data Disk defaults.
      * @return {@link WithCreate} VM Definition object ready for final generic configurations
      */
-    private WithCreate configureDisks(WithFromImageCreateOptionsManaged adminConfigured) {
+    private WithCreate configureDisks(Azure client, WithFromImageCreateOptionsManaged adminConfigured) {
         WithManagedCreate diskDefaultsConfigured = adminConfigured
                 .withCustomData(getEncodedCustomData())
                 .withDataDiskDefaultCachingType(CachingTypes.fromString(getCachingType()))
@@ -952,15 +967,15 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
      * Fifth step in Virtual Machine Fluent workflow. Configures Data disks
      * @return {@link WithCreate} VM Definition object ready for final generic configurations
      */
-    private <T extends VirtualMachine.DefinitionStages.WithFromImageCreateOptionsManagedOrUnmanaged> WithCreate configureDisks(T adminConfigured) {
+    private <T extends VirtualMachine.DefinitionStages.WithFromImageCreateOptionsManagedOrUnmanaged> WithCreate configureDisks(Azure client, T adminConfigured) {
 
         // TODO how to to determine if data disks are managed?
         boolean managed = true;
         // if managed
         if (managed) {
-            return configureDisks((WithFromImageCreateOptionsManaged) adminConfigured);
+            return configureDisks(client, (WithFromImageCreateOptionsManaged) adminConfigured);
         } else {
-            return configureDisks(adminConfigured.withUnmanagedDisks());
+            return configureDisks(client, adminConfigured.withUnmanagedDisks());
         }
     }
 
@@ -968,7 +983,7 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
      * Fifth step in Virtual Machine Fluent workflow. Configures Data disks
      * @return {@link WithCreate} VM Definition object ready for final generic configurations
      */
-    private WithCreate configureDisks(WithFromImageCreateOptionsUnmanaged adminConfigured) {
+    private WithCreate configureDisks(Azure client, WithFromImageCreateOptionsUnmanaged adminConfigured) {
         // TODO Attach unmanaged data disks
         return adminConfigured;
     }
