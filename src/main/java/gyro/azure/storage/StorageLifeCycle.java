@@ -152,9 +152,8 @@ public class StorageLifeCycle extends AzureResource implements Copyable<Manageme
 
         state.save();
 
-        // A storage lifecycle policy's create api needs to define at least one policy rule within it.
-        // The policy rule definition stage within the lifecycle storage policy's create api, does not support disabling the rule itself.
-        // If the configs have one or more rules configured to be disabled a corresponding update needs to be made to disable the rule.
+        // Api does not allow creating one or more disabled rule when creating a policy.
+        // If one or more rules are are configured to be disabled then an update is required.
         if (getRule().stream().anyMatch(o -> !o.getEnabled())) {
             update(ui, state, this, new HashSet<>());
         } else {
