@@ -1,5 +1,6 @@
 package gyro.azure.sql;
 
+import com.microsoft.azure.management.sql.DatabaseEdition;
 import com.microsoft.azure.management.sql.SqlServer;
 import com.microsoft.rest.ExpandableStringEnum;
 import com.psddev.dari.util.ObjectUtils;
