@@ -24,7 +24,7 @@ public class IdentityFinder extends AzureFinder<Identity, IdentityResource> {
     private String id;
 
     /**
-     * The ID of the Identity.
+     * The ID of the identity.
      */
     public String getId() {
         return id;

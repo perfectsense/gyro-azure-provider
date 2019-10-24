@@ -47,7 +47,7 @@ public class IdentityResource extends AzureResource implements Copyable<Identity
     private String tenantId;
 
     /**
-     * The name of the Identity. (Required)
+     * The name of the identity. (Required)
      */
     @Required
     public String getName() {
@@ -59,7 +59,7 @@ public class IdentityResource extends AzureResource implements Copyable<Identity
     }
 
     /**
-     * The Resource Group under which the Identity would reside. (Required)
+     * The resource group under which the identity would reside. (Required)
      */
     @Required
     public ResourceGroupResource getResourceGroup() {
@@ -71,7 +71,7 @@ public class IdentityResource extends AzureResource implements Copyable<Identity
     }
 
     /**
-     * Tags for the Identity.
+     * Tags for the identity.
      */
     @Updatable
     public Map<String, String> getTags() {
@@ -87,7 +87,7 @@ public class IdentityResource extends AzureResource implements Copyable<Identity
     }
 
     /**
-     * The ID of the Identity.
+     * The ID of the identity.
      */
     @Id
     @Output
@@ -100,7 +100,7 @@ public class IdentityResource extends AzureResource implements Copyable<Identity
     }
 
     /**
-     * The Client ID of the Identity.
+     * The client ID of the identity.
      */
     @Output
     public String getClientId() {
@@ -112,7 +112,7 @@ public class IdentityResource extends AzureResource implements Copyable<Identity
     }
 
     /**
-     * The Principal ID of the Identity.
+     * The principal ID of the identity.
      */
     @Output
     public String getPrincipalId() {
@@ -124,7 +124,7 @@ public class IdentityResource extends AzureResource implements Copyable<Identity
     }
 
     /**
-     * The Tenant ID of the Identity.
+     * The tenant ID of the identity.
      */
     @Output
     public String getTenantId() {
