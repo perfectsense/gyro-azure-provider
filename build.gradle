@@ -39,7 +39,7 @@ configurations {
     gyroDoclet
 }
 
-def azureSdkVersion = '1.24.1'
+def azureSdkVersion = '1.27.0'
 
 dependencies {
     api 'gyro:gyro-core:0.99.1-SNAPSHOT'
@@ -52,7 +52,7 @@ dependencies {
     implementation "com.microsoft.azure:azure-mgmt-network:${azureSdkVersion}"
     implementation "com.microsoft.azure:azure-mgmt-compute:${azureSdkVersion}"
     implementation "com.microsoft.azure:azure-mgmt-dns:${azureSdkVersion}"
-    implementation 'com.microsoft.azure:azure-storage:8.0.0'
+    implementation "com.microsoft.azure:azure-mgmt-storage:${azureSdkVersion}"
     implementation 'com.github.seancfoley:ipaddress:5.0.2'
 
     gyroDoclet 'gyro:gyro-doclet:0.99.0-SNAPSHOT'

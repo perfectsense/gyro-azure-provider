@@ -14,7 +14,6 @@ import gyro.core.resource.Updatable;
 
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.sql.CreateMode;
-import com.microsoft.azure.management.sql.DatabaseEditions;
 import com.microsoft.azure.management.sql.SampleName;
 import com.microsoft.azure.management.sql.SqlDatabase;
 import com.microsoft.azure.management.sql.SqlDatabaseBasicStorage;
@@ -387,7 +386,7 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
                         buildDatabase.withBasicEdition();
                     }
                 } else {
-                    buildDatabase.withEdition(DatabaseEditions.fromString(getEdition()));
+                    buildDatabase.withEdition(DatabaseEdition.fromString(getEdition()));
                 }
             }
         }
