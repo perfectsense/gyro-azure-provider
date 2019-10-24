@@ -56,7 +56,7 @@ import java.util.stream.Collectors;
  *         known-virtual-image: "UBUNTU_SERVER_14_04_LTS"
  *         admin-user-name: "qwerty@123"
  *         admin-password: "qwerty@123"
- *         capacity: 2"
+ *         capacity: 2
  *
  *         proximity-placement-group
  *             name: "proximity-placement-group-example"
