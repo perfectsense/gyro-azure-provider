@@ -81,7 +81,7 @@ public class CloudBlobContainerFileBackend extends FileBackend {
         container().getBlockBlobReference(prefixed(file)).delete();
     }
 
-    private CloudBlobContainer container(){
+    private CloudBlobContainer container() {
         StorageAccountResource storage = getRootScope().findResourceById(StorageAccountResource.class, getStorageAccount());
         try {
             CloudStorageAccount account = CloudStorageAccount.parse(storage.getConnection());
