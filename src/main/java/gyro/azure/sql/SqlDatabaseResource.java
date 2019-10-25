@@ -1,8 +1,12 @@
 package gyro.azure.sql;
 
+import com.microsoft.azure.management.sql.DatabaseEdition;
+import com.microsoft.azure.management.sql.SqlServer;
+import com.microsoft.rest.ExpandableStringEnum;
+import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
+import gyro.azure.Copyable;
 import gyro.azure.storage.StorageAccountResource;
-import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
@@ -11,7 +15,6 @@ import gyro.core.resource.Updatable;
 
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.sql.CreateMode;
-import com.microsoft.azure.management.sql.DatabaseEditions;
 import com.microsoft.azure.management.sql.SampleName;
 import com.microsoft.azure.management.sql.SqlDatabase;
 import com.microsoft.azure.management.sql.SqlDatabaseBasicStorage;
@@ -23,11 +26,18 @@ import com.microsoft.azure.management.sql.SqlDatabaseOperations.DefinitionStages
 import com.microsoft.azure.management.sql.SqlDatabaseOperations.DefinitionStages.WithExistingDatabaseAfterElasticPool;
 import com.microsoft.azure.management.storage.StorageAccount;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
+import gyro.core.validation.ValidationError;
 import org.apache.commons.lang.StringUtils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Creates a sql database.
@@ -49,7 +59,7 @@ import java.util.Set;
  *     end
  */
 @Type("sql-database")
-public class SqlDatabaseResource extends AzureResource {
+public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDatabase> {
 
     private static final String BASIC_EDITION = "Basic";
     private static final String STANDARD_EDITION = "Standard";
@@ -59,7 +69,7 @@ public class SqlDatabaseResource extends AzureResource {
     private String createMode;
     private String edition;
     private String editionServiceObjective;
-    private String elasticPoolName;
+    private SqlElasticPoolResource elasticPool;
     private String id;
     private String importFromFilename;
     private String importFromContainerName;
@@ -71,7 +81,6 @@ public class SqlDatabaseResource extends AzureResource {
     private String storageUri;
     private StorageAccountResource storageAccount;
     private SqlServerResource sqlServer;
-    private SqlDatabase sqlDatabase;
     private Map<String, String> tags;
 
     /**
@@ -86,9 +95,9 @@ public class SqlDatabaseResource extends AzureResource {
     }
 
     /**
-     * The create mode of the database. (Optional)
+     * The create mode of the database. Valid values are ``Copy``, ``Default``, ``NonReadableSecondary``, ``OnlineSecondary``, ``PointInTimeRestore``, ``Recovery``, ``Restore``, or ``RestoreLongTermRetentionBackup``. (Optional)
      */
-    @Updatable
+    @ValidStrings({"Copy", "Default", "NonReadableSecondary", "OnlineSecondary", "PointInTimeRestore", "Recovery", "Restore", "RestoreLongTermRetentionBackup"})
     public String getCreateMode() {
         return createMode;
     }
@@ -98,8 +107,9 @@ public class SqlDatabaseResource extends AzureResource {
     }
 
     /**
-     * The edition of the database. Options include ``Basic``, ``Premium``, and ``Standard``. (Optional)
+     * The edition of the database. Valid values are ``Basic``, ``Premium`` or ``Standard``. (Optional)
      */
+    @ValidStrings({"Basic", "Premium", "Standard"})
     @Updatable
     public String getEdition() {
         return edition;
@@ -110,7 +120,7 @@ public class SqlDatabaseResource extends AzureResource {
     }
 
     /**
-     * The edition service objective of the database. Required when used with editions ``Basic``, ``Premium``, and ``Standard``. (Optional)
+     * The edition service objective of the database. Required when used with editions ``Basic``, ``Premium``, or ``Standard``. (Optional)
      */
     @Updatable
     public String getEditionServiceObjective() {
@@ -123,19 +133,19 @@ public class SqlDatabaseResource extends AzureResource {
     }
 
     /**
-     * The elastic pool associated with the database. (Optional)
+     * The Elastic Pool associated with the database. (Optional)
      */
     @Updatable
-    public String getElasticPoolName() {
-        return elasticPoolName;
+    public SqlElasticPoolResource getElasticPool() {
+        return elasticPool;
     }
 
-    public void setElasticPoolName(String elasticPoolName) {
-        this.elasticPoolName = elasticPoolName;
+    public void setElasticPool(SqlElasticPoolResource elasticPool) {
+        this.elasticPool = elasticPool;
     }
 
     /**
-     * The id of the database.
+     * The ID of the database.
      */
     @Output
     public String getId() {
@@ -180,7 +190,7 @@ public class SqlDatabaseResource extends AzureResource {
     }
 
     /**
-     * The maximum size of the database. Required when used with ``Premium`` and ``Standard`` editions. (Optional)
+     * The maximum size of the database. Required when used with ``Premium`` or ``Standard`` editions. (Optional)
      */
     @Updatable
     public String getMaxStorageCapacity() {
@@ -198,6 +208,7 @@ public class SqlDatabaseResource extends AzureResource {
     /**
      * The name of the database. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }
@@ -240,7 +251,7 @@ public class SqlDatabaseResource extends AzureResource {
     }
 
     /**
-     * The storage account related to a database to be imported. (Optional)
+     * The Storage Account related to a database to be imported. (Optional)
      */
     public StorageAccountResource getStorageAccount() {
         return storageAccount;
@@ -251,8 +262,9 @@ public class SqlDatabaseResource extends AzureResource {
     }
 
     /**
-     * The sql server where the database is found. (Required)
+     * The SQL Server where the database is found. (Required)
      */
+    @Required
     public SqlServerResource getSqlServer() {
         return sqlServer;
     }
@@ -278,46 +290,48 @@ public class SqlDatabaseResource extends AzureResource {
     }
 
     @Override
+    public void copyFrom(SqlDatabase database) {
+        setCollation(database.collation());
+        setCreateMode(database.inner().createMode() == null ? null : database.inner().createMode().toString());
+        setSqlServer(findById(SqlServerResource.class, database.sqlServerName()));
+        setElasticPool(findById(SqlElasticPoolResource.class, database.elasticPoolName()));
+
+        if (getElasticPool() == null) {
+            setEdition(database.edition().toString());
+            setEditionServiceObjective(database.serviceLevelObjective().toString());
+        }
+
+        setMaxStorageCapacity(findMaxCapacity(database.maxSizeBytes()));
+        setId(getSqlServer().getId() + "/databases/" + getName());
+        setName(database.name());
+        setTags(database.inner().getTags());
+    }
+
+    @Override
     public boolean refresh() {
         Azure client = createClient();
 
-        SqlDatabase database = sqlDatabase(client);
+        SqlDatabase database = getSqlDatabase(client);
 
         if (database == null) {
             return false;
         }
 
-        if (getSqlServer() == null) {
-            throw new GyroException("You must provide a sql server resource.");
-        }
-
-        setCollation(database.collation());
-        setCreateMode(database.inner().createMode() == null ? null : database.inner().createMode().toString());
-        setEdition(database.edition().toString());
-        setEditionServiceObjective(database.serviceLevelObjective().toString());
-        setElasticPoolName(database.elasticPoolName());
-        setId(getSqlServer().getId() + "/databases/" + getName());
-        setName(database.name());
-        setMaxStorageCapacity(findMaxCapacity(database.maxSizeBytes()));
-        setTags(database.inner().getTags());
+        copyFrom(database);
 
         return true;
     }
 
     @Override
     public void create(GyroUI ui, State state) {
-        if (getSqlServer() == null) {
-            throw new GyroException("You must provide a sql server resource.");
-        }
-
         Azure client = createClient();
 
         WithAllDifferentOptions buildDatabase = client.sqlServers().getById(getSqlServer().getId()).databases().define(getName());
 
         //configures the source database within the elastic pool
         WithExistingDatabaseAfterElasticPool withExistingDatabaseAfterElasticPool;
-        if (getElasticPoolName() != null) {
-            withExistingDatabaseAfterElasticPool = buildDatabase.withExistingElasticPool(getElasticPoolName());
+        if (getElasticPool() != null) {
+            withExistingDatabaseAfterElasticPool = buildDatabase.withExistingElasticPool(getElasticPool().getName());
 
             if (getMaxStorageCapacity() != null) {
                 withExistingDatabaseAfterElasticPool.
@@ -373,7 +387,7 @@ public class SqlDatabaseResource extends AzureResource {
                         buildDatabase.withBasicEdition();
                     }
                 } else {
-                    buildDatabase.withEdition(DatabaseEditions.fromString(getEdition()));
+                    buildDatabase.withEdition(DatabaseEdition.fromString(getEdition()));
                 }
             }
         }
@@ -394,19 +408,18 @@ public class SqlDatabaseResource extends AzureResource {
         }
 
         buildDatabase.withTags(getTags());
-        buildDatabase.create();
-
-        setId(getSqlServer().getId() + "/databases/" + getName());
+        SqlDatabase sqlDatabase = buildDatabase.create();
+        copyFrom(sqlDatabase);
     }
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
-        SqlDatabase.Update update = sqlDatabase(client).update();
+        SqlDatabase.Update update = getSqlDatabase(client).update();
 
-        if (getElasticPoolName() != null) {
-            update.withExistingElasticPool(getElasticPoolName());
+        if (getElasticPool() != null) {
+            update.withExistingElasticPool(getElasticPool().getName());
         } else {
             update.withoutElasticPool();
 
@@ -441,7 +454,10 @@ public class SqlDatabaseResource extends AzureResource {
     public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
-        sqlDatabase(client).delete();
+        SqlDatabase sqlDatabase = getSqlDatabase(client);
+        if (sqlDatabase != null) {
+            sqlDatabase.delete();
+        }
     }
 
     private String findMaxCapacity(Long storage) {
@@ -454,11 +470,42 @@ public class SqlDatabaseResource extends AzureResource {
         return null;
     }
 
-    private SqlDatabase sqlDatabase(Azure client) {
-        if (sqlDatabase == null) {
-            sqlDatabase = client.sqlServers().getById(getSqlServer().getId()).databases().get(getName());
+    private SqlDatabase getSqlDatabase(Azure client) {
+        SqlDatabase sqlDatabase = null;
+        SqlServer sqlServer = client.sqlServers().getById(getSqlServer().getId());
+        if (sqlServer != null) {
+            sqlDatabase = sqlServer.databases().get(getName());
         }
 
         return sqlDatabase;
+    }
+
+    @Override
+    public List<ValidationError> validate() {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if (PREMIUM_EDITION.equalsIgnoreCase(getEdition())) {
+            if (!Arrays.stream(SqlDatabasePremiumStorage.values()).map(Enum::toString).collect(Collectors.toSet()).contains(getMaxStorageCapacity())) {
+                errors.add(new ValidationError(this, "max-storage-capacity", "Invalid value for 'max-storage-capacity' when 'edition' set to 'Premium'."));
+            } else if (!SqlDatabasePremiumServiceObjective.values().stream().map(ExpandableStringEnum::toString).collect(Collectors.toSet()).contains(getEditionServiceObjective())) {
+                errors.add(new ValidationError(this, "edition-service-objective", "Invalid value for 'edition-service-objective' when 'edition' set to 'Premium'."));
+            }
+        } else if (STANDARD_EDITION.equalsIgnoreCase(getEdition())) {
+            if (!Arrays.stream(SqlDatabaseStandardStorage.values()).map(Enum::toString).collect(Collectors.toSet()).contains(getMaxStorageCapacity())) {
+                errors.add(new ValidationError(this, "max-storage-capacity", "Invalid value for 'max-storage-capacity' when 'edition' set to 'Standard'."));
+            } else if (!SqlDatabaseStandardServiceObjective.values().stream().map(ExpandableStringEnum::toString).collect(Collectors.toSet()).contains(getEditionServiceObjective())) {
+                errors.add(new ValidationError(this, "edition-service-objective", "Invalid value for 'edition-service-objective' when 'edition' set to 'Standard'."));
+            }
+        } else if (BASIC_EDITION.equalsIgnoreCase(getEdition())) {
+            if (!Arrays.stream(SqlDatabaseBasicStorage.values()).map(Enum::toString).collect(Collectors.toSet()).contains(getMaxStorageCapacity())) {
+                errors.add(new ValidationError(this, "max-storage-capacity", "Invalid value for 'max-storage-capacity' when 'edition' set to 'Basic'."));
+            }
+
+            if (!ObjectUtils.isBlank(getEditionServiceObjective())) {
+                errors.add(new ValidationError(this, "edition-service-objective", "Cannot set 'edition-service-objective' when 'edition' set to 'Basic'."));
+            }
+        }
+
+        return errors;
     }
 }
