@@ -1,6 +1,9 @@
 package gyro.azure.sql;
 
+import com.microsoft.azure.management.sql.SqlServer;
+import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
+import gyro.azure.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
@@ -31,17 +34,16 @@ import java.util.Set;
  *     end
  */
 @Type("sql-firewall-rule")
-public class SqlFirewallRuleResource extends AzureResource {
+public class SqlFirewallRuleResource extends AzureResource implements Copyable<SqlFirewallRule> {
 
     private String id;
     private String startIpAddress;
     private String endIpAddress;
     private String name;
-    private SqlFirewallRule sqlFirewallRule;
     private SqlServerResource sqlServer;
 
     /**
-     * The id of the firewall rule. (Required)
+     * The ID of the firewall rule. (Required)
      */
     @Output
     public String getId() {
@@ -88,7 +90,7 @@ public class SqlFirewallRuleResource extends AzureResource {
     }
 
     /**
-     * The sql server where the firewall rule is found. (Required)
+     * The SQL Server where the Firewall Rule is found. (Required)
      */
     public SqlServerResource getSqlServer() {
         return sqlServer;
@@ -99,19 +101,31 @@ public class SqlFirewallRuleResource extends AzureResource {
     }
 
     @Override
+    public void copyFrom(SqlFirewallRule firewallRule) {
+        setId(firewallRule.id());
+        setStartIpAddress(firewallRule.startIPAddress());
+        setEndIpAddress(firewallRule.endIPAddress());
+        setName(firewallRule.name());
+        setSqlServer(findById(SqlServerResource.class, firewallRule.sqlServerName()));
+    }
+
+    @Override
     public boolean refresh() {
         Azure client = createClient();
 
-        SqlFirewallRule firewallRule = sqlFirewallRule(client);
+        SqlFirewallRule firewallRule = getSqlFirewallRule(client);
 
         if (firewallRule == null) {
             return false;
         }
 
-        setId(firewallRule.id());
-        setStartIpAddress(firewallRule.startIPAddress());
-        setEndIpAddress(firewallRule.endIPAddress());
-        setName(firewallRule.name());
+        boolean isEndIpAddressSet = !ObjectUtils.isBlank(getEndIpAddress());
+
+        copyFrom(firewallRule);
+
+        if (!isEndIpAddressSet) {
+            setEndIpAddress(null);
+        }
 
         return true;
     }
@@ -127,7 +141,7 @@ public class SqlFirewallRuleResource extends AzureResource {
         WithIPAddressRange rule = client.sqlServers().getById(getSqlServer().getId()).firewallRules().define(getName());
 
         WithCreate withCreate;
-        if (getStartIpAddress() != null) {
+        if (ObjectUtils.isBlank(getEndIpAddress())) {
             withCreate = rule.withIPAddress(getStartIpAddress());
         } else {
             withCreate = rule.withIPAddressRange(getStartIpAddress(), getEndIpAddress());
@@ -142,14 +156,14 @@ public class SqlFirewallRuleResource extends AzureResource {
     public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
         Azure client = createClient();
 
-        SqlFirewallRule.Update update = sqlFirewallRule(client).update();
+        SqlFirewallRule.Update update = getSqlFirewallRule(client).update();
 
-        if (getStartIpAddress() != null && getEndIpAddress() != null) {
-            update.withStartIPAddress(getStartIpAddress())
-                    .withEndIPAddress(getEndIpAddress())
-                    .apply();
+        if (ObjectUtils.isBlank(getEndIpAddress())) {
+            update.withStartIPAddress(getStartIpAddress()).withEndIPAddress(getStartIpAddress()).apply();
         } else {
-            update.withStartIPAddress(getStartIpAddress()).apply();
+            update.withStartIPAddress(getStartIpAddress())
+                .withEndIPAddress(getEndIpAddress())
+                .apply();
         }
     }
 
@@ -157,12 +171,19 @@ public class SqlFirewallRuleResource extends AzureResource {
     public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
-        sqlFirewallRule(client).delete();
+        SqlFirewallRule sqlFirewallRule = getSqlFirewallRule(client);
+
+        if (sqlFirewallRule != null) {
+            sqlFirewallRule.delete();
+        }
     }
 
-    private SqlFirewallRule sqlFirewallRule(Azure client) {
-        if (sqlFirewallRule == null) {
-            sqlFirewallRule = client.sqlServers().getById(getSqlServer().getId()).firewallRules().get(getName());
+    private SqlFirewallRule getSqlFirewallRule(Azure client) {
+        SqlFirewallRule sqlFirewallRule = null;
+        SqlServer sqlServer = client.sqlServers().getById(getSqlServer().getId());
+
+        if (sqlServer != null) {
+            sqlFirewallRule = sqlServer.firewallRules().get(getName());
         }
 
         return sqlFirewallRule;

@@ -1,7 +1,10 @@
 package gyro.azure.sql;
 
 import gyro.azure.AzureResource;
+import gyro.azure.Copyable;
+import gyro.azure.resources.ResourceGroupResource;
 import gyro.core.GyroUI;
+import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.Type;
@@ -11,6 +14,7 @@ import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.microsoft.azure.management.sql.SqlServer;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,7 +33,7 @@ import java.util.Set;
  *         administrator-password: "TestPass18!"
  *         name: "sql-server-example"
  *         region: "westus"
- *         resource-group-name: $(azure::resource-group sql-server-example | resource-group-name)
+ *         resource-group: $(azure::resource-group sql-server-example)
  *         system-assigned-msi: true
  *         tags: {
  *             Name: "sql-server-example"
@@ -37,7 +41,7 @@ import java.util.Set;
  *     end
  */
 @Type("sql-server")
-public class SqlServerResource extends AzureResource {
+public class SqlServerResource extends AzureResource implements Copyable<SqlServer> {
 
     private Boolean withAccessFromAzureServices;
     private String administratorLogin;
@@ -45,13 +49,14 @@ public class SqlServerResource extends AzureResource {
     private String id;
     private String name;
     private String region;
-    private String resourceGroupName;
+    private ResourceGroupResource resourceGroup;
     private Boolean systemAssignedMsi;
     private Map<String, String> tags;
 
     /**
-     * Determines if the azure portal will have access to the server. (Required)
+     * Determines if the azure portal will have access to the sql server. (Required)
      */
+    @Required
     public Boolean getWithAccessFromAzureServices() {
         if (withAccessFromAzureServices == null) {
             withAccessFromAzureServices = true;
@@ -67,6 +72,7 @@ public class SqlServerResource extends AzureResource {
     /**
      * The administrator login. (Required)
      */
+    @Required
     public String getAdministratorLogin() {
         return administratorLogin;
     }
@@ -78,6 +84,7 @@ public class SqlServerResource extends AzureResource {
     /**
      * The administrator password. (Required)
      */
+    @Required
     @Updatable
     public String getAdministratorPassword() {
         return administratorPassword;
@@ -88,7 +95,7 @@ public class SqlServerResource extends AzureResource {
     }
 
     /**
-     * The id of the server.
+     * The ID of the sql server.
      */
     @Output
     public String getId() {
@@ -100,8 +107,10 @@ public class SqlServerResource extends AzureResource {
     }
 
     /**
-     * The name of the server. (Required)
+     * The name of the sql server. (Required)
      */
+    @Id
+    @Required
     public String getName() {
         return name;
     }
@@ -111,8 +120,9 @@ public class SqlServerResource extends AzureResource {
     }
 
     /**
-     * The server's region. (Required)
+     * The region of the sql server. (Required)
      */
+    @Required
     @Override
     public String getRegion() {
         return region;
@@ -123,18 +133,19 @@ public class SqlServerResource extends AzureResource {
     }
 
     /**
-     * Name of the resource group under which this would reside. (Required)
+     * The Resource Group under which this sql server would reside. (Required)
      */
-    public String getResourceGroupName() {
-        return resourceGroupName;
+    @Required
+    public ResourceGroupResource getResourceGroup() {
+        return resourceGroup;
     }
 
-    public void setResourceGroupName(String resourceGroupName) {
-        this.resourceGroupName = resourceGroupName;
+    public void setResourceGroup(ResourceGroupResource resourceGroup) {
+        this.resourceGroup = resourceGroup;
     }
 
     /**
-     * Determines if the system will set a local Managed Service Identity (MSI) for the server. (Optional)
+     * Determines if the system will set a local Managed Service Identity (MSI) for the sql server. (Optional)
      */
     @Updatable
     public Boolean getSystemAssignedMsi() {
@@ -165,6 +176,16 @@ public class SqlServerResource extends AzureResource {
     }
 
     @Override
+    public void copyFrom(SqlServer sqlServer) {
+        setAdministratorLogin(sqlServer.administratorLogin());
+        setId(sqlServer.id());
+        setName(sqlServer.name());
+        setSystemAssignedMsi(sqlServer.isManagedServiceIdentityEnabled());
+        setTags(sqlServer.tags());
+        findById(ResourceGroupResource.class, sqlServer.resourceGroupName());
+    }
+
+    @Override
     public boolean refresh() {
         Azure client = createClient();
 
@@ -174,11 +195,7 @@ public class SqlServerResource extends AzureResource {
             return false;
         }
 
-        setAdministratorLogin(sqlServer.administratorLogin());
-        setId(sqlServer.id());
-        setName(sqlServer.name());
-        setSystemAssignedMsi(sqlServer.isManagedServiceIdentityEnabled());
-        setTags(sqlServer.tags());
+        copyFrom(sqlServer);
 
         return true;
     }
@@ -189,7 +206,7 @@ public class SqlServerResource extends AzureResource {
 
         SqlServer.DefinitionStages.WithCreate withCreate = client.sqlServers().define(getName())
                 .withRegion(Region.fromName(getRegion()))
-                .withExistingResourceGroup(getResourceGroupName())
+                .withExistingResourceGroup(getResourceGroup().getName())
                 .withAdministratorLogin(getAdministratorLogin())
                 .withAdministratorPassword(getAdministratorPassword())
                 .withTags(getTags());
@@ -205,6 +222,7 @@ public class SqlServerResource extends AzureResource {
         SqlServer sqlServer = withCreate.create();
 
         setId(sqlServer.id());
+        copyFrom(sqlServer);
     }
 
     @Override
@@ -228,5 +246,4 @@ public class SqlServerResource extends AzureResource {
 
         client.sqlServers().deleteById(getId());
     }
-
 }
