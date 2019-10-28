@@ -3,6 +3,7 @@ package gyro.azure.compute;
 import com.microsoft.azure.SubResource;
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.compute.CachingTypes;
+import com.microsoft.azure.management.compute.Disk;
 import com.microsoft.azure.management.compute.KnownLinuxVirtualMachineImage;
 import com.microsoft.azure.management.compute.KnownWindowsVirtualMachineImage;
 import com.microsoft.azure.management.compute.NetworkInterfaceReference;
@@ -33,6 +34,7 @@ import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.Wi
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithWindowsCreateManaged;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithWindowsCreateManagedOrUnmanaged;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithWindowsCreateUnmanaged;
+import com.microsoft.azure.management.compute.VirtualMachineDataDisk;
 import com.microsoft.azure.management.compute.VirtualMachineSizeTypes;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.psddev.dari.util.ObjectUtils;
@@ -60,6 +62,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -298,6 +301,7 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
     /**
      * The Data Disks to be attached to the Virtual Machine.
      */
+    @Updatable
     public Set<DiskResource> getDataDisks() {
         return dataDisks == null
                 ? dataDisks = new LinkedHashSet<>()
@@ -577,6 +581,21 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
         );
 
         setVmSizeType(virtualMachine.inner().hardwareProfile().vmSize().toString());
+
+        Set<DiskResource> dataDisks = new LinkedHashSet<>();
+        Map<Integer, VirtualMachineDataDisk> dataDiskMap = virtualMachine.dataDisks();
+        for (Map.Entry<Integer, VirtualMachineDataDisk> dataDiskEntry : dataDiskMap.entrySet()) {
+            VirtualMachineDataDisk dataDisk = dataDiskEntry.getValue();
+
+            Disk disk = createClient().disks().getById(dataDisk.id());
+            if (disk != null) {
+                DiskResource diskResource = newSubresource(DiskResource.class);
+                diskResource.copyFrom(disk);
+                dataDisks.add(diskResource);
+            }
+        }
+
+        setDataDisks(dataDisks);
     }
 
     @Override
@@ -956,7 +975,12 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
                 .withDataDiskDefaultStorageAccountType(StorageAccountTypes.fromString(getStorageAccountTypeDataDisk()))
                 .withOSDiskStorageAccountType(StorageAccountTypes.fromString(getStorageAccountTypeOsDisk()));
 
-        // TODO Attach data disks
+        for (DiskResource diskResource : getDataDisks()) {
+            Disk disk = client.disks().getById(diskResource.getId());
+            if (disk != null) {
+                diskDefaultsConfigured.withExistingDataDisk(disk);
+            }
+        }
 
         // Availability Zones?
 
@@ -994,12 +1018,40 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
 
         VirtualMachine virtualMachine = client.virtualMachines().getById(getId());
 
-        virtualMachine.update()
+        VirtualMachine.Update update = virtualMachine.update()
             .withSize(VirtualMachineSizeTypes.fromString(getVmSizeType()))
             .withDataDiskDefaultCachingType(CachingTypes.fromString(getCachingType()))
             .withDataDiskDefaultStorageAccountType(StorageAccountTypes.fromString(getStorageAccountTypeDataDisk()))
-            .withTags(getTags())
-            .apply();
+            .withTags(getTags());
+
+        if (changedFieldNames.contains("data-disks")) {
+            Map<String, Integer> currentDataDiskIdsToLun = new HashMap<>();
+            for (Map.Entry<Integer, VirtualMachineDataDisk> dataDiskEntry : virtualMachine.dataDisks().entrySet()) {
+                currentDataDiskIdsToLun.put(dataDiskEntry.getValue().id(), dataDiskEntry.getKey());
+            }
+
+            Set<String> wantedDataDiskIds = getDataDisks()
+                    .stream()
+                    .map(DiskResource::getId)
+                    .filter(s -> client.disks().getById(s) != null)
+                    .collect(Collectors.toSet());
+
+            Set<String> diskIdsToRemove = new LinkedHashSet<>(currentDataDiskIdsToLun.keySet());
+            diskIdsToRemove.removeAll(wantedDataDiskIds);
+            diskIdsToRemove.stream()
+                    .map(currentDataDiskIdsToLun::get)
+                    .filter(Objects::nonNull)
+                    .forEach(update::withoutDataDisk);
+
+            Set<String> disksIdsToAdd = new LinkedHashSet<>(wantedDataDiskIds);
+            disksIdsToAdd.removeAll(currentDataDiskIdsToLun.keySet());
+            disksIdsToAdd.stream()
+                    .map(client.disks()::getById)
+                    .filter(Objects::nonNull)
+                    .forEach(update::withExistingDataDisk);
+        }
+
+        update.apply();
     }
 
     @Override
