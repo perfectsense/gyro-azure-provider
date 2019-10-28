@@ -3,6 +3,7 @@ package gyro.azure.compute;
 import com.microsoft.azure.SubResource;
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.compute.CachingTypes;
+import com.microsoft.azure.management.compute.InstanceViewStatus;
 import com.microsoft.azure.management.compute.KnownLinuxVirtualMachineImage;
 import com.microsoft.azure.management.compute.KnownWindowsVirtualMachineImage;
 import com.microsoft.azure.management.compute.NetworkInterfaceReference;
@@ -35,7 +36,9 @@ import gyro.azure.network.NetworkResource;
 import gyro.azure.network.PublicIpAddressResource;
 import gyro.azure.resources.ResourceGroupResource;
 import gyro.core.GyroException;
+import gyro.core.GyroInstance;
 import gyro.core.GyroUI;
+import gyro.core.resource.DiffableInternals;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
@@ -46,6 +49,7 @@ import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 
 import java.util.Base64;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -83,7 +87,7 @@ import java.util.stream.Collectors;
  *    end
  */
 @Type("virtual-machine")
-public class VirtualMachineResource extends AzureResource implements Copyable<VirtualMachine> {
+public class VirtualMachineResource extends AzureResource implements GyroInstance, Copyable<VirtualMachine> {
     private String name;
     private ResourceGroupResource resourceGroup;
     private NetworkResource network;
@@ -118,6 +122,11 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
     private Map<String, String> tags;
     private String customData;
     private Set<IdentityResource> identities;
+    private String state;
+    private String location;
+    private String computerName;
+    private String publicIpAddressIp;
+    private Date launchDate;
 
     /**
      * Name of the Virtual Machine. (Required)
@@ -526,6 +535,65 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
         this.identities = identities;
     }
 
+    /**
+     * The state of the virtual machine.
+     */
+    @Output
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    /**
+     * The location of the virtual machine.
+     */
+    @Output
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    /**
+     * The computer name of the virtual machine.
+     */
+    @Output
+    public String getComputerName() {
+        return computerName;
+    }
+
+    public void setComputerName(String computerName) {
+        this.computerName = computerName;
+    }
+
+    /**
+     * The public ip address ip of the virtual machine.
+     */
+    @Output
+    public String getPublicIpAddressIp() {
+        return publicIpAddressIp;
+    }
+
+    public void setPublicIpAddressIp(String publicIpAddressIp) {
+        this.publicIpAddressIp = publicIpAddressIp;
+    }
+
+    /**
+     * The launch date of the virtual machine.
+     */
+    public Date getLaunchDate() {
+        return launchDate;
+    }
+
+    public void setLaunchDate(Date launchDate) {
+        this.launchDate = launchDate;
+    }
+
     @Override
     public void copyFrom(VirtualMachine virtualMachine) {
         setName(virtualMachine.name());
@@ -565,6 +633,16 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
                     .collect(Collectors.toSet())
             );
         }
+
+        setState(virtualMachine.powerState().toString());
+        setLocation(virtualMachine.inner().location());
+        setComputerName(virtualMachine.computerName());
+        setPublicIpAddressIp(virtualMachine.getPrimaryPublicIPAddress()!= null ? virtualMachine.getPrimaryPublicIPAddress().ipAddress() : null);
+        InstanceViewStatus instanceViewStatus = virtualMachine.instanceView().statuses().stream().filter(o -> o.code().equals("ProvisioningState/succeeded")).findFirst().orElse(null);
+        setLaunchDate(instanceViewStatus != null ? instanceViewStatus.time().toDate() : null);
+
+        Azure client = createClient();
+        setPrivateIpAddress(client.networkInterfaces().getById(getNetworkInterface().getId()).primaryPrivateIP());
     }
 
     @Override
@@ -807,6 +885,7 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
 
         setId(virtualMachine.id());
         setVmId(virtualMachine.vmId());
+        copyFrom(virtualMachine);
     }
 
     @Override
@@ -831,7 +910,8 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
             }
         }
 
-        update.apply();
+        virtualMachine = update.apply();
+        copyFrom(virtualMachine);
     }
 
     @Override
@@ -847,5 +927,45 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
 
     private String getDecodedCustomData(String data) {
         return !ObjectUtils.isBlank(data) ? new String(Base64.getDecoder().decode(data.getBytes())) : null;
+    }
+
+    @Override
+    public String getGyroInstanceId() {
+        return getId();
+    }
+
+    @Override
+    public String getGyroInstanceState() {
+        return getState();
+    }
+
+    @Override
+    public String getGyroInstancePrivateIpAddress() {
+        return getPrivateIpAddress();
+    }
+
+    @Override
+    public String getGyroInstancePublicIpAddress() {
+        return getPublicIpAddress() != null ? getPublicIpAddress().getIpAddress() : getPublicIpAddressIp();
+    }
+
+    @Override
+    public String getGyroInstanceHostname() {
+        return getGyroInstancePublicIpAddress() != null ? getGyroInstancePublicIpAddress() : getGyroInstancePrivateIpAddress();
+    }
+
+    @Override
+    public String getGyroInstanceName() {
+        return DiffableInternals.getName(this);
+    }
+
+    @Override
+    public String getGyroInstanceLaunchDate() {
+        return getLaunchDate() != null ? getLaunchDate().toString() : null;
+    }
+
+    @Override
+    public String getGyroInstanceLocation() {
+        return getLocation();
     }
 }
