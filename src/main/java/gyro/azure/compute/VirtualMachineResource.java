@@ -42,6 +42,7 @@ import com.psddev.dari.util.StringUtils;
 
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
+import gyro.azure.identity.IdentityResource;
 import gyro.azure.network.NetworkInterfaceResource;
 import gyro.azure.network.NetworkResource;
 import gyro.azure.network.PublicIpAddressResource;
@@ -135,6 +136,8 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
     private Set<NetworkInterfaceResource> secondaryNetworkInterface;
     private Map<String, String> tags;
     private String customData;
+    private Boolean enableSystemManagedServiceIdentity;
+    private Set<IdentityResource> identities;
 
     /**
      * Name of the Virtual Machine. (Required)
@@ -552,6 +555,38 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
         this.customData = customData;
     }
 
+    /**
+     * Enable system managed service identity for the Virtual Machine. Defaults to ``false``.
+     */
+    @Updatable
+    public Boolean getEnableSystemManagedServiceIdentity() {
+        if (enableSystemManagedServiceIdentity == null) {
+            enableSystemManagedServiceIdentity = false;
+        }
+
+        return enableSystemManagedServiceIdentity;
+    }
+
+    public void setEnableSystemManagedServiceIdentity(Boolean enableSystemManagedServiceIdentity) {
+        this.enableSystemManagedServiceIdentity = enableSystemManagedServiceIdentity;
+    }
+
+    /**
+     * A list of identities associated with the virtual machine.
+     */
+    @Updatable
+    public Set<IdentityResource> getIdentities() {
+        if (identities == null) {
+            identities = new HashSet<>();
+        }
+
+        return identities;
+    }
+
+    public void setIdentities(Set<IdentityResource> identities) {
+        this.identities = identities;
+    }
+
     @Override
     public void copyFrom(VirtualMachine virtualMachine) {
         setName(virtualMachine.name());
@@ -596,6 +631,18 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
         }
 
         setDataDisks(dataDisks);
+
+        setEnableSystemManagedServiceIdentity(!ObjectUtils.isBlank(virtualMachine.systemAssignedManagedServiceIdentityPrincipalId()));
+
+        getIdentities().clear();
+        if (virtualMachine.userAssignedManagedServiceIdentityIds() != null) {
+            getIdentities().addAll(
+                virtualMachine.userAssignedManagedServiceIdentityIds()
+                    .stream()
+                    .map(o -> findById(IdentityResource.class, o))
+                    .collect(Collectors.toSet())
+            );
+        }
     }
 
     @Override
@@ -649,6 +696,14 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
 
         if (getAvailabilitySet() != null) {
             osConfiguredVMBuilder = osConfiguredVMBuilder.withExistingAvailabilitySet(client.availabilitySets().getByResourceGroup(getResourceGroup().getName(), getAvailabilitySet().getId()));
+        }
+
+        if (getEnableSystemManagedServiceIdentity()) {
+            osConfiguredVMBuilder = osConfiguredVMBuilder.withSystemAssignedManagedServiceIdentity();
+        }
+
+        for (IdentityResource identity : getIdentities()) {
+            osConfiguredVMBuilder = osConfiguredVMBuilder.withExistingUserAssignedManagedServiceIdentity(client.identities().getById(identity.getId()));
         }
 
         return osConfiguredVMBuilder
@@ -1049,6 +1104,24 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
                     .map(client.disks()::getById)
                     .filter(Objects::nonNull)
                     .forEach(update::withExistingDataDisk);
+        }
+
+        if (changedFieldNames.contains("enable-system-managed-service-identity")) {
+            if (getEnableSystemManagedServiceIdentity()) {
+                update = update.withSystemAssignedManagedServiceIdentity();
+            } else {
+                update = update.withoutSystemAssignedManagedServiceIdentity();
+            }
+        }
+
+        if (changedFieldNames.contains("identities")) {
+            for (IdentityResource identity : ((VirtualMachineResource) current).getIdentities()) {
+                update = update.withoutUserAssignedManagedServiceIdentity(identity.getId());
+            }
+
+            for (IdentityResource identity : getIdentities()) {
+                update = update.withExistingUserAssignedManagedServiceIdentity(client.identities().getById(identity.getId()));
+            }
         }
 
         update.apply();
