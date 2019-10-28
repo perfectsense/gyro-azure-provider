@@ -139,6 +139,7 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
     private String lowPriorityVmPolicy;
     private String timeZone;
     private String id;
+    private Boolean enableSystemManagedServiceIdentity;
     private Set<IdentityResource> identities;
 
     /**
@@ -690,6 +691,22 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
     }
 
     /**
+     * Enable system managed service identity for scale sets. Defaults to ``false``.
+     */
+    @Updatable
+    public Boolean getEnableSystemManagedServiceIdentity() {
+        if (enableSystemManagedServiceIdentity == null) {
+            enableSystemManagedServiceIdentity = false;
+        }
+
+        return enableSystemManagedServiceIdentity;
+    }
+
+    public void setEnableSystemManagedServiceIdentity(Boolean enableSystemManagedServiceIdentity) {
+        this.enableSystemManagedServiceIdentity = enableSystemManagedServiceIdentity;
+    }
+
+    /**
      * A list of identities associated with the Scale Set.
      */
     @Updatable
@@ -766,6 +783,8 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
             } else {
                 setPrimaryInternetFacingLoadBalancer(null);
             }
+
+            setEnableSystemManagedServiceIdentity(!ObjectUtils.isBlank(scaleSet.systemAssignedManagedServiceIdentityPrincipalId()));
 
             getIdentities().clear();
             if (scaleSet.userAssignedManagedServiceIdentityIds() != null) {
@@ -1001,6 +1020,10 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
             }
         }
 
+        if (getEnableSystemManagedServiceIdentity()) {
+            finalStage = finalStage.withSystemAssignedManagedServiceIdentity();
+        }
+
         for (IdentityResource identity : getIdentities()) {
             finalStage = finalStage.withExistingUserAssignedManagedServiceIdentity(client.identities().getById(identity.getId()));
         }
@@ -1101,6 +1124,14 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
             update = update.withIpForwarding();
         } else {
             update = update.withoutIpForwarding();
+        }
+
+        if (changedFieldNames.contains("enable-system-managed-service-identity")) {
+            if (getEnableSystemManagedServiceIdentity()) {
+                update = update.withSystemAssignedManagedServiceIdentity();
+            } else {
+                update = update.withoutSystemAssignedManagedServiceIdentity();
+            }
         }
 
         if (changedFieldNames.contains("identities")) {

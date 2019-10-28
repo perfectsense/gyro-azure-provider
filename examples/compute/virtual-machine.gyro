@@ -87,4 +87,5 @@ azure::virtual-machine virtual-machine-example
     tags: {
         Name: "network-interface-example-VM"
     }
+    enable-system-managed-service-identity: false
 end
