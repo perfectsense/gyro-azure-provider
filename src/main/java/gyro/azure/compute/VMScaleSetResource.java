@@ -12,6 +12,7 @@ import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
+import gyro.azure.identity.IdentityResource;
 import gyro.azure.network.ApplicationSecurityGroupResource;
 import gyro.azure.network.LoadBalancerResource;
 import gyro.azure.network.NetworkResource;
@@ -55,7 +56,7 @@ import java.util.stream.Collectors;
  *         known-virtual-image: "UBUNTU_SERVER_14_04_LTS"
  *         admin-user-name: "qwerty@123"
  *         admin-password: "qwerty@123"
- *         capacity: 2"
+ *         capacity: 2
  *
  *         proximity-placement-group
  *             name: "proximity-placement-group-example"
@@ -138,6 +139,8 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
     private String lowPriorityVmPolicy;
     private String timeZone;
     private String id;
+    private Boolean enableSystemManagedServiceIdentity;
+    private Set<IdentityResource> identities;
 
     /**
      * The name of the Scale Set. (Required)
@@ -688,6 +691,38 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
     }
 
     /**
+     * Enable system managed service identity for scale sets. Defaults to ``false``.
+     */
+    @Updatable
+    public Boolean getEnableSystemManagedServiceIdentity() {
+        if (enableSystemManagedServiceIdentity == null) {
+            enableSystemManagedServiceIdentity = false;
+        }
+
+        return enableSystemManagedServiceIdentity;
+    }
+
+    public void setEnableSystemManagedServiceIdentity(Boolean enableSystemManagedServiceIdentity) {
+        this.enableSystemManagedServiceIdentity = enableSystemManagedServiceIdentity;
+    }
+
+    /**
+     * A list of identities associated with the Scale Set.
+     */
+    @Updatable
+    public Set<IdentityResource> getIdentities() {
+        if (identities == null) {
+            identities = new HashSet<>();
+        }
+
+        return identities;
+    }
+
+    public void setIdentities(Set<IdentityResource> identities) {
+        this.identities = identities;
+    }
+
+    /**
      * The ID of the Scale Set.
      */
     @Id
@@ -747,6 +782,19 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
                 setPrimaryInternetFacingLoadBalancer(attachment);
             } else {
                 setPrimaryInternetFacingLoadBalancer(null);
+            }
+
+            setEnableSystemManagedServiceIdentity(!ObjectUtils.isBlank(scaleSet.systemAssignedManagedServiceIdentityPrincipalId()));
+
+            getIdentities().clear();
+            if (scaleSet.userAssignedManagedServiceIdentityIds() != null) {
+                getIdentities().addAll(
+                    scaleSet.userAssignedManagedServiceIdentityIds()
+                        .stream()
+                        .map(o -> findById(IdentityResource.class, o))
+                        .collect(Collectors.toSet())
+                );
+
             }
         } catch (IOException ex) {
             throw new GyroException(ex.getMessage());
@@ -972,6 +1020,14 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
             }
         }
 
+        if (getEnableSystemManagedServiceIdentity()) {
+            finalStage = finalStage.withSystemAssignedManagedServiceIdentity();
+        }
+
+        for (IdentityResource identity : getIdentities()) {
+            finalStage = finalStage.withExistingUserAssignedManagedServiceIdentity(client.identities().getById(identity.getId()));
+        }
+
         VirtualMachineScaleSet scaleSet = finalStage.create();
         setId(scaleSet.id());
     }
@@ -1068,6 +1124,24 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
             update = update.withIpForwarding();
         } else {
             update = update.withoutIpForwarding();
+        }
+
+        if (changedFieldNames.contains("enable-system-managed-service-identity")) {
+            if (getEnableSystemManagedServiceIdentity()) {
+                update = update.withSystemAssignedManagedServiceIdentity();
+            } else {
+                update = update.withoutSystemAssignedManagedServiceIdentity();
+            }
+        }
+
+        if (changedFieldNames.contains("identities")) {
+            for (IdentityResource identity : ((VMScaleSetResource) current).getIdentities()) {
+                update = update.withoutUserAssignedManagedServiceIdentity(identity.getId());
+            }
+
+            for (IdentityResource identity : getIdentities()) {
+                update = update.withExistingUserAssignedManagedServiceIdentity(client.identities().getById(identity.getId()));
+            }
         }
 
         update = update.withAdditionalCapabilities(getAdditionalCapability().toAdditionalCapabilities());
