@@ -166,11 +166,6 @@ public class VirtualMachineImageResource extends AzureResource implements Copyab
     public void create(GyroUI ui, State state) throws Exception {
         Azure client = createClient();
 
-        VirtualMachineCustomImage.DefinitionStages.WithHyperVGeneration withHyperVGeneration = client.virtualMachineCustomImages()
-            .define(getName())
-            .withRegion(Region.fromName(getRegion()))
-            .withExistingResourceGroup(getResourceGroup().getName());
-
         VirtualMachineCustomImage.DefinitionStages.WithCreate withCreate = client.virtualMachineCustomImages()
             .define(getName())
             .withRegion(Region.fromName(getRegion()))
