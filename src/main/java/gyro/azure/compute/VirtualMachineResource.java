@@ -929,6 +929,8 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
         return !ObjectUtils.isBlank(data) ? new String(Base64.getDecoder().decode(data.getBytes())) : null;
     }
 
+    // -- GyroInstance Implementation
+    
     @Override
     public String getGyroInstanceId() {
         return getId();
