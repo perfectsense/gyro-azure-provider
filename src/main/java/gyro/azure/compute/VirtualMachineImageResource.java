@@ -159,7 +159,7 @@ public class VirtualMachineImageResource extends AzureResource implements Copyab
 
         copyFrom(image);
 
-        return false;
+        return true;
     }
 
     @Override
