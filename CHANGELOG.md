@@ -7,3 +7,4 @@ ISSUES FIXED:
 * [51](https://github.com/perfectsense/gyro-azure-provider/issues/51): Implement Lifecycle for Azure Storage.
 * [56](https://github.com/perfectsense/gyro-azure-provider/issues/56): Implement Azure managed Identities.
 * [62](https://github.com/perfectsense/gyro-azure-provider/issues/62): Add support to manage System Managed Service Identity for VM.
+* [64](https://github.com/perfectsense/gyro-azure-provider/issues/64): Expose ID field for CloudBlobContainerResource and CloudQueueResource.
