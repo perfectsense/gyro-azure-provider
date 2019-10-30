@@ -21,7 +21,6 @@ import com.microsoft.azure.management.graphrbac.ActiveDirectoryGroup;
 import com.microsoft.azure.management.graphrbac.ActiveDirectoryUser;
 import com.microsoft.azure.management.graphrbac.BuiltInRole;
 import com.microsoft.azure.management.graphrbac.RoleAssignment;
-import com.microsoft.azure.management.graphrbac.ServicePrincipal;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.core.GyroException;
@@ -31,10 +30,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
-import gyro.core.validation.ValidationError;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -185,6 +181,10 @@ public class RoleAssignmentResource extends AzureResource implements Copyable<Ro
     public void create(GyroUI ui, State state) throws Exception {
         Azure client = createClient();
 
+        if (Stream.of(getPrincipalId(), getUser(), getGroup()).filter(Objects::nonNull).count() > 1) {
+            throw new GyroException("Only one of 'principal-id' or 'user' or 'group' is allowed.");
+        }
+
         RoleAssignment roleAssignment = null;
 
         if (getPrincipalId() != null) {
@@ -222,18 +222,5 @@ public class RoleAssignmentResource extends AzureResource implements Copyable<Ro
         Azure client = createClient();
 
         client.accessManagement().roleAssignments().deleteById(getId());
-    }
-
-    @Override
-    public List<ValidationError> validate() {
-        List<ValidationError> errors = new ArrayList<>();
-
-        if (Stream.of(getPrincipalId(), getUser(), getGroup()).filter(Objects::nonNull).count() > 1) {
-            errors.add(new ValidationError(this, null, "Only one of 'principal-id' or 'user' or 'group' is allowed."));
-        } else if (Stream.of(getPrincipalId(), getUser(), getGroup()).noneMatch(Objects::nonNull)) {
-            errors.add(new ValidationError(this, null, "One of 'principal-id' or 'user' or 'group' is required."));
-        }
-
-        return errors;
     }
 }
