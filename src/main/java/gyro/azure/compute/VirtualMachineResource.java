@@ -118,6 +118,7 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
     private Map<String, String> tags;
     private String customData;
     private Boolean enableSystemManagedServiceIdentity;
+    private String SystemManagedServiceIdentityPrincipalId;
     private Set<IdentityResource> identities;
 
     /**
@@ -528,6 +529,18 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
     }
 
     /**
+     * The principal id for the system managed service identity of the Virtual Machine.
+     */
+    @Output
+    public String getSystemManagedServiceIdentityPrincipalId() {
+        return SystemManagedServiceIdentityPrincipalId;
+    }
+
+    public void setSystemManagedServiceIdentityPrincipalId(String systemManagedServiceIdentityPrincipalId) {
+        SystemManagedServiceIdentityPrincipalId = systemManagedServiceIdentityPrincipalId;
+    }
+
+    /**
      * A list of identities associated with the virtual machine.
      */
     @Updatable
@@ -573,6 +586,7 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
 
         setVmSizeType(virtualMachine.inner().hardwareProfile().vmSize().toString());
         setEnableSystemManagedServiceIdentity(!ObjectUtils.isBlank(virtualMachine.systemAssignedManagedServiceIdentityPrincipalId()));
+        setSystemManagedServiceIdentityPrincipalId(virtualMachine.systemAssignedManagedServiceIdentityPrincipalId());
 
         getIdentities().clear();
         if (virtualMachine.userAssignedManagedServiceIdentityIds() != null) {

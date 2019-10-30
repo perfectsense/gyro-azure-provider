@@ -140,6 +140,7 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
     private String timeZone;
     private String id;
     private Boolean enableSystemManagedServiceIdentity;
+    private String SystemManagedServiceIdentityPrincipalId;
     private Set<IdentityResource> identities;
 
     /**
@@ -707,6 +708,18 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
     }
 
     /**
+     * The principal id for the system managed service identity of the Scale Set.
+     */
+    @Output
+    public String getSystemManagedServiceIdentityPrincipalId() {
+        return SystemManagedServiceIdentityPrincipalId;
+    }
+
+    public void setSystemManagedServiceIdentityPrincipalId(String systemManagedServiceIdentityPrincipalId) {
+        SystemManagedServiceIdentityPrincipalId = systemManagedServiceIdentityPrincipalId;
+    }
+
+    /**
      * A list of identities associated with the Scale Set.
      */
     @Updatable
@@ -785,6 +798,7 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
             }
 
             setEnableSystemManagedServiceIdentity(!ObjectUtils.isBlank(scaleSet.systemAssignedManagedServiceIdentityPrincipalId()));
+            setSystemManagedServiceIdentityPrincipalId(scaleSet.systemAssignedManagedServiceIdentityPrincipalId());
 
             getIdentities().clear();
             if (scaleSet.userAssignedManagedServiceIdentityIds() != null) {
