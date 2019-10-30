@@ -9,3 +9,4 @@ ISSUES FIXED:
 * [62](https://github.com/perfectsense/gyro-azure-provider/issues/62): Add support to manage System Managed Service Identity for VM.
 * [64](https://github.com/perfectsense/gyro-azure-provider/issues/64): Expose ID field for CloudBlobContainerResource and CloudQueueResource.
 * [66](https://github.com/perfectsense/gyro-azure-provider/issues/66): Add Support for Image Resource and Image Finder.
+* [70](https://github.com/perfectsense/gyro-azure-provider/issues/70): Add copyright license to java and gradle files.
