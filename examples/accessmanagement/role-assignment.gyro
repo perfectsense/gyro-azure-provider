@@ -17,13 +17,8 @@ azure::active-directory-group group-example
     email-nick: "gyro-test-group-email"
 end
 
-azure::service-principal service-principal-example
-    name: "service-principal-example"
-    application-id: "4f420059-9e0e-4872-8bb8-325141fe60e1"
-end
-
 azure::role-assignment role-assignment-example
-    service-principal: $(azure::service-principal service-principal-example)
+    group: $(azure::active-directory-group group-example)
     scope: $(azure::resource-group resource-group-example-role).id
     role: "Reader"
 end

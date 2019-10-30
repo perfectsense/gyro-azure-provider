@@ -24,6 +24,7 @@ import com.microsoft.azure.management.graphrbac.RoleAssignment;
 import com.microsoft.azure.management.graphrbac.ServicePrincipal;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
+import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Output;
@@ -61,7 +62,6 @@ public class RoleAssignmentResource extends AzureResource implements Copyable<Ro
     private String principalId;
     private ActiveDirectoryGroupResource group;
     private ActiveDirectoryUserResource user;
-    private ServicePrincipalResource servicePrincipal;
     private String id;
 
     /**
@@ -121,17 +121,6 @@ public class RoleAssignmentResource extends AzureResource implements Copyable<Ro
     }
 
     /**
-     * The service principal which the role would be assigned. One of 'principal-id' or 'user' or 'group' or 'service-principal' is required.
-     */
-    public ServicePrincipalResource getServicePrincipal() {
-        return servicePrincipal;
-    }
-
-    public void setServicePrincipal(ServicePrincipalResource servicePrincipal) {
-        this.servicePrincipal = servicePrincipal;
-    }
-
-    /**
      * The ID of the role assignment.
      */
     @Output
@@ -167,16 +156,12 @@ public class RoleAssignmentResource extends AzureResource implements Copyable<Ro
 
         ActiveDirectoryUser user = client.accessManagement().activeDirectoryUsers().getById(getPrincipalId());
         ActiveDirectoryGroup group = client.accessManagement().activeDirectoryGroups().getById(getPrincipalId());
-        ServicePrincipal servicePrincipal = client.accessManagement().servicePrincipals().getById(getPrincipalId());
 
         if (user != null) {
             setUser(findById(ActiveDirectoryUserResource.class, user.id()));
             setPrincipalId(null);
         } else if (group != null) {
             setGroup(findById(ActiveDirectoryGroupResource.class, getPrincipalId()));
-            setPrincipalId(null);
-        } else if (servicePrincipal != null) {
-            setServicePrincipal(findById(ServicePrincipalResource.class, getPrincipalId()));
             setPrincipalId(null);
         }
     }
@@ -220,12 +205,8 @@ public class RoleAssignmentResource extends AzureResource implements Copyable<Ro
                 .withBuiltInRole(BuiltInRole.fromString(getRole()))
                 .withScope(getScope())
                 .create();
-        } else if (getServicePrincipal() != null) {
-            roleAssignment = client.accessManagement().roleAssignments().define(UUID.randomUUID().toString())
-                .forServicePrincipal(client.accessManagement().servicePrincipals().getById(getServicePrincipal().getId()))
-                .withBuiltInRole(BuiltInRole.fromString(getRole()))
-                .withScope(getScope())
-                .create();
+        } else {
+            throw new GyroException("One of 'principal-id' or 'user' or 'group' is required.");
         }
 
         copyFrom(roleAssignment);
@@ -247,8 +228,10 @@ public class RoleAssignmentResource extends AzureResource implements Copyable<Ro
     public List<ValidationError> validate() {
         List<ValidationError> errors = new ArrayList<>();
 
-        if (Stream.of(getPrincipalId(), getUser(), getGroup(), getServicePrincipal()).filter(Objects::nonNull).count() != 1) {
-            errors.add(new ValidationError(this, null, "Only one of 'principal-id' or 'user' or 'group' or 'service-principal' is allowed."));
+        if (Stream.of(getPrincipalId(), getUser(), getGroup()).filter(Objects::nonNull).count() > 1) {
+            errors.add(new ValidationError(this, null, "Only one of 'principal-id' or 'user' or 'group' is allowed."));
+        } else if (Stream.of(getPrincipalId(), getUser(), getGroup()).noneMatch(Objects::nonNull)) {
+            errors.add(new ValidationError(this, null, "One of 'principal-id' or 'user' or 'group' is required."));
         }
 
         return errors;
