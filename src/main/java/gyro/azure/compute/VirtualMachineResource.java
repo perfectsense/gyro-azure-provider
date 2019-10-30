@@ -117,6 +117,7 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
     private Set<NetworkInterfaceResource> secondaryNetworkInterface;
     private Map<String, String> tags;
     private String customData;
+    private Boolean enableSystemManagedServiceIdentity;
     private Set<IdentityResource> identities;
 
     /**
@@ -511,6 +512,22 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
     }
 
     /**
+     * Enable system managed service identity for the Virtual Machine. Defaults to ``false``.
+     */
+    @Updatable
+    public Boolean getEnableSystemManagedServiceIdentity() {
+        if (enableSystemManagedServiceIdentity == null) {
+            enableSystemManagedServiceIdentity = false;
+        }
+
+        return enableSystemManagedServiceIdentity;
+    }
+
+    public void setEnableSystemManagedServiceIdentity(Boolean enableSystemManagedServiceIdentity) {
+        this.enableSystemManagedServiceIdentity = enableSystemManagedServiceIdentity;
+    }
+
+    /**
      * A list of identities associated with the virtual machine.
      */
     @Updatable
@@ -555,6 +572,7 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
         );
 
         setVmSizeType(virtualMachine.inner().hardwareProfile().vmSize().toString());
+        setEnableSystemManagedServiceIdentity(!ObjectUtils.isBlank(virtualMachine.systemAssignedManagedServiceIdentityPrincipalId()));
 
         getIdentities().clear();
         if (virtualMachine.userAssignedManagedServiceIdentityIds() != null) {
@@ -799,6 +817,10 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
             create.withExistingAvailabilitySet(client.availabilitySets().getByResourceGroup(getResourceGroup().getName(), getAvailabilitySet().getId()));
         }
 
+        if (getEnableSystemManagedServiceIdentity()) {
+            create = create.withSystemAssignedManagedServiceIdentity();
+        }
+
         for (IdentityResource identity : getIdentities()) {
             create = create.withExistingUserAssignedManagedServiceIdentity(client.identities().getById(identity.getId()));
         }
@@ -820,6 +842,14 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
             .withDataDiskDefaultCachingType(CachingTypes.fromString(getCachingType()))
             .withDataDiskDefaultStorageAccountType(StorageAccountTypes.fromString(getStorageAccountTypeDataDisk()))
             .withTags(getTags());
+
+        if (changedFieldNames.contains("enable-system-managed-service-identity")) {
+            if (getEnableSystemManagedServiceIdentity()) {
+                update = update.withSystemAssignedManagedServiceIdentity();
+            } else {
+                update = update.withoutSystemAssignedManagedServiceIdentity();
+            }
+        }
 
         if (changedFieldNames.contains("identities")) {
             for (IdentityResource identity : ((VirtualMachineResource) current).getIdentities()) {
