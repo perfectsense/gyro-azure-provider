@@ -58,11 +58,14 @@ import gyro.core.resource.Resource;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
+import gyro.core.validation.ValidationError;
 
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -1185,5 +1188,59 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
 
     private String getDecodedCustomData(String data) {
         return !ObjectUtils.isBlank(data) ? new String(Base64.getDecoder().decode(data.getBytes())) : null;
+    }
+
+    @Override
+    public List<ValidationError> validate() {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if ("custom".equals(getVmImageType())) {
+            if (getCustomImage() == null) {
+                errors.add(new ValidationError(this, "custom-image", "[custom-image] is required when using 'custom' [os-type]!"));
+            }
+        } else if ("gallery".equals(getVmImageType())) {
+            if (getGalleryImageVersion() == null) {
+                errors.add(new ValidationError(this, "gallery-image-version", "[gallery-image-version] is required when using 'gallery' [os-type]!"));
+            }
+        } else if ("latest".equals(getVmImageType())) {
+            if (getImagePublisher() == null) {
+                errors.add(new ValidationError(this, "image-publisher", "[image-publisher] is required when using 'latest' [os-type]!"));
+            }
+            if (getImageOffer() == null) {
+                errors.add(new ValidationError(this, "image-offer", "[image-offer] is required when using 'latest' [os-type]!"));
+            }
+            if (getImageSku() == null) {
+                errors.add(new ValidationError(this, "image-sku", "[image-sku] is required when using 'latest' [os-type]!"));
+            }
+        } else if ("popular".equals(getVmImageType())) {
+            if (getKnownVirtualImage() == null) {
+                errors.add(new ValidationError(this, "known-virtual-image", "[known-virtual-image] is required when using 'popular' [os-type]!"));
+            }
+        } else if ("specific".equals(getVmImageType())) {
+            if (getImageRegion() == null) {
+                errors.add(new ValidationError(this, "image-region", "[image-region] is required when using 'specific' [os-type]!"));
+            }
+            if (getImagePublisher() == null) {
+                errors.add(new ValidationError(this, "image-publisher", "[image-publisher] is required when using 'specific' [os-type]!"));
+            }
+            if (getImageSku() == null) {
+                errors.add(new ValidationError(this, "image-sku", "[image-sku] is required when using 'specific' [os-type]!"));
+            }
+            if (getImageVersion() == null) {
+                errors.add(new ValidationError(this, "image-version", "[image-version] is required when using 'specific' [os-type]!"));
+            }
+        } else if ("stored".equals(getVmImageType())) {
+            if (getStoredImage() == null) {
+                errors.add(new ValidationError(this, "stored-image", "[stored-image] is required when using 'stored' [os-type]!"));
+            }
+        } else if ("specialized".equals(getVmImageType())) {
+            if (getOsDisk() == null) {
+                errors.add(new ValidationError(this, "os-disk", "[os-disk] is required when using 'specialized' [os-type]!"));
+            }
+        } else {
+            errors.add(new ValidationError(this, "vm-image-type", "Unsupported [vm-image-type]!"));
+        }
+
+        return errors;
     }
 }
