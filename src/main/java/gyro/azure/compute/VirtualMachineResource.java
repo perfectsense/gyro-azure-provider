@@ -1168,8 +1168,14 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
         client.virtualMachines().deleteById(getId());
 
         if (getDeleteOsDiskOnTerminate()
-                && virtualMachine != null) {
+                && virtualMachine != null
+                && getOsDisk() == null
+                && "specialized".equals(getOsType())) {
+
+            ui.write("\n Deleting Dynamically created OS Disk (%s)", virtualMachine.osDiskId());
             client.disks().deleteById(virtualMachine.osDiskId());
+        } else {
+            ui.write("\n OS Disk is controlled by Gyro. Skipping deletion of OS disk.");
         }
     }
 
