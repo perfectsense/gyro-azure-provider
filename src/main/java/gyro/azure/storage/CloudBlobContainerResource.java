@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019, Perfect Sense, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package gyro.azure.storage;
 
 import gyro.azure.AzureResource;
@@ -5,6 +21,7 @@ import gyro.azure.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.resource.Id;
+import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
@@ -43,6 +60,7 @@ public class CloudBlobContainerResource extends AzureResource implements Copyabl
     private String name;
     private String publicAccess;
     private StorageAccountResource storageAccount;
+    private String id;
 
     /**
      * The name of the container. (Required)
@@ -83,11 +101,24 @@ public class CloudBlobContainerResource extends AzureResource implements Copyabl
         this.storageAccount = storageAccount;
     }
 
+    /**
+     * The ID of the blob container.
+     */
+    @Output
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     @Override
     public void copyFrom(CloudBlobContainer container) {
         setStorageAccount(findById(StorageAccountResource.class, container.getStorageUri().getPrimaryUri().getAuthority().split(".blob.core")[0]));
         setPublicAccess(container.getProperties().getPublicAccess().toString());
         setName(container.getName());
+        setId(String.format("%s/blobServices/default/containers/%s",getStorageAccount().getId(),getName()));
     }
 
     @Override
@@ -114,6 +145,7 @@ public class CloudBlobContainerResource extends AzureResource implements Copyabl
             BlobContainerPermissions permissions = new BlobContainerPermissions();
             permissions.setPublicAccess(BlobContainerPublicAccessType.valueOf(getPublicAccess()));
             container.uploadPermissions(permissions);
+            setId(String.format("%s/blobServices/default/containers/%s",getStorageAccount().getId(),getName()));
         } catch (StorageException ex) {
             throw new GyroException(ex.getMessage());
         }

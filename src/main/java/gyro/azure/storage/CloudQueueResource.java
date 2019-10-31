@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019, Perfect Sense, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package gyro.azure.storage;
 
 import gyro.azure.AzureResource;
@@ -6,6 +22,7 @@ import gyro.azure.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Type;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 
 import com.microsoft.azure.storage.CloudStorageAccount;
@@ -37,6 +54,7 @@ public class CloudQueueResource extends AzureResource implements Copyable<CloudQ
 
     private String name;
     private StorageAccountResource storageAccount;
+    private String id;
 
     /**
      * The name of the Queue (Required)
@@ -62,10 +80,23 @@ public class CloudQueueResource extends AzureResource implements Copyable<CloudQ
         this.storageAccount = storageAccount;
     }
 
+    /**
+     * The ID of the queue.
+     */
+    @Output
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     @Override
     public void copyFrom(CloudQueue queue) {
         setName(queue.getName());
         setStorageAccount(findById(StorageAccountResource.class, queue.getStorageUri().getPrimaryUri().getAuthority().split(".queue.core")[0]));
+        setId(String.format("%s/queueServices/default/queues/%s",getStorageAccount().getId(),getName()));
     }
 
     @Override
@@ -88,6 +119,7 @@ public class CloudQueueResource extends AzureResource implements Copyable<CloudQ
     public void create(GyroUI ui, State state) throws StorageException, URISyntaxException, InvalidKeyException {
         CloudQueue queue = cloudQueue();
         queue.create();
+        setId(String.format("%s/queueServices/default/queues/%s",getStorageAccount().getId(),getName()));
     }
 
     @Override

@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package gyro.azure.network;
+package gyro.azure.compute;
 
 import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.network.NetworkInterface;
+import com.microsoft.azure.management.compute.VirtualMachineCustomImage;
 import gyro.azure.AzureFinder;
 import gyro.core.Type;
 
@@ -26,21 +26,21 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Query network interface.
+ * Query virtual machine image.
  *
  * Example
  * -------
  *
  * .. code-block:: gyro
  *
- *    network-interface: $(external-query azure::network-interface {})
+ *    virtual-machine-image: $(external-query azure::virtual-machine-image {})
  */
-@Type("network-interface")
-public class NetworkInterfaceFinder extends AzureFinder<NetworkInterface, NetworkInterfaceResource> {
+@Type("virtual-machine-image")
+public class VirtualMachineImageFinder extends AzureFinder<VirtualMachineCustomImage, VirtualMachineImageResource> {
     private String id;
 
     /**
-     * The ID of the Network Interface.
+     * The ID of the virtual machine image.
      */
     public String getId() {
         return id;
@@ -51,17 +51,18 @@ public class NetworkInterfaceFinder extends AzureFinder<NetworkInterface, Networ
     }
 
     @Override
-    protected List<NetworkInterface> findAllAzure(Azure client) {
-        return client.networkInterfaces().list();
+    protected List<VirtualMachineCustomImage> findAllAzure(Azure client) {
+        return client.virtualMachineCustomImages().list();
     }
 
     @Override
-    protected List<NetworkInterface> findAzure(Azure client, Map<String, String> filters) {
-        NetworkInterface networkInterface = client.networkInterfaces().getById(filters.get("id"));
-        if (networkInterface == null) {
+    protected List<VirtualMachineCustomImage> findAzure(Azure client, Map<String, String> filters) {
+        VirtualMachineCustomImage image = client.virtualMachineCustomImages().getById(filters.get("id"));
+
+        if (image == null) {
             return Collections.emptyList();
         } else {
-            return Collections.singletonList(networkInterface);
+            return Collections.singletonList(image);
         }
     }
 }
