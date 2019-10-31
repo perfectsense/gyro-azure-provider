@@ -21,6 +21,7 @@ import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.Wi
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithLinuxRootUsernameManagedOrUnmanaged;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithLinuxRootUsernameUnmanaged;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithManagedCreate;
+import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithUnmanagedCreate;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithFromImageCreateOptionsManaged;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithFromImageCreateOptionsManagedOrUnmanaged;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithFromImageCreateOptionsUnmanaged;
@@ -816,9 +817,15 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
                         client,
                         withOS.withStoredLinuxImage(getStoredImage()));
             case "specialized":
-                //TODO handle unmanaged OS disks?
-                return withOS.withSpecializedOSDisk(
-                        client.disks().getById(getOsDisk().getId()), OperatingSystemTypes.LINUX);
+                // Only Managed Disks are supported by Gyro currently
+                boolean managed = true;
+                if (managed) {
+                    WithManagedCreate specializedOsManagedConfigured = withOS.withSpecializedOSDisk(
+                            client.disks().getById(getOsDisk().getId()), OperatingSystemTypes.LINUX);
+                    return configureManagedDataDisks(client, specializedOsManagedConfigured);
+                } else {
+                    throw new GyroException("Unmanaged OS Disks are not currently supported by Gyro");
+                }
             default:
                 throw new GyroException(String.format("Linux VM Image Type [%s] is Unsupported!", getVmImageType()));
         }
@@ -829,7 +836,7 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
      * @return {@link WithCreate} VM Definition object ready for final generic configurations
      */
     private WithCreate configureLinuxManaged(Azure client, WithLinuxRootUsernameManaged vmImageTypeConfigured) {
-        return configureDisks(client, configureLinuxAdmin(vmImageTypeConfigured));
+        return configureManagedDataDisks(client, configureLinuxAdmin(vmImageTypeConfigured).withCustomData(getEncodedCustomData()));
     }
 
     /**
@@ -837,7 +844,14 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
      * @return {@link WithCreate} VM Definition object ready for final generic configurations
      */
     private WithCreate configureLinuxManagedOrUnmanaged(Azure client, WithLinuxRootUsernameManagedOrUnmanaged vmImageTypeConfigured) {
-        return configureDisks(client, configureLinuxAdmin(vmImageTypeConfigured));
+        WithFromImageCreateOptionsManagedOrUnmanaged adminConfigured = configureLinuxAdmin(vmImageTypeConfigured);
+        // Only managed disks are supported by Gyro currently.
+        boolean managed = true;
+        if (managed) {
+            return configureManagedDataDisks(client, adminConfigured.withCustomData(getEncodedCustomData()));
+        } else {
+            return configureUnmanagedDataDisks(client, adminConfigured.withUnmanagedDisks().withCustomData(getEncodedCustomData()));
+        }
     }
 
     /**
@@ -845,7 +859,7 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
      * @return {@link WithCreate} VM Definition object ready for final generic configurations
      */
     private WithCreate configureLinuxUnmanaged(Azure client, WithLinuxRootUsernameUnmanaged vmImageTypeConfigured) {
-        return configureDisks(client, configureLinuxAdmin(vmImageTypeConfigured));
+        return configureUnmanagedDataDisks(client, configureLinuxAdmin(vmImageTypeConfigured).withCustomData(getEncodedCustomData()));
     }
 
     /**
@@ -950,9 +964,15 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
                         client,
                         withOS.withStoredWindowsImage(getStoredImage()));
             case "specialized":
-                //TODO handle unmanaged OS disks?
-                return withOS.withSpecializedOSDisk(
-                        client.disks().getById(getOsDisk().getId()), OperatingSystemTypes.WINDOWS);
+                // Only Managed Disks are supported by Gyro currently
+                boolean managed = true;
+                if (managed) {
+                    WithManagedCreate specializedOsManagedConfigured = withOS.withSpecializedOSDisk(
+                            client.disks().getById(getOsDisk().getId()), OperatingSystemTypes.WINDOWS);
+                    return configureManagedDataDisks(client, specializedOsManagedConfigured);
+                } else {
+                    throw new GyroException("Unmanaged OS Disks are not currently supported by Gyro");
+                }
             default:
                 throw new GyroException(String.format("Windows VM Image Type [%s] is Unsupported!", getVmImageType()));
         }
@@ -964,11 +984,12 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
      */
     private WithCreate configureWindowsManaged(Azure client, WithWindowsAdminUsernameManaged vmImageTypeConfigured) {
         WithWindowsCreateManaged adminConfigured = configureWindowsAdmin(vmImageTypeConfigured);
-        return configureDisks(
+        return configureManagedDataDisks(
                 client,
                 adminConfigured.withoutAutoUpdate()
                         .withoutVMAgent()
-                        .withTimeZone(getTimeZone()));
+                        .withTimeZone(getTimeZone())
+                        .withCustomData(getEncodedCustomData()));
     }
 
     /**
@@ -976,12 +997,23 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
      * @return {@link WithCreate} VM Definition object ready for final generic configurations
      */
     private WithCreate configureWindowsManagedOrUnmanaged(Azure client, WithWindowsAdminUsernameManagedOrUnmanaged vmImageTypeConfigured) {
-        WithWindowsCreateManaged adminConfigured = configureWindowsAdmin(vmImageTypeConfigured);
-        return configureDisks(
-                client,
-                adminConfigured.withoutAutoUpdate()
-                        .withoutVMAgent()
-                        .withTimeZone(getTimeZone()));
+        WithWindowsCreateManagedOrUnmanaged adminConfigured = configureWindowsAdmin(vmImageTypeConfigured);
+
+        // Only managed disks are supported by Gyro currently.
+        boolean managed = true;
+        if (managed) {
+            return configureManagedDataDisks(
+                    client,
+                    adminConfigured.withoutAutoUpdate()
+                            .withoutVMAgent()
+                            .withTimeZone(getTimeZone())
+                            .withCustomData(getEncodedCustomData()));
+        } else {
+            return configureUnmanagedDataDisks(
+                    client,
+                    adminConfigured.withUnmanagedDisks()
+                            .withCustomData(getEncodedCustomData()));
+        }
     }
 
     /**
@@ -989,9 +1021,9 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
      * @return {@link WithCreate} VM Definition object ready for final generic configurations
      */
     private WithCreate configureWindowsUnmanaged(Azure client, WithWindowsAdminUsernameUnmanaged vmImageTypeConfigured) {
-        return configureDisks(
+        return configureUnmanagedDataDisks(
                 client,
-                configureWindowsAdmin(vmImageTypeConfigured));
+                configureWindowsAdmin(vmImageTypeConfigured).withCustomData(getEncodedCustomData()));
     }
 
     /**
@@ -1026,9 +1058,8 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
      * Configures Managed Data Disks and Managed Data Disk defaults.
      * @return {@link WithCreate} VM Definition object ready for final generic configurations
      */
-    private WithCreate configureDisks(Azure client, WithFromImageCreateOptionsManaged adminConfigured) {
+    private WithCreate configureManagedDataDisks(Azure client, WithManagedCreate adminConfigured) {
         WithManagedCreate diskDefaultsConfigured = adminConfigured
-                .withCustomData(getEncodedCustomData())
                 .withDataDiskDefaultCachingType(CachingTypes.fromString(getCachingType()))
                 .withDataDiskDefaultStorageAccountType(StorageAccountTypes.fromString(getStorageAccountTypeDataDisk()))
                 .withOSDiskStorageAccountType(StorageAccountTypes.fromString(getStorageAccountTypeOsDisk()));
@@ -1049,15 +1080,14 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
      * Fifth step in Virtual Machine Fluent workflow. Configures Data disks
      * @return {@link WithCreate} VM Definition object ready for final generic configurations
      */
-    private <T extends VirtualMachine.DefinitionStages.WithFromImageCreateOptionsManagedOrUnmanaged> WithCreate configureDisks(Azure client, T adminConfigured) {
+    private <T extends WithFromImageCreateOptionsManagedOrUnmanaged> WithCreate configureDataDisks(Azure client, T adminConfigured) {
 
-        // TODO how to to determine if data disks are managed?
+        // Only managed disks are supported by Gyro currently.
         boolean managed = true;
-        // if managed
         if (managed) {
-            return configureDisks(client, (WithFromImageCreateOptionsManaged) adminConfigured);
+            return configureManagedDataDisks(client, adminConfigured);
         } else {
-            return configureDisks(client, adminConfigured.withUnmanagedDisks());
+            return configureUnmanagedDataDisks(client, adminConfigured.withUnmanagedDisks());
         }
     }
 
@@ -1065,9 +1095,9 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
      * Fifth step in Virtual Machine Fluent workflow. Configures Data disks
      * @return {@link WithCreate} VM Definition object ready for final generic configurations
      */
-    private WithCreate configureDisks(Azure client, WithFromImageCreateOptionsUnmanaged adminConfigured) {
-        // TODO Attach unmanaged data disks
-        return adminConfigured;
+    private WithCreate configureUnmanagedDataDisks(Azure client, WithUnmanagedCreate adminConfigured) {
+        // Only managed disks are supported by Gyro currently.
+        throw new GyroException("Unmanaged Data Disks are currently not supported by Gyro");
     }
 
     @Override
