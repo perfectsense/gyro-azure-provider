@@ -114,7 +114,7 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
     private String privateIpAddress;
     private String osType;
     private DiskResource osDisk;
-    private boolean deleteOsDiskOnTerminate;
+    private Boolean deleteOsDiskOnTerminate;
     private Set<DiskResource> dataDisks;
     private String subnet;
     private String vmImageType;
@@ -293,11 +293,14 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
     /**
      * Determines if the OS Disk should be deleted when the VM is terminated.
      */
-    public boolean isDeleteOsDiskOnTerminate() {
-        return deleteOsDiskOnTerminate;
+    @Updatable
+    public Boolean getDeleteOsDiskOnTerminate() {
+        return deleteOsDiskOnTerminate == null
+                ? deleteOsDiskOnTerminate = Boolean.FALSE
+                : deleteOsDiskOnTerminate;
     }
 
-    public void setDeleteOsDiskOnTerminate(boolean deleteOsDiskOnTerminate) {
+    public void setDeleteOsDiskOnTerminate(Boolean deleteOsDiskOnTerminate) {
         this.deleteOsDiskOnTerminate = deleteOsDiskOnTerminate;
     }
 
@@ -1134,7 +1137,7 @@ public class VirtualMachineResource extends AzureResource implements Copyable<Vi
         VirtualMachine virtualMachine = client.virtualMachines().getById(getId());
         client.virtualMachines().deleteById(getId());
 
-        if (isDeleteOsDiskOnTerminate()
+        if (getDeleteOsDiskOnTerminate()
                 && virtualMachine != null) {
             client.disks().deleteById(virtualMachine.osDiskId());
         }
