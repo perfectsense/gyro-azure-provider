@@ -234,6 +234,9 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
     @Override
     public void copyFrom(StorageAccount storageAccount) {
         try {
+            getKeys().clear();
+            storageAccount.getKeys().forEach(e -> getKeys().put(e.keyName(), e.value()));
+
             CloudStorageAccount cloudStorageAccount = CloudStorageAccount.parse(getConnection());
 
             getCorsRule().clear();
@@ -282,9 +285,6 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
         setId(storageAccount.id());
         setName(storageAccount.name());
         setUpgradeAccountV2(storageAccount.kind().equals(Kind.STORAGE_V2));
-
-        getKeys().clear();
-        storageAccount.getKeys().forEach(e -> getKeys().put(e.keyName(), e.value()));
 
         getTags().clear();
         storageAccount.tags().forEach((key, value) -> getTags().put(key, value));
