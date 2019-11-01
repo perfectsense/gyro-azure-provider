@@ -236,6 +236,7 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
         try {
             getKeys().clear();
             storageAccount.getKeys().forEach(e -> getKeys().put(e.keyName(), e.value()));
+            setName(storageAccount.name());
 
             CloudStorageAccount cloudStorageAccount = CloudStorageAccount.parse(getConnection());
 
@@ -283,7 +284,6 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
 
         setResourceGroup(findById(ResourceGroupResource.class, storageAccount.resourceGroupName()));
         setId(storageAccount.id());
-        setName(storageAccount.name());
         setUpgradeAccountV2(storageAccount.kind().equals(Kind.STORAGE_V2));
 
         getTags().clear();
