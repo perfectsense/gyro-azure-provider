@@ -1211,17 +1211,22 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
 
             Set<String> diskIdsToRemove = new LinkedHashSet<>(currentDataDiskIdsToLun.keySet());
             diskIdsToRemove.removeAll(wantedDataDiskIds);
-            diskIdsToRemove.stream()
-                    .map(currentDataDiskIdsToLun::get)
-                    .filter(Objects::nonNull)
-                    .forEach(update::withoutDataDisk);
+            for (String diskIdToRemove : diskIdsToRemove) {
+                if (currentDataDiskIdsToLun.get(diskIdToRemove) != null) {
+                    update.withoutDataDisk(currentDataDiskIdsToLun.get(diskIdToRemove));
+                    ui.write("\n    Removing Data Disk %s", diskIdToRemove);
+                }
+            }
 
             Set<String> disksIdsToAdd = new LinkedHashSet<>(wantedDataDiskIds);
             disksIdsToAdd.removeAll(currentDataDiskIdsToLun.keySet());
-            disksIdsToAdd.stream()
-                    .map(client.disks()::getById)
-                    .filter(Objects::nonNull)
-                    .forEach(update::withExistingDataDisk);
+            for (String diskIdToAdd : disksIdsToAdd) {
+                Disk diskToAdd = client.disks().getById(diskIdToAdd);
+                if (diskIdToAdd != null) {
+                    update.withExistingDataDisk(diskToAdd);
+                    ui.write("\n    Adding Data Disk %s", diskIdToAdd);
+                }
+            }
         }
 
         if (changedFieldNames.contains("enable-system-managed-service-identity")) {
