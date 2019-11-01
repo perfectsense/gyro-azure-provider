@@ -12,3 +12,4 @@ ISSUES FIXED:
 * [72](https://github.com/perfectsense/gyro-azure-provider/issues/72): Expose object id for System Managed Identity on Virtual Machine and Scale Set resources.
 * [66](https://github.com/perfectsense/gyro-azure-provider/issues/66): Implement Virtual Machine Image.
 * [70](https://github.com/perfectsense/gyro-azure-provider/issues/70): Add copyright license to java and gradle files.
+* [74](https://github.com/perfectsense/gyro-azure-provider/issues/70): Fixes storage account finder error
