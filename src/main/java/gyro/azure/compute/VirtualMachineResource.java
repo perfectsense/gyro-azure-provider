@@ -726,11 +726,9 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
         for (Map.Entry<Integer, VirtualMachineDataDisk> dataDiskEntry : dataDiskMap.entrySet()) {
             VirtualMachineDataDisk dataDisk = dataDiskEntry.getValue();
 
-            Disk disk = createClient().disks().getById(dataDisk.id());
-            if (disk != null) {
-                DiskResource diskResource = newSubresource(DiskResource.class);
-                diskResource.copyFrom(disk);
-                dataDisks.add(diskResource);
+            DiskResource dataDiskResource = findById(DiskResource.class, dataDisk.id());
+            if (dataDiskResource != null) {
+                dataDisks.add(dataDiskResource);
             }
         }
 
