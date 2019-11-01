@@ -241,7 +241,6 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
             CloudStorageAccount cloudStorageAccount = CloudStorageAccount.parse(getConnection());
 
             getCorsRule().clear();
-
             CloudBlobClient blobClient = cloudStorageAccount.createCloudBlobClient();
             blobClient.downloadServiceProperties().getCors()
                 .getCorsRules().forEach(cors -> {
