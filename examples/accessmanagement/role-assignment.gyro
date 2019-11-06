@@ -1,0 +1,24 @@
+azure::resource-group resource-group-example-role
+    name: "resource-group-example-role"
+
+    tags: {
+        Name: "resource-group-example-role"
+    }
+end
+
+azure::active-directory-user user-example
+    name: "gyro-test-user"
+    email: "gyro-test-user-email"
+    password: "Pa55w@rd"
+end
+
+azure::active-directory-group group-example
+    name: "gyro-test-group"
+    email-nick: "gyro-test-group-email"
+end
+
+azure::role-assignment role-assignment-example
+    group: $(azure::active-directory-group group-example)
+    scope: $(azure::resource-group resource-group-example-role).id
+    role: "Reader"
+end
