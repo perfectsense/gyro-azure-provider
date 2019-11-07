@@ -112,7 +112,7 @@ public class CloudBlobContainerFileBackend extends FileBackend {
     private Azure client() {
         Credentials credentials = getRootScope().getSettings(CredentialsSettings.class)
                 .getCredentialsByName()
-                .get("azure::default");
+                .get("azure::" + getCredentials());
 
         return AzureResource.createClient((AzureCredentials) credentials);
     }
