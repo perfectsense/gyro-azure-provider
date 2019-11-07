@@ -32,9 +32,7 @@ baseURL=https\://management.azure.com/
 authURL=https\://login.windows.net/
 graphURL=https\://graph.windows.net/
 ``` 
-For more info refer `Azure file based authentication <https://docs.microsoft.com/en-us/azure/java/java-sdk-azure-authenticate#file-based-authentication-preview>`
-
-See [Setting up Azure credentials for Gyro](https://gyro.dev/providers/azure/index.html#authentication).
+For more info refer [Azure file based authentication](https://docs.microsoft.com/en-us/azure/java/java-sdk-azure-authenticate#file-based-authentication-preview) and  [Setting up Azure credentials for Gyro](https://gyro.dev/providers/azure/index.html#authentication).
 
 ### Using The Provider ###
 
