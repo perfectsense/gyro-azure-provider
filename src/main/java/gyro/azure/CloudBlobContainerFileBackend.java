@@ -23,6 +23,7 @@ import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.ListBlobItem;
+import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.storage.StorageAccountResource;
 import gyro.core.FileBackend;
 import gyro.core.GyroException;
@@ -46,6 +47,7 @@ public class CloudBlobContainerFileBackend extends FileBackend {
     private String cloudBlobContainer;
     private String resourceGroup;
     private String prefix;
+    private String credentials;
 
     public String getStorageAccount() {
         return storageAccount;
@@ -77,6 +79,18 @@ public class CloudBlobContainerFileBackend extends FileBackend {
 
     public void setResourceGroup(String resourceGroup) {
         this.resourceGroup = resourceGroup;
+    }
+
+    public String getCredentials() {
+        if (ObjectUtils.isBlank(credentials)) {
+            setCredentials("default");
+        }
+
+        return credentials;
+    }
+
+    public void setCredentials(String credentials) {
+        this.credentials = credentials;
     }
 
     @Override
