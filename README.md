@@ -9,8 +9,8 @@ The **Azure Provider for Gyro** enables users to easily work with Microsoft Azur
 
 To learn more about Gyro see [getgyro.io](https://getgyro.io) and [gyro](https://github.com/perfectsense/gyro). 
 
-* [API Docs](https://gyro.dev/providers/azure/index.html)
-* [Issues](https://github.com/perfectsense/gyro-azure-provider/issues)
+* [Resource Documentation](https://gyro.dev/providers/azure/index.html)
+* [Submit an Issue](https://github.com/perfectsense/gyro-azure-provider/issues)
 * [Getting Help](#getting-help)
 
 ## Using the Azure Provider
