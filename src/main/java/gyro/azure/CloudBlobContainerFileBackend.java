@@ -138,6 +138,4 @@ public class CloudBlobContainerFileBackend extends FileBackend {
     private String prefixed(String file) {
         return getPrefix() != null ? getPrefix() + '/' + file : file;
     }
-
-
 }
