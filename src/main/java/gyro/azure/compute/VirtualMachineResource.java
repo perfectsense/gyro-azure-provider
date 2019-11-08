@@ -433,9 +433,9 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
     }
 
     /**
-     * The data disk storage account type for the Virtual Machine. Valid values are ``STANDARD_LRS`` or ``PREMIUM_LRS`` or ``STANDARD_SSD_LRS``.
+     * The data disk storage account type for the Virtual Machine. Valid values are ``STANDARD_LRS`` or ``PREMIUM_LRS`` or ``STANDARDSSD_LRS``.
      */
-    @ValidStrings({"STANDARD_LRS", "PREMIUM_LRS", "STANDARD_SSD_LRS"})
+    @ValidStrings({"STANDARD_LRS", "PREMIUM_LRS", "STANDARDSSD_LRS"})
     @Updatable
     public String getStorageAccountTypeDataDisk() {
         return storageAccountTypeDataDisk;
@@ -446,9 +446,9 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
     }
 
     /**
-     * The os disk storage account type for the Virtual Machine. Valid values are ``STANDARD_LRS`` or ``PREMIUM_LRS`` or ``STANDARD_SSD_LRS``.
+     * The os disk storage account type for the Virtual Machine. Valid values are ``STANDARD_LRS`` or ``PREMIUM_LRS`` or ``STANDARDSSD_LRS``.
      */
-    @ValidStrings({"STANDARD_LRS", "PREMIUM_LRS", "STANDARD_SSD_LRS"})
+    @ValidStrings({"STANDARD_LRS", "PREMIUM_LRS", "STANDARDSSD_LRS"})
     public String getStorageAccountTypeOsDisk() {
         return storageAccountTypeOsDisk;
     }
