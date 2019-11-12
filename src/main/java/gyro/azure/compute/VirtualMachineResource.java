@@ -1214,7 +1214,6 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
             for (String diskIdToRemove : diskIdsToRemove) {
                 if (currentDataDiskIdsToLun.get(diskIdToRemove) != null) {
                     update.withoutDataDisk(currentDataDiskIdsToLun.get(diskIdToRemove));
-                    ui.write("\n    Removing Data Disk %s", diskIdToRemove);
                 }
             }
 
@@ -1224,7 +1223,6 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
                 Disk diskToAdd = client.disks().getById(diskIdToAdd);
                 if (diskIdToAdd != null) {
                     update.withExistingDataDisk(diskToAdd);
-                    ui.write("\n    Adding Data Disk %s", diskIdToAdd);
                 }
             }
         }
