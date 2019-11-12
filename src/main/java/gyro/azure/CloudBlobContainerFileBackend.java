@@ -16,15 +16,20 @@
 
 package gyro.azure;
 
+import com.microsoft.azure.management.Azure;
+import com.microsoft.azure.management.storage.StorageAccount;
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.ListBlobItem;
+import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.storage.StorageAccountResource;
 import gyro.core.FileBackend;
 import gyro.core.GyroException;
 import gyro.core.Type;
+import gyro.core.auth.Credentials;
+import gyro.core.auth.CredentialsSettings;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -33,7 +38,6 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
-import java.util.Spliterator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -41,7 +45,9 @@ import java.util.stream.StreamSupport;
 public class CloudBlobContainerFileBackend extends FileBackend {
     private String storageAccount;
     private String cloudBlobContainer;
+    private String resourceGroup;
     private String prefix;
+    private String credentials;
 
     public String getStorageAccount() {
         return storageAccount;
@@ -65,6 +71,26 @@ public class CloudBlobContainerFileBackend extends FileBackend {
 
     public void setPrefix(String prefix) {
         this.prefix = prefix;
+    }
+
+    public String getResourceGroup() {
+        return resourceGroup;
+    }
+
+    public void setResourceGroup(String resourceGroup) {
+        this.resourceGroup = resourceGroup;
+    }
+
+    public String getCredentials() {
+        if (ObjectUtils.isBlank(credentials)) {
+            setCredentials("default");
+        }
+
+        return credentials;
+    }
+
+    public void setCredentials(String credentials) {
+        this.credentials = credentials;
     }
 
     @Override
@@ -97,11 +123,26 @@ public class CloudBlobContainerFileBackend extends FileBackend {
         container().getBlockBlobReference(prefixed(file)).delete();
     }
 
+    private Azure client() {
+        Credentials credentials = getRootScope().getSettings(CredentialsSettings.class)
+                .getCredentialsByName()
+                .get("azure::" + getCredentials());
+
+        return AzureResource.createClient((AzureCredentials) credentials);
+    }
+
     private CloudBlobContainer container() {
         StorageAccountResource storage = getRootScope().findResourceById(StorageAccountResource.class, getStorageAccount());
+
+        if(storage.getKeys() == null || storage.getKeys().isEmpty()) {
+            StorageAccount storageAccount = client().storageAccounts().getByResourceGroup(getResourceGroup(), getStorageAccount());
+            storage.copyFrom(storageAccount);
+        }
+
         try {
             CloudStorageAccount account = CloudStorageAccount.parse(storage.getConnection());
             CloudBlobClient blobClient = account.createCloudBlobClient();
+
             return blobClient.getContainerReference(getCloudBlobContainer());
         } catch (StorageException | URISyntaxException | InvalidKeyException ex) {
             throw new GyroException(ex.getMessage());
