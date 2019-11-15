@@ -1259,8 +1259,6 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
         if (getDeleteOsDiskOnTerminate()
                 && virtualMachine != null
                 && !"specialized".equals(getVmImageType())) {
-
-            ui.write("\n Deleting Dynamically created OS Disk (%s)", virtualMachine.osDiskId());
             client.disks().deleteById(virtualMachine.osDiskId());
         }
     }
