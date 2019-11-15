@@ -1158,8 +1158,6 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
             }
         }
 
-        // Availability Zones?
-
         return diskDefaultsConfigured;
     }
 
