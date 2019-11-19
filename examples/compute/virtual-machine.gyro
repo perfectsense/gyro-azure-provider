@@ -40,7 +40,18 @@ azure::public-ip-address public-ip-address-example-VM
     }
 end
 
-azure::disk disk-example-VM
+azure::disk os-disk-example-VM
+    name: "disk-example-VM"
+    type: "Standard_LRS"
+    os-type: "LINUX"
+    size: 10
+    resource-group: $(azure::resource-group resource-group-example-VM)
+    tags: {
+        Name: "disk-example-VM"
+    }
+end
+
+azure::disk data-disk-example-VM
     name: "disk-example-VM"
     type: "Standard_LRS"
     os-type: "LINUX"
@@ -71,7 +82,7 @@ azure::virtual-machine virtual-machine-example
     network: $(azure::network network-example-VM)
     subnet: "subnet1"
     os-type: "linux"
-    disk: $(azure::disk disk-example-VM)
+    #os-disk: $(azure::disk os-disk-example-VM)
     network-interface: $(azure::network-interface network-interface-example-VM)
     #private-ip-address: "10.0.0.10"
     #public-ip-address: $(azure::public-ip-address public-ip-address-example-VM)
@@ -84,6 +95,9 @@ azure::virtual-machine virtual-machine-example
     storage-account-type-data-disk: "STANDARD_LRS"
     storage-account-type-os-disk: "STANDARD_LRS"
     custom-data: "custom data"
+    data-disks: [
+        $(azure::disk data-disk-example-VM)
+    ]
     tags: {
         Name: "network-interface-example-VM"
     }

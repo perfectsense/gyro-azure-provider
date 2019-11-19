@@ -19,6 +19,7 @@ package gyro.azure.compute;
 import com.microsoft.azure.SubResource;
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.compute.CachingTypes;
+import com.microsoft.azure.management.compute.Disk;
 import com.microsoft.azure.management.compute.InstanceViewStatus;
 import com.microsoft.azure.management.compute.KnownLinuxVirtualMachineImage;
 import com.microsoft.azure.management.compute.KnownWindowsVirtualMachineImage;
@@ -28,22 +29,35 @@ import com.microsoft.azure.management.compute.StorageAccountTypes;
 import com.microsoft.azure.management.compute.VirtualMachine;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithCreate;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithLinuxCreateManaged;
+import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithLinuxCreateManagedOrUnmanaged;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithLinuxCreateUnmanaged;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithLinuxRootPasswordOrPublicKeyManaged;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithLinuxRootPasswordOrPublicKeyManagedOrUnmanaged;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithLinuxRootPasswordOrPublicKeyUnmanaged;
+import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithLinuxRootUsernameManaged;
+import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithLinuxRootUsernameManagedOrUnmanaged;
+import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithLinuxRootUsernameUnmanaged;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithManagedCreate;
+import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithUnmanagedCreate;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithFromImageCreateOptionsManaged;
+import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithFromImageCreateOptionsManagedOrUnmanaged;
+import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithFromImageCreateOptionsUnmanaged;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithNetwork;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithOS;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithPrivateIP;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithPublicIPAddress;
-import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithWindowsAdminPasswordManaged;
+import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithWindowsAdminUsernameManaged;
+import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithWindowsAdminUsernameManagedOrUnmanaged;
+import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithWindowsAdminUsernameUnmanaged;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithWindowsCreateManaged;
+import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithWindowsCreateManagedOrUnmanaged;
 import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithWindowsCreateUnmanaged;
+import com.microsoft.azure.management.compute.VirtualMachineDataDisk;
 import com.microsoft.azure.management.compute.VirtualMachineSizeTypes;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.StringUtils;
+
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.azure.identity.IdentityResource;
@@ -63,12 +77,17 @@ import gyro.core.resource.Resource;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
+import gyro.core.validation.ValidationError;
 
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -86,7 +105,9 @@ import java.util.stream.Collectors;
  *         network: $(azure::network network-example-VM)
  *         subnet: "subnet1"
  *         os-type: "linux"
- *         disk: $(azure::disk disk-example-VM)
+ *         os-disk: $(azure::disk os-disk-example-VM)
+ *         delete-os-disk-on-terminate: true
+ *         data-disks: [ $(azure::disk data-disk-example-VM) ]
  *         network-interface: $(azure::network-interface network-interface-example-VM)
  *         vm-image-type: "popular"
  *         known-virtual-image: "UBUNTU_SERVER_14_04_LTS"
@@ -116,7 +137,9 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
     private PublicIpAddressResource publicIpAddress;
     private String privateIpAddress;
     private String osType;
-    private DiskResource disk;
+    private DiskResource osDisk;
+    private Boolean deleteOsDiskOnTerminate;
+    private Set<DiskResource> dataDisks;
     private String subnet;
     private String vmImageType;
     private String ssh;
@@ -287,14 +310,42 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
     }
 
     /**
-     * The Disk to be attached to the Virtual Machine.
+     * The OS Disk to be attached to the Virtual Machine.
      */
-    public DiskResource getDisk() {
-        return disk;
+    public DiskResource getOsDisk() {
+        return osDisk;
     }
 
-    public void setDisk(DiskResource disk) {
-        this.disk = disk;
+    public void setOsDisk(DiskResource osDisk) {
+        this.osDisk = osDisk;
+    }
+
+    /**
+     * Determines if the OS Disk should be deleted when the VM is terminated.
+     */
+    @Updatable
+    public Boolean getDeleteOsDiskOnTerminate() {
+        return deleteOsDiskOnTerminate == null
+                ? deleteOsDiskOnTerminate = Boolean.FALSE
+                : deleteOsDiskOnTerminate;
+    }
+
+    public void setDeleteOsDiskOnTerminate(Boolean deleteOsDiskOnTerminate) {
+        this.deleteOsDiskOnTerminate = deleteOsDiskOnTerminate;
+    }
+
+    /**
+     * The Data Disks to be attached to the Virtual Machine.
+     */
+    @Updatable
+    public Set<DiskResource> getDataDisks() {
+        return dataDisks == null
+                ? dataDisks = new LinkedHashSet<>()
+                : dataDisks;
+    }
+
+    public void setDataDisks(Set<DiskResource> dataDisks) {
+        this.dataDisks = dataDisks;
     }
 
     /**
@@ -382,9 +433,9 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
     }
 
     /**
-     * The data disk storage account type for the Virtual Machine. Valid values are ``STANDARD_LRS`` or ``PREMIUM_LRS`` or ``STANDARD_SSD_LRS``.
+     * The data disk storage account type for the Virtual Machine. Valid values are ``STANDARD_LRS`` or ``PREMIUM_LRS`` or ``STANDARDSSD_LRS``.
      */
-    @ValidStrings({"STANDARD_LRS", "PREMIUM_LRS", "STANDARD_SSD_LRS"})
+    @ValidStrings({"STANDARD_LRS", "PREMIUM_LRS", "STANDARDSSD_LRS"})
     @Updatable
     public String getStorageAccountTypeDataDisk() {
         return storageAccountTypeDataDisk;
@@ -395,9 +446,9 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
     }
 
     /**
-     * The os disk storage account type for the Virtual Machine. Valid values are ``STANDARD_LRS`` or ``PREMIUM_LRS`` or ``STANDARD_SSD_LRS``.
+     * The os disk storage account type for the Virtual Machine. Valid values are ``STANDARD_LRS`` or ``PREMIUM_LRS`` or ``STANDARDSSD_LRS``.
      */
-    @ValidStrings({"STANDARD_LRS", "PREMIUM_LRS", "STANDARD_SSD_LRS"})
+    @ValidStrings({"STANDARD_LRS", "PREMIUM_LRS", "STANDARDSSD_LRS"})
     public String getStorageAccountTypeOsDisk() {
         return storageAccountTypeOsDisk;
     }
@@ -669,6 +720,20 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
         );
 
         setVmSizeType(virtualMachine.inner().hardwareProfile().vmSize().toString());
+
+        Set<DiskResource> dataDisks = new LinkedHashSet<>();
+        Map<Integer, VirtualMachineDataDisk> dataDiskMap = virtualMachine.dataDisks();
+        for (Map.Entry<Integer, VirtualMachineDataDisk> dataDiskEntry : dataDiskMap.entrySet()) {
+            VirtualMachineDataDisk dataDisk = dataDiskEntry.getValue();
+
+            DiskResource dataDiskResource = findById(DiskResource.class, dataDisk.id());
+            if (dataDiskResource != null) {
+                dataDisks.add(dataDiskResource);
+            }
+        }
+
+        setDataDisks(dataDisks);
+
         setEnableSystemManagedServiceIdentity(!ObjectUtils.isBlank(virtualMachine.systemAssignedManagedServiceIdentityPrincipalId()));
         setSystemManagedServiceIdentityPrincipalId(virtualMachine.systemAssignedManagedServiceIdentityPrincipalId());
 
@@ -710,24 +775,86 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
 
     @Override
     public void create(GyroUI ui, State state) {
-        Azure client = createClient();
+        VirtualMachine virtualMachine = doVMFluentWorkflow(createClient()).create();
+        setId(virtualMachine.id());
+        setVmId(virtualMachine.vmId());
+        copyFrom(virtualMachine);
+    }
 
-        WithNetwork withNetwork = client.virtualMachines().define(getName())
-            .withRegion(Region.fromName(getRegion()))
-            .withExistingResourceGroup(getResourceGroup().getName());
+    /**
+     * Executes Fluent Virtual Machine workflow. The workflow executes in the following order:
+     * Configure Azure Region and Resource Groups
+     * Configure VM network. Including Private IP and Public IP
+     * Configure OS Disk
+     * Configure Default Admin or Root Account
+     * Configure Data Disks
+     * Configure Generic Host attributes
+     * @return {@link WithCreate} VM Definition object ready for creation
+     */
+    private WithCreate doVMFluentWorkflow(Azure client) {
+        WithNetwork initialVMBuilder = configureRegionAndResourceGroups(client.virtualMachines().define(getName()));
+        WithOS networkConfigured = configureNetwork(client, initialVMBuilder);
+        WithCreate osConfiguredVMBuilder = configureOS(client, networkConfigured);
 
-        WithOS withOS;
+        if (osConfiguredVMBuilder == null) {
+            throw new GyroException("Invalid config.");
+        }
+
+        if (!getSecondaryNetworkInterface().isEmpty()) {
+            for (NetworkInterfaceResource nic : getSecondaryNetworkInterface()) {
+                osConfiguredVMBuilder = osConfiguredVMBuilder.withExistingSecondaryNetworkInterface(
+                    client.networkInterfaces().getByResourceGroup(getResourceGroup().getName(), nic.getName())
+                );
+            }
+        }
+
+        if (getAvailabilitySet() != null) {
+            osConfiguredVMBuilder = osConfiguredVMBuilder.withExistingAvailabilitySet(client.availabilitySets().getByResourceGroup(getResourceGroup().getName(), getAvailabilitySet().getId()));
+        }
+
+        if (getEnableSystemManagedServiceIdentity()) {
+            osConfiguredVMBuilder = osConfiguredVMBuilder.withSystemAssignedManagedServiceIdentity();
+        }
+
+        for (IdentityResource identity : getIdentities()) {
+            osConfiguredVMBuilder = osConfiguredVMBuilder.withExistingUserAssignedManagedServiceIdentity(client.identities().getById(identity.getId()));
+        }
+
+        return osConfiguredVMBuilder
+                .withSize(getVmSizeType())
+                .withTags(getTags());
+    }
+
+    /**
+     * First step in Fluent Virtual Machine workflow.
+     * Configures Azure Region and Resource Groups
+     * @return {@link WithNetwork} VM Definition object ready for Network configurations
+     */
+    private WithNetwork configureRegionAndResourceGroups(VirtualMachine.DefinitionStages.Blank initialVMBuilder) {
+        return initialVMBuilder.withRegion(Region.fromName(getRegion()))
+                .withExistingResourceGroup(getResourceGroup().getName());
+    }
+
+    /**
+     * Second step in Virtual Machine Fluent workflow.
+     * Configures Network. Uses existing network interface if defined or
+     * creates one with either a defined or generated private and public IP.
+     * @return {@link WithOS} VM Definition object ready for OS configurations
+     */
+    private WithOS configureNetwork(Azure client, WithNetwork initialVMBuilder) {
+
+        WithOS networkConfigured;
 
         if (!ObjectUtils.isBlank(getNetworkInterface())) {
-            withOS = withNetwork.withExistingPrimaryNetworkInterface(
+            networkConfigured = initialVMBuilder.withExistingPrimaryNetworkInterface(
                     client.networkInterfaces().getByResourceGroup(
-                        getResourceGroup().getName(), getNetworkInterface().getName()
+                            getResourceGroup().getName(), getNetworkInterface().getName()
                     ));
         } else {
 
-            WithPrivateIP withPrivateIP = withNetwork
-                .withExistingPrimaryNetwork(client.networks().getById(getNetwork().getId()))
-                .withSubnet(getSubnet());
+            WithPrivateIP withPrivateIP = initialVMBuilder
+                    .withExistingPrimaryNetwork(client.networks().getById(getNetwork().getId()))
+                    .withSubnet(getSubnet());
 
             WithPublicIPAddress withPublicIpAddress;
             if (!ObjectUtils.isBlank(getPrivateIpAddress())) {
@@ -737,207 +864,323 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
             }
 
             if (!ObjectUtils.isBlank(getPublicIpAddress())) {
-                withOS = withPublicIpAddress.withExistingPrimaryPublicIPAddress(
-                    client.publicIPAddresses().getByResourceGroup(getResourceGroup().getName(), getPublicIpAddress().getName())
+                networkConfigured = withPublicIpAddress.withExistingPrimaryPublicIPAddress(
+                        client.publicIPAddresses().getByResourceGroup(getResourceGroup().getName(), getPublicIpAddress().getName())
                 );
             } else {
-                withOS = withPublicIpAddress.withoutPrimaryPublicIPAddress();
+                networkConfigured = withPublicIpAddress.withoutPrimaryPublicIPAddress();
             }
         }
 
-        WithCreate create = null;
-        WithManagedCreate managedCreate = null;
-        WithFromImageCreateOptionsManaged withFromImageCreateOptionsManaged = null;
+        return networkConfigured;
+    }
 
-        boolean isLatestPopularOrSpecific = getVmImageType().equals("latest")
-            || getVmImageType().equals("popular")
-            || getVmImageType().equals("specific");
+    /**
+     * Entry point into Third through Fifth step in Virtual Machine Fluent workflow.
+     * Splits workflow by OS.
+     * Configures OS Disk, Admin User, and Data Disks
+     * @return {@link WithCreate} VM Definition object ready for final generic configurations
+     */
+    private WithCreate configureOS(Azure client, WithOS withOS) {
+        switch(getOsType()) {
+            case "linux":
+                return configureLinux(client, withOS);
+            case "windows":
+                return configureWindows(client, withOS);
+            default:
+                throw new GyroException(String.format("OS Type [%s] is unsupported!", getOsType()));
+        }
+    }
 
-        if (getOsType().equals("linux")) {
-            //linux
+    /**
+     * Third step in Virtual Machine Fluent workflow. Splits workflow path by Image Type (OS Disk)
+     * Configures OS Disk, Admin User, and Data Disks
+     * @return {@link WithCreate} VM Definition object ready for final generic configurations
+     */
+    private WithCreate configureLinux(Azure client, WithOS withOS) {
+        switch (getVmImageType()) {
+            case "custom":
+                return configureLinuxManaged(
+                        client,
+                        withOS.withLinuxCustomImage(getCustomImage()));
+            case "gallery":
+                return configureLinuxManaged(
+                        client,
+                        withOS.withLinuxGalleryImageVersion(getGalleryImageVersion()));
+            case "latest":
+                return configureLinuxManagedOrUnmanaged(
+                        client,
+                        withOS.withLatestLinuxImage(getImagePublisher(), getImageOffer(), getImageSku()));
+            case "popular":
+                return configureLinuxManagedOrUnmanaged(
+                        client,
+                        withOS.withPopularLinuxImage(KnownLinuxVirtualMachineImage.valueOf(getKnownVirtualImage())));
+            case "specific":
+                return configureLinuxManagedOrUnmanaged(
+                        client,
+                        withOS.withSpecificLinuxImageVersion(
+                                client.virtualMachineImages()
+                                .getImage(getImageRegion(), getImagePublisher(), getImageOffer(), getImageSku(), getImageVersion())
+                                .imageReference()));
+            case "stored":
+                return configureLinuxUnmanaged(
+                        client,
+                        withOS.withStoredLinuxImage(getStoredImage()));
+            case "specialized":
+                // Only Managed Disks are supported by Gyro currently
+                WithManagedCreate specializedOsManagedConfigured = withOS.withSpecializedOSDisk(
+                        client.disks().getById(getOsDisk().getId()), OperatingSystemTypes.LINUX);
+                return configureManagedDataDisks(client, specializedOsManagedConfigured);
+            default:
+                throw new GyroException(String.format("Linux VM Image Type [%s] is Unsupported!", getVmImageType()));
+        }
+    }
 
-            WithLinuxCreateUnmanaged createUnmanaged = null;
-            WithLinuxCreateManaged createManaged = null;
+    /**
+     * Helper method in Virtual Machine workflow. Handles Managed Disk types.
+     * @return {@link WithCreate} VM Definition object ready for final generic configurations
+     */
+    private WithCreate configureLinuxManaged(Azure client, WithLinuxRootUsernameManaged vmImageTypeConfigured) {
+        return configureManagedDataDisks(client, configureLinuxAdmin(vmImageTypeConfigured).withCustomData(getEncodedCustomData()));
+    }
 
-            if (isLatestPopularOrSpecific) {
-                WithLinuxRootPasswordOrPublicKeyManagedOrUnmanaged managedOrUnmanaged;
+    /**
+     * Helper method in Virtual Machine workflow. Handles ManagedOrUnmanaged Disk types.
+     * @return {@link WithCreate} VM Definition object ready for final generic configurations
+     */
+    private WithCreate configureLinuxManagedOrUnmanaged(Azure client, WithLinuxRootUsernameManagedOrUnmanaged vmImageTypeConfigured) {
+        WithFromImageCreateOptionsManagedOrUnmanaged adminConfigured = configureLinuxAdmin(vmImageTypeConfigured);
+        // Only managed disks are supported by Gyro currently.
+        return configureManagedDataDisks(client, adminConfigured.withCustomData(getEncodedCustomData()));
+    }
 
-                if (getVmImageType().equals("latest")) {
-                    managedOrUnmanaged = withOS.withLatestLinuxImage(getImagePublisher(),getImageOffer(),getImageSku())
-                        .withRootUsername(getAdminUserName());
-                } else if (getVmImageType().equals("popular")) {
-                    managedOrUnmanaged = withOS.withPopularLinuxImage(
-                        KnownLinuxVirtualMachineImage.valueOf(getKnownVirtualImage())
-                    ).withRootUsername(getAdminUserName());
-                } else {
-                    managedOrUnmanaged = withOS.withSpecificLinuxImageVersion(
-                        client.virtualMachineImages()
-                            .getImage(getImageRegion(),getImagePublisher(),getImageOffer(),getImageSku(),getImageVersion())
-                            .imageReference()
-                    ).withRootUsername(getAdminUserName());
-                }
+    /**
+     * Helper method in Virtual Machine workflow. Handles Unmanaged Disk types.
+     * @return {@link WithCreate} VM Definition object ready for final generic configurations
+     */
+    private WithCreate configureLinuxUnmanaged(Azure client, WithLinuxRootUsernameUnmanaged vmImageTypeConfigured) {
+        return configureUnmanagedDataDisks(client, configureLinuxAdmin(vmImageTypeConfigured).withCustomData(getEncodedCustomData()));
+    }
 
-                if (!ObjectUtils.isBlank(getAdminPassword()) && !ObjectUtils.isBlank(getSsh())) {
-                    withFromImageCreateOptionsManaged = managedOrUnmanaged.withRootPassword(getAdminPassword()).withSsh(getSsh())
-                        .withCustomData(getEncodedCustomData());
-                } else if (!ObjectUtils.isBlank(getAdminPassword())) {
-                    withFromImageCreateOptionsManaged = managedOrUnmanaged.withRootPassword(getAdminPassword())
-                        .withCustomData(getEncodedCustomData());
-                } else {
-                    withFromImageCreateOptionsManaged = managedOrUnmanaged.withSsh(getSsh())
-                        .withCustomData(getEncodedCustomData());
-                }
+    /**
+     * Fourth step in Virtual Machine Fluent workflow. Configures Admin User for Managed Disk types
+     * @return {@link WithFromImageCreateOptionsManaged} VM Definition object ready for data disk configurations
+     */
+    private WithFromImageCreateOptionsManaged configureLinuxAdmin(WithLinuxRootUsernameManaged vmImageTypeConfigured) {
+        WithLinuxCreateManaged adminConfigured = null;
+        WithLinuxRootPasswordOrPublicKeyManaged rootUserConfigured = vmImageTypeConfigured.withRootUsername(getAdminUserName());
+        if (!StringUtils.isBlank(getAdminPassword())) {
+            adminConfigured = rootUserConfigured.withRootPassword(getAdminPassword());
+        }
 
-            } else if (getVmImageType().equals("stored")) {
-                WithLinuxRootPasswordOrPublicKeyUnmanaged publicKeyUnmanaged = withOS
-                    .withStoredLinuxImage(getStoredImage())
-                    .withRootUsername(getAdminUserName());
-
-                if (!ObjectUtils.isBlank(getAdminPassword()) && !ObjectUtils.isBlank(getSsh())) {
-                    createUnmanaged = publicKeyUnmanaged.withRootPassword(getAdminPassword()).withSsh(getSsh());
-                } else if (!ObjectUtils.isBlank(getAdminPassword())) {
-                    createUnmanaged = publicKeyUnmanaged.withRootPassword(getAdminPassword());
-                } else {
-                    createUnmanaged = publicKeyUnmanaged.withSsh(getSsh());
-                }
-
-            } else if (getVmImageType().equals("custom") || getVmImageType().equals("gallery")) {
-                WithLinuxRootPasswordOrPublicKeyManaged publicKeyManaged;
-
-                if (getVmImageType().equals("custom")) {
-                    publicKeyManaged = withOS.withLinuxCustomImage(getCustomImage())
-                        .withRootUsername(getAdminUserName());
-                } else {
-                    publicKeyManaged = withOS.withLinuxGalleryImageVersion(getGalleryImageVersion())
-                        .withRootUsername(getAdminUserName());
-                }
-
-                if (!ObjectUtils.isBlank(getAdminPassword()) && !ObjectUtils.isBlank(getSsh())) {
-                    createManaged = publicKeyManaged.withRootPassword(getAdminPassword()).withSsh(getSsh());
-                } else if (!ObjectUtils.isBlank(getAdminPassword())) {
-                    createManaged = publicKeyManaged.withRootPassword(getAdminPassword());
-                } else {
-                    createManaged = publicKeyManaged.withSsh(getSsh());
-                }
-
+        if (!StringUtils.isBlank(getSsh())) {
+            if (adminConfigured == null) {
+                adminConfigured = rootUserConfigured.withSsh(getSsh());
             } else {
-                managedCreate = withOS.withSpecializedOSDisk(
-                    client.disks().getById(getDisk().getId()), OperatingSystemTypes.LINUX
-                );
-            }
-
-            if (createUnmanaged != null) {
-                create = createUnmanaged.withCustomData(getEncodedCustomData())
-                    .withSize(VirtualMachineSizeTypes.fromString(getVmSizeType()));
-            } else if (createManaged != null) {
-                create = createManaged.withCustomData(getEncodedCustomData())
-                    .withSize(VirtualMachineSizeTypes.fromString(getVmSizeType()));
-            }
-        } else {
-            //windows
-            WithWindowsCreateUnmanaged createUnmanaged = null;
-            WithWindowsCreateManaged createManaged = null;
-            if (isLatestPopularOrSpecific) {
-                VirtualMachine.DefinitionStages.WithWindowsAdminPasswordManagedOrUnmanaged managedOrUnmanaged;
-
-                if (getVmImageType().equals("latest")) {
-                    managedOrUnmanaged = withOS.withLatestWindowsImage(getImagePublisher(),getImageOffer(),getImageSku())
-                        .withAdminUsername(getAdminUserName());
-                } else if (getVmImageType().equals("popular")) {
-                    managedOrUnmanaged = withOS.withPopularWindowsImage(
-                        KnownWindowsVirtualMachineImage.valueOf(getKnownVirtualImage())
-                    ).withAdminUsername(getAdminUserName());
-                } else {
-                    managedOrUnmanaged = withOS.withSpecificWindowsImageVersion(
-                        client.virtualMachineImages()
-                            .getImage(getImageRegion(),getImagePublisher(),getImageOffer(),getImageSku(),getImageVersion())
-                            .imageReference()
-                    ).withAdminUsername(getAdminUserName());
-                }
-
-                managedCreate = managedOrUnmanaged.withAdminPassword(getAdminPassword())
-                    .withCustomData(getEncodedCustomData())
-                    .withExistingDataDisk(client.disks().getById(getDisk().getId()));
-
-            } else if (getVmImageType().equals("stored")) {
-                createUnmanaged = withOS.withStoredWindowsImage(getStoredImage())
-                    .withAdminUsername(getAdminUserName()).withAdminPassword(getAdminPassword());
-
-            } else if (getVmImageType().equals("custom") || getVmImageType().equals("gallery")) {
-                WithWindowsAdminPasswordManaged passwordManaged;
-                if (getVmImageType().equals("custom")) {
-                    passwordManaged = withOS.withWindowsCustomImage(getCustomImage())
-                        .withAdminUsername(getAdminUserName());
-                } else {
-                    passwordManaged = withOS.withWindowsGalleryImageVersion(getGalleryImageVersion())
-                        .withAdminUsername(getAdminUserName());
-                }
-
-                createManaged = passwordManaged.withAdminPassword(getAdminPassword());
-            } else {
-                managedCreate = withOS.withSpecializedOSDisk(
-                    client.disks().getById(getDisk().getId()), OperatingSystemTypes.WINDOWS
-                );
-            }
-
-            if (createUnmanaged != null) {
-                create = createUnmanaged
-                    .withoutAutoUpdate()
-                    .withoutVMAgent()
-                    .withTimeZone(getTimeZone())
-                    .withCustomData(getEncodedCustomData())
-                    .withSize(VirtualMachineSizeTypes.fromString(getVmSizeType()));
-            } else if (createManaged != null) {
-                create = createManaged
-                    .withoutAutoUpdate()
-                    .withoutVMAgent()
-                    .withTimeZone(getTimeZone())
-                    .withCustomData(getEncodedCustomData())
-                    .withSize(VirtualMachineSizeTypes.fromString(getVmSizeType()));
+                adminConfigured = adminConfigured.withSsh(getSsh());
             }
         }
 
-        if (managedCreate != null) {
-            create = managedCreate.withDataDiskDefaultCachingType(CachingTypes.fromString(getCachingType()))
+        return adminConfigured;
+    }
+
+    /**
+     * Fourth step in Virtual Machine Fluent workflow. Configures Admin User for ManagedOrUnmanaged Disk types
+     * @return {@link WithFromImageCreateOptionsManagedOrUnmanaged} VM Definition object ready for data disk configurations
+     */
+    private WithFromImageCreateOptionsManagedOrUnmanaged configureLinuxAdmin(WithLinuxRootUsernameManagedOrUnmanaged vmImageTypeConfigured) {
+        WithLinuxCreateManagedOrUnmanaged adminConfigured = null;
+        WithLinuxRootPasswordOrPublicKeyManagedOrUnmanaged rootUserConfigured = vmImageTypeConfigured.withRootUsername(getAdminUserName());
+        if (!StringUtils.isBlank(getAdminPassword())) {
+            adminConfigured = rootUserConfigured.withRootPassword(getAdminPassword());
+        }
+
+        if (!StringUtils.isBlank(getSsh())) {
+            if (adminConfigured == null) {
+                adminConfigured = rootUserConfigured.withSsh(getSsh());
+            } else {
+                adminConfigured = adminConfigured.withSsh(getSsh());
+            }
+        }
+
+        return adminConfigured;
+    }
+
+    /**
+     * Fourth step in Virtual Machine Fluent workflow. Configures Admin User for Unmanaged Disk types
+     * @return {@link WithFromImageCreateOptionsUnmanaged} VM Definition object ready for data disk configurations
+     */
+    private WithFromImageCreateOptionsUnmanaged configureLinuxAdmin(WithLinuxRootUsernameUnmanaged vmImageTypeConfigured) {
+        WithLinuxCreateUnmanaged adminConfigured = null;
+        WithLinuxRootPasswordOrPublicKeyUnmanaged rootUserConfigured = vmImageTypeConfigured.withRootUsername(getAdminUserName());
+        if (!StringUtils.isBlank(getAdminPassword())) {
+            adminConfigured = rootUserConfigured.withRootPassword(getAdminPassword());
+        }
+
+        if (!StringUtils.isBlank(getSsh())) {
+            if (adminConfigured == null) {
+                adminConfigured = rootUserConfigured.withSsh(getSsh());
+            } else {
+                adminConfigured = adminConfigured.withSsh(getSsh());
+            }
+        }
+
+        return adminConfigured;
+    }
+
+    /**
+     * Third step in Virtual Machine Fluent workflow. Splits workflow path by Image Type (OS Disk)
+     * Configures OS Disk, Admin User, and Data Disks
+     * @return {@link WithCreate} VM Definition object ready for final generic configurations
+     */
+    private WithCreate configureWindows(Azure client, WithOS withOS) {
+
+        switch (getVmImageType()) {
+            case "custom":
+                return configureWindowsManaged(
+                        client,
+                        withOS.withWindowsCustomImage(getCustomImage()));
+            case "gallery":
+                return configureWindowsManaged(
+                        client,
+                        withOS.withWindowsGalleryImageVersion(getGalleryImageVersion()));
+            case "latest":
+                return configureWindowsManagedOrUnmanaged(
+                        client,
+                        withOS.withLatestWindowsImage(getImagePublisher(), getImageOffer(), getImageSku()));
+            case "popular":
+                return configureWindowsManagedOrUnmanaged(
+                        client,
+                        withOS.withPopularWindowsImage(KnownWindowsVirtualMachineImage.valueOf(getKnownVirtualImage())));
+            case "specific":
+                return configureWindowsManagedOrUnmanaged(
+                        client,
+                        withOS.withSpecificWindowsImageVersion(
+                                client.virtualMachineImages()
+                                .getImage(getImageRegion(), getImagePublisher(), getImageOffer(), getImageSku(), getImageVersion())
+                                .imageReference()));
+            case "stored":
+                return configureWindowsUnmanaged(
+                        client,
+                        withOS.withStoredWindowsImage(getStoredImage()));
+            case "specialized":
+                // Only Managed Disks are supported by Gyro currently
+                WithManagedCreate specializedOsManagedConfigured = withOS.withSpecializedOSDisk(
+                        client.disks().getById(getOsDisk().getId()), OperatingSystemTypes.WINDOWS);
+                return configureManagedDataDisks(client, specializedOsManagedConfigured);
+            default:
+                throw new GyroException(String.format("Windows VM Image Type [%s] is Unsupported!", getVmImageType()));
+        }
+    }
+
+    /**
+     * Helper method in Virtual Machine Fluent workflow. Handles Managed Disk types.
+     * @return {@link WithCreate} VM Definition object ready for final generic configurations
+     */
+    private WithCreate configureWindowsManaged(Azure client, WithWindowsAdminUsernameManaged vmImageTypeConfigured) {
+        WithWindowsCreateManaged adminConfigured = configureWindowsAdmin(vmImageTypeConfigured);
+        return configureManagedDataDisks(
+                client,
+                adminConfigured.withoutAutoUpdate()
+                        .withoutVMAgent()
+                        .withTimeZone(getTimeZone())
+                        .withCustomData(getEncodedCustomData()));
+    }
+
+    /**
+     * Helper method in Virtual Machine Fluent workflow. Handles ManagedOrUnmanaged Disk types.
+     * @return {@link WithCreate} VM Definition object ready for final generic configurations
+     */
+    private WithCreate configureWindowsManagedOrUnmanaged(Azure client, WithWindowsAdminUsernameManagedOrUnmanaged vmImageTypeConfigured) {
+        WithWindowsCreateManagedOrUnmanaged adminConfigured = configureWindowsAdmin(vmImageTypeConfigured);
+
+        // Only managed disks are supported by Gyro currently.
+        return configureManagedDataDisks(
+                client,
+                adminConfigured.withoutAutoUpdate()
+                        .withoutVMAgent()
+                        .withTimeZone(getTimeZone())
+                        .withCustomData(getEncodedCustomData()));
+    }
+
+    /**
+     * Helper method in Virtual Machine Fluent workflow. Handles Unmanaged Disk types.
+     * @return {@link WithCreate} VM Definition object ready for final generic configurations
+     */
+    private WithCreate configureWindowsUnmanaged(Azure client, WithWindowsAdminUsernameUnmanaged vmImageTypeConfigured) {
+        return configureUnmanagedDataDisks(
+                client,
+                configureWindowsAdmin(vmImageTypeConfigured).withCustomData(getEncodedCustomData()));
+    }
+
+    /**
+     * Fourth step in Virtual Machine Fluent workflow. Configures Admin User for Managed Disk types
+     * @return {@link WithWindowsCreateManaged} VM Definition object ready for data disk configurations
+     */
+    private WithWindowsCreateManaged configureWindowsAdmin(WithWindowsAdminUsernameManaged vmImageTypeConfigured) {
+        return vmImageTypeConfigured.withAdminUsername(getAdminUserName())
+                .withAdminPassword(getAdminPassword());
+    }
+
+    /**
+     * Fourth step in Virtual Machine Fluent workflow. Configures Admin User for ManagedOrUnmanaged Disk types
+     * @return {@link WithWindowsCreateManagedOrUnmanaged} VM Definition object ready for data disk configurations
+     */
+    private WithWindowsCreateManagedOrUnmanaged configureWindowsAdmin(WithWindowsAdminUsernameManagedOrUnmanaged vmImageTypeConfigured) {
+        return vmImageTypeConfigured.withAdminUsername(getAdminUserName())
+                .withAdminPassword(getAdminPassword());
+    }
+
+    /**
+     * Fourth step in Virtual Machine Fluent workflow. Configures Admin User for Unmanaged Disk types
+     * @return {@link WithWindowsCreateUnmanaged} VM Definition object ready for data disk configurations
+     */
+    private WithWindowsCreateUnmanaged configureWindowsAdmin(WithWindowsAdminUsernameUnmanaged vmImageTypeConfigured) {
+        return vmImageTypeConfigured.withAdminUsername(getAdminUserName())
+                .withAdminPassword(getAdminPassword());
+    }
+
+    /**
+     * Fifth step in Virtual Machine Fluent workflow.
+     * Configures Managed Data Disks and Managed Data Disk defaults.
+     * @return {@link WithCreate} VM Definition object ready for final generic configurations
+     */
+    private WithCreate configureManagedDataDisks(Azure client, WithManagedCreate adminConfigured) {
+        WithManagedCreate diskDefaultsConfigured = adminConfigured
+                .withDataDiskDefaultCachingType(CachingTypes.fromString(getCachingType()))
                 .withDataDiskDefaultStorageAccountType(StorageAccountTypes.fromString(getStorageAccountTypeDataDisk()))
-                .withOSDiskStorageAccountType(StorageAccountTypes.fromString(getStorageAccountTypeOsDisk()))
-                .withSize(VirtualMachineSizeTypes.fromString(getVmSizeType()));
-        } else if (withFromImageCreateOptionsManaged != null) {
-            create = withFromImageCreateOptionsManaged.withDataDiskDefaultCachingType(CachingTypes.fromString(getCachingType()))
-                .withDataDiskDefaultStorageAccountType(StorageAccountTypes.fromString(getStorageAccountTypeDataDisk()))
-                .withOSDiskStorageAccountType(StorageAccountTypes.fromString(getStorageAccountTypeOsDisk()))
-                .withSize(VirtualMachineSizeTypes.fromString(getVmSizeType()));
-        }
+                .withOSDiskStorageAccountType(StorageAccountTypes.fromString(getStorageAccountTypeOsDisk()));
 
-        if (create == null) {
-            throw new GyroException("Invalid config.");
-        }
-
-        if (!getSecondaryNetworkInterface().isEmpty()) {
-            for (NetworkInterfaceResource nic : getSecondaryNetworkInterface()) {
-                create = create.withExistingSecondaryNetworkInterface(
-                    client.networkInterfaces().getByResourceGroup(getResourceGroup().getName(), nic.getName())
-                );
+        for (DiskResource diskResource : getDataDisks()) {
+            Disk disk = client.disks().getById(diskResource.getId());
+            if (disk != null) {
+                diskDefaultsConfigured.withExistingDataDisk(disk);
             }
         }
 
-        if (getAvailabilitySet() != null) {
-            create.withExistingAvailabilitySet(client.availabilitySets().getByResourceGroup(getResourceGroup().getName(), getAvailabilitySet().getId()));
+        return diskDefaultsConfigured;
+    }
+
+    /**
+     * Fifth step in Virtual Machine Fluent workflow. Configures Data disks
+     * @return {@link WithCreate} VM Definition object ready for final generic configurations
+     */
+    private <T extends WithFromImageCreateOptionsManagedOrUnmanaged> WithCreate configureDataDisks(Azure client, T adminConfigured) {
+        // Only managed disks are supported by Gyro currently.
+        return configureManagedDataDisks(client, adminConfigured);
+    }
+
+    /**
+     * Fifth step in Virtual Machine Fluent workflow. Configures Data disks
+     * @return {@link WithCreate} VM Definition object ready for final generic configurations
+     */
+    private WithCreate configureUnmanagedDataDisks(Azure client, WithUnmanagedCreate adminConfigured) {
+        // Only managed disks are supported by Gyro currently.
+        if (!getDataDisks().isEmpty()) {
+            throw new GyroException("Unmanaged Data Disks are currently not supported by Gyro");
         }
 
-        if (getEnableSystemManagedServiceIdentity()) {
-            create = create.withSystemAssignedManagedServiceIdentity();
-        }
-
-        for (IdentityResource identity : getIdentities()) {
-            create = create.withExistingUserAssignedManagedServiceIdentity(client.identities().getById(identity.getId()));
-        }
-
-        VirtualMachine virtualMachine = create.withTags(getTags()).create();
-
-        setId(virtualMachine.id());
-        setVmId(virtualMachine.vmId());
-        copyFrom(virtualMachine);
+        return adminConfigured;
     }
 
     @Override
@@ -951,6 +1194,36 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
             .withDataDiskDefaultCachingType(CachingTypes.fromString(getCachingType()))
             .withDataDiskDefaultStorageAccountType(StorageAccountTypes.fromString(getStorageAccountTypeDataDisk()))
             .withTags(getTags());
+
+        if (changedFieldNames.contains("data-disks")) {
+            Map<String, Integer> currentDataDiskIdsToLun = new HashMap<>();
+            for (Map.Entry<Integer, VirtualMachineDataDisk> dataDiskEntry : virtualMachine.dataDisks().entrySet()) {
+                currentDataDiskIdsToLun.put(dataDiskEntry.getValue().id(), dataDiskEntry.getKey());
+            }
+
+            Set<String> wantedDataDiskIds = getDataDisks()
+                    .stream()
+                    .map(DiskResource::getId)
+                    .filter(s -> client.disks().getById(s) != null)
+                    .collect(Collectors.toSet());
+
+            Set<String> diskIdsToRemove = new LinkedHashSet<>(currentDataDiskIdsToLun.keySet());
+            diskIdsToRemove.removeAll(wantedDataDiskIds);
+            for (String diskIdToRemove : diskIdsToRemove) {
+                if (currentDataDiskIdsToLun.get(diskIdToRemove) != null) {
+                    update.withoutDataDisk(currentDataDiskIdsToLun.get(diskIdToRemove));
+                }
+            }
+
+            Set<String> disksIdsToAdd = new LinkedHashSet<>(wantedDataDiskIds);
+            disksIdsToAdd.removeAll(currentDataDiskIdsToLun.keySet());
+            for (String diskIdToAdd : disksIdsToAdd) {
+                Disk diskToAdd = client.disks().getById(diskIdToAdd);
+                if (diskIdToAdd != null) {
+                    update.withExistingDataDisk(diskToAdd);
+                }
+            }
+        }
 
         if (changedFieldNames.contains("enable-system-managed-service-identity")) {
             if (getEnableSystemManagedServiceIdentity()) {
@@ -978,7 +1251,14 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
     public void delete(GyroUI ui, State state) {
         Azure client = createClient();
 
+        VirtualMachine virtualMachine = client.virtualMachines().getById(getId());
         client.virtualMachines().deleteById(getId());
+
+        if (getDeleteOsDiskOnTerminate()
+                && virtualMachine != null
+                && !"specialized".equals(getVmImageType())) {
+            client.disks().deleteById(virtualMachine.osDiskId());
+        }
     }
 
     private String getEncodedCustomData() {
@@ -989,8 +1269,62 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
         return !ObjectUtils.isBlank(data) ? new String(Base64.getDecoder().decode(data.getBytes())) : null;
     }
 
+    @Override
+    public List<ValidationError> validate() {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if ("custom".equals(getVmImageType())) {
+            if (getCustomImage() == null) {
+                errors.add(new ValidationError(this, "custom-image", "[custom-image] is required when using 'custom' [os-type]!"));
+            }
+        } else if ("gallery".equals(getVmImageType())) {
+            if (getGalleryImageVersion() == null) {
+                errors.add(new ValidationError(this, "gallery-image-version", "[gallery-image-version] is required when using 'gallery' [os-type]!"));
+            }
+        } else if ("latest".equals(getVmImageType())) {
+            if (getImagePublisher() == null) {
+                errors.add(new ValidationError(this, "image-publisher", "[image-publisher] is required when using 'latest' [os-type]!"));
+            }
+            if (getImageOffer() == null) {
+                errors.add(new ValidationError(this, "image-offer", "[image-offer] is required when using 'latest' [os-type]!"));
+            }
+            if (getImageSku() == null) {
+                errors.add(new ValidationError(this, "image-sku", "[image-sku] is required when using 'latest' [os-type]!"));
+            }
+        } else if ("popular".equals(getVmImageType())) {
+            if (getKnownVirtualImage() == null) {
+                errors.add(new ValidationError(this, "known-virtual-image", "[known-virtual-image] is required when using 'popular' [os-type]!"));
+            }
+        } else if ("specific".equals(getVmImageType())) {
+            if (getImageRegion() == null) {
+                errors.add(new ValidationError(this, "image-region", "[image-region] is required when using 'specific' [os-type]!"));
+            }
+            if (getImagePublisher() == null) {
+                errors.add(new ValidationError(this, "image-publisher", "[image-publisher] is required when using 'specific' [os-type]!"));
+            }
+            if (getImageSku() == null) {
+                errors.add(new ValidationError(this, "image-sku", "[image-sku] is required when using 'specific' [os-type]!"));
+            }
+            if (getImageVersion() == null) {
+                errors.add(new ValidationError(this, "image-version", "[image-version] is required when using 'specific' [os-type]!"));
+            }
+        } else if ("stored".equals(getVmImageType())) {
+            if (getStoredImage() == null) {
+                errors.add(new ValidationError(this, "stored-image", "[stored-image] is required when using 'stored' [os-type]!"));
+            }
+        } else if ("specialized".equals(getVmImageType())) {
+            if (getOsDisk() == null) {
+                errors.add(new ValidationError(this, "os-disk", "[os-disk] is required when using 'specialized' [os-type]!"));
+            }
+        } else {
+            errors.add(new ValidationError(this, "vm-image-type", "Unsupported [vm-image-type]!"));
+        }
+
+        return errors;
+    }
+
     // -- GyroInstance Implementation
-    
+
     @Override
     public String getGyroInstanceId() {
         return getId();

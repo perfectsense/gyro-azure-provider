@@ -136,10 +136,10 @@ public class DiskResource extends AzureResource implements Copyable<Disk> {
     }
 
     /**
-     * Type of Disk. Valid values are ``STANDARD_LRS`` or ``PREMIUM_LRS`` or ``STANDARD_SSD_LRS``. (REQUIRED)
+     * Type of Disk. Valid values are ``STANDARD_LRS`` or ``PREMIUM_LRS`` or ``STANDARDSSD_LRS``` or ```ULTRASSD_LRS```. (REQUIRED)
      */
     @Required
-    @ValidStrings({"STANDARD_LRS", "PREMIUM_LRS", "STANDARD_SSD_LRS"})
+    @ValidStrings({"STANDARD_LRS", "PREMIUM_LRS", "STANDARDSSD_LRS", "ULTRASSD_LRS"})
     @Updatable
     public String getType() {
         return type != null ? type.toUpperCase() : null;
