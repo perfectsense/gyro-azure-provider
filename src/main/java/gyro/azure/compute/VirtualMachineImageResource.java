@@ -25,6 +25,7 @@ import gyro.azure.Copyable;
 import gyro.azure.resources.ResourceGroupResource;
 import gyro.core.GyroUI;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
@@ -145,6 +146,7 @@ public class VirtualMachineImageResource extends AzureResource implements Copyab
      * The ID of the virtual machine image.
      */
     @Output
+    @Id
     public String getId() {
         return id;
     }
