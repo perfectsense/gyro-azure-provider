@@ -267,7 +267,9 @@ public class NetworkInterfaceResource extends AzureResource implements Copyable<
             withCreate.withExistingLoadBalancerInboundNatRule(client.loadBalancers().getById(rule.getLoadBalancer().getId()), rule.getInboundNatRuleName());
         }
 
-        withCreate.withIPForwarding();
+        if (getIpForwarding()) {
+            withCreate.withIPForwarding();
+        }
 
         NetworkInterface networkInterface = withCreate.withTags(getTags()).create();
 
