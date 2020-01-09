@@ -79,6 +79,7 @@ public class NetworkInterfaceResource extends AzureResource implements Copyable<
     private String subnet;
     private NetworkSecurityGroupResource securityGroup;
     private String id;
+    private Boolean ipForwarding;
     private Map<String, String> tags;
     private Set<NicIpConfigurationResource> nicIpConfiguration;
 
@@ -156,6 +157,18 @@ public class NetworkInterfaceResource extends AzureResource implements Copyable<
     }
 
     /**
+     * Enables IP forwarded. Used for NAT functionality.
+     */
+    @Updatable
+    public Boolean getIpForwarding() {
+        return ipForwarding != null && ipForwarding;
+    }
+
+    public void setIpForwarding(Boolean ipForwarding) {
+        this.ipForwarding = ipForwarding;
+    }
+
+    /**
      * The Tags for the Network Interface.
      */
     @Updatable
@@ -195,6 +208,7 @@ public class NetworkInterfaceResource extends AzureResource implements Copyable<
         setResourceGroup(findById(ResourceGroupResource.class, networkInterface.resourceGroupName()));
         setSecurityGroup(networkInterface.getNetworkSecurityGroup() != null ? findById(NetworkSecurityGroupResource.class, networkInterface.getNetworkSecurityGroup().id()) : null);
         setTags(networkInterface.tags());
+        setIpForwarding(networkInterface.isIPForwardingEnabled());
 
         getNicIpConfiguration().clear();
         for (NicIPConfiguration nicIpConfiguration : networkInterface.ipConfigurations().values()) {
@@ -253,6 +267,7 @@ public class NetworkInterfaceResource extends AzureResource implements Copyable<
             withCreate.withExistingLoadBalancerInboundNatRule(client.loadBalancers().getById(rule.getLoadBalancer().getId()), rule.getInboundNatRuleName());
         }
 
+        withCreate.withIPForwarding();
 
         NetworkInterface networkInterface = withCreate.withTags(getTags()).create();
 
@@ -272,6 +287,14 @@ public class NetworkInterfaceResource extends AzureResource implements Copyable<
                 update = update.withoutNetworkSecurityGroup();
             } else {
                 update = update.withExistingNetworkSecurityGroup(client.networkSecurityGroups().getById(getSecurityGroup().getId()));
+            }
+        }
+
+        if (changedFieldNames.contains("ip-forwarding")) {
+            if (getIpForwarding()) {
+                update.withIPForwarding();
+            } else {
+                update.withoutIPForwarding();
             }
         }
 
