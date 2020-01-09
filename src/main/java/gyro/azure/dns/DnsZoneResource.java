@@ -202,10 +202,10 @@ public class DnsZoneResource extends AzureResource implements Copyable<DnsZone> 
 
         if (getPublicAccess() != null && !getPublicAccess()) {
             if (getRegistrationNetwork().isEmpty() && getResolutionNetwork().isEmpty()) {
+                withCreate.withPrivateAccess();
+            } else {
                 withCreate.withPrivateAccess(getRegistrationNetwork().stream().map(NetworkResource::getId).collect(Collectors.toList()),
                     getResolutionNetwork().stream().map(NetworkResource::getId).collect(Collectors.toList()));
-            } else {
-                withCreate.withPrivateAccess();
             }
         } else {
             withCreate.withPublicAccess();
