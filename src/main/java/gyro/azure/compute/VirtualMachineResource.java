@@ -18,6 +18,7 @@ package gyro.azure.compute;
 
 import com.microsoft.azure.SubResource;
 import com.microsoft.azure.management.Azure;
+import com.microsoft.azure.management.compute.AvailabilitySets;
 import com.microsoft.azure.management.compute.CachingTypes;
 import com.microsoft.azure.management.compute.Disk;
 import com.microsoft.azure.management.compute.InstanceViewStatus;
@@ -809,7 +810,7 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
         }
 
         if (getAvailabilitySet() != null) {
-            osConfiguredVMBuilder = osConfiguredVMBuilder.withExistingAvailabilitySet(client.availabilitySets().getByResourceGroup(getResourceGroup().getName(), getAvailabilitySet().getId()));
+            osConfiguredVMBuilder = osConfiguredVMBuilder.withExistingAvailabilitySet(client.availabilitySets().getById(getAvailabilitySet().getId()));
         }
 
         if (getEnableSystemManagedServiceIdentity()) {
