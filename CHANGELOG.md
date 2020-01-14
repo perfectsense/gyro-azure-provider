@@ -2,6 +2,7 @@
 
 ISSUES FIXED:
 
+* [82](https://github.com/perfectsense/gyro-azure-provider/issues/82): AvailabilitySet is not applied to VirtualMachine
 * [85](https://github.com/perfectsense/gyro-azure-provider/issues/85): Private DNS Zone does not associate Network
 * [80](https://github.com/perfectsense/gyro-azure-provider/issues/80): VirtualMachineImageResource external query results in NPE
 * [58](https://github.com/perfectsense/gyro-azure-provider/issues/58): Differentiate between OS Disk and Data Disks in Azure VMs
