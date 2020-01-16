@@ -569,6 +569,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
         ApplicationGateway applicationGateway = client.applicationGateways().getById(getId());
 
         ApplicationGateway.Update update = applicationGateway.update()
+                .withSize(ApplicationGatewaySkuName.fromString(getSkuSize()))
                 .withTier(ApplicationGatewayTier.fromString(getSkuTier()));
 
         ApplicationGatewayResource oldApplicationGatewayResource = (ApplicationGatewayResource) resource;
