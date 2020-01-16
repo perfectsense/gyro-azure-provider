@@ -63,6 +63,7 @@ import java.util.stream.Collectors;
  *         network: $(azure::network network-example-AG)
  *         subnet: "subnet1"
  *         public-ip-address: $(azure::public-ip-address public-ip-address-example-AG)
+ *         sku-tier: "STANDARD"
  *         sku-size: "STANDARD_SMALL"
  *         instance-count: 1
  *         enable-http2: true
