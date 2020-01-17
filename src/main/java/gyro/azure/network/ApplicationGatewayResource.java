@@ -27,6 +27,7 @@ import com.microsoft.azure.management.network.ApplicationGatewayRedirectConfigur
 import com.microsoft.azure.management.network.ApplicationGatewayRequestRoutingRule;
 import com.microsoft.azure.management.network.ApplicationGatewayRequestRoutingRuleType;
 import com.microsoft.azure.management.network.ApplicationGatewaySkuName;
+import com.microsoft.azure.management.network.ApplicationGatewayTier;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
@@ -62,6 +63,7 @@ import java.util.stream.Collectors;
  *         network: $(azure::network network-example-AG)
  *         subnet: "subnet1"
  *         public-ip-address: $(azure::public-ip-address public-ip-address-example-AG)
+ *         sku-tier: "STANDARD"
  *         sku-size: "STANDARD_SMALL"
  *         instance-count: 1
  *         enable-http2: true
@@ -155,6 +157,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
     private Set<RedirectConfiguration> redirectConfiguration;
     private Set<Probe> probe;
     private String skuSize;
+    private String skuTier;
     private Integer instanceCount;
     private Map<String, String> tags;
     private Boolean enableHttp2;
@@ -347,6 +350,22 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
     }
 
     /**
+     * The SKU for the Application Gateway. Valid Values are ``STANDARD``, ``STANDARD_V2``, ``WAF``, ``WAF_V2``.
+     */
+    @Required
+    @ValidStrings({"STANDARD", "STANDARD_V2", "WAF", "WAF_V2"})
+    @Updatable
+    public String getSkuTier() {
+        return skuTier != null
+                ? skuTier.toUpperCase()
+                : null;
+    }
+
+    public void setSkuTier(String skuTier) {
+        this.skuTier = skuTier;
+    }
+
+    /**
      * Number of instances to scale for the Application Gateway. (Required)
      */
     @Required
@@ -424,6 +443,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
         setInstanceCount(applicationGateway.instanceCount());
         setEnableHttp2(applicationGateway.isHttp2Enabled());
         setSkuSize(applicationGateway.sku().name().toString());
+        setSkuTier(applicationGateway.tier().toString());
         setPrivateFrontEnd(applicationGateway.isPrivate());
         setTags(applicationGateway.tags());
         setName(applicationGateway.name());
@@ -535,6 +555,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
         )
             .withInstanceCount(getInstanceCount())
             .withSize(ApplicationGatewaySkuName.fromString(getSkuSize()))
+            .withTier(ApplicationGatewayTier.fromString(getSkuTier()))
             .withTags(getTags())
             .withExistingSubnet(getNetwork().getId(), getSubnet())
             .create();
@@ -548,7 +569,9 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
 
         ApplicationGateway applicationGateway = client.applicationGateways().getById(getId());
 
-        ApplicationGateway.Update update = applicationGateway.update();
+        ApplicationGateway.Update update = applicationGateway.update()
+                .withSize(ApplicationGatewaySkuName.fromString(getSkuSize()))
+                .withTier(ApplicationGatewayTier.fromString(getSkuTier()));
 
         ApplicationGatewayResource oldApplicationGatewayResource = (ApplicationGatewayResource) resource;
 
