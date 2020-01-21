@@ -157,7 +157,7 @@ public class NetworkInterfaceResource extends AzureResource implements Copyable<
     }
 
     /**
-     * Enables IP forwarded. Used for NAT functionality.
+     * Enables IP forwarded. Used for NAT functionality. Defaults to ``false``
      */
     @Updatable
     public Boolean getIpForwarding() {
