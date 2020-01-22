@@ -28,6 +28,7 @@ import com.microsoft.azure.management.network.ApplicationGatewayRequestRoutingRu
 import com.microsoft.azure.management.network.ApplicationGatewayRequestRoutingRuleType;
 import com.microsoft.azure.management.network.ApplicationGatewaySkuName;
 import com.microsoft.azure.management.network.ApplicationGatewayTier;
+import com.microsoft.azure.management.resources.fluentcore.arm.AvailabilityZoneId;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
@@ -162,6 +163,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
     private Map<String, String> tags;
     private Boolean enableHttp2;
     private Boolean privateFrontEnd;
+    private Set<String> availabilityZones;
 
     private String id;
 
@@ -425,6 +427,20 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
     }
 
     /**
+     * Availability Zones this Application Gateway should be deployed to redundancy.
+     * Valid values are ``1``, ``2``, ``3``.
+     */
+    public Set<String> getAvailabilityZones() {
+        return availabilityZones == null
+                ? availabilityZones = new HashSet<>()
+                : availabilityZones;
+    }
+
+    public void setAvailabilityZones(Set<String> availabilityZones) {
+        this.availabilityZones = availabilityZones;
+    }
+
+    /**
      * The ID of the application gateway.
      */
     @Id
@@ -448,6 +464,14 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
         setTags(applicationGateway.tags());
         setName(applicationGateway.name());
         setResourceGroup(findById(ResourceGroupResource.class, applicationGateway.resourceGroupName()));
+
+        getAvailabilityZones().clear();
+        if (applicationGateway.inner() != null
+                && applicationGateway.inner().zones() != null) {
+            for (String availabilityZone : applicationGateway.inner().zones()) {
+                getAvailabilityZones().add(availabilityZone);
+            }
+        }
 
         getBackend().clear();
         for (ApplicationGatewayBackend applicationGatewayBackend : applicationGateway.backends().values()) {
@@ -548,6 +572,13 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
 
         for (Probe probe: getProbe()) {
             withCreate = probe.createProbe(withCreate);
+        }
+
+        for (String availabiltyZone : getAvailabilityZones()) {
+            AvailabilityZoneId availabilityZoneId = AvailabilityZoneId.fromString(availabiltyZone);
+            if (availabilityZoneId != null) {
+                withCreate.withAvailabilityZone(availabilityZoneId);
+            }
         }
 
         ApplicationGateway applicationGateway = withCreate.withExistingPublicIPAddress(

@@ -2,6 +2,7 @@
 
 ISSUES FIXED:
 
+* [91](https://github.com/perfectsense/gyro-azure-provider/issues/91): Implement Availability Zones for Application Gateway
 * [87](https://github.com/perfectsense/gyro-azure-provider/issues/87): Implement IP Forwarding for Network Interfaces
 * [92](https://github.com/perfectsense/gyro-azure-provider/issues/92): Application Gateway - Implement SKU
 * [82](https://github.com/perfectsense/gyro-azure-provider/issues/82): AvailabilitySet is not applied to VirtualMachine
