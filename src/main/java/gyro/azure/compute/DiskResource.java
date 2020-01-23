@@ -26,6 +26,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.azure.resources.ResourceGroupResource;
+import gyro.azure.storage.StorageAccountResource;
 import gyro.core.GyroUI;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
@@ -35,8 +36,11 @@ import gyro.core.resource.Resource;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
+import gyro.core.validation.ValidationError;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -69,6 +73,7 @@ public class DiskResource extends AzureResource implements Copyable<Disk> {
     private String type;
     private String dataLoadSourceType;
     private String dataLoadSource;
+    private StorageAccountResource dataLoadSourceStorageAccount;
     private Map<String, String> tags;
 
     /**
@@ -176,6 +181,17 @@ public class DiskResource extends AzureResource implements Copyable<Disk> {
     }
 
     /**
+     * The storage account where data source resides. Required only when `data-load-source-type` is set to `vhd`.
+     */
+    public StorageAccountResource getDataLoadSourceStorageAccount() {
+        return dataLoadSourceStorageAccount;
+    }
+
+    public void setDataLoadSourceStorageAccount(StorageAccountResource dataLoadSourceStorageAccount) {
+        this.dataLoadSourceStorageAccount = dataLoadSourceStorageAccount;
+    }
+
+    /**
      * Tags for the Disk.
      */
     @Updatable
@@ -233,7 +249,8 @@ public class DiskResource extends AzureResource implements Copyable<Disk> {
             if (getOsType().equals("LINUX")) {
                 //Linux
                 if (getDataLoadSourceType().equals("vhd")) {
-                    diskDefWithData = diskDefWithoutData.withLinuxFromVhd(getDataLoadSource());
+                    diskDefWithData = diskDefWithoutData.withLinuxFromVhd(getDataLoadSource())
+                        .withStorageAccountName(getDataLoadSourceStorageAccount().getName());
                 } else if (getDataLoadSourceType().equals("snapshot")) {
                     diskDefWithData = diskDefWithoutData.withLinuxFromSnapshot(getDataLoadSource());
                 } else {
@@ -243,7 +260,8 @@ public class DiskResource extends AzureResource implements Copyable<Disk> {
             } else {
                 //Windows
                 if (getDataLoadSourceType().equals("vhd")) {
-                    diskDefWithData = diskDefWithoutData.withWindowsFromVhd(getDataLoadSource());
+                    diskDefWithData = diskDefWithoutData.withWindowsFromVhd(getDataLoadSource())
+                        .withStorageAccountName(getDataLoadSourceStorageAccount().getName());
                 } else if (getDataLoadSourceType().equals("snapshot")) {
                     diskDefWithData = diskDefWithoutData.withWindowsFromSnapshot(getDataLoadSource());
                 } else {
@@ -302,5 +320,16 @@ public class DiskResource extends AzureResource implements Copyable<Disk> {
         Azure client = createClient();
 
         client.disks().deleteById(getId());
+    }
+
+    @Override
+    public List<ValidationError> validate() {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if (getDataLoadSourceType().equals("vhd") && getDataLoadSourceStorageAccount() == null) {
+            errors.add(new ValidationError(this, "data-load-source-storage-account", "required when `data-load-source-type` is set to `vhd`."));
+        }
+
+        return errors;
     }
 }

@@ -24,18 +24,18 @@ import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 
 public class PolicySnapshot extends Diffable implements Copyable<ManagementPolicySnapShot> {
-    private Integer deleteDays;
+    private Double deleteDays;
 
     /**
      * Days after which snapshot of the blob object is deleted. (Required)
      */
     @Required
     @Updatable
-    public Integer getDeleteDays() {
+    public Double getDeleteDays() {
         return deleteDays;
     }
 
-    public void setDeleteDays(Integer deleteDays) {
+    public void setDeleteDays(Double deleteDays) {
         this.deleteDays = deleteDays;
     }
 

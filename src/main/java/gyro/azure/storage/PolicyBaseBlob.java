@@ -27,19 +27,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PolicyBaseBlob extends Diffable implements Copyable<ManagementPolicyBaseBlob> {
-    private Integer deleteDays;
-    private Integer tierToArchiveDays;
-    private Integer tierToCoolDays;
+    private Double deleteDays;
+    private Double tierToArchiveDays;
+    private Double tierToCoolDays;
 
     /**
      * Days after which a blob object will be deleted. At least one of 'delete-days' or 'tier-to-cool-days' or 'tier-to-archive-days' is required.
      */
     @Updatable
-    public Integer getDeleteDays() {
+    public Double getDeleteDays() {
         return deleteDays;
     }
 
-    public void setDeleteDays(Integer deleteDays) {
+    public void setDeleteDays(Double deleteDays) {
         this.deleteDays = deleteDays;
     }
 
@@ -47,11 +47,11 @@ public class PolicyBaseBlob extends Diffable implements Copyable<ManagementPolic
      * Days after which a blob object will be moved to archive. At least one of 'delete-days' or 'tier-to-cool-days' or 'tier-to-archive-days' is required.
      */
     @Updatable
-    public Integer getTierToArchiveDays() {
+    public Double getTierToArchiveDays() {
         return tierToArchiveDays;
     }
 
-    public void setTierToArchiveDays(Integer tierToArchiveDays) {
+    public void setTierToArchiveDays(Double tierToArchiveDays) {
         this.tierToArchiveDays = tierToArchiveDays;
     }
 
@@ -59,11 +59,11 @@ public class PolicyBaseBlob extends Diffable implements Copyable<ManagementPolic
      * Days after which a blob object will be moved to cool storage. At least one of 'delete-days' or 'tier-to-cool-days' or 'tier-to-archive-days' is required.
      */
     @Updatable
-    public Integer getTierToCoolDays() {
+    public Double getTierToCoolDays() {
         return tierToCoolDays;
     }
 
-    public void setTierToCoolDays(Integer tierToCoolDays) {
+    public void setTierToCoolDays(Double tierToCoolDays) {
         this.tierToCoolDays = tierToCoolDays;
     }
 
