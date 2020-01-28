@@ -2,6 +2,7 @@
 
 ISSUES FIXED:
 
+* [101](https://github.com/perfectsense/gyro-azure-provider/issues/101): Availability Set Resource reference is saved to state incorrectly
 * [99](https://github.com/perfectsense/gyro-azure-provider/issues/99): Virtual Machine Resource ID is not suitable for Gyro Instance ID
 * [91](https://github.com/perfectsense/gyro-azure-provider/issues/91): Implement Availability Zones for Application Gateway
 * [87](https://github.com/perfectsense/gyro-azure-provider/issues/87): Implement IP Forwarding for Network Interfaces
