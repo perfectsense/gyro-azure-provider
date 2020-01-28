@@ -1328,7 +1328,7 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
 
     @Override
     public String getGyroInstanceId() {
-        return getId();
+        return getVmId();
     }
 
     @Override
