@@ -84,7 +84,6 @@ public class AvailabilitySetResource extends AzureResource implements Copyable<A
     /**
      * The ID of the Availability Set.
      */
-    @Id
     @Output
     public String getId() {
         return id;
@@ -97,6 +96,7 @@ public class AvailabilitySetResource extends AzureResource implements Copyable<A
     /**
      * The name of the Availability Set. (Required)
      */
+    @Id
     @Required
     public String getName() {
         return name;
