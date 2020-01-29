@@ -99,7 +99,9 @@ public class AvailabilitySetResource extends AzureResource implements Copyable<A
      */
     @Required
     public String getName() {
-        return name;
+        return name != null
+                ? name.toUpperCase()
+                : name;
     }
 
     public void setName(String name) {
