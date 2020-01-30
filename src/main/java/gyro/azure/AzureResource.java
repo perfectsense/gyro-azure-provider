@@ -21,7 +21,7 @@ import com.microsoft.azure.management.Azure;
 
 public abstract class AzureResource extends Resource {
 
-    protected static Azure createClient(AzureCredentials credentials) {
+    public static Azure createClient(AzureCredentials credentials) {
         return credentials.createClient();
     }
 

@@ -1,0 +1,101 @@
+package gyro.azure;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import com.microsoft.azure.management.Azure;
+import gyro.core.GyroCore;
+import gyro.core.GyroException;
+import gyro.core.GyroInputStream;
+import gyro.core.LocalFileBackend;
+import gyro.core.auth.Credentials;
+import gyro.core.auth.CredentialsSettings;
+import gyro.core.scope.RootScope;
+import gyro.lang.ast.Node;
+import gyro.lang.ast.block.FileNode;
+import gyro.util.Bug;
+import io.airlift.airline.Option;
+import org.apache.commons.lang3.StringUtils;
+
+public abstract class AbstractAzureCommand {
+
+    @Option(name = "--credential", description = "The azure credentials to use as defined in the project init file. When not specified the 'default' credential is used.")
+    private String credential;
+
+    private RootScope scope;
+
+    public String getCredential() {
+        if (credential == null) {
+            credential = "default";
+        }
+
+        return credential;
+    }
+
+    public RootScope getScope() {
+        if (scope == null) {
+            setScope();
+        }
+
+        return scope;
+    }
+
+    private void setScope() {
+        Path rootDir = GyroCore.getRootDirectory();
+
+        if (rootDir == null) {
+            throw new GyroException(
+                "Not a gyro project directory, use 'gyro init <plugins>...' to create one. See 'gyro help init' for detailed usage.");
+        }
+
+        RootScope current = new RootScope(
+            "../../" + GyroCore.INIT_FILE,
+            new LocalFileBackend(rootDir.resolve(".gyro/state")),
+            null,
+            null);
+        List<Node> nodes = current.load();
+        Set<String> existingFiles;
+        try (Stream<String> s = current.list()) {
+            existingFiles = s.collect(Collectors.toCollection(LinkedHashSet::new));
+        }
+        existingFiles.forEach(f -> evaluateFile(f, nodes::add, current));
+        current.getEvaluator().evaluate(current, nodes);
+        this.scope = current;
+    }
+
+    public Azure getClient() {
+        Credentials credentials = getScope().getSettings(CredentialsSettings.class)
+            .getCredentialsByName()
+            .get("azure::" + getCredential());
+
+        if (credentials == null) {
+            throw new GyroException(String.format("No credentials with name - '%s' found. Check the your project init file.", getCredential()));
+        }
+
+        return AzureResource.createClient((AzureCredentials) credentials);
+    }
+
+    private void evaluateFile(String file, Consumer<FileNode> consumer, RootScope current) {
+        if (StringUtils.isBlank(file)) {
+            return;
+        }
+
+        try (GyroInputStream input = current.openInput(file)) {
+            consumer.accept((FileNode) Node.parse(input, file, gyro.parser.antlr4.GyroParser::file));
+
+        } catch (IOException error) {
+            throw new Bug(error);
+
+        } catch (Exception error) {
+            throw new GyroException(
+                String.format("Can't parse @|bold %s|@ in @|bold %s|@!", file, current.getBackend()),
+                error);
+        }
+    }
+}

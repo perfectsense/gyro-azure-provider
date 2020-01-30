@@ -70,6 +70,7 @@ dependencies {
     implementation "com.microsoft.azure:azure-mgmt-dns:${azureSdkVersion}"
     implementation "com.microsoft.azure:azure-mgmt-storage:${azureSdkVersion}"
     implementation 'com.github.seancfoley:ipaddress:5.0.2'
+    implementation 'org.reflections:reflections:0.9.10'
 
     gyroDoclet 'gyro:gyro-doclet:0.99.0-SNAPSHOT'
 }
