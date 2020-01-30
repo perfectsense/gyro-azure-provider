@@ -1,0 +1,34 @@
+azure::resource-group resource-group-example-vault
+    name: "resource-group-example-vault"
+
+    tags: {
+        Name: "resource-group-example-vault"
+    }
+end
+
+azure::vault vault-example
+    resource-group: $(azure::resource-group resource-group-example-vault)
+
+    name: "key-vault-example"
+    enable-deployment: true
+    enable-template-deployment: true
+    enable-disk-encryption: true
+
+    access-policy
+        key-permissions: ["get", "import", "list", "delete"]
+        certificate-permissions: ['get', 'update', 'create', 'list', 'delete', 'import']
+        secret-permissions: ["get"]
+        object-id: "e0afa33f-9882-4cdc-abb8-c613a8949f9e"
+    end
+
+    access-policy
+        key-permissions: ["get", "import", "list", "delete"]
+        certificate-permissions: ['get', 'update', 'create', 'list', 'delete', 'import']
+        secret-permissions: ["get"]
+        object-id: "b7d674a2-7e88-47af-b772-5d90b4bf965a"
+    end
+
+    tags: {
+        Name: "key-vault-examplee"
+    }
+end
