@@ -1,5 +1,3 @@
-package gyro.azure.keyvault;
-
 /*
  * Copyright 2020, Perfect Sense, Inc.
  *
@@ -15,6 +13,8 @@ package gyro.azure.keyvault;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package gyro.azure.keyvault;
 
 import java.util.ArrayList;
 import java.util.List;
