@@ -16,19 +16,13 @@
 
 package gyro.azure.keyvault;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.microsoft.azure.CloudException;
-import com.microsoft.azure.PagedList;
-import com.microsoft.azure.keyvault.models.CertificateBundle;
-import com.microsoft.azure.keyvault.models.CertificateItem;
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.keyvault.Vault;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
@@ -44,6 +38,41 @@ import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 
+/**
+ * Creates a Identity.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     azure::vault vault-example
+ *         resource-group: $(azure::resource-group resource-group-example-vault)
+ *
+ *         name: "key-vault-example"
+ *         enable-deployment: true
+ *         enable-template-deployment: true
+ *         enable-disk-encryption: true
+ *
+ *         access-policy
+ *             key-permissions: ["get", "import", "list", "delete"]
+ *             certificate-permissions: ['get', 'update', 'create', 'list', 'delete', 'import', 'backup', 'recover', 'restore', 'setissuers', 'deleteissuers', 'purge', 'listissuers', 'getissuers', 'managecontacts', 'manageissuers']
+ *             secret-permissions: ["get"]
+ *             object-id: "e0afa33f-9882-4cdc-abb8-c613a8949f9e"
+ *         end
+ *
+ *         access-policy
+ *             key-permissions: ["get", "import", "list", "delete"]
+ *             certificate-permissions: ['get', 'update', 'create', 'list', 'delete', 'import', 'backup', 'recover', 'restore', 'setissuers', 'deleteissuers', 'purge', 'listissuers', 'getissuers', 'managecontacts', 'manageissuers']
+ *             secret-permissions: ["get"]
+ *             object-id: "b7d674a2-7e88-47af-b772-5d90b4bf965a"
+ *         end
+ *
+ *         tags: {
+ *             Name: "key-vault-examples"
+ *         }
+ *     end
+ */
 @Type("vault")
 public class VaultResource extends AzureResource implements Copyable<Vault> {
 
