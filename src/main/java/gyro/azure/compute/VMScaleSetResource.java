@@ -48,6 +48,7 @@ import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 
 import java.io.IOException;
+import java.util.Base64;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -764,6 +765,14 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
         this.id = id;
     }
 
+    private String getEncodedCustomData() {
+        return !ObjectUtils.isBlank(getCustomData()) ? Base64.getEncoder().encodeToString(getCustomData().getBytes()) : null;
+    }
+
+    private String getDecodedCustomData(String data) {
+        return !ObjectUtils.isBlank(data) ? new String(Base64.getDecoder().decode(data.getBytes())) : null;
+    }
+
     @Override
     public void copyFrom(VirtualMachineScaleSet scaleSet) {
         try {
@@ -849,7 +858,7 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
     @Override
     public void create(GyroUI ui, State state) {
         Azure client = createClient();
-
+        
         VirtualMachineScaleSet.DefinitionStages.WithProximityPlacementGroup withProximityPlacementGroup = client.virtualMachineScaleSets().define(getName())
             .withRegion(Region.fromName(getRegion()))
             .withExistingResourceGroup(getResourceGroup().getName())
@@ -1026,9 +1035,7 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
             finalStage = finalStage.withComputerNamePrefix(getComputerNamePrefix());
         }
 
-        if (!ObjectUtils.isBlank(getCustomData())) {
-            finalStage = finalStage.withCustomData(getCustomData());
-        }
+        finalStage = finalStage.withCustomData(getEncodedCustomData());
 
         if (getEnableIpForwarding()) {
             finalStage = finalStage.withIpForwarding();
