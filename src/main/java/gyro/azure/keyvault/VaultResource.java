@@ -39,7 +39,48 @@ import gyro.core.scope.State;
 import gyro.core.validation.Required;
 
 /**
- * Creates a Identity.
+ * Creates a vault.
+ *
+ * **Certificate Commands**
+ *
+ * A set of certificate commands that help you ``add``, ``remove`` or ``list`` certificates from/to a specific vault that you are managing using ``gyro``. In order to use these commands make sure to add proper access policy to the vault for the service principal you are using for the ``azure-provider``.
+ *
+ * The following commands are supported:
+ *
+ * **Add Certificate**
+ *
+ * Adds a certificate to a vault using your certificate file (.pfx). Access policy needed (Upload, Insert).
+ *
+ * .. code::
+ *
+ *     gyro azure vault add-certificate <vault-name> <cert-name> <path> --password <password>
+ *
+ * - ``<vault-name>`` - The name of the vault resource defined in your config where you want to create your certificate.
+ * - ``<cert-name>`` - The name of the certificate that you want to create when you import the certificate file.
+ * - ``<cert-path>`` - The path pointing to the certificate file to be uploaded. Only ``.pfx`` files are supported.
+ * - ``<password>`` - An optional password if the certificate file was encrypted with one.
+ *
+ * **Remove Certificate**
+ *
+ * Remove a certificate from the vault. Access policy needed (delete).
+ *
+ * .. code::
+ *
+ *     gyro azure vault remove-certificate <vault-name> <cert-name>
+ *
+ * - ``<vault-name>`` - The name of the vault resource defined in your config from which to remove the certificate.
+ * - ``<cert-name>`` - The name of the certificate that you want to remove.
+ *
+ * **List Certificate**
+ *
+ * List certificates of a vault. Access policy needed (List).
+ *
+ * .. code::
+ *
+ *     gyro azure vault list-certificate <vault-name>
+ *
+ * - ``<vault-name>`` - The name of the vault resource defined in your config that you want to list certificates from.
+ *
  *
  * Example
  * -------
