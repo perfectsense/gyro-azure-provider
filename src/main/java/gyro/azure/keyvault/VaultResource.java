@@ -16,12 +16,19 @@
 
 package gyro.azure.keyvault;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.microsoft.azure.CloudException;
+import com.microsoft.azure.PagedList;
+import com.microsoft.azure.keyvault.models.CertificateBundle;
+import com.microsoft.azure.keyvault.models.CertificateItem;
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.keyvault.Vault;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
@@ -47,8 +54,10 @@ public class VaultResource extends AzureResource implements Copyable<Vault> {
     private Boolean enableDeployment;
     private Boolean enableTemplateDeployment;
     private Boolean enableDiskEncryption;
+    private Boolean enablePurgeVault;
     private String id;
     private String url;
+    private String location;
 
     /**
      * The name of the vault. (Required)
@@ -90,6 +99,9 @@ public class VaultResource extends AzureResource implements Copyable<Vault> {
         this.tags = tags;
     }
 
+    /**
+     * A set of access policy configs for the vault.
+     */
     @Updatable
     public Set<VaultAccessPolicy> getAccessPolicy() {
         if (accessPolicy == null) {
@@ -103,6 +115,9 @@ public class VaultResource extends AzureResource implements Copyable<Vault> {
         this.accessPolicy = accessPolicy;
     }
 
+    /**
+     *  When ``true`` virtual machines are permitted to retrieve certificates stored as secrets from the vault.
+     */
     @Updatable
     public Boolean getEnableDeployment() {
         if (enableDeployment == null) {
@@ -116,6 +131,9 @@ public class VaultResource extends AzureResource implements Copyable<Vault> {
         this.enableDeployment = enableDeployment;
     }
 
+    /**
+     * When ``true`` resource managers are permitted to retrieve certificates stored as secrets from the vault.
+     */
     @Updatable
     public Boolean getEnableTemplateDeployment() {
         if (enableTemplateDeployment == null) {
@@ -129,6 +147,9 @@ public class VaultResource extends AzureResource implements Copyable<Vault> {
         this.enableTemplateDeployment = enableTemplateDeployment;
     }
 
+    /**
+     * When ``true`` disk managers are permitted to retrieve certificates stored as secrets from the vault and unwrap keys.
+     */
     @Updatable
     public Boolean getEnableDiskEncryption() {
         if (enableDiskEncryption == null) {
@@ -140,6 +161,22 @@ public class VaultResource extends AzureResource implements Copyable<Vault> {
 
     public void setEnableDiskEncryption(Boolean enableDiskEncryption) {
         this.enableDiskEncryption = enableDiskEncryption;
+    }
+
+    /**
+     * When set to `true` purges the vault upon deletion to remove the vault beyond recovery. If set to `false` vault would be deleted but could be recovered until `90` days. During this time no other vault with the same name can be created.
+     */
+    @Updatable
+    public Boolean getEnablePurgeVault() {
+        if (enablePurgeVault == null) {
+            enablePurgeVault = true;
+        }
+
+        return enablePurgeVault;
+    }
+
+    public void setEnablePurgeVault(Boolean enablePurgeVault) {
+        this.enablePurgeVault = enablePurgeVault;
     }
 
     /**
@@ -167,6 +204,18 @@ public class VaultResource extends AzureResource implements Copyable<Vault> {
         this.url = url;
     }
 
+    /**
+     * The location of the vault.
+     */
+    @Output
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
     @Override
     public void copyFrom(Vault vault) {
         setName(vault.name());
@@ -187,6 +236,7 @@ public class VaultResource extends AzureResource implements Copyable<Vault> {
         setEnableDeployment(vault.enabledForDeployment());
         setEnableDiskEncryption(vault.enabledForDiskEncryption());
         setEnableTemplateDeployment(vault.enabledForTemplateDeployment());
+        setLocation(vault.inner().location());
     }
 
     @Override
@@ -238,6 +288,7 @@ public class VaultResource extends AzureResource implements Copyable<Vault> {
 
         setId(vault.id());
         setUrl(vault.vaultUri());
+        setLocation(vault.inner().location());
     }
 
     @Override
@@ -294,7 +345,6 @@ public class VaultResource extends AzureResource implements Copyable<Vault> {
         }
 
         update.apply();
-
     }
 
     @Override
@@ -302,5 +352,15 @@ public class VaultResource extends AzureResource implements Copyable<Vault> {
         Azure client = createClient();
 
         client.vaults().deleteById(getId());
+
+        try {
+            if (getEnablePurgeVault()) {
+                client.vaults().purgeDeleted(getName(), getLocation());
+            }
+        } catch (CloudException ex) {
+            if (ex.body() == null || ex.body().code() == null || !ex.body().code().equals("ResourceNotFound")) {
+                throw ex;
+            }
+        }
     }
 }

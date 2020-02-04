@@ -43,15 +43,9 @@ public class VaultAccessPolicy extends Diffable implements Copyable<AccessPolicy
     private Set<String> storagePermissions;
     private String objectId;
 
-    @Output
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
+    /**
+     * A set of allowed certificate access permissions.
+     */
     @Updatable
     public Set<String> getCertificatePermissions() {
         if (certificatePermissions == null) {
@@ -65,6 +59,9 @@ public class VaultAccessPolicy extends Diffable implements Copyable<AccessPolicy
         this.certificatePermissions = certificatePermissions;
     }
 
+    /**
+     * A set of allowed key access permissions.
+     */
     @Updatable
     public Set<String> getKeyPermissions() {
         if (keyPermissions == null) {
@@ -78,6 +75,9 @@ public class VaultAccessPolicy extends Diffable implements Copyable<AccessPolicy
         this.keyPermissions = keyPermissions;
     }
 
+    /**
+     * A set of allowed secret access permissions.
+     */
     @Updatable
     public Set<String> getSecretPermissions() {
         if (secretPermissions == null) {
@@ -91,6 +91,9 @@ public class VaultAccessPolicy extends Diffable implements Copyable<AccessPolicy
         this.secretPermissions = secretPermissions;
     }
 
+    /**
+     * A set of allowed storage access permissions.
+     */
     @Updatable
     public Set<String> getStoragePermissions() {
         if (storagePermissions == null) {
@@ -104,6 +107,9 @@ public class VaultAccessPolicy extends Diffable implements Copyable<AccessPolicy
         this.storagePermissions = storagePermissions;
     }
 
+    /**
+     * The service principal id of the user or application the access permissions are for.
+     */
     @Required
     public String getObjectId() {
         return objectId;
@@ -111,6 +117,18 @@ public class VaultAccessPolicy extends Diffable implements Copyable<AccessPolicy
 
     public void setObjectId(String objectId) {
         this.objectId = objectId;
+    }
+
+    /**
+     * The server defined name for the access policy.
+     */
+    @Output
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
