@@ -20,7 +20,11 @@ import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.network.ApplicationGateway;
 import com.microsoft.azure.management.network.ApplicationGateway.Update;
 import com.microsoft.azure.management.network.ApplicationGatewayBackend;
+import com.microsoft.azure.management.network.ApplicationGatewayBackendHealth;
+import com.microsoft.azure.management.network.ApplicationGatewayBackendHealthStatus;
 import com.microsoft.azure.management.network.ApplicationGatewayBackendHttpConfiguration;
+import com.microsoft.azure.management.network.ApplicationGatewayBackendHttpConfigurationHealth;
+import com.microsoft.azure.management.network.ApplicationGatewayBackendServerHealth;
 import com.microsoft.azure.management.network.ApplicationGatewayListener;
 import com.microsoft.azure.management.network.ApplicationGatewayProbe;
 import com.microsoft.azure.management.network.ApplicationGatewayRedirectConfiguration;
@@ -451,6 +455,38 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public Map<String, Integer> backendHealth() {
+        Map<String, Integer> healthMap = new HashMap<>();
+        int total = 0;
+
+        Azure client = createClient();
+        ApplicationGateway applicationGateway = client.applicationGateways().getById(getId());
+
+        Map<String, ApplicationGatewayBackendHealth> backendHealthMap = applicationGateway.checkBackendHealth();
+        for (Map.Entry<String, ApplicationGatewayBackendHealth> backendHealthMapEntry : backendHealthMap.entrySet()) {
+            ApplicationGatewayBackendHealth backendHealth = backendHealthMapEntry.getValue();
+
+            Map<String, ApplicationGatewayBackendHttpConfigurationHealth> httpHealthMap = backendHealth.httpConfigurationHealths();
+            for (Map.Entry<String, ApplicationGatewayBackendHttpConfigurationHealth> httpHealthMapEntry : httpHealthMap.entrySet()) {
+                ApplicationGatewayBackendHttpConfigurationHealth httpHealth = httpHealthMapEntry.getValue();
+
+                Map<String, ApplicationGatewayBackendServerHealth> serverHealthMap = httpHealth.serverHealths();
+                for (Map.Entry<String, ApplicationGatewayBackendServerHealth> serverHealthMapEntry : serverHealthMap.entrySet()) {
+                    ApplicationGatewayBackendServerHealth serverHealth = serverHealthMapEntry.getValue();
+                    ApplicationGatewayBackendHealthStatus healthStatus = serverHealth.status();
+                    if (healthStatus != null) {
+                        int count = healthMap.getOrDefault(healthStatus.toString(), 0);
+                        healthMap.put(healthStatus.toString(), count + 1);
+                    }
+                    total++;
+                }
+            }
+        }
+
+        healthMap.put("Total", total);
+        return healthMap;
     }
 
     @Override
