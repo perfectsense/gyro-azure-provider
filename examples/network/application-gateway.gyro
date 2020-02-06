@@ -33,6 +33,7 @@ azure::public-ip-address public-ip-address-example-AG
     name: "public-ip-address-example-AG"
     resource-group: $(azure::resource-group resource-group-example-AG)
     idle-timeout-in-minute: 4
+    sku-type: "STANDARD"
 
     tags: {
         Name: "public-ip-address-example-AG"
@@ -45,8 +46,8 @@ azure::application-gateway application-gateway-example
     network: $(azure::network network-example-AG)
     subnet: "subnet1"
     public-ip-address: $(azure::public-ip-address public-ip-address-example-AG)
-    sku-tier: "STANDARD"
-    sku-size: "STANDARD_SMALL"
+    sku-tier: "STANDARD_V2"
+    sku-size: "STANDARD_V2"
     instance-count: 1
     enable-http2: true
     tags: {
