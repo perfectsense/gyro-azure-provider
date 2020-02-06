@@ -32,14 +32,10 @@ import io.airlift.airline.Help;
 
 public abstract class AbstractVaultCommand extends AbstractAzureCommand implements GyroCommand {
 
-    Vault getVault(String vaultResourceName) {
-        RootScope scope = getScope();
-
+    public static Vault getVault(String vaultResourceName, RootScope scope, Azure client) {
         Resource resource = scope.findResource("azure::vault::" + vaultResourceName);
 
         if (resource instanceof VaultResource) {
-            Azure client = getClient();
-
             Vault vault = client.vaults().getById(((VaultResource) resource).getId());
 
             if (vault == null) {
@@ -51,6 +47,12 @@ public abstract class AbstractVaultCommand extends AbstractAzureCommand implemen
         } else {
             throw new GyroException(String.format("No 'Vault' resource found with name - %s", vaultResourceName));
         }
+    }
+
+    Vault getVault(String vaultResourceName) {
+        RootScope scope = getScope();
+        Azure client = getClient();
+        return getVault(vaultResourceName, scope, client);
     }
 
     public static void setVaultCommand(Cli.CliBuilder<Object> builder) {

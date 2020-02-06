@@ -41,7 +41,7 @@ public class RemoveVaultCertificate extends AbstractVaultCommand {
             System.out.println("\nCertificate removed.");
 
         } else {
-            throw new GyroException("'remove-certificate' needs exactly two arguments, <vault-name> and <cert-name>");
+            throw new GyroException("'remove-certificate' needs exactly two arguments, <vault-name> <cert-name>");
         }
     }
 }
