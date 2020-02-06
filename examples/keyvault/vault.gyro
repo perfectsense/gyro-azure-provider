@@ -28,6 +28,15 @@ azure::vault vault-example
         object-id: "b7d674a2-7e88-47af-b772-5d90b4bf965a"
     end
 
+    access-policy
+        key-permissions: ['backup', 'recover', 'import', 'restore', 'get', 'update', 'create', 'list', 'delete']
+        certificate-permissions: ['get', 'update', 'create', 'list', 'delete', 'import', 'backup', 'recover', 'restore', 'setissuers', 'deleteissuers', 'purge', 'listissuers', 'getissuers', 'managecontacts', 'manageissuers']
+        secret-permissions: ['backup', 'set', 'recover', 'restore', 'get', 'list', 'delete']
+        object-id: $($(external-query azure::identity {}) | name = 'lower-env-configs').0.principal-id
+    end
+
+    enable-soft-delete: true
+
     tags: {
         Name: "key-vault-examples"
     }
