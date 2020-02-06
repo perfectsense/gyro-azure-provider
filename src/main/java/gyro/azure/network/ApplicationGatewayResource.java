@@ -33,6 +33,7 @@ import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.azure.resources.ResourceGroupResource;
+import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
@@ -164,6 +165,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
     private Boolean enableHttp2;
     private Boolean privateFrontEnd;
     private Set<String> availabilityZones;
+    private ApplicationGatewayManagedServiceIdentity managedServiceIdentity;
 
     private String id;
 
@@ -440,6 +442,15 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
         this.availabilityZones = availabilityZones;
     }
 
+    @Updatable
+    public ApplicationGatewayManagedServiceIdentity getManagedServiceIdentity() {
+        return managedServiceIdentity;
+    }
+
+    public void setManagedServiceIdentity(ApplicationGatewayManagedServiceIdentity managedServiceIdentity) {
+        this.managedServiceIdentity = managedServiceIdentity;
+    }
+
     /**
      * The ID of the application gateway.
      */
@@ -516,6 +527,13 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
                 getRequestRoutingRule().add(requestRoutingRule);
             }
         }
+
+        setManagedServiceIdentity(null);
+        if (applicationGateway.inner().identity() != null) {
+            ApplicationGatewayManagedServiceIdentity identity = newSubresource(ApplicationGatewayManagedServiceIdentity.class);
+            identity.copyFrom(applicationGateway.inner().identity());
+            setManagedServiceIdentity(identity);
+        }
     }
 
     @Override
@@ -581,6 +599,10 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
             }
         }
 
+        if (getManagedServiceIdentity() != null) {
+            withCreate.withIdentity(getManagedServiceIdentity().toManagedServiceIdentity());
+        }
+
         ApplicationGateway applicationGateway = withCreate.withExistingPublicIPAddress(
             client.publicIPAddresses().getById(getPublicIpAddress().getId())
         )
@@ -619,6 +641,15 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
         update = saveBackend(oldApplicationGatewayResource.getBackend(), update);
 
         update = saveRequestRoutingRule(oldApplicationGatewayResource.getRequestRoutingRule(), update);
+
+
+        if (changedFieldNames.contains("managed-service-identity")) {
+            if (getManagedServiceIdentity() == null) {
+                throw new GyroException("Cannot unset 'managed-service-identity'.");
+            }
+
+            update = update.withIdentity(getManagedServiceIdentity().toManagedServiceIdentity());
+        }
 
         applicationGateway = update.apply();
 
