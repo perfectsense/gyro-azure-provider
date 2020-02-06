@@ -16,9 +16,12 @@
 
 package gyro.azure.network;
 
+import java.util.Optional;
+
 import com.microsoft.azure.management.network.ApplicationGateway.DefinitionStages.WithCreate;
 import com.microsoft.azure.management.network.ApplicationGateway.Update;
 import com.microsoft.azure.management.network.ApplicationGatewayListener;
+import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
@@ -41,6 +44,7 @@ public class Listener extends Diffable implements Copyable<ApplicationGatewayLis
     private String name;
     private Integer port;
     private Boolean privateFrontend;
+    private ListenerSslCertificate sslCertificate;
 
     /**
      * Name of the listener. (Required)
@@ -83,11 +87,27 @@ public class Listener extends Diffable implements Copyable<ApplicationGatewayLis
         this.privateFrontend = privateFrontend;
     }
 
+    /**
+     * Ssl configuration for the listener.
+     */
+    public ListenerSslCertificate getSslCertificate() {
+        return sslCertificate;
+    }
+
+    public void setSslCertificate(ListenerSslCertificate sslCertificate) {
+        this.sslCertificate = sslCertificate;
+    }
+
     @Override
     public void copyFrom(ApplicationGatewayListener listener) {
         setName(listener.name());
         setPort(listener.frontendPortNumber());
         setPrivateFrontend(listener.frontend().isPrivate());
+        setSslCertificate(Optional.ofNullable(listener.sslCertificate()).map(o -> {
+            ListenerSslCertificate sslCertificate = newSubresource(ListenerSslCertificate.class);
+            sslCertificate.copyFrom(o);
+            return sslCertificate;
+        }).orElse(null));
     }
 
     @Override
@@ -96,48 +116,91 @@ public class Listener extends Diffable implements Copyable<ApplicationGatewayLis
     }
 
     WithCreate createListener(WithCreate attach) {
+        ApplicationGatewayListener.DefinitionStages.WithAttach<WithCreate> withCreateWithAttach;
+
         if (getPrivateFrontend()) {
-            attach = attach.defineListener(getName())
+            withCreateWithAttach = attach.defineListener(getName())
                 .withPrivateFrontend()
-                .withFrontendPort(getPort())
-                .attach();
+                .withFrontendPort(getPort());
         } else {
-            attach = attach.defineListener(getName())
+            withCreateWithAttach = attach.defineListener(getName())
                 .withPublicFrontend()
-                .withFrontendPort(getPort())
+                .withFrontendPort(getPort());
+        }
+
+        ListenerSslCertificate sslCertificate = getSslCertificate();
+        if (sslCertificate != null) {
+            attach = withCreateWithAttach.withHttps()
+                .withSslCertificate(sslCertificate.getCertificateName())
                 .attach();
+
+            if (!ObjectUtils.isBlank(sslCertificate.getCertificateSecretId())) {
+                attach = attach.defineSslCertificate(sslCertificate.getCertificateName())
+                    .withKeyVaultSecretId(sslCertificate.getCertificateSecretId())
+                    .attach();
+            }
+        } else {
+            attach = withCreateWithAttach.withHttp().attach();
         }
 
         return attach;
     }
 
     Update createListener(Update update) {
+        ApplicationGatewayListener.UpdateDefinitionStages.WithAttach<Update> updateWithAttach;
+
         if (getPrivateFrontend()) {
-            update = update.defineListener(getName())
+            updateWithAttach = update.defineListener(getName())
                 .withPrivateFrontend()
-                .withFrontendPort(getPort())
-                .attach();
+                .withFrontendPort(getPort());
         } else {
-            update = update.defineListener(getName())
+            updateWithAttach = update.defineListener(getName())
                 .withPublicFrontend()
-                .withFrontendPort(getPort())
+                .withFrontendPort(getPort());
+        }
+
+        ListenerSslCertificate sslCertificate = getSslCertificate();
+        if (sslCertificate != null) {
+            update = updateWithAttach.withHttps()
+                .withSslCertificate(sslCertificate.getCertificateName())
                 .attach();
+
+            if (!ObjectUtils.isBlank(sslCertificate.getCertificateSecretId())) {
+                update = update.defineSslCertificate(sslCertificate.getCertificateName())
+                    .withKeyVaultSecretId(sslCertificate.getCertificateSecretId())
+                    .attach();
+            }
+        } else {
+            update = updateWithAttach.withHttp().attach();
         }
 
         return update;
     }
 
     Update updateListener(Update update) {
+        ApplicationGatewayListener.Update listenerUpdate = update.updateListener(getName());
+
         if (getPrivateFrontend()) {
-            update = update.updateListener(getName())
-                .withPrivateFrontend()
-                .withFrontendPort(getPort())
-                .parent();
+            listenerUpdate = listenerUpdate.withPrivateFrontend();
         } else {
-            update = update.updateListener(getName())
-                .withPublicFrontend()
-                .withFrontendPort(getPort())
+            listenerUpdate = listenerUpdate.withPublicFrontend();
+        }
+
+        listenerUpdate = listenerUpdate.withFrontendPort(getPort());
+
+        ListenerSslCertificate sslCertificate = getSslCertificate();
+        if (sslCertificate != null) {
+            update = listenerUpdate.withHttps()
+                .withSslCertificate(sslCertificate.getCertificateName())
                 .parent();
+
+            if (!ObjectUtils.isBlank(sslCertificate.getCertificateSecretId())) {
+                update = update.defineSslCertificate(sslCertificate.getCertificateName())
+                    .withKeyVaultSecretId(sslCertificate.getCertificateSecretId())
+                    .attach();
+            }
+        } else {
+            update = listenerUpdate.withHttp().parent();
         }
 
         return update;
