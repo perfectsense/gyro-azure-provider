@@ -32,7 +32,7 @@ public class ListApplicationGatewayCertificate extends AbstractApplicationGatewa
     @Arguments(description = "The command requires one argument. <application-gateway-name>: the application gateway resource name used in the config whose certificates would be listed", required = true)
     private List<String> arguments;
 
-    @Option(name = "--show-data", description = "Show private data of the certificate")
+    @Option(name = "--show-data", description = "Show data of the certificate")
     private boolean showData;
 
     @Option(name = "--show-secret-id", description = "Show secrets id of the certificate")
