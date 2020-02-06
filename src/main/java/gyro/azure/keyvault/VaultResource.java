@@ -257,6 +257,10 @@ public class VaultResource extends AzureResource implements Copyable<Vault> {
      */
     @Updatable
     public Boolean getEnableSoftDelete() {
+        if (enableSoftDelete == null) {
+            enableSoftDelete = false;
+        }
+
         return enableSoftDelete;
     }
 
