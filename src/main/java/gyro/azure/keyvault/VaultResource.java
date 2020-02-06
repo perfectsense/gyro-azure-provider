@@ -29,6 +29,7 @@ import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.azure.resources.ResourceGroupResource;
+import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
@@ -125,6 +126,7 @@ public class VaultResource extends AzureResource implements Copyable<Vault> {
     private Boolean enableTemplateDeployment;
     private Boolean enableDiskEncryption;
     private Boolean enablePurgeVault;
+    private Boolean enableSoftDelete;
     private String id;
     private String url;
     private String location;
@@ -250,6 +252,18 @@ public class VaultResource extends AzureResource implements Copyable<Vault> {
     }
 
     /**
+     * Enables soft delete for the vault.
+     */
+    @Updatable
+    public Boolean getEnableSoftDelete() {
+        return enableSoftDelete;
+    }
+
+    public void setEnableSoftDelete(Boolean enableSoftDelete) {
+        this.enableSoftDelete = enableSoftDelete;
+    }
+
+    /**
      * The ID of the vault.
      */
     @Id
@@ -307,6 +321,7 @@ public class VaultResource extends AzureResource implements Copyable<Vault> {
         setEnableDiskEncryption(vault.enabledForDiskEncryption());
         setEnableTemplateDeployment(vault.enabledForTemplateDeployment());
         setLocation(vault.inner().location());
+        setEnableSoftDelete(vault.softDeleteEnabled());
     }
 
     @Override
@@ -352,6 +367,10 @@ public class VaultResource extends AzureResource implements Copyable<Vault> {
 
         if (getEnableTemplateDeployment()) {
             withCreate = withCreate.withTemplateDeploymentEnabled();
+        }
+
+        if (getEnableSoftDelete()) {
+            withCreate = withCreate.withSoftDeleteEnabled();
         }
 
         Vault vault = withCreate.create();
@@ -405,12 +424,20 @@ public class VaultResource extends AzureResource implements Copyable<Vault> {
         if (changedFieldNames.contains("tags")) {
             if (!currentVaultResource.getTags().isEmpty()) {
                 for (String tag : currentVaultResource.getTags().keySet()) {
-                    update.withoutTag(tag);
+                    update = update.withoutTag(tag);
                 }
             }
 
             if (!getTags().isEmpty()) {
                 update = update.withTags(getTags());
+            }
+        }
+
+        if (changedFieldNames.contains("enable-soft-delete")) {
+            if (getEnableSoftDelete()) {
+                update = update.withSoftDeleteEnabled();
+            } else {
+                throw new GyroException("'enable-soft-delete' cannot be disabled.");
             }
         }
 
