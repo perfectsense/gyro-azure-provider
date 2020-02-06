@@ -22,15 +22,20 @@ import java.util.stream.Collectors;
 import com.microsoft.azure.PagedList;
 import com.microsoft.azure.keyvault.models.CertificateItem;
 import com.microsoft.azure.management.keyvault.Vault;
+import com.microsoft.azure.management.network.ApplicationGatewaySslCertificate;
 import gyro.core.GyroException;
 import io.airlift.airline.Arguments;
 import io.airlift.airline.Command;
+import io.airlift.airline.Option;
 
 @Command(name = "list-certificate", description = "List all certificates present in an Azure vault")
 public class ListVaultCertificate extends AbstractVaultCommand {
 
     @Arguments(description = "The command requires one argument. <vault-name>: the vault resource name used in the config whose certificates would be listed", required = true)
     private List<String> arguments;
+
+    @Option(name = "--show-thumbprint", description = "Show thumbprint of the certificate")
+    private boolean showThumbprint;
 
     @Override
     public void execute() throws Exception {
@@ -42,10 +47,19 @@ public class ListVaultCertificate extends AbstractVaultCommand {
             PagedList<CertificateItem> certificateItemPagedList = vault.client().listCertificates(vault.vaultUri());
             if (!certificateItemPagedList.isEmpty()) {
                 certificateItemPagedList.loadAll();
-                System.out.println(certificateItemPagedList.stream()
-                    .map(certificateItem -> certificateItem.identifier().name())
-                    .collect(
-                        Collectors.joining("\n")));
+
+                for (CertificateItem certificate: certificateItemPagedList) {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("\n***********************");
+                    sb.append(String.format("\nName: %s", certificate.identifier().name()));
+                    sb.append(String.format("\nVersion: %s", certificate.identifier().version()));
+
+                    if (showThumbprint) {
+                        sb.append(String.format("\nThumbprint: %s", certificate.x509Thumbprint() != null ? new String(certificate.x509Thumbprint()) : null));
+                    }
+
+                    System.out.println(sb.toString());
+                }
             } else {
                 System.out.println("No certificates found!");
             }

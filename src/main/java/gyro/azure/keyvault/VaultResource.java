@@ -81,6 +81,7 @@ import gyro.core.validation.Required;
  *     gyro azure vault list-certificate <vault-name>
  *
  * - ``<vault-name>`` - The name of the vault resource defined in your config that you want to list certificates from.
+ * - ``<show-thumbprint>`` - An option that shows the x509 thumbprint of the certificate.
  *
  *
  * Example
