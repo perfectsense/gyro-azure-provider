@@ -19,6 +19,7 @@ package gyro.azure;
 import java.util.List;
 
 import gyro.azure.keyvault.AbstractVaultCommand;
+import gyro.azure.network.AbstractApplicationGatewayCommand;
 import gyro.core.command.GyroCommand;
 import io.airlift.airline.Arguments;
 import io.airlift.airline.Cli;
@@ -53,6 +54,9 @@ public class AzureCommand implements GyroCommand {
 
         // Vault command loader
         AbstractVaultCommand.setVaultCommand(builder);
+
+        // Application gateway command loader
+        AbstractApplicationGatewayCommand.setApplicationGatewayCommand(builder);
 
         Cli<Object> gitParser = builder.build();
 
