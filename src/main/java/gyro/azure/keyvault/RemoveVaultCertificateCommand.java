@@ -24,7 +24,7 @@ import io.airlift.airline.Arguments;
 import io.airlift.airline.Command;
 
 @Command(name = "remove-certificate", description = "Remove a certificate from an Azure vault")
-public class RemoveVaultCertificate extends AbstractVaultCommand {
+public class RemoveVaultCertificateCommand extends AbstractVaultCommand {
 
     @Arguments(description = "The command requires two arguments. <vault-name>: the vault resource name used in the config from which the certificate would be removed. <cert-name>: name of the certificate to be removed.", required = true)
     private List<String> arguments;

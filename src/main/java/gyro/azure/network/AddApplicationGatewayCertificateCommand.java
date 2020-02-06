@@ -11,7 +11,7 @@ import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 
 @Command(name = "add-certificate", description = "Add a certificate to an Azure application gateway")
-public class AddApplicationGatewayCertificate extends AbstractApplicationGatewayCommand {
+public class AddApplicationGatewayCertificateCommand extends AbstractApplicationGatewayCommand {
 
     @Arguments(description = "The command requires two arguments. <application-gateway-name>: the application gateway resource name used in the config to which the certificate would be added. <cert-name>: name of the certificate to be added. <path>: the path to the certificate file (.pfx)", required = true)
     private List<String> arguments;

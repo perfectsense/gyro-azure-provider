@@ -29,7 +29,7 @@ import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 
 @Command(name = "list-certificate", description = "List all certificates present in an Azure vault")
-public class ListVaultCertificate extends AbstractVaultCommand {
+public class ListVaultCertificateCommand extends AbstractVaultCommand {
 
     @Arguments(description = "The command requires one argument. <vault-name>: the vault resource name used in the config whose certificates would be listed", required = true)
     private List<String> arguments;

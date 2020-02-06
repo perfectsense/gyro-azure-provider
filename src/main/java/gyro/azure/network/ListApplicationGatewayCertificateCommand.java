@@ -27,7 +27,7 @@ import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 
 @Command(name = "list-certificate", description = "List all certificates present in an Azure application gateway")
-public class ListApplicationGatewayCertificate extends AbstractApplicationGatewayCommand {
+public class ListApplicationGatewayCertificateCommand extends AbstractApplicationGatewayCommand {
 
     @Arguments(description = "The command requires one argument. <application-gateway-name>: the application gateway resource name used in the config whose certificates would be listed", required = true)
     private List<String> arguments;
