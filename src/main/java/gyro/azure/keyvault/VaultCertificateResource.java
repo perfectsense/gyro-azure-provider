@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import com.microsoft.azure.keyvault.models.CertificateBundle;
 import com.microsoft.azure.keyvault.models.CertificateOperation;
@@ -101,6 +102,10 @@ public class VaultCertificateResource extends AzureResource implements Copyable<
     private VaultCertificatePolicy policy;
     private String version;
     private String id;
+    private String sid;
+    private String secretId;
+    private String kid;
+    private String keyId;
 
     /**
      * The name of the certificate.
@@ -176,12 +181,48 @@ public class VaultCertificateResource extends AzureResource implements Copyable<
         this.id = id;
     }
 
+    public String getSid() {
+        return sid;
+    }
+
+    public void setSid(String sid) {
+        this.sid = sid;
+    }
+
+    public String getSecretId() {
+        return secretId;
+    }
+
+    public void setSecretId(String secretId) {
+        this.secretId = secretId;
+    }
+
+    public String getKid() {
+        return kid;
+    }
+
+    public void setKid(String kid) {
+        this.kid = kid;
+    }
+
+    public String getKeyId() {
+        return keyId;
+    }
+
+    public void setKeyId(String keyId) {
+        this.keyId = keyId;
+    }
+
     @Override
     public void copyFrom(CertificateBundle certificateBundle) {
         setName(certificateBundle.certificateIdentifier().name());
         setVersion(certificateBundle.certificateIdentifier().version());
         setId(certificateBundle.id());
         setVault(findById(VaultResource.class, certificateBundle.certificateIdentifier().vault()));
+        setSecretId(certificateBundle.secretIdentifier().identifier());
+        setSid(certificateBundle.sid());
+        setKeyId(certificateBundle.keyIdentifier().identifier());
+        setKid(certificateBundle.kid());
 
         setPolicy(Optional.ofNullable(certificateBundle.policy())
             .map(o -> {
