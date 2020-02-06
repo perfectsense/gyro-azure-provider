@@ -1343,7 +1343,7 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
 
     @Override
     public String getGyroInstancePublicIpAddress() {
-        return getPublicIpAddress() != null ? getPublicIpAddress().getIpAddress() : getPublicIpAddressIp();
+        return getPublicIpAddress() != null && !ObjectUtils.isBlank(getPublicIpAddress().getIpAddress()) ? getPublicIpAddress().getIpAddress() : getPublicIpAddressIp();
     }
 
     @Override
