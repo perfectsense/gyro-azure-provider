@@ -96,6 +96,7 @@ import gyro.core.validation.Required;
  *         enable-deployment: true
  *         enable-template-deployment: true
  *         enable-disk-encryption: true
+ *         enable-soft-delete: false
  *
  *         access-policy
  *             key-permissions: ["get", "import", "list", "delete"]
