@@ -3,6 +3,7 @@ package gyro.azure.network;
 import java.util.List;
 
 import com.microsoft.azure.management.network.ApplicationGateway;
+import com.microsoft.azure.management.network.ApplicationGatewayListener;
 import gyro.core.GyroException;
 import io.airlift.airline.Arguments;
 import io.airlift.airline.Command;
@@ -21,9 +22,20 @@ public class RemoveApplicationGatewayCertificateCommand extends AbstractApplicat
 
             ApplicationGateway applicationGateway = getApplicationGateway(applicationGatewayResourceName);
 
-            applicationGateway.update().withoutSslCertificate(certificateName).apply();
+            ApplicationGatewayListener listener = applicationGateway.listeners()
+                .values()
+                .stream()
+                .filter(o -> o.sslCertificate() != null && o.sslCertificate().name().equals(certificateName))
+                .findFirst()
+                .orElse(null);
 
-            System.out.println("\nCertificate removed.");
+            if (listener == null) {
+                applicationGateway.update().withoutSslCertificate(certificateName).apply();
+                System.out.println("\nCertificate removed.");
+            } else {
+                throw new GyroException(String.format("Certificate '%s' cannot be removed as it is being used by listener '%s'.", certificateName, listener.name()));
+            }
+
 
         } else {
             throw new GyroException("'remove-certificate' needs exactly two arguments, <application-gateway-name> and <cert-name>");
