@@ -464,23 +464,25 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
         Azure client = createClient();
         ApplicationGateway applicationGateway = client.applicationGateways().getById(getId());
 
-        Map<String, ApplicationGatewayBackendHealth> backendHealthMap = applicationGateway.checkBackendHealth();
-        for (Map.Entry<String, ApplicationGatewayBackendHealth> backendHealthMapEntry : backendHealthMap.entrySet()) {
-            ApplicationGatewayBackendHealth backendHealth = backendHealthMapEntry.getValue();
+        if (applicationGateway != null) {
+            Map<String, ApplicationGatewayBackendHealth> backendHealthMap = applicationGateway.checkBackendHealth();
+            for (Map.Entry<String, ApplicationGatewayBackendHealth> backendHealthMapEntry : backendHealthMap.entrySet()) {
+                ApplicationGatewayBackendHealth backendHealth = backendHealthMapEntry.getValue();
 
-            Map<String, ApplicationGatewayBackendHttpConfigurationHealth> httpHealthMap = backendHealth.httpConfigurationHealths();
-            for (Map.Entry<String, ApplicationGatewayBackendHttpConfigurationHealth> httpHealthMapEntry : httpHealthMap.entrySet()) {
-                ApplicationGatewayBackendHttpConfigurationHealth httpHealth = httpHealthMapEntry.getValue();
+                Map<String, ApplicationGatewayBackendHttpConfigurationHealth> httpHealthMap = backendHealth.httpConfigurationHealths();
+                for (Map.Entry<String, ApplicationGatewayBackendHttpConfigurationHealth> httpHealthMapEntry : httpHealthMap.entrySet()) {
+                    ApplicationGatewayBackendHttpConfigurationHealth httpHealth = httpHealthMapEntry.getValue();
 
-                Map<String, ApplicationGatewayBackendServerHealth> serverHealthMap = httpHealth.serverHealths();
-                for (Map.Entry<String, ApplicationGatewayBackendServerHealth> serverHealthMapEntry : serverHealthMap.entrySet()) {
-                    ApplicationGatewayBackendServerHealth serverHealth = serverHealthMapEntry.getValue();
-                    ApplicationGatewayBackendHealthStatus healthStatus = serverHealth.status();
-                    if (healthStatus != null) {
-                        int count = healthMap.getOrDefault(healthStatus.toString(), 0);
-                        healthMap.put(healthStatus.toString(), count + 1);
+                    Map<String, ApplicationGatewayBackendServerHealth> serverHealthMap = httpHealth.serverHealths();
+                    for (Map.Entry<String, ApplicationGatewayBackendServerHealth> serverHealthMapEntry : serverHealthMap.entrySet()) {
+                        ApplicationGatewayBackendServerHealth serverHealth = serverHealthMapEntry.getValue();
+                        ApplicationGatewayBackendHealthStatus healthStatus = serverHealth.status();
+                        if (healthStatus != null) {
+                            int count = healthMap.getOrDefault(healthStatus.toString(), 0);
+                            healthMap.put(healthStatus.toString(), count + 1);
+                        }
+                        total++;
                     }
-                    total++;
                 }
             }
         }
