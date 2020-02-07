@@ -3,6 +3,7 @@
 ISSUES FIXED:
 
 * [107](https://github.com/perfectsense/gyro-azure-provider/issues/107): Application Gateway Backend Health Needs to be accessible
+* [109](https://github.com/perfectsense/gyro-azure-provider/issues/110): VirtualMachine#getGyroInstancePublicIpAddress returns null even if publicIpAdressIp has a value.
 * [105](https://github.com/perfectsense/gyro-azure-provider/issues/105): Scale Set Custom Data needs to be encoded
 * [101](https://github.com/perfectsense/gyro-azure-provider/issues/101): VirtualMachineResource#copyFrom() logic for AvailabilitySetResource fetching does not match casing of AvailabilitySetResource ID
 * [99](https://github.com/perfectsense/gyro-azure-provider/issues/99): Virtual Machine Resource ID is not suitable for Gyro Instance ID
