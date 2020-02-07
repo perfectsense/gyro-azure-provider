@@ -90,6 +90,7 @@ public class Listener extends Diffable implements Copyable<ApplicationGatewayLis
     /**
      * Ssl configuration for the listener.
      */
+    @Updatable
     public ListenerSslCertificate getSslCertificate() {
         return sslCertificate;
     }
