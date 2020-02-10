@@ -181,6 +181,10 @@ public class VaultCertificateResource extends AzureResource implements Copyable<
         this.id = id;
     }
 
+    /**
+     * The SID of the certificate.
+     */
+    @Output
     public String getSid() {
         return sid;
     }
@@ -189,6 +193,10 @@ public class VaultCertificateResource extends AzureResource implements Copyable<
         this.sid = sid;
     }
 
+    /**
+     * The secret ID of the certificate.
+     */
+    @Output
     public String getSecretId() {
         return secretId;
     }
@@ -197,6 +205,10 @@ public class VaultCertificateResource extends AzureResource implements Copyable<
         this.secretId = secretId;
     }
 
+    /**
+     * The KID of the certificate.
+     */
+    @Output
     public String getKid() {
         return kid;
     }
@@ -205,6 +217,10 @@ public class VaultCertificateResource extends AzureResource implements Copyable<
         this.kid = kid;
     }
 
+    /**
+     * The key ID of the certificate.
+     */
+    @Output
     public String getKeyId() {
         return keyId;
     }
