@@ -21,6 +21,7 @@ import java.util.List;
 
 import com.microsoft.azure.management.network.ApplicationGateway;
 import com.microsoft.azure.management.network.ApplicationGatewaySslCertificate;
+import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import io.airlift.airline.Arguments;
 import io.airlift.airline.Command;
@@ -63,11 +64,11 @@ public class ListApplicationGatewayCertificateCommand extends AbstractApplicatio
                         sb.append(String.format("\nData: %s", certificate.publicData()));
                     }
 
-                    System.out.println(sb.toString());
+                    GyroCore.ui().write(sb.toString());
                 }
 
             } else {
-                System.out.println("No certificates found!");
+                GyroCore.ui().write("No certificates found!");
             }
 
         } else {

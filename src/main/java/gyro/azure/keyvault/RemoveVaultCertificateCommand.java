@@ -19,6 +19,7 @@ package gyro.azure.keyvault;
 import java.util.List;
 
 import com.microsoft.azure.management.keyvault.Vault;
+import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import io.airlift.airline.Arguments;
 import io.airlift.airline.Command;
@@ -38,7 +39,7 @@ public class RemoveVaultCertificateCommand extends AbstractVaultCommand {
             Vault vault = getVault(vaultResourceName);
 
             vault.client().deleteCertificate(vault.vaultUri(), certificateName);
-            System.out.println("\nCertificate removed.");
+            GyroCore.ui().write("\nCertificate removed.");
 
         } else {
             throw new GyroException("'remove-certificate' needs exactly two arguments, <vault-name> <cert-name>");

@@ -6,6 +6,7 @@ import com.microsoft.azure.keyvault.models.CertificateBundle;
 import com.microsoft.azure.management.keyvault.Vault;
 import com.microsoft.azure.management.network.ApplicationGateway;
 import gyro.azure.keyvault.AbstractVaultCommand;
+import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import io.airlift.airline.Arguments;
 import io.airlift.airline.Command;
@@ -30,15 +31,13 @@ public class ImportApplicationGatewayCertificateCommand extends AbstractApplicat
 
             CertificateBundle certificate = vault.client().getCertificate(vault.vaultUri(), vaultCertificateName);
 
-            System.out.println("\n\n -> " + certificate.sid());
-
             applicationGateway.update()
                 .defineSslCertificate(certificateName)
                 .withKeyVaultSecretId(certificate.sid())
                 .attach()
                 .apply();
 
-            System.out.println("\nCertificate imported.");
+            GyroCore.ui().write("\nCertificate imported.");
 
         } else {
             throw new GyroException(

@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.microsoft.azure.management.network.ApplicationGateway;
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import io.airlift.airline.Arguments;
 import io.airlift.airline.Command;
@@ -33,7 +34,7 @@ public class AddApplicationGatewayCertificateCommand extends AbstractApplication
                 .withPfxPassword(!ObjectUtils.isBlank(password) ? password : "")
                 .attach().apply();
 
-            System.out.println("\nCertificate added.");
+            GyroCore.ui().write("\nCertificate added.");
 
         } else {
             throw new GyroException("'add-certificate' needs exactly three arguments, <application-gateway-name> <cert-name> <path>");

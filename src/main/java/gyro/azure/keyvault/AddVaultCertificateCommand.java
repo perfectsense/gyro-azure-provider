@@ -24,6 +24,7 @@ import java.util.List;
 import com.microsoft.azure.keyvault.requests.ImportCertificateRequest;
 import com.microsoft.azure.management.keyvault.Vault;
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import io.airlift.airline.Arguments;
 import io.airlift.airline.Command;
@@ -57,7 +58,7 @@ public class AddVaultCertificateCommand extends AbstractVaultCommand {
             }
 
             vault.client().importCertificate(builder.build());
-            System.out.println("\nCertificate added.");
+            GyroCore.ui().write("\nCertificate added.");
 
         } else {
             throw new GyroException("'add-certificate' needs exactly three arguments, <vault-name> <cert-name> <path>");

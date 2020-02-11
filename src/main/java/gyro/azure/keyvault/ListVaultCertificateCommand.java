@@ -23,6 +23,7 @@ import com.microsoft.azure.PagedList;
 import com.microsoft.azure.keyvault.models.CertificateItem;
 import com.microsoft.azure.management.keyvault.Vault;
 import com.microsoft.azure.management.network.ApplicationGatewaySslCertificate;
+import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import io.airlift.airline.Arguments;
 import io.airlift.airline.Command;
@@ -58,10 +59,10 @@ public class ListVaultCertificateCommand extends AbstractVaultCommand {
                         sb.append(String.format("\nThumbprint: %s", certificate.x509Thumbprint() != null ? new String(certificate.x509Thumbprint()) : null));
                     }
 
-                    System.out.println(sb.toString());
+                    GyroCore.ui().write(sb.toString());
                 }
             } else {
-                System.out.println("No certificates found!");
+                GyroCore.ui().write("No certificates found!");
             }
 
         } else {
