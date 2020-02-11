@@ -106,7 +106,6 @@ import java.util.Set;
 public class StorageAccountResource extends AzureResource implements Copyable<StorageAccount> {
 
     private Set<Cors> corsRule;
-    private Map<String, String> keys;
     private ResourceGroupResource resourceGroup;
     private String id;
     private String name;
@@ -130,22 +129,6 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
 
     public void setCorsRule(Set<Cors> corsRule) {
         this.corsRule = corsRule;
-    }
-
-    /**
-     * The Storage Account access key.
-     */
-    @Output
-    public Map<String, String> getKeys() {
-        if (keys == null) {
-            keys = new HashMap<>();
-        }
-
-        return keys;
-    }
-
-    public void setKeys(Map<String, String> keys) {
-        this.keys = keys;
     }
 
     /**
@@ -234,8 +217,7 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
     @Override
     public void copyFrom(StorageAccount storageAccount) {
         try {
-            getKeys().clear();
-            storageAccount.getKeys().forEach(e -> getKeys().put(e.keyName(), e.value()));
+            setId(storageAccount.id());
             setName(storageAccount.name());
 
             CloudStorageAccount cloudStorageAccount = CloudStorageAccount.parse(getConnection());
@@ -335,11 +317,6 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
 
         setId(storageAccount.id());
 
-        List<StorageAccountKey> storageAccountKeys = storageAccount.getKeys();
-        for (StorageAccountKey key : storageAccountKeys) {
-            getKeys().put(key.keyName(), key.value());
-        }
-
         updateCorsRules();
     }
 
@@ -408,6 +385,19 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
     public String getConnection() {
         return "DefaultEndpointsProtocol=https;"
                 + "AccountName=" + getName() + ";"
-                + "AccountKey=" + getKeys().get("key1");
+                + "AccountKey=" + keys().get("key1");
+    }
+
+    public Map<String, String> keys() {
+        Map<String, String> keys = new HashMap<>();
+
+        if (getId() != null) {
+            Azure client = createClient();
+
+            StorageAccount storageAccount = client.storageAccounts().getById(getId());
+            storageAccount.getKeys().forEach(e -> keys.put(e.keyName(), e.value()));
+        }
+
+        return keys;
     }
 }

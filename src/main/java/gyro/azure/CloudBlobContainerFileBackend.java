@@ -134,10 +134,8 @@ public class CloudBlobContainerFileBackend extends FileBackend {
     private CloudBlobContainer container() {
         StorageAccountResource storage = getRootScope().findResourceById(StorageAccountResource.class, getStorageAccount());
 
-        if(storage.getKeys() == null || storage.getKeys().isEmpty()) {
-            StorageAccount storageAccount = client().storageAccounts().getByResourceGroup(getResourceGroup(), getStorageAccount());
-            storage.copyFrom(storageAccount);
-        }
+        StorageAccount storageAccount = client().storageAccounts().getByResourceGroup(getResourceGroup(), getStorageAccount());
+        storage.copyFrom(storageAccount);
 
         try {
             CloudStorageAccount account = CloudStorageAccount.parse(storage.getConnection());
