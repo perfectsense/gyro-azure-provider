@@ -368,7 +368,7 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
                         getImportFromFilename())
                         .withSqlAdministratorLoginAndPassword(getSqlServer().getAdministratorLogin(), getSqlServer().getAdministratorPassword());
             } else if (getStorageUri() != null && getStorageAccount() != null) {
-                buildDatabase.importFrom(getStorageUri()).withStorageAccessKey(getStorageAccount().getKeys().get("key1"))
+                buildDatabase.importFrom(getStorageUri()).withStorageAccessKey(getStorageAccount().keys().get("key1"))
                 .withSqlAdministratorLoginAndPassword(getSqlServer().getAdministratorLogin(), getSqlServer().getAdministratorPassword());
             } else if (getWithSampleDatabase() != null) {
                 withExistingDatabaseAfterElasticPool.fromSample(SampleName.ADVENTURE_WORKS_LT);
@@ -417,7 +417,7 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
             buildDatabase.importFrom(storageAccount, getImportFromContainerName(), getImportFromFilename())
                     .withSqlAdministratorLoginAndPassword(getSqlServer().getAdministratorLogin(), getSqlServer().getAdministratorPassword());
         } else if (getStorageUri() != null && getStorageAccount() != null) {
-            buildDatabase.importFrom(getStorageUri()).withStorageAccessKey(getStorageAccount().getKeys().get("key1"))
+            buildDatabase.importFrom(getStorageUri()).withStorageAccessKey(getStorageAccount().keys().get("key1"))
                     .withSqlAdministratorLoginAndPassword(getSqlServer().getAdministratorLogin(), getSqlServer().getAdministratorPassword());
         } else if (getWithSampleDatabase() != null) {
             buildDatabase.fromSample(SampleName.ADVENTURE_WORKS_LT);
