@@ -175,6 +175,8 @@ public class VaultResource extends AzureResource implements Copyable<Vault> {
 
     /**
      * A set of access policy configs for the vault.
+     *
+     * @subresource gyro.azure.keyvault.VaultAccessPolicy
      */
     @Updatable
     public Set<VaultAccessPolicy> getAccessPolicy() {

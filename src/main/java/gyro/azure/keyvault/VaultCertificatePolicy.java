@@ -38,6 +38,8 @@ public class VaultCertificatePolicy extends Diffable implements Copyable<Certifi
 
     /**
      * Issuer parameter config for the certificate policy. (Required)
+     *
+     * @subresource gyro.azure.keyvault.VaultCertificateIssuerParameter
      */
     @Required
     public VaultCertificateIssuerParameter getIssuerParameter() {
@@ -50,6 +52,8 @@ public class VaultCertificatePolicy extends Diffable implements Copyable<Certifi
 
     /**
      * The key properties for the certificate policy. (Required)
+     *
+     * @subresource gyro.azure.keyvault.VaultCertificateKeyProperties
      */
     @Required
     public VaultCertificateKeyProperties getKeyProperties() {
@@ -62,6 +66,8 @@ public class VaultCertificatePolicy extends Diffable implements Copyable<Certifi
 
     /**
      * Lifetime config for the certificate policy. (Required)
+     *
+     * @subresource gyro.azure.keyvault.VaultCertificateLifetime
      */
     @Required
     @CollectionMax(1)
@@ -79,6 +85,8 @@ public class VaultCertificatePolicy extends Diffable implements Copyable<Certifi
 
     /**
      * Secrets config for the certificate policy. (Required)
+     *
+     * @subresource gyro.azure.keyvault.VaultCertificateSecretProperties
      */
     @Required
     public VaultCertificateSecretProperties getSecretProperties() {
@@ -91,6 +99,8 @@ public class VaultCertificatePolicy extends Diffable implements Copyable<Certifi
 
     /**
      * X509 properties for the certificate policy. (Required)
+     *
+     * @subresource gyro.azure.keyvault.VaultCertificateX509Properties
      */
     @Required
     public VaultCertificateX509Properties getX509Properties() {
@@ -103,6 +113,8 @@ public class VaultCertificatePolicy extends Diffable implements Copyable<Certifi
 
     /**
      * Additional attributes for the certificate policy.
+     *
+     * @subresource gyro.azure.keyvault.VaultCertificateAttribute
      */
     public VaultCertificateAttribute getAttribute() {
         return attribute;

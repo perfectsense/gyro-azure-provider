@@ -60,6 +60,8 @@ public class VaultCertificateX509Properties extends Diffable implements Copyable
 
     /**
      * Alternate name config for the certificate.
+     *
+     * @subresource gyro.azure.keyvault.VaultCertificateSubjectAlternativeName
      */
     public VaultCertificateSubjectAlternativeName getSubjectAlternativeName() {
         return subjectAlternativeName;

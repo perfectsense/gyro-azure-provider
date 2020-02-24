@@ -146,6 +146,8 @@ public class VaultCertificateResource extends AzureResource implements Copyable<
 
     /**
      * The policy config for the certificate. (Required)
+     *
+     * @subresource gyro.azure.keyvault.VaultCertificatePolicy
      */
     @Required
     public VaultCertificatePolicy getPolicy() {
