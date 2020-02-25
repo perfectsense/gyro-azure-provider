@@ -118,7 +118,7 @@ public class KeyVaultCertificateResource extends AzureResource implements Copyab
     }
 
     /**
-     * The vault under which the certificate is going to be created.
+     * The key vault under which the certificate is going to be created.
      */
     public KeyVaultResource getVault() {
         return vault;

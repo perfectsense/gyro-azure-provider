@@ -142,7 +142,7 @@ public class KeyVaultResource extends AzureResource implements Copyable<Vault> {
     private String location;
 
     /**
-     * The name of the vault. (Required)
+     * The name of the key vault. (Required)
      */
     @Required
     public String getName() {
@@ -154,7 +154,7 @@ public class KeyVaultResource extends AzureResource implements Copyable<Vault> {
     }
 
     /**
-     * The resource group under which the vault would reside. (Required)
+     * The resource group under which the key vault would reside. (Required)
      */
     @Required
     public ResourceGroupResource getResourceGroup() {
@@ -166,7 +166,7 @@ public class KeyVaultResource extends AzureResource implements Copyable<Vault> {
     }
 
     /**
-     * Tags for the vault.
+     * Tags for the key vault.
      */
     @Updatable
     public Map<String, String> getTags() {
@@ -182,7 +182,7 @@ public class KeyVaultResource extends AzureResource implements Copyable<Vault> {
     }
 
     /**
-     * A set of access policy configs for the vault. See `Access Policy <https://docs.microsoft.com/en-us/azure/key-vault/key-vault-group-permissions-for-apps>`_.
+     * A set of access policy configs for the key vault. See `Access Policy <https://docs.microsoft.com/en-us/azure/key-vault/key-vault-group-permissions-for-apps>`_.
      *
      * @subresource gyro.azure.keyvault.VaultAccessPolicy
      */
@@ -200,7 +200,7 @@ public class KeyVaultResource extends AzureResource implements Copyable<Vault> {
     }
 
     /**
-     *  When ``true`` virtual machines are permitted to retrieve certificates stored as secrets from the vault.
+     *  When ``true`` virtual machines are permitted to retrieve certificates stored as secrets from the key vault.
      */
     @Updatable
     public Boolean getEnableDeployment() {
@@ -216,7 +216,7 @@ public class KeyVaultResource extends AzureResource implements Copyable<Vault> {
     }
 
     /**
-     * When ``true`` resource managers are permitted to retrieve certificates stored as secrets from the vault.
+     * When ``true`` resource managers are permitted to retrieve certificates stored as secrets from the key vault.
      */
     @Updatable
     public Boolean getEnableTemplateDeployment() {
@@ -232,7 +232,7 @@ public class KeyVaultResource extends AzureResource implements Copyable<Vault> {
     }
 
     /**
-     * When ``true`` disk managers are permitted to retrieve certificates stored as secrets from the vault and unwrap keys.
+     * When ``true`` disk managers are permitted to retrieve certificates stored as secrets from the key vault and unwrap keys.
      */
     @Updatable
     public Boolean getEnableDiskEncryption() {
@@ -248,7 +248,7 @@ public class KeyVaultResource extends AzureResource implements Copyable<Vault> {
     }
 
     /**
-     * When set to `true` purges the vault upon deletion to remove the vault beyond recovery. If set to `false` vault would be deleted but could be recovered until `90` days. During this time no other vault with the same name can be created.
+     * When set to `true` purges the vault upon deletion to remove the key vault beyond recovery. If set to `false` vault would be deleted but could be recovered until `90` days. During this time no other vault with the same name can be created.
      */
     @Updatable
     public Boolean getEnablePurgeVault() {
@@ -264,7 +264,7 @@ public class KeyVaultResource extends AzureResource implements Copyable<Vault> {
     }
 
     /**
-     * Enables soft delete for the vault.
+     * Enables soft delete for the key vault.
      */
     @Updatable
     public Boolean getEnableSoftDelete() {
@@ -280,7 +280,7 @@ public class KeyVaultResource extends AzureResource implements Copyable<Vault> {
     }
 
     /**
-     * The ID of the vault.
+     * The ID of the key vault.
      */
     @Id
     @Output
@@ -293,7 +293,7 @@ public class KeyVaultResource extends AzureResource implements Copyable<Vault> {
     }
 
     /**
-     * The URI of the vault.
+     * The URI of the key vault.
      */
     @Output
     public String getUrl() {
@@ -305,7 +305,7 @@ public class KeyVaultResource extends AzureResource implements Copyable<Vault> {
     }
 
     /**
-     * The location of the vault.
+     * The location of the key vault.
      */
     @Output
     public String getLocation() {

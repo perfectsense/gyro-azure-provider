@@ -45,7 +45,7 @@ public class KeyVaultFinder extends AzureFinder<Vault, KeyVaultResource> {
     private String name;
 
     /**
-     * The name of the resource group the vault belongs to.
+     * The name of the resource group the key vault belongs to.
      */
     public String getResourceGroup() {
         return resourceGroup;
@@ -56,7 +56,7 @@ public class KeyVaultFinder extends AzureFinder<Vault, KeyVaultResource> {
     }
 
     /**
-     * The name of the vault.
+     * The name of the key vault.
      */
     public String getName() {
         return name;
