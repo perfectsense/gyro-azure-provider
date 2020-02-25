@@ -54,59 +54,11 @@ import java.util.stream.Collectors;
 /**
  * Creates an Application Gateway.
  *
- * **Certificate Commands**
+ * Azure Application Gateways are managed using a combination of resource configuration and commands.
  *
- * A set of certificate commands that help you ``add``, ``remove``, import or ``list`` certificates from/to a specific application gateway that you are managing using ``gyro``.
- *
- * The following commands are supported:
- *
- * **Add Certificate**
- *
- * Adds a certificate to an application gateway using your certificate file (.pfx).
- *
- * .. code::
- *
- *     gyro azure application-gateway add-certificate <application-gateway-name> <cert-name> <path> --password <password>
- *
- * - ``<application-gateway-name>`` - The name of the application gateway resource defined in your config where you want to create your certificate.
- * - ``<cert-name>`` - The name of the certificate that you want to create when you import the certificate file.
- * - ``<cert-path>`` - The path pointing to the certificate file to be uploaded. Only ``.pfx`` files are supported.
- * - ``<password>`` - An optional password if the certificate file was encrypted with one.
- *
- * **Import Certificate**
- *
- * Imports a certificate to an application gateway from your vault. For the import to work make sure the vault is in the soft delete phase and give appropriate access policy to a managed identity to the vault that you have also added to the application gateway.
- *
- * .. code::
- *
- *     gyro azure application-gateway import-certificate <application-gateway-name> <cert-name> <path> --password <password>
- *
- * - ``<application-gateway-name>`` - The name of the application gateway resource defined in your config where you want to import your certificate.
- * - ``<cert-name>`` - The name of the certificate that you want to create when you import the certificate.
- * - ``<vault-name>`` - The name of the vault resource defined in your config from which you want to import the certificate from.
- * - ``<vault-cert-name>`` - The name of the certificate in the vault that you want to import.
- *
- * **Remove Certificate**
- *
- * Remove a certificate from the application gateway.
- *
- * .. code::
- *
- *     gyro azure application-gateway remove-certificate <application-gateway-name> <cert-name>
- *
- * - ``<application-gateway-name>`` - The name of the application gateway resource defined in your config from which to remove the certificate.
- * - ``<cert-name>`` - The name of the certificate that you want to remove.
- *
- * **List Certificate**
- *
- * List certificates of an application gateway.
- *
- * .. code::
- *
- *     gyro azure vault list-certificate <application-gateway-name>
- *
- * - ``<application-gateway-name>`` - The name of the vault resource defined in your config that you want to list certificates from.
- *
+ * Create an Azure Application Gateway using the ``azure::application-gateway`` resource. After the Application Gateway is
+ * created use the ``gyro azure application-gateway`` command to manage certificates within the application gateway.
+ * See documentation below on how to create, add, or remove a certificate from an application gateway.
  *
  * Example
  * -------
@@ -198,6 +150,61 @@ import java.util.stream.Collectors;
  *         end
  *
  *     end
+ *
+ * Certificate Commands
+ * --------------------
+ *
+ * The following set of commands allow you to manage certificates in an application gateway. Before using these commands
+ * you must have already created an ``azure::application-gateway``. The application gateway must be managed by Gyro. Ensure a proper
+ * access policy is added to the key vault for the service principal you are using.
+ *
+ * **Add Certificate**
+ *
+ * Adds a certificate to an application gateway using your certificate file (.pfx).
+ *
+ * .. code::
+ *
+ *     gyro azure application-gateway add-certificate <application-gateway-name> <cert-name> <path> --password <password>
+ *
+ * - ``application-gateway-name`` - The name of the application gateway resource defined in your config where you want to create your certificate.
+ * - ``cert-name`` - The name of the certificate that you want to create when you import the certificate file.
+ * - ``cert-path`` - The path pointing to the certificate file to be uploaded. Only ``.pfx`` files are supported.
+ * - ``password`` - An optional password if the certificate file was encrypted with one.
+ *
+ * **Import Certificate**
+ *
+ * Imports a certificate to an application gateway from your vault. For the import to work make sure the vault is in the soft delete phase and give appropriate access policy to a managed identity to the vault that you have also added to the application gateway.
+ *
+ * .. code::
+ *
+ *     gyro azure application-gateway import-certificate <application-gateway-name> <cert-name> <path> --password <password>
+ *
+ * - ``application-gateway-name`` - The name of the application gateway resource defined in your config where you want to import your certificate.
+ * - ``cert-name`` - The name of the certificate that you want to create when you import the certificate.
+ * - ``vault-name`` - The name of the key-vault resource defined in your config from which you want to import the certificate from.
+ * - ``vault-cert-name`` - The name of the certificate in the vault that you want to import.
+ *
+ * **Remove Certificate**
+ *
+ * Remove a certificate from the application gateway.
+ *
+ * .. code::
+ *
+ *     gyro azure application-gateway remove-certificate <application-gateway-name> <cert-name>
+ *
+ * - ``application-gateway-name`` - The name of the application gateway resource defined in your config from which to remove the certificate.
+ * - ``cert-name`` - The name of the certificate that you want to remove.
+ *
+ * **List Certificate**
+ *
+ * List certificates of an application gateway.
+ *
+ * .. code::
+ *
+ *     gyro azure vault list-certificate <application-gateway-name>
+ *
+ * - ``application-gateway-name`` - The name of the vault resource defined in your config that you want to list certificates from.
+ *
  */
 @Type("application-gateway")
 public class ApplicationGatewayResource extends AzureResource implements Copyable<ApplicationGateway> {
