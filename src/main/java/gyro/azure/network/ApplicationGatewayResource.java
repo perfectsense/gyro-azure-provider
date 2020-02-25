@@ -37,6 +37,7 @@ import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.azure.resources.ResourceGroupResource;
+import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
@@ -56,6 +57,12 @@ import java.util.stream.Collectors;
 
 /**
  * Creates an Application Gateway.
+ *
+ * Azure Application Gateways are managed using a combination of resource configuration and commands.
+ *
+ * Create an Azure Application Gateway using the ``azure::application-gateway`` resource. After the Application Gateway is
+ * created use the ``gyro azure application-gateway`` command to manage certificates within the application gateway.
+ * See documentation below on how to create, add, or remove a certificate from an application gateway.
  *
  * Example
  * -------
@@ -147,6 +154,61 @@ import java.util.stream.Collectors;
  *         end
  *
  *     end
+ *
+ * Certificate Commands
+ * --------------------
+ *
+ * The following set of commands allow you to manage certificates in an application gateway. Before using these commands
+ * you must have already created an ``azure::application-gateway``. The application gateway must be managed by Gyro. Ensure a proper
+ * access policy is added to the key vault for the service principal you are using.
+ *
+ * **Add Certificate**
+ *
+ * Adds a certificate to an application gateway using your certificate file (.pfx).
+ *
+ * .. code::
+ *
+ *     gyro azure application-gateway add-certificate <application-gateway-name> <cert-name> <path> --password <password>
+ *
+ * - ``application-gateway-name`` - The name of the application gateway resource defined in your config where you want to create your certificate.
+ * - ``cert-name`` - The name of the certificate that you want to create when you import the certificate file.
+ * - ``cert-path`` - The path pointing to the certificate file to be uploaded. Only ``.pfx`` files are supported.
+ * - ``password`` - An optional password if the certificate file was encrypted with one.
+ *
+ * **Import Certificate**
+ *
+ * Imports a certificate to an application gateway from your vault. For the import to work make sure the vault is in the soft delete phase and give appropriate access policy to a managed identity to the vault that you have also added to the application gateway.
+ *
+ * .. code::
+ *
+ *     gyro azure application-gateway import-certificate <application-gateway-name> <cert-name> <path> --password <password>
+ *
+ * - ``application-gateway-name`` - The name of the application gateway resource defined in your config where you want to import your certificate.
+ * - ``cert-name`` - The name of the certificate that you want to create when you import the certificate.
+ * - ``vault-name`` - The name of the key-vault resource defined in your config from which you want to import the certificate from.
+ * - ``vault-cert-name`` - The name of the certificate in the vault that you want to import.
+ *
+ * **Remove Certificate**
+ *
+ * Remove a certificate from the application gateway.
+ *
+ * .. code::
+ *
+ *     gyro azure application-gateway remove-certificate <application-gateway-name> <cert-name>
+ *
+ * - ``application-gateway-name`` - The name of the application gateway resource defined in your config from which to remove the certificate.
+ * - ``cert-name`` - The name of the certificate that you want to remove.
+ *
+ * **List Certificate**
+ *
+ * List certificates of an application gateway.
+ *
+ * .. code::
+ *
+ *     gyro azure vault list-certificate <application-gateway-name>
+ *
+ * - ``application-gateway-name`` - The name of the vault resource defined in your config that you want to list certificates from.
+ *
  */
 @Type("application-gateway")
 public class ApplicationGatewayResource extends AzureResource implements Copyable<ApplicationGateway> {
@@ -168,6 +230,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
     private Boolean enableHttp2;
     private Boolean privateFrontEnd;
     private Set<String> availabilityZones;
+    private ApplicationGatewayManagedServiceIdentity managedServiceIdentity;
 
     private String id;
 
@@ -444,6 +507,15 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
         this.availabilityZones = availabilityZones;
     }
 
+    @Updatable
+    public ApplicationGatewayManagedServiceIdentity getManagedServiceIdentity() {
+        return managedServiceIdentity;
+    }
+
+    public void setManagedServiceIdentity(ApplicationGatewayManagedServiceIdentity managedServiceIdentity) {
+        this.managedServiceIdentity = managedServiceIdentity;
+    }
+
     /**
      * The ID of the application gateway.
      */
@@ -554,6 +626,13 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
                 getRequestRoutingRule().add(requestRoutingRule);
             }
         }
+
+        setManagedServiceIdentity(null);
+        if (applicationGateway.inner().identity() != null) {
+            ApplicationGatewayManagedServiceIdentity identity = newSubresource(ApplicationGatewayManagedServiceIdentity.class);
+            identity.copyFrom(applicationGateway.inner().identity());
+            setManagedServiceIdentity(identity);
+        }
     }
 
     @Override
@@ -619,6 +698,10 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
             }
         }
 
+        if (getManagedServiceIdentity() != null) {
+            withCreate.withIdentity(getManagedServiceIdentity().toManagedServiceIdentity());
+        }
+
         ApplicationGateway applicationGateway = withCreate.withExistingPublicIPAddress(
             client.publicIPAddresses().getById(getPublicIpAddress().getId())
         )
@@ -657,6 +740,15 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
         update = saveBackend(oldApplicationGatewayResource.getBackend(), update);
 
         update = saveRequestRoutingRule(oldApplicationGatewayResource.getRequestRoutingRule(), update);
+
+
+        if (changedFieldNames.contains("managed-service-identity")) {
+            if (getManagedServiceIdentity() == null) {
+                throw new GyroException("Cannot unset 'managed-service-identity'.");
+            }
+
+            update = update.withIdentity(getManagedServiceIdentity().toManagedServiceIdentity());
+        }
 
         applicationGateway = update.apply();
 

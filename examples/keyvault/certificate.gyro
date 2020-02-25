@@ -1,0 +1,78 @@
+azure::resource-group resource-group-example-vault-certificate
+    name: "resource-group-example-vault-certificate"
+
+    tags: {
+        Name: "resource-group-example-vault-certificate"
+    }
+end
+
+azure::key-vault vault-example-certificate
+    resource-group: $(azure::resource-group resource-group-example-vault)
+
+    name: "key-vault-example-certificate"
+    enable-deployment: true
+    enable-template-deployment: true
+    enable-disk-encryption: true
+
+    access-policy
+        key-permissions: ["get", "import", "list", "delete"]
+        certificate-permissions: ['get', 'update', 'create', 'list', 'delete', 'import', 'backup', 'recover', 'restore', 'setissuers', 'deleteissuers', 'purge', 'listissuers', 'getissuers', 'managecontacts', 'manageissuers']
+        secret-permissions: ["get"]
+        object-id: "e0afa33f-9882-4cdc-abb8-c613a8949f9e"
+    end
+
+    access-policy
+        key-permissions: ["get", "import", "list", "delete"]
+        certificate-permissions: ['get', 'update', 'create', 'list', 'delete', 'import', 'backup', 'recover', 'restore', 'setissuers', 'deleteissuers', 'purge', 'listissuers', 'getissuers', 'managecontacts', 'manageissuers']
+        secret-permissions: ["get"]
+        object-id: "b7d674a2-7e88-47af-b772-5d90b4bf965a"
+    end
+
+    tags: {
+        Name: "key-vault-examples-certificate"
+    }
+end
+
+azure::key-vault-certificate vault-certificate-example
+    name: "certificate-example"
+    vault: $(azure::key-vault vault-example)
+
+    policy
+        key-properties
+            exportable: false
+            reuse-key: false
+            #size: 2048
+            #type: "RSA"
+        end
+
+        lifetime-action
+            action
+                type: "EmailContacts"
+            end
+
+            trigger
+                lifetime-percentage: 90
+            end
+        end
+
+        secret-properties
+            content-type: "application/x-pkcs12"
+        end
+
+        x509-properties
+            key-usage: ["digitalSignature", "keyEncipherment"]
+            subject: "CN=a1.com"
+            validity-in-months:  2
+            ekus: ["1.3.6.1.5.5.7.3.1", "1.3.6.1.5.5.7.3.2"]
+        end
+
+        attribute
+            "enabled" : true
+            "expires" : "2020-04-03T15:54:12.000Z"
+        end
+
+        issuer-parameter
+            name: "Self"
+        end
+    end
+end

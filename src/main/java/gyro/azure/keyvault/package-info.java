@@ -1,5 +1,5 @@
 /*
- * Copyright 2019, Perfect Sense, Inc.
+ * Copyright 2020, Perfect Sense, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,7 @@
  * limitations under the License.
  */
 
-package gyro.azure;
+@DocGroup("KeyVault")
+package gyro.azure.keyvault;
 
-import gyro.core.resource.Resource;
-import com.microsoft.azure.management.Azure;
-
-public abstract class AzureResource extends Resource {
-
-    public static Azure createClient(AzureCredentials credentials) {
-        return credentials.createClient();
-    }
-
-    protected Azure createClient() {
-        return AzureResource.createClient(credentials(AzureCredentials.class));
-    }
-
-    protected String getRegion() {
-        return credentials(AzureCredentials.class).getRegion();
-    }
-
-}
+import gyro.core.resource.DocGroup;
