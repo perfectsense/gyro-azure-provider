@@ -49,7 +49,7 @@ import gyro.core.validation.Required;
  *
  * .. code-block:: gyro
  *
- *     azure::vault-certificate vault-certificate-example
+ *     azure::key-vault-certificate vault-certificate-example
  *         name: "certificate-example"
  *         vault: $(azure::key-vault vault-example)
  *
@@ -93,7 +93,7 @@ import gyro.core.validation.Required;
  *         end
  *     end
  */
-@Type("vault-certificate")
+@Type("key-vault-certificate")
 public class VaultCertificateResource extends AzureResource implements Copyable<CertificateBundle> {
 
     private String name;

@@ -33,7 +33,7 @@ azure::key-vault vault-example-certificate
     }
 end
 
-azure::vault-certificate vault-certificate-example
+azure::key-vault-certificate vault-certificate-example
     name: "certificate-example"
     vault: $(azure::key-vault vault-example)
 
