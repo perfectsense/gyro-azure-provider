@@ -6,7 +6,7 @@ azure::resource-group resource-group-example-vault-certificate
     }
 end
 
-azure::vault vault-example-certificate
+azure::key-vault vault-example-certificate
     resource-group: $(azure::resource-group resource-group-example-vault)
 
     name: "key-vault-example-certificate"
@@ -35,7 +35,7 @@ end
 
 azure::vault-certificate vault-certificate-example
     name: "certificate-example"
-    vault: $(azure::vault vault-example)
+    vault: $(azure::key-vault vault-example)
 
     policy
         key-properties

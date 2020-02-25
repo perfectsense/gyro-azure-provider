@@ -51,7 +51,7 @@ import gyro.core.validation.Required;
  *
  *     azure::vault-certificate vault-certificate-example
  *         name: "certificate-example"
- *         vault: $(azure::vault vault-example)
+ *         vault: $(azure::key-vault vault-example)
  *
  *         policy
  *             key-properties

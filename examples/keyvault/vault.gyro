@@ -6,7 +6,7 @@ azure::resource-group resource-group-example-vault
     }
 end
 
-azure::vault vault-example
+azure::key-vault vault-example
     resource-group: $(azure::resource-group resource-group-example-vault)
 
     name: "key-vault-example"

@@ -49,7 +49,7 @@ import gyro.core.validation.Required;
  *
  * .. code-block:: gyro
  *
- *     azure::vault vault-example
+ *     azure::key-vault vault-example
  *         resource-group: $(azure::resource-group resource-group-example-vault)
  *
  *         name: "key-vault-example"
@@ -122,7 +122,7 @@ import gyro.core.validation.Required;
  *
 
  */
-@Type("vault")
+@Type("key-vault")
 public class VaultResource extends AzureResource implements Copyable<Vault> {
 
     private String name;
