@@ -44,7 +44,7 @@ public class VaultAccessPolicy extends Diffable implements Copyable<AccessPolicy
     private String objectId;
 
     /**
-     * A set of allowed certificate access permissions.
+     * A set of allowed certificate access permissions. See `Certificate Access Policy <https://docs.microsoft.com/en-us/azure/key-vault/about-keys-secrets-and-certificates#certificate-access-control>`_.
      */
     @Updatable
     public Set<String> getCertificatePermissions() {
@@ -60,7 +60,7 @@ public class VaultAccessPolicy extends Diffable implements Copyable<AccessPolicy
     }
 
     /**
-     * A set of allowed key access permissions.
+     * A set of allowed key access permissions. See `Key Access Policy <https://docs.microsoft.com/en-us/azure/key-vault/about-keys-secrets-and-certificates#key-access-control>`_.
      */
     @Updatable
     public Set<String> getKeyPermissions() {
@@ -76,7 +76,7 @@ public class VaultAccessPolicy extends Diffable implements Copyable<AccessPolicy
     }
 
     /**
-     * A set of allowed secret access permissions.
+     * A set of allowed secret access permissions. See `Secret Access Policy <https://docs.microsoft.com/en-us/azure/key-vault/about-keys-secrets-and-certificates#secret-access-control>`_.
      */
     @Updatable
     public Set<String> getSecretPermissions() {
@@ -92,7 +92,7 @@ public class VaultAccessPolicy extends Diffable implements Copyable<AccessPolicy
     }
 
     /**
-     * A set of allowed storage access permissions.
+     * A set of allowed storage access permissions. See `Secret Access Policy <https://docs.microsoft.com/en-us/azure/key-vault/about-keys-secrets-and-certificates#storage-account-access-control>`_.
      */
     @Updatable
     public Set<String> getStoragePermissions() {
