@@ -31,7 +31,7 @@ public class KeyVaultCertificateLifetime extends Diffable implements Copyable<Li
     /**
      * Lifetime action config for the certificate policy. (Required)
      *
-     * @subresource gyro.azure.keyvault.VaultCertificateLifetimeAction
+     * @subresource gyro.azure.keyvault.KeyVaultCertificateLifetimeAction
      */
     @Required
     public KeyVaultCertificateLifetimeAction getAction() {
@@ -45,7 +45,7 @@ public class KeyVaultCertificateLifetime extends Diffable implements Copyable<Li
     /**
      * Lifetime trigger config for the certificate policy.
      *
-     * @subresource gyro.azure.keyvault.VaultCertificateLifetimeTrigger
+     * @subresource gyro.azure.keyvault.KeyVaultCertificateLifetimeTrigger
      */
     public KeyVaultCertificateLifetimeTrigger getTrigger() {
         return trigger;

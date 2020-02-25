@@ -146,7 +146,7 @@ public class KeyVaultCertificateResource extends AzureResource implements Copyab
     /**
      * The policy config for the certificate. (Required)
      *
-     * @subresource gyro.azure.keyvault.VaultCertificatePolicy
+     * @subresource gyro.azure.keyvault.KeyVaultCertificatePolicy
      */
     @Required
     public KeyVaultCertificatePolicy getPolicy() {

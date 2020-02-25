@@ -61,7 +61,7 @@ public class KeyVaultCertificateX509Properties extends Diffable implements Copya
     /**
      * Alternate name config for the certificate.
      *
-     * @subresource gyro.azure.keyvault.VaultCertificateSubjectAlternativeName
+     * @subresource gyro.azure.keyvault.KeyVaultCertificateSubjectAlternativeName
      */
     public KeyVaultCertificateSubjectAlternativeName getSubjectAlternativeName() {
         return subjectAlternativeName;
