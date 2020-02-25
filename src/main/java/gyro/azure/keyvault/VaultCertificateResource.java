@@ -42,7 +42,7 @@ import gyro.core.scope.State;
 import gyro.core.validation.Required;
 
 /**
- * Creates a vault certificate.
+ * Creates a key vault certificate.
  *
  * Example
  * -------

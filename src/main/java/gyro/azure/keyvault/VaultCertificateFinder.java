@@ -27,16 +27,16 @@ import gyro.azure.AzureFinder;
 import gyro.core.Type;
 
 /**
- * Query vault certificate.
+ * Query key vault certificate.
  *
  * Example
  * -------
  *
  * .. code-block:: gyro
  *
- *    identity: $(external-query azure::vault-certificate {resource-group: "resource-group-example", vault: "vault-example", name: "certificate-example"})
+ *    certificate: $(external-query azure::key-vault-certificate {resource-group: "resource-group-example", vault: "vault-example", name: "certificate-example"})
  */
-@Type("vault-certificate")
+@Type("key-vault-certificate")
 public class VaultCertificateFinder extends AzureFinder<CertificateBundle, VaultCertificateResource> {
 
     private String resourceGroup;
