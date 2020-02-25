@@ -40,9 +40,13 @@ import gyro.core.scope.State;
 import gyro.core.validation.Required;
 
 /**
- * The vault is managed using a combination of ``gyro`` configuration and commands. Currently ``certificate`` is the only entity that can be managed using ``gyro``.
  *
- * The vault resource by itself is managed using ``gyro`` configuration which allows you to ``create``, ``update`` and ``remove`` a vault, including managing the access policies of the vault that handles the permissions to manage certificates, keys and secrets.
+ * Azure Key Vaults are managed using a combination of resource configuration and commands. Currently
+ * ``aws::key-vault-certificate`` is the only entity that can be managed.
+ *
+ * Create an Azure Key Vault using the ``aws::key-vault`` resource. After the Key Vault is
+ * created use the ``gyro azure key-vault`` command to manage certificates within the key vault.
+ * See documentation below on how to create, add, or remove a certificate from a key vault.
  *
  * Example
  * -------
@@ -80,9 +84,9 @@ import gyro.core.validation.Required;
  * Certificate Commands
  * --------------------
  *
- * A set of commands that lets you manage certificates (``add``, ``remove`` or ``list``) of a vault that you are managing using ``gyro``. In order to use these commands, make sure to add proper access policy to the vault for the service principal you are using for the ``azure-provider``.
- *
- * The following commands are supported:
+ * The following set of commands allow you to manage certificates in a key vault. Before using these commands
+ * you must have already created an ``azure::key-vault``. The key vault must be managed by Gyro. Ensure a proper
+ * access policy is added to the vault for the service principal you are using.
  *
  * **Add Certificate**
  *
