@@ -41,7 +41,7 @@ import org.apache.commons.lang3.StringUtils;
 
 public abstract class AbstractAzureCommand {
 
-    @Option(name = "--credential", description = "The azure credentials to use as defined in the project init file. When not specified the 'default' credential is used.")
+    @Option(name = "--credential", description = "The azure credentials to be used as defined in the project init file. When not specified the 'default' credential is used.")
     private String credential;
 
     private RootScope scope;

@@ -86,7 +86,7 @@ import gyro.core.validation.Required;
  *
  * The following set of commands allow you to manage certificates in a key vault. Before using these commands
  * you must have already created an ``azure::key-vault``. The key vault must be managed by Gyro. Ensure a proper
- * access policy is added to the vault for the service principal you are using.
+ * access policy is added to the key vault for the service principal you are using.
  *
  * **Add Certificate**
  *
