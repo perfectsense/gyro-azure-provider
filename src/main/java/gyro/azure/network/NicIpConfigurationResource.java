@@ -16,32 +16,36 @@
 
 package gyro.azure.network;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.network.LoadBalancer;
 import com.microsoft.azure.management.network.LoadBalancerBackend;
+import com.microsoft.azure.management.network.LoadBalancerInboundNatRule;
 import com.microsoft.azure.management.network.NetworkInterface;
 import com.microsoft.azure.management.network.NicIPConfiguration;
-import com.microsoft.azure.management.network.LoadBalancerInboundNatRule;
-
+import com.microsoft.azure.management.network.implementation.ApplicationSecurityGroupInner;
+import com.microsoft.azure.management.network.implementation.NetworkInterfaceIPConfigurationInner;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.core.GyroUI;
-import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
 public class NicIpConfigurationResource extends AzureResource implements Copyable<NicIPConfiguration> {
+
     private String name;
     private PublicIpAddressResource publicIpAddress;
     private String privateIpAddress;
     private Set<NicBackend> nicBackend;
     private Set<NicNatRule> nicNatRule;
+    private Set<ApplicationSecurityGroupResource> applicationSecurityGroups;
 
     /**
      * Name of the IP Configuration. (Required)
@@ -115,10 +119,30 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
         this.nicNatRule = nicNatRule;
     }
 
+    /**
+     * The set of application security groups to attach to the IP configuration
+     *
+     * @Resource gyro.azure.network.ApplicationSecurityGroupResource
+     */
+    @Updatable
+    public Set<ApplicationSecurityGroupResource> getApplicationSecurityGroups() {
+        if (applicationSecurityGroups == null) {
+            applicationSecurityGroups = new HashSet<>();
+        }
+
+        return applicationSecurityGroups;
+    }
+
+    public void setApplicationSecurityGroups(Set<ApplicationSecurityGroupResource> applicationSecurityGroups) {
+        this.applicationSecurityGroups = applicationSecurityGroups;
+    }
+
     @Override
     public void copyFrom(NicIPConfiguration nicIpConfiguration) {
         setName(nicIpConfiguration.name());
-        setPublicIpAddress(nicIpConfiguration.getPublicIPAddress() != null ? findById(PublicIpAddressResource.class, nicIpConfiguration.getPublicIPAddress().id()) : null);
+        setPublicIpAddress(nicIpConfiguration.getPublicIPAddress() != null ? findById(
+            PublicIpAddressResource.class,
+            nicIpConfiguration.getPublicIPAddress().id()) : null);
         setPrivateIpAddress(nicIpConfiguration.privateIPAddress());
 
         getNicBackend().clear();
@@ -129,10 +153,20 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
         }
 
         getNicNatRule().clear();
-        for(LoadBalancerInboundNatRule rule : nicIpConfiguration.listAssociatedLoadBalancerInboundNatRules()) {
+        for (LoadBalancerInboundNatRule rule : nicIpConfiguration.listAssociatedLoadBalancerInboundNatRules()) {
             NicNatRule nicNatRule = newSubresource(NicNatRule.class);
             nicNatRule.copyFrom(rule);
             getNicNatRule().add(nicNatRule);
+        }
+
+        getApplicationSecurityGroups().clear();
+        if (nicIpConfiguration.inner().applicationSecurityGroups() != null) {
+            setApplicationSecurityGroups(nicIpConfiguration.inner()
+                .applicationSecurityGroups()
+                .stream()
+                .map(o -> findById(ApplicationSecurityGroupResource.class, o.id()))
+                .collect(
+                    Collectors.toSet()));
         }
     }
 
@@ -157,7 +191,8 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
 
         NetworkInterface networkInterface = parent.getNetworkInterface(client);
 
-        NicIPConfiguration.UpdateDefinitionStages.WithPrivateIP<NetworkInterface.Update> updateWithPrivateIP = networkInterface.update()
+        NicIPConfiguration.UpdateDefinitionStages.WithPrivateIP<NetworkInterface.Update> updateWithPrivateIP = networkInterface
+            .update()
             .defineSecondaryIPConfiguration(getName())
             .withExistingNetwork(client.networks().getById(parent.getNetwork().getId()))
             .withSubnet(parent.getSubnet());
@@ -171,7 +206,8 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
         }
 
         if (getPublicIpAddress() != null) {
-            updateWithAttach = updateWithAttach.withExistingPublicIPAddress(client.publicIPAddresses().getById(getPublicIpAddress().getId()));
+            updateWithAttach = updateWithAttach.withExistingPublicIPAddress(client.publicIPAddresses()
+                .getById(getPublicIpAddress().getId()));
         }
 
         for (NicBackend backend : getNicBackend()) {
@@ -186,6 +222,9 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
 
         updateWithAttach.attach().apply();
 
+        if (!getApplicationSecurityGroups().isEmpty()) {
+            addRemoveApplicationSecurityGroups(client, networkInterface);
+        }
     }
 
     @Override
@@ -203,7 +242,8 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
             if (getPublicIpAddress() == null) {
                 update = update.withoutPublicIPAddress();
             } else {
-                update = update.withExistingPublicIPAddress(client.publicIPAddresses().getById(getPublicIpAddress().getId()));
+                update = update.withExistingPublicIPAddress(client.publicIPAddresses()
+                    .getById(getPublicIpAddress().getId()));
             }
         }
 
@@ -225,9 +265,41 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
             update.withExistingLoadBalancerInboundNatRule(loadBalancer, rule.getInboundNatRuleName());
         }
 
-        NetworkInterface response = update.parent().apply();
+        update.parent().apply();
 
-        copyFrom(response.ipConfigurations().get(getName()));
+        addRemoveApplicationSecurityGroups(client, networkInterface);
+    }
+
+    private void addRemoveApplicationSecurityGroups(Azure client, NetworkInterface networkInterface) {
+        NetworkInterfaceIPConfigurationInner nicIPConfigurationInner = networkInterface.inner()
+            .ipConfigurations()
+            .stream()
+            .filter(o -> o.name().equals(getName()))
+            .findFirst()
+            .get();
+
+        boolean doUpdate = false;
+
+        if (!getApplicationSecurityGroups().isEmpty()) {
+            nicIPConfigurationInner.withApplicationSecurityGroups(getApplicationSecurityGroups().stream()
+                .map(o -> new ApplicationSecurityGroupInner().withId(o.getId()))
+                .collect(
+                    Collectors.toList()));
+            doUpdate = true;
+        } else if (nicIPConfigurationInner.applicationSecurityGroups() != null
+            && nicIPConfigurationInner.applicationSecurityGroups().size() > 0) {
+            nicIPConfigurationInner.withApplicationSecurityGroups(Collections.emptyList());
+            doUpdate = true;
+        }
+
+        if (doUpdate) {
+            client.networkInterfaces()
+                .inner()
+                .createOrUpdate(
+                    networkInterface.resourceGroupName(),
+                    networkInterface.name(),
+                    networkInterface.inner());
+        }
     }
 
     @Override
