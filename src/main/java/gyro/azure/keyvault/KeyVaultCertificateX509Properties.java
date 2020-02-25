@@ -27,11 +27,11 @@ import gyro.core.resource.Diffable;
 import gyro.core.validation.Range;
 import gyro.core.validation.Required;
 
-public class VaultCertificateX509Properties extends Diffable implements Copyable<X509CertificateProperties> {
+public class KeyVaultCertificateX509Properties extends Diffable implements Copyable<X509CertificateProperties> {
 
     private List<String> keyUsage;
     private String subject;
-    private VaultCertificateSubjectAlternativeName subjectAlternativeName;
+    private KeyVaultCertificateSubjectAlternativeName subjectAlternativeName;
     private Integer validityInMonths;
     private List<String> ekus;
 
@@ -63,11 +63,11 @@ public class VaultCertificateX509Properties extends Diffable implements Copyable
      *
      * @subresource gyro.azure.keyvault.VaultCertificateSubjectAlternativeName
      */
-    public VaultCertificateSubjectAlternativeName getSubjectAlternativeName() {
+    public KeyVaultCertificateSubjectAlternativeName getSubjectAlternativeName() {
         return subjectAlternativeName;
     }
 
-    public void setSubjectAlternativeName(VaultCertificateSubjectAlternativeName subjectAlternativeName) {
+    public void setSubjectAlternativeName(KeyVaultCertificateSubjectAlternativeName subjectAlternativeName) {
         this.subjectAlternativeName = subjectAlternativeName;
     }
 
@@ -118,7 +118,8 @@ public class VaultCertificateX509Properties extends Diffable implements Copyable
             .map(o -> o.stream().map(KeyUsageType::toString).collect(Collectors.toList())).orElse(null));
         setSubjectAlternativeName(Optional.ofNullable(x509CertificateProperties.subjectAlternativeNames())
             .map(o -> {
-                VaultCertificateSubjectAlternativeName subjectAlternativeName = newSubresource(VaultCertificateSubjectAlternativeName.class);
+                KeyVaultCertificateSubjectAlternativeName subjectAlternativeName = newSubresource(
+                    KeyVaultCertificateSubjectAlternativeName.class);
                 subjectAlternativeName.copyFrom(o);
                 return subjectAlternativeName;
             }).orElse(null));

@@ -27,14 +27,14 @@ import gyro.core.resource.Diffable;
 import gyro.core.validation.CollectionMax;
 import gyro.core.validation.Required;
 
-public class VaultCertificatePolicy extends Diffable implements Copyable<CertificatePolicy> {
+public class KeyVaultCertificatePolicy extends Diffable implements Copyable<CertificatePolicy> {
 
-    private VaultCertificateIssuerParameter issuerParameter;
-    private VaultCertificateKeyProperties keyProperties;
-    private List<VaultCertificateLifetime> lifetimeAction;
-    private VaultCertificateSecretProperties secretProperties;
-    private VaultCertificateX509Properties x509Properties;
-    private VaultCertificateAttribute attribute;
+    private KeyVaultCertificateIssuerParameter issuerParameter;
+    private KeyVaultCertificateKeyProperties keyProperties;
+    private List<KeyVaultCertificateLifetime> lifetimeAction;
+    private KeyVaultCertificateSecretProperties secretProperties;
+    private KeyVaultCertificateX509Properties x509Properties;
+    private KeyVaultCertificateAttribute attribute;
 
     /**
      * Issuer parameter config for the certificate policy. (Required)
@@ -42,11 +42,11 @@ public class VaultCertificatePolicy extends Diffable implements Copyable<Certifi
      * @subresource gyro.azure.keyvault.VaultCertificateIssuerParameter
      */
     @Required
-    public VaultCertificateIssuerParameter getIssuerParameter() {
+    public KeyVaultCertificateIssuerParameter getIssuerParameter() {
         return issuerParameter;
     }
 
-    public void setIssuerParameter(VaultCertificateIssuerParameter issuerParameter) {
+    public void setIssuerParameter(KeyVaultCertificateIssuerParameter issuerParameter) {
         this.issuerParameter = issuerParameter;
     }
 
@@ -56,11 +56,11 @@ public class VaultCertificatePolicy extends Diffable implements Copyable<Certifi
      * @subresource gyro.azure.keyvault.VaultCertificateKeyProperties
      */
     @Required
-    public VaultCertificateKeyProperties getKeyProperties() {
+    public KeyVaultCertificateKeyProperties getKeyProperties() {
         return keyProperties;
     }
 
-    public void setKeyProperties(VaultCertificateKeyProperties keyProperties) {
+    public void setKeyProperties(KeyVaultCertificateKeyProperties keyProperties) {
         this.keyProperties = keyProperties;
     }
 
@@ -71,7 +71,7 @@ public class VaultCertificatePolicy extends Diffable implements Copyable<Certifi
      */
     @Required
     @CollectionMax(1)
-    public List<VaultCertificateLifetime> getLifetimeAction() {
+    public List<KeyVaultCertificateLifetime> getLifetimeAction() {
         if (lifetimeAction == null) {
             lifetimeAction = new ArrayList<>();
         }
@@ -79,7 +79,7 @@ public class VaultCertificatePolicy extends Diffable implements Copyable<Certifi
         return lifetimeAction;
     }
 
-    public void setLifetimeAction(List<VaultCertificateLifetime> lifetimeAction) {
+    public void setLifetimeAction(List<KeyVaultCertificateLifetime> lifetimeAction) {
         this.lifetimeAction = lifetimeAction;
     }
 
@@ -89,11 +89,11 @@ public class VaultCertificatePolicy extends Diffable implements Copyable<Certifi
      * @subresource gyro.azure.keyvault.VaultCertificateSecretProperties
      */
     @Required
-    public VaultCertificateSecretProperties getSecretProperties() {
+    public KeyVaultCertificateSecretProperties getSecretProperties() {
         return secretProperties;
     }
 
-    public void setSecretProperties(VaultCertificateSecretProperties secretProperties) {
+    public void setSecretProperties(KeyVaultCertificateSecretProperties secretProperties) {
         this.secretProperties = secretProperties;
     }
 
@@ -103,11 +103,11 @@ public class VaultCertificatePolicy extends Diffable implements Copyable<Certifi
      * @subresource gyro.azure.keyvault.VaultCertificateX509Properties
      */
     @Required
-    public VaultCertificateX509Properties getX509Properties() {
+    public KeyVaultCertificateX509Properties getX509Properties() {
         return x509Properties;
     }
 
-    public void setX509Properties(VaultCertificateX509Properties x509Properties) {
+    public void setX509Properties(KeyVaultCertificateX509Properties x509Properties) {
         this.x509Properties = x509Properties;
     }
 
@@ -116,11 +116,11 @@ public class VaultCertificatePolicy extends Diffable implements Copyable<Certifi
      *
      * @subresource gyro.azure.keyvault.VaultCertificateAttribute
      */
-    public VaultCertificateAttribute getAttribute() {
+    public KeyVaultCertificateAttribute getAttribute() {
         return attribute;
     }
 
-    public void setAttribute(VaultCertificateAttribute attribute) {
+    public void setAttribute(KeyVaultCertificateAttribute attribute) {
         this.attribute = attribute;
     }
 
@@ -128,36 +128,37 @@ public class VaultCertificatePolicy extends Diffable implements Copyable<Certifi
     public void copyFrom(CertificatePolicy certificatePolicy) {
         setIssuerParameter(Optional.ofNullable(certificatePolicy.issuerParameters())
             .map(o -> {
-                VaultCertificateIssuerParameter issuerParameter = newSubresource(VaultCertificateIssuerParameter.class);
+                KeyVaultCertificateIssuerParameter issuerParameter = newSubresource(KeyVaultCertificateIssuerParameter.class);
                 issuerParameter.copyFrom(o);
                 return issuerParameter;
             }).orElse(null));
         setKeyProperties(Optional.ofNullable(certificatePolicy.keyProperties())
             .map(o -> {
-                VaultCertificateKeyProperties keyProperties = newSubresource(VaultCertificateKeyProperties.class);
+                KeyVaultCertificateKeyProperties keyProperties = newSubresource(KeyVaultCertificateKeyProperties.class);
                 keyProperties.copyFrom(o);
                 return keyProperties;
             }).orElse(null));
         setLifetimeAction(Optional.ofNullable(certificatePolicy.lifetimeActions())
             .map(o -> o.stream().map(oo -> {
-                VaultCertificateLifetime lifetime = newSubresource(VaultCertificateLifetime.class);
+                KeyVaultCertificateLifetime lifetime = newSubresource(KeyVaultCertificateLifetime.class);
                 lifetime.copyFrom(oo);
                 return lifetime;
             }).collect(Collectors.toList())).orElse(null));certificatePolicy.lifetimeActions();
         setX509Properties(Optional.ofNullable(certificatePolicy.x509CertificateProperties())
             .map(o -> {
-                VaultCertificateX509Properties x509Properties = newSubresource(VaultCertificateX509Properties.class);
+                KeyVaultCertificateX509Properties x509Properties = newSubresource(KeyVaultCertificateX509Properties.class);
                 x509Properties.copyFrom(o);
                 return x509Properties;
             }).orElse(null));
         setSecretProperties(Optional.ofNullable(certificatePolicy.secretProperties())
             .map( o -> {
-                VaultCertificateSecretProperties secretProperties = newSubresource(VaultCertificateSecretProperties.class);
+                KeyVaultCertificateSecretProperties secretProperties = newSubresource(
+                    KeyVaultCertificateSecretProperties.class);
                 secretProperties.copyFrom(o);
                 return secretProperties;
             }).orElse(null));
         setAttribute(Optional.ofNullable(certificatePolicy.attributes()).map( o -> {
-            VaultCertificateAttribute certificateAttribute = newSubresource(VaultCertificateAttribute.class);
+            KeyVaultCertificateAttribute certificateAttribute = newSubresource(KeyVaultCertificateAttribute.class);
             certificateAttribute.copyFrom(o);
             return certificateAttribute;
         }).orElse(null));
@@ -173,7 +174,7 @@ public class VaultCertificatePolicy extends Diffable implements Copyable<Certifi
         policy = policy.withIssuerParameters(getIssuerParameter().toIssuerParameters());
         policy = policy.withKeyProperties(getKeyProperties().toKeyProperties());
         policy = policy.withLifetimeActions(getLifetimeAction()
-            .stream().map(VaultCertificateLifetime::toLifetimeAction)
+            .stream().map(KeyVaultCertificateLifetime::toLifetimeAction)
             .collect(Collectors.toList()));
         policy = policy.withSecretProperties(getSecretProperties().toSecretProperties());
         policy = policy.withX509CertificateProperties(getX509Properties().toX509CertificateProperties());

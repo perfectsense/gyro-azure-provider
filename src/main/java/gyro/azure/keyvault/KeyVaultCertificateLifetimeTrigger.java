@@ -23,7 +23,7 @@ import gyro.core.validation.Min;
 import gyro.core.validation.Range;
 import gyro.core.validation.Required;
 
-public class VaultCertificateLifetimeTrigger extends Diffable implements Copyable<Trigger> {
+public class KeyVaultCertificateLifetimeTrigger extends Diffable implements Copyable<Trigger> {
 
     private Integer daysBeforeExpiry;
     private Integer lifetimePercentage;

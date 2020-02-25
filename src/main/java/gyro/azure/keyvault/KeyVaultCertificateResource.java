@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
 
 import com.microsoft.azure.keyvault.models.CertificateBundle;
 import com.microsoft.azure.keyvault.models.CertificateOperation;
@@ -94,12 +93,12 @@ import gyro.core.validation.Required;
  *     end
  */
 @Type("key-vault-certificate")
-public class VaultCertificateResource extends AzureResource implements Copyable<CertificateBundle> {
+public class KeyVaultCertificateResource extends AzureResource implements Copyable<CertificateBundle> {
 
     private String name;
-    private VaultResource vault;
+    private KeyVaultResource vault;
     private Map<String, String> tags;
-    private VaultCertificatePolicy policy;
+    private KeyVaultCertificatePolicy policy;
     private String version;
     private String id;
     private String sid;
@@ -121,11 +120,11 @@ public class VaultCertificateResource extends AzureResource implements Copyable<
     /**
      * The vault under which the certificate is going to be created.
      */
-    public VaultResource getVault() {
+    public KeyVaultResource getVault() {
         return vault;
     }
 
-    public void setVault(VaultResource vault) {
+    public void setVault(KeyVaultResource vault) {
         this.vault = vault;
     }
 
@@ -150,11 +149,11 @@ public class VaultCertificateResource extends AzureResource implements Copyable<
      * @subresource gyro.azure.keyvault.VaultCertificatePolicy
      */
     @Required
-    public VaultCertificatePolicy getPolicy() {
+    public KeyVaultCertificatePolicy getPolicy() {
         return policy;
     }
 
-    public void setPolicy(VaultCertificatePolicy policy) {
+    public void setPolicy(KeyVaultCertificatePolicy policy) {
         this.policy = policy;
     }
 
@@ -236,7 +235,7 @@ public class VaultCertificateResource extends AzureResource implements Copyable<
         setName(certificateBundle.certificateIdentifier().name());
         setVersion(certificateBundle.certificateIdentifier().version());
         setId(certificateBundle.id());
-        setVault(findById(VaultResource.class, certificateBundle.certificateIdentifier().vault()));
+        setVault(findById(KeyVaultResource.class, certificateBundle.certificateIdentifier().vault()));
         setSecretId(certificateBundle.secretIdentifier().identifier());
         setSid(certificateBundle.sid());
         setKeyId(certificateBundle.keyIdentifier().identifier());
@@ -244,7 +243,7 @@ public class VaultCertificateResource extends AzureResource implements Copyable<
 
         setPolicy(Optional.ofNullable(certificateBundle.policy())
             .map(o -> {
-                VaultCertificatePolicy certificatePolicy = newSubresource(VaultCertificatePolicy.class);
+                KeyVaultCertificatePolicy certificatePolicy = newSubresource(KeyVaultCertificatePolicy.class);
                 certificatePolicy.copyFrom(o);
                 return certificatePolicy;
             }).orElse(null));

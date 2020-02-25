@@ -39,7 +39,7 @@ import gyro.core.Type;
  *    identity: $(external-query azure::key-vault {resource-group: "resource-group-example", name: "vault-example"})
  */
 @Type("key-vault")
-public class VaultFinder extends AzureFinder<Vault, VaultResource> {
+public class KeyVaultFinder extends AzureFinder<Vault, KeyVaultResource> {
 
     private String resourceGroup;
     private String name;

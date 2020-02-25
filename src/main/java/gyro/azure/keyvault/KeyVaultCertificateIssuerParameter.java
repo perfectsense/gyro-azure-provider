@@ -21,7 +21,7 @@ import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.validation.Required;
 
-public class VaultCertificateIssuerParameter extends Diffable implements Copyable<IssuerParameters> {
+public class KeyVaultCertificateIssuerParameter extends Diffable implements Copyable<IssuerParameters> {
 
     private String name;
     private String type;

@@ -28,7 +28,7 @@ import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 
-public class VaultCertificateKeyProperties extends Diffable implements Copyable<KeyProperties> {
+public class KeyVaultCertificateKeyProperties extends Diffable implements Copyable<KeyProperties> {
 
     private Boolean exportable;
     private Boolean reuseKey;

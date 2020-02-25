@@ -22,7 +22,7 @@ import gyro.core.resource.Diffable;
 import gyro.core.resource.Output;
 import org.joda.time.DateTime;
 
-public class VaultCertificateAttribute extends Diffable implements Copyable<CertificateAttributes> {
+public class KeyVaultCertificateAttribute extends Diffable implements Copyable<CertificateAttributes> {
 
     private Boolean enabled;
     private String expires;

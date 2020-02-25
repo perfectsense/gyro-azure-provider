@@ -34,7 +34,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 
-public class VaultAccessPolicy extends Diffable implements Copyable<AccessPolicy> {
+public class KeyVaultAccessPolicy extends Diffable implements Copyable<AccessPolicy> {
 
     private String name;
     private Set<String> certificatePermissions;

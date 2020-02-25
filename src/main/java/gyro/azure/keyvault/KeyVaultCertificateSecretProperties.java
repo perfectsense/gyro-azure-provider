@@ -16,28 +16,27 @@
 
 package gyro.azure.keyvault;
 
-import com.microsoft.azure.keyvault.models.Action;
-import com.microsoft.azure.keyvault.models.ActionType;
+import com.microsoft.azure.keyvault.models.SecretProperties;
 import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 
-public class VaultCertificateLifetimeAction extends Diffable implements Copyable<Action> {
+public class KeyVaultCertificateSecretProperties extends Diffable implements Copyable<SecretProperties> {
 
-    private ActionType type;
+    private String contentType;
 
     /**
-     * The lifetime action type. Valid values are ``EmailContacts`` or ``AutoRenew``. (Required)
+     * The type of certificate to generate. Valid values are ``application/x-pem-file`` for ``PEM`` or ``application/x-pkcs12`` for ``PKCS #12``. (Required)
      */
     @Required
-    @ValidStrings({"EmailContacts", "AutoRenew"})
-    public ActionType getType() {
-        return type;
+    @ValidStrings({"application/x-pem-file", "application/x-pkcs12"})
+    public String getContentType() {
+        return contentType;
     }
 
-    public void setType(ActionType type) {
-        this.type = type;
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
     }
 
     @Override
@@ -45,12 +44,12 @@ public class VaultCertificateLifetimeAction extends Diffable implements Copyable
         return "";
     }
 
-    Action toAction() {
-        return new Action().withActionType(getType());
+    SecretProperties toSecretProperties() {
+        return new SecretProperties().withContentType(getContentType());
     }
 
     @Override
-    public void copyFrom(Action action) {
-        setType(action.actionType());
+    public void copyFrom(SecretProperties secretProperties) {
+        setContentType(secretProperties.contentType());
     }
 }

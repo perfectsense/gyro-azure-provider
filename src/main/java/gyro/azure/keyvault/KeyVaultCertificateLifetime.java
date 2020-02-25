@@ -23,10 +23,10 @@ import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.validation.Required;
 
-public class VaultCertificateLifetime extends Diffable implements Copyable<LifetimeAction> {
+public class KeyVaultCertificateLifetime extends Diffable implements Copyable<LifetimeAction> {
 
-    private VaultCertificateLifetimeAction action;
-    private VaultCertificateLifetimeTrigger trigger;
+    private KeyVaultCertificateLifetimeAction action;
+    private KeyVaultCertificateLifetimeTrigger trigger;
 
     /**
      * Lifetime action config for the certificate policy. (Required)
@@ -34,11 +34,11 @@ public class VaultCertificateLifetime extends Diffable implements Copyable<Lifet
      * @subresource gyro.azure.keyvault.VaultCertificateLifetimeAction
      */
     @Required
-    public VaultCertificateLifetimeAction getAction() {
+    public KeyVaultCertificateLifetimeAction getAction() {
         return action;
     }
 
-    public void setAction(VaultCertificateLifetimeAction action) {
+    public void setAction(KeyVaultCertificateLifetimeAction action) {
         this.action = action;
     }
 
@@ -47,11 +47,11 @@ public class VaultCertificateLifetime extends Diffable implements Copyable<Lifet
      *
      * @subresource gyro.azure.keyvault.VaultCertificateLifetimeTrigger
      */
-    public VaultCertificateLifetimeTrigger getTrigger() {
+    public KeyVaultCertificateLifetimeTrigger getTrigger() {
         return trigger;
     }
 
-    public void setTrigger(VaultCertificateLifetimeTrigger trigger) {
+    public void setTrigger(KeyVaultCertificateLifetimeTrigger trigger) {
         this.trigger = trigger;
     }
 
@@ -69,13 +69,13 @@ public class VaultCertificateLifetime extends Diffable implements Copyable<Lifet
     @Override
     public void copyFrom(LifetimeAction lifetimeAction) {
         setAction(Optional.ofNullable(lifetimeAction.action()).map(o -> {
-            VaultCertificateLifetimeAction action = newSubresource(VaultCertificateLifetimeAction.class);
+            KeyVaultCertificateLifetimeAction action = newSubresource(KeyVaultCertificateLifetimeAction.class);
             action.copyFrom(o);
             return action;
         }).orElse(null));
 
         setTrigger(Optional.ofNullable(lifetimeAction.trigger()).map(o -> {
-            VaultCertificateLifetimeTrigger trigger = newSubresource(VaultCertificateLifetimeTrigger.class);
+            KeyVaultCertificateLifetimeTrigger trigger = newSubresource(KeyVaultCertificateLifetimeTrigger.class);
             trigger.copyFrom(o);
             return trigger;
         }).orElse(null));

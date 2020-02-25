@@ -35,8 +35,8 @@ public abstract class AbstractVaultCommand extends AbstractAzureCommand implemen
     public static Vault getVault(String vaultResourceName, RootScope scope, Azure client) {
         Resource resource = scope.findResource("azure::vault::" + vaultResourceName);
 
-        if (resource instanceof VaultResource) {
-            Vault vault = client.vaults().getById(((VaultResource) resource).getId());
+        if (resource instanceof KeyVaultResource) {
+            Vault vault = client.vaults().getById(((KeyVaultResource) resource).getId());
 
             if (vault == null) {
                 throw new GyroException("The vault no longer exists!!");

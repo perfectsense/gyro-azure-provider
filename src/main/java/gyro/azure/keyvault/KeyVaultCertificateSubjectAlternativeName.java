@@ -23,7 +23,7 @@ import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.validation.Required;
 
-public class VaultCertificateSubjectAlternativeName extends Diffable implements Copyable<SubjectAlternativeNames> {
+public class KeyVaultCertificateSubjectAlternativeName extends Diffable implements Copyable<SubjectAlternativeNames> {
 
     private List<String> emails;
     private List<String> dnsNames;

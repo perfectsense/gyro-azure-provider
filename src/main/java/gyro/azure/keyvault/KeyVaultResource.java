@@ -127,12 +127,12 @@ import gyro.core.validation.Required;
 
  */
 @Type("key-vault")
-public class VaultResource extends AzureResource implements Copyable<Vault> {
+public class KeyVaultResource extends AzureResource implements Copyable<Vault> {
 
     private String name;
     private ResourceGroupResource resourceGroup;
     private Map<String, String> tags;
-    private Set<VaultAccessPolicy> accessPolicy;
+    private Set<KeyVaultAccessPolicy> accessPolicy;
     private Boolean enableDeployment;
     private Boolean enableTemplateDeployment;
     private Boolean enableDiskEncryption;
@@ -188,7 +188,7 @@ public class VaultResource extends AzureResource implements Copyable<Vault> {
      * @subresource gyro.azure.keyvault.VaultAccessPolicy
      */
     @Updatable
-    public Set<VaultAccessPolicy> getAccessPolicy() {
+    public Set<KeyVaultAccessPolicy> getAccessPolicy() {
         if (accessPolicy == null) {
             accessPolicy = new HashSet<>();
         }
@@ -196,7 +196,7 @@ public class VaultResource extends AzureResource implements Copyable<Vault> {
         return accessPolicy;
     }
 
-    public void setAccessPolicy(Set<VaultAccessPolicy> accessPolicy) {
+    public void setAccessPolicy(Set<KeyVaultAccessPolicy> accessPolicy) {
         this.accessPolicy = accessPolicy;
     }
 
@@ -328,7 +328,7 @@ public class VaultResource extends AzureResource implements Copyable<Vault> {
         getAccessPolicy().clear();
         if (vault.accessPolicies() != null) {
             setAccessPolicy(vault.accessPolicies().stream().map(o -> {
-                VaultAccessPolicy accessPolicy = newSubresource(VaultAccessPolicy.class);
+                KeyVaultAccessPolicy accessPolicy = newSubresource(KeyVaultAccessPolicy.class);
                 accessPolicy.copyFrom(o);
                 return accessPolicy;
             }).collect(Collectors.toSet()));
@@ -365,7 +365,7 @@ public class VaultResource extends AzureResource implements Copyable<Vault> {
             .withExistingResourceGroup(getResourceGroup().getName()).withEmptyAccessPolicy();
 
         if (!getAccessPolicy().isEmpty()) {
-            for (VaultAccessPolicy accessPolicy : getAccessPolicy()) {
+            for (KeyVaultAccessPolicy accessPolicy : getAccessPolicy()) {
                 withCreate = accessPolicy.createAccessPolicy(withCreate);
             }
         }
@@ -405,17 +405,17 @@ public class VaultResource extends AzureResource implements Copyable<Vault> {
         Vault vault = client.vaults().getById(getId());
 
         Vault.Update update = vault.update();
-        VaultResource currentVaultResource = (VaultResource) current;
+        KeyVaultResource currentKeyVaultResource = (KeyVaultResource) current;
 
         if (changedFieldNames.contains("access-policy")) {
-            if (!currentVaultResource.getAccessPolicy().isEmpty()) {
-                for (VaultAccessPolicy accessPolicy : currentVaultResource.getAccessPolicy()) {
+            if (!currentKeyVaultResource.getAccessPolicy().isEmpty()) {
+                for (KeyVaultAccessPolicy accessPolicy : currentKeyVaultResource.getAccessPolicy()) {
                     update = update.withoutAccessPolicy(accessPolicy.getObjectId());
                 }
             }
 
             if (!getAccessPolicy().isEmpty()) {
-                for (VaultAccessPolicy accessPolicy : getAccessPolicy()) {
+                for (KeyVaultAccessPolicy accessPolicy : getAccessPolicy()) {
                     update = accessPolicy.createAccessPolicy(update);
                     update = accessPolicy.updateAccessPolicy(update);
                 }
@@ -439,8 +439,8 @@ public class VaultResource extends AzureResource implements Copyable<Vault> {
         }
 
         if (changedFieldNames.contains("tags")) {
-            if (!currentVaultResource.getTags().isEmpty()) {
-                for (String tag : currentVaultResource.getTags().keySet()) {
+            if (!currentKeyVaultResource.getTags().isEmpty()) {
+                for (String tag : currentKeyVaultResource.getTags().keySet()) {
                     update = update.withoutTag(tag);
                 }
             }
