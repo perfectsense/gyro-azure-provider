@@ -29,16 +29,16 @@ import gyro.azure.AzureFinder;
 import gyro.core.Type;
 
 /**
- * Query vault.
+ * Query key vault.
  *
  * Example
  * -------
  *
  * .. code-block:: gyro
  *
- *    identity: $(external-query azure::vault {resource-group: "resource-group-example", name: "vault-example"})
+ *    identity: $(external-query azure::key-vault {resource-group: "resource-group-example", name: "vault-example"})
  */
-@Type("vault")
+@Type("key-vault")
 public class VaultFinder extends AzureFinder<Vault, VaultResource> {
 
     private String resourceGroup;
