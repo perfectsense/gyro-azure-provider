@@ -33,19 +33,19 @@ import io.airlift.airline.Help;
 public abstract class AbstractVaultCommand extends AbstractAzureCommand implements GyroCommand {
 
     public static Vault getVault(String vaultResourceName, RootScope scope, Azure client) {
-        Resource resource = scope.findResource("azure::vault::" + vaultResourceName);
+        Resource resource = scope.findResource("azure::key-vault::" + vaultResourceName);
 
         if (resource instanceof KeyVaultResource) {
             Vault vault = client.vaults().getById(((KeyVaultResource) resource).getId());
 
             if (vault == null) {
-                throw new GyroException("The vault no longer exists!!");
+                throw new GyroException("The key-vault no longer exists!!");
             }
 
             return vault;
 
         } else {
-            throw new GyroException(String.format("No 'Vault' resource found with name - %s", vaultResourceName));
+            throw new GyroException(String.format("No 'key-vault' resource found with name - %s", vaultResourceName));
         }
     }
 
@@ -58,8 +58,8 @@ public abstract class AbstractVaultCommand extends AbstractAzureCommand implemen
     public static void setVaultCommand(Cli.CliBuilder<Object> builder) {
         List<Class<?>> subTypesOf = new ArrayList<>(AzureCommand.getReflections().getSubTypesOf(AbstractVaultCommand.class));
 
-        builder.withGroup("vault")
-            .withDescription("Manage azure vault secrets, keys and certificates")
+        builder.withGroup("key-vault")
+            .withDescription("Manage azure key-vault secrets, keys and certificates")
             .withDefaultCommand(Help.class)
             .withCommands(subTypesOf);
     }

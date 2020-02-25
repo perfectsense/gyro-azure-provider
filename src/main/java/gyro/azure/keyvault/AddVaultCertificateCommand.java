@@ -30,10 +30,10 @@ import io.airlift.airline.Arguments;
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 
-@Command(name = "add-certificate", description = "Add a certificate to an Azure vault")
+@Command(name = "add-certificate", description = "Add a certificate to an Azure key vault")
 public class AddVaultCertificateCommand extends AbstractVaultCommand {
 
-    @Arguments(description = "The command requires three arguments. <vault-name>: the vault resource name used in the config to which the certificate would be added. <cert-name>: name of the certificate to be added. <path>: the path to the certificate file (.pfx)", required = true)
+    @Arguments(description = "The command requires three arguments. <vault-name>: the key-vault resource name used in the config to which the certificate would be added. <cert-name>: name of the certificate to be added. <path>: the path to the certificate file (.pfx)", required = true)
     private List<String> arguments;
 
     @Option(name = { "--password" }, description = "Password used to encrypt the certificate file")

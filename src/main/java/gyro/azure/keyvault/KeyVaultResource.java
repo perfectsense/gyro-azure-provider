@@ -90,26 +90,26 @@ import gyro.core.validation.Required;
  *
  * **Add Certificate**
  *
- * Adds a certificate to a vault using your certificate file (.pfx). Access policy needed (Upload, Insert).
+ * Adds a certificate to a key vault using your certificate file (.pfx). Access policy needed (Upload, Insert).
  *
  * .. code::
  *
- *     gyro azure vault add-certificate <vault-name> <cert-name> <path> --password <password>
+ *     gyro azure key-vault add-certificate <vault-name> <cert-name> <path> --password <password>
  *
- * - ``vault-name`` - The name of the vault resource defined in your config where you want to create your certificate.
+ * - ``vault-name`` - The name of the key-vault resource defined in your config where you want to create your certificate.
  * - ``cert-name`` - The name of the certificate that you want to create when you import the certificate file.
  * - ``cert-path`` - The path pointing to the certificate file to be uploaded. Only ``.pfx`` files are supported.
  * - ``password`` - An optional password if the certificate file was encrypted with one.
  *
  * **Remove Certificate**
  *
- * Remove a certificate from the vault. Access policy needed (delete).
+ * Remove a certificate from the key vault. Access policy needed (delete).
  *
  * .. code::
  *
- *     gyro azure vault remove-certificate <vault-name> <cert-name>
+ *     gyro azure key-vault remove-certificate <vault-name> <cert-name>
  *
- * - ``vault-name`` - The name of the vault resource defined in your config from which to remove the certificate.
+ * - ``vault-name`` - The name of the key-vault resource defined in your config from which to remove the certificate.
  * - ``cert-name`` - The name of the certificate that you want to remove.
  *
  * **List Certificate**
@@ -118,13 +118,12 @@ import gyro.core.validation.Required;
  *
  * .. code::
  *
- *     gyro azure vault list-certificate <vault-name>
+ *     gyro azure key-vault list-certificate <vault-name>
  *
- * - ``vault-name`` - The name of the vault resource defined in your config that you want to list certificates from.
+ * - ``vault-name`` - The name of the key-vault resource defined in your config that you want to list certificates from.
  * - ``show-thumbprint`` - An option that shows the x509 thumbprint of the certificate.
  *
  *
-
  */
 @Type("key-vault")
 public class KeyVaultResource extends AzureResource implements Copyable<Vault> {

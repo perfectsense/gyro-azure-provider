@@ -24,10 +24,10 @@ import gyro.core.GyroException;
 import io.airlift.airline.Arguments;
 import io.airlift.airline.Command;
 
-@Command(name = "remove-certificate", description = "Remove a certificate from an Azure vault")
+@Command(name = "remove-certificate", description = "Remove a certificate from an Azure key vault")
 public class RemoveVaultCertificateCommand extends AbstractVaultCommand {
 
-    @Arguments(description = "The command requires two arguments. <vault-name>: the vault resource name used in the config from which the certificate would be removed. <cert-name>: name of the certificate to be removed.", required = true)
+    @Arguments(description = "The command requires two arguments. <vault-name>: the key-vault resource name used in the config from which the certificate would be removed. <cert-name>: name of the certificate to be removed.", required = true)
     private List<String> arguments;
 
     @Override

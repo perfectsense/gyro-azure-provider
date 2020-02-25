@@ -29,10 +29,10 @@ import io.airlift.airline.Arguments;
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 
-@Command(name = "list-certificate", description = "List all certificates present in an Azure vault")
+@Command(name = "list-certificate", description = "List all certificates present in an Azure key vault")
 public class ListVaultCertificateCommand extends AbstractVaultCommand {
 
-    @Arguments(description = "The command requires one argument. <vault-name>: the vault resource name used in the config whose certificates would be listed", required = true)
+    @Arguments(description = "The command requires one argument. <vault-name>: the key-vault resource name used in the config whose certificates would be listed", required = true)
     private List<String> arguments;
 
     @Option(name = "--show-thumbprint", description = "Show thumbprint of the certificate")

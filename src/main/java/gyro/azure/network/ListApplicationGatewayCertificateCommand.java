@@ -36,7 +36,7 @@ public class ListApplicationGatewayCertificateCommand extends AbstractApplicatio
     @Option(name = "--show-data", description = "Show data of the certificate")
     private boolean showData;
 
-    @Option(name = "--show-secret-id", description = "Show secrets id of the certificate")
+    @Option(name = "--show-secret-id", description = "Show secret id of the certificate")
     private boolean showSecretId;
 
     @Override
