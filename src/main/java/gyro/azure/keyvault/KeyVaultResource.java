@@ -282,7 +282,6 @@ public class KeyVaultResource extends AzureResource implements Copyable<Vault> {
     /**
      * The ID of the key vault.
      */
-    @Id
     @Output
     public String getId() {
         return id;
@@ -295,6 +294,7 @@ public class KeyVaultResource extends AzureResource implements Copyable<Vault> {
     /**
      * The URI of the key vault.
      */
+    @Id
     @Output
     public String getUrl() {
         return url;

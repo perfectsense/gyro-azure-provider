@@ -107,8 +107,9 @@ public class KeyVaultCertificateResource extends AzureResource implements Copyab
     private String keyId;
 
     /**
-     * The name of the certificate.
+     * The name of the certificate. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }
@@ -118,8 +119,9 @@ public class KeyVaultCertificateResource extends AzureResource implements Copyab
     }
 
     /**
-     * The key vault under which the certificate is going to be created.
+     * The key vault under which the certificate is going to be created. (Required)
      */
+    @Required
     public KeyVaultResource getVault() {
         return vault;
     }
@@ -129,7 +131,7 @@ public class KeyVaultCertificateResource extends AzureResource implements Copyab
     }
 
     /**
-     * Tags for the certificate
+     * Tags for the certificate.
      */
     public Map<String, String> getTags() {
         if (tags == null) {
@@ -256,7 +258,7 @@ public class KeyVaultCertificateResource extends AzureResource implements Copyab
         Vault vault = client.vaults().getById(getVault().getId());
         CertificateBundle certificateBundle = vault.client().getCertificate(vault.vaultUri(), getName());
 
-        return true;
+        return certificateBundle != null;
     }
 
     @Override
@@ -281,6 +283,14 @@ public class KeyVaultCertificateResource extends AzureResource implements Copyab
                 .checkEvery(10, TimeUnit.SECONDS)
                 .until(() -> certificateCreationSuccess(vault));
         }
+
+        CertificateBundle certificateBundle = vault.client().getCertificate(vault.vaultUri(), getName());
+        setVersion(certificateBundle.certificateIdentifier().version());
+        setId(certificateBundle.id());
+        setSecretId(certificateBundle.secretIdentifier().identifier());
+        setSid(certificateBundle.sid());
+        setKeyId(certificateBundle.keyIdentifier().identifier());
+        setKid(certificateBundle.kid());
     }
 
     private boolean certificateCreationSuccess(Vault vault) {
@@ -304,6 +314,6 @@ public class KeyVaultCertificateResource extends AzureResource implements Copyab
         Azure client = createClient();
 
         Vault vault = client.vaults().getById(getVault().getId());
-        vault.client().deleteCertificate(vault.vaultUri(), getName());
+        vault.client().deleteCertificate(vault.id(), getName());
     }
 }

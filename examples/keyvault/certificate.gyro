@@ -7,7 +7,7 @@ azure::resource-group resource-group-example-vault-certificate
 end
 
 azure::key-vault vault-example-certificate
-    resource-group: $(azure::resource-group resource-group-example-vault)
+    resource-group: $(azure::resource-group resource-group-example-vault-certificate)
 
     name: "key-vault-example-certificate"
     enable-deployment: true
@@ -35,7 +35,7 @@ end
 
 azure::key-vault-certificate vault-certificate-example
     name: "certificate-example"
-    vault: $(azure::key-vault vault-example)
+    vault: $(azure::key-vault vault-example-certificate)
 
     policy
         key-properties
