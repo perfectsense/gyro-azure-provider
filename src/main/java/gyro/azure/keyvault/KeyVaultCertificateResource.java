@@ -16,8 +16,6 @@
 
 package gyro.azure.keyvault;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -25,9 +23,7 @@ import java.util.concurrent.TimeUnit;
 import com.microsoft.azure.keyvault.models.CertificateBundle;
 import com.microsoft.azure.keyvault.models.CertificateOperation;
 import com.microsoft.azure.keyvault.requests.CreateCertificateRequest;
-import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.keyvault.Vault;
-import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
@@ -93,11 +89,9 @@ import gyro.core.validation.Required;
  *     end
  */
 @Type("key-vault-certificate")
-public class KeyVaultCertificateResource extends AzureResource implements Copyable<CertificateBundle> {
+public class KeyVaultCertificateResource extends KeyVaultInnerResource implements Copyable<CertificateBundle> {
 
     private String name;
-    private KeyVaultResource vault;
-    private Map<String, String> tags;
     private KeyVaultCertificatePolicy policy;
     private String version;
     private String id;
@@ -116,33 +110,6 @@ public class KeyVaultCertificateResource extends AzureResource implements Copyab
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    /**
-     * The key vault under which the certificate is going to be created. (Required)
-     */
-    @Required
-    public KeyVaultResource getVault() {
-        return vault;
-    }
-
-    public void setVault(KeyVaultResource vault) {
-        this.vault = vault;
-    }
-
-    /**
-     * Tags for the certificate.
-     */
-    public Map<String, String> getTags() {
-        if (tags == null) {
-            tags = new HashMap<>();
-        }
-
-        return tags;
-    }
-
-    public void setTags(Map<String, String> tags) {
-        this.tags = tags;
     }
 
     /**
@@ -253,9 +220,7 @@ public class KeyVaultCertificateResource extends AzureResource implements Copyab
 
     @Override
     public boolean refresh() {
-        Azure client = createClient();
-
-        Vault vault = client.vaults().getById(getVault().getId());
+        Vault vault = getKeyVault();
         CertificateBundle certificateBundle = vault.client().getCertificate(vault.vaultUri(), getName());
 
         return certificateBundle != null;
@@ -263,9 +228,7 @@ public class KeyVaultCertificateResource extends AzureResource implements Copyab
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        Azure client = createClient();
-
-        Vault vault = client.vaults().getById(getVault().getId());
+        Vault vault = getKeyVault();
         CreateCertificateRequest.Builder builder = new CreateCertificateRequest.Builder(vault.vaultUri(), getName());
 
         builder = builder.withPolicy(getPolicy().toCertificatePolicy());
@@ -311,9 +274,7 @@ public class KeyVaultCertificateResource extends AzureResource implements Copyab
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
-        Azure client = createClient();
-
-        Vault vault = client.vaults().getById(getVault().getId());
+        Vault vault = getKeyVault();
         vault.client().deleteCertificate(vault.id(), getName());
     }
 }

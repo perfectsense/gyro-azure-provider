@@ -1,17 +1,13 @@
 package gyro.azure.keyvault;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 import com.microsoft.azure.keyvault.models.KeyVaultErrorException;
 import com.microsoft.azure.keyvault.models.SecretBundle;
 import com.microsoft.azure.keyvault.requests.SetSecretRequest;
 import com.microsoft.azure.keyvault.requests.UpdateSecretRequest;
-import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.keyvault.Vault;
 import com.psddev.dari.util.ObjectUtils;
-import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.core.GyroUI;
 import gyro.core.Type;
@@ -23,12 +19,10 @@ import gyro.core.scope.State;
 import gyro.core.validation.Required;
 
 @Type("key-vault-secret")
-public class KeyVaultSecretResource extends AzureResource implements Copyable<SecretBundle> {
+public class KeyVaultSecretResource extends KeyVaultInnerResource implements Copyable<SecretBundle> {
 
     private String name;
     private String value;
-    private KeyVaultResource vault;
-    private Map<String, String> tags;
     private KeyVaultSecretAttribute attribute;
     private String contentType;
     private String id;
@@ -57,34 +51,6 @@ public class KeyVaultSecretResource extends AzureResource implements Copyable<Se
 
     public void setValue(String value) {
         this.value = value;
-    }
-
-    /**
-     * The key vault under which the secret is going to be created. (Required)
-     */
-    @Required
-    public KeyVaultResource getVault() {
-        return vault;
-    }
-
-    public void setVault(KeyVaultResource vault) {
-        this.vault = vault;
-    }
-
-    /**
-     * Tags for the secret.
-     */
-    @Updatable
-    public Map<String, String> getTags() {
-        if (tags == null) {
-            tags = new HashMap<>();
-        }
-
-        return tags;
-    }
-
-    public void setTags(Map<String, String> tags) {
-        this.tags = tags;
     }
 
     /**
@@ -171,9 +137,7 @@ public class KeyVaultSecretResource extends AzureResource implements Copyable<Se
 
     @Override
     public boolean refresh() {
-        Azure client = createClient();
-
-        Vault vault = client.vaults().getById(getVault().getId());
+        Vault vault = getKeyVault();
         SecretBundle secret;
 
         try {
@@ -198,9 +162,7 @@ public class KeyVaultSecretResource extends AzureResource implements Copyable<Se
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        Azure client = createClient();
-
-        Vault vault = client.vaults().getById(getVault().getId());
+        Vault vault = getKeyVault();
 
         SetSecretRequest.Builder builder = new SetSecretRequest.Builder(vault.vaultUri(), getName(), getValue());
 
@@ -222,9 +184,7 @@ public class KeyVaultSecretResource extends AzureResource implements Copyable<Se
     @Override
     public void update(
         GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
-        Azure client = createClient();
-
-        Vault vault = client.vaults().getById(getVault().getId());
+        Vault vault = getKeyVault();
 
         UpdateSecretRequest.Builder builder = new UpdateSecretRequest.Builder(getId());
 
@@ -237,9 +197,7 @@ public class KeyVaultSecretResource extends AzureResource implements Copyable<Se
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
-        Azure client = createClient();
-
-        Vault vault = client.vaults().getById(getVault().getId());
+        Vault vault = getKeyVault();
 
         vault.client().deleteSecret(vault.vaultUri(), getName());
     }
