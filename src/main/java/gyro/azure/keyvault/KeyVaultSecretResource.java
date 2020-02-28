@@ -18,6 +18,30 @@ import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 
+/**
+ * Creates a key vault secret.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     azure::key-vault-secret vault-secret-example
+ *         name: "secret-example"
+ *         value: "secret-value"
+ *         vault: $(azure::key-vault vault-example-secret)
+ *
+ *         attribute
+ *             enabled : true
+ *             expires : "2020-04-04T15:54:12.000Z"
+ *             not-before : "2020-04-02T15:54:12.000Z"
+ *         end
+ *
+ *         tags: {
+ *             Name: "vault-secret-examples"
+ *         }
+ *     end
+ */
 @Type("key-vault-secret")
 public class KeyVaultSecretResource extends KeyVaultInnerResource implements Copyable<SecretBundle> {
 
