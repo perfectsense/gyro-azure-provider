@@ -16,14 +16,17 @@
 
 package gyro.azure.compute;
 
+import com.microsoft.azure.PagedList;
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.compute.CachingTypes;
 import com.microsoft.azure.management.compute.KnownLinuxVirtualMachineImage;
 import com.microsoft.azure.management.compute.KnownWindowsVirtualMachineImage;
 import com.microsoft.azure.management.compute.ProximityPlacementGroupType;
+import com.microsoft.azure.management.compute.VirtualMachine;
 import com.microsoft.azure.management.compute.VirtualMachineEvictionPolicyTypes;
 import com.microsoft.azure.management.compute.VirtualMachineScaleSet;
 import com.microsoft.azure.management.compute.VirtualMachineScaleSetSkuTypes;
+import com.microsoft.azure.management.compute.VirtualMachineScaleSetVM;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
@@ -37,6 +40,8 @@ import gyro.azure.resources.ResourceGroupResource;
 import gyro.azure.storage.CloudBlobResource;
 import gyro.azure.storage.StorageAccountResource;
 import gyro.core.GyroException;
+import gyro.core.GyroInstance;
+import gyro.core.GyroInstances;
 import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
@@ -48,8 +53,10 @@ import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -111,7 +118,7 @@ import java.util.stream.Collectors;
  *     end
  */
 @Type("scale-set")
-public class VMScaleSetResource extends AzureResource implements Copyable<VirtualMachineScaleSet> {
+public class VMScaleSetResource extends AzureResource implements GyroInstances, Copyable<VirtualMachineScaleSet> {
     private String name;
     private ResourceGroupResource resourceGroup;
     private String skuName;
@@ -1191,5 +1198,31 @@ public class VMScaleSetResource extends AzureResource implements Copyable<Virtua
         Azure client = createClient();
 
         client.virtualMachineScaleSets().deleteById(getId());
+    }
+
+    @Override
+    public List<GyroInstance> getInstances() {
+        List<GyroInstance> instances = new ArrayList<>();
+        Azure client = createClient();
+
+        VirtualMachineScaleSet virtualMachineScaleSet = client.virtualMachineScaleSets().getById(getId());
+
+        if (virtualMachineScaleSet != null) {
+            PagedList<VirtualMachineScaleSetVM> list = virtualMachineScaleSet.virtualMachines().list();
+            list.loadAll();
+            List<String> instanceIds = list.stream()
+                .map(VirtualMachineScaleSetVM::instanceId)
+                .collect(Collectors.toList());
+
+            instances.addAll(instanceIds.stream()
+                .map(o -> {
+                    VirtualMachine virtualMachine = client.virtualMachines().getById(o);
+                    VirtualMachineResource vmResource = newSubresource(VirtualMachineResource.class);
+                    vmResource.copyFrom(virtualMachine);
+                    return vmResource;
+                }).collect(Collectors.toList()));
+        }
+
+        return instances;
     }
 }
