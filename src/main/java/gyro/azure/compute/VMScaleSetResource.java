@@ -22,7 +22,6 @@ import com.microsoft.azure.management.compute.CachingTypes;
 import com.microsoft.azure.management.compute.KnownLinuxVirtualMachineImage;
 import com.microsoft.azure.management.compute.KnownWindowsVirtualMachineImage;
 import com.microsoft.azure.management.compute.ProximityPlacementGroupType;
-import com.microsoft.azure.management.compute.VirtualMachine;
 import com.microsoft.azure.management.compute.VirtualMachineEvictionPolicyTypes;
 import com.microsoft.azure.management.compute.VirtualMachineScaleSet;
 import com.microsoft.azure.management.compute.VirtualMachineScaleSetSkuTypes;
@@ -1214,11 +1213,10 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
                 .map(VirtualMachineScaleSetVM::instanceId)
                 .collect(Collectors.toList());
 
-            instances.addAll(instanceIds.stream()
+            instances.addAll(list.stream()
                 .map(o -> {
-                    VirtualMachine virtualMachine = client.virtualMachines().getById(o);
-                    VirtualMachineResource vmResource = newSubresource(VirtualMachineResource.class);
-                    vmResource.copyFrom(virtualMachine);
+                    VMScaleSetVirtualMachine vmResource = newSubresource(VMScaleSetVirtualMachine.class);
+                    vmResource.copyFrom(o);
                     return vmResource;
                 }).collect(Collectors.toList()));
         }
