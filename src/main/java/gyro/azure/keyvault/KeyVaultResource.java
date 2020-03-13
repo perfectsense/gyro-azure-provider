@@ -42,11 +42,11 @@ import gyro.core.validation.Required;
 /**
  *
  * Azure Key Vaults are managed using a combination of resource configuration and commands. Currently
- * ``azure::key-vault-certificate`` is the only entity that can be managed.
+ * ``azure::key-vault-certificate`` and ``azure::key-vault-secret`` are the entities that support commands.
  *
  * Create an Azure Key Vault using the ``azure::key-vault`` resource. After the Key Vault is
- * created use the ``gyro azure key-vault`` command to manage certificates within the key vault.
- * See documentation below on how to create, add, or remove a certificate from a key vault.
+ * created use the ``gyro azure key-vault`` command to manage certificates and secrets within the key vault.
+ * See documentation below on how to create, add, or remove a certificate or secret from a key vault.
  *
  * Example
  * -------
@@ -122,6 +122,51 @@ import gyro.core.validation.Required;
  *
  * - ``vault-name`` - The name of the key-vault resource defined in your config that you want to list certificates from.
  * - ``show-thumbprint`` - An option that shows the x509 thumbprint of the certificate.
+ *
+ *
+ * Secret Commands
+ * --------------------
+ *
+ * The following set of commands allow you to manage secrets in a key vault. Before using these commands
+ * you must have already created an ``azure::key-vault``. The key vault must be managed by Gyro. Ensure a proper
+ * access policy is added to the key vault for the service principal you are using.
+ *
+ * **Add Secret**
+ *
+ * Adds a secret to a key vault. Access policy needed (Set, Get).
+ *
+ * .. code::
+ *
+ *     gyro azure key-vault add-secret <vault-name> <secret-name> <value> --content-type <content-type>
+ *
+ * - ``vault-name`` - The name of the key-vault resource defined in your config where you want to create your secret.
+ * - ``secret-name`` - The name of the secret that you want to create.
+ * - ``value`` - The secret value.
+ * - ``content-type`` - An optional value specifying the content type of the secret.
+ * - ``expires`` - An optional date time value value in UTC specifying the expiration time. Format 'YYYY-MM-DDTHH:MM:SS.sssZ'.
+ * - ``not-before`` - An optional date time value value in UTC specifying the expiration not before a specific time. Format 'YYYY-MM-DDTHH:MM:SS.sssZ'.
+ * - ``enabled`` - An optional value specifying if the secret is enable or disable the secret. Defaults to 'false'.
+ *
+ * **Remove Secret**
+ *
+ * Remove a secret from the key vault. Access policy needed (delete).
+ *
+ * .. code::
+ *
+ *     gyro azure key-vault remove-secret <vault-name> <secret-name>
+ *
+ * - ``vault-name`` - The name of the key-vault resource defined in your config from which to remove the secret.
+ * - ``secret-name`` - The name of the secret that you want to remove.
+ *
+ * **List Secret**
+ *
+ * List secrets of a vault. Access policy needed (List).
+ *
+ * .. code::
+ *
+ *     gyro azure key-vault list-secret <vault-name>
+ *
+ * - ``vault-name`` - The name of the key-vault resource defined in your config that you want to list secrets from.
  *
  *
  */
