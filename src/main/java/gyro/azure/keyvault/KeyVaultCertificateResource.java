@@ -16,6 +16,8 @@
 
 package gyro.azure.keyvault;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -24,6 +26,7 @@ import com.microsoft.azure.keyvault.models.CertificateBundle;
 import com.microsoft.azure.keyvault.models.CertificateOperation;
 import com.microsoft.azure.keyvault.requests.CreateCertificateRequest;
 import com.microsoft.azure.management.keyvault.Vault;
+import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
@@ -33,6 +36,7 @@ import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 
@@ -89,9 +93,10 @@ import gyro.core.validation.Required;
  *     end
  */
 @Type("key-vault-certificate")
-public class KeyVaultCertificateResource extends KeyVaultInnerResource implements Copyable<CertificateBundle> {
+public class KeyVaultCertificateResource extends AzureResource implements Copyable<CertificateBundle> {
 
     private String name;
+    private KeyVaultResource vault;
     private KeyVaultCertificatePolicy policy;
     private String version;
     private String id;
@@ -99,6 +104,7 @@ public class KeyVaultCertificateResource extends KeyVaultInnerResource implement
     private String secretId;
     private String kid;
     private String keyId;
+    private Map<String, String> tags;
 
     /**
      * The name of the certificate. (Required)
@@ -110,6 +116,18 @@ public class KeyVaultCertificateResource extends KeyVaultInnerResource implement
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * The key vault under which the certificate is going to be created. (Required)
+     */
+    @Required
+    public KeyVaultResource getVault() {
+        return vault;
+    }
+
+    public void setVault(KeyVaultResource vault) {
+        this.vault = vault;
     }
 
     /**
@@ -199,6 +217,22 @@ public class KeyVaultCertificateResource extends KeyVaultInnerResource implement
         this.keyId = keyId;
     }
 
+    /**
+     * Tags for the certificate.
+     */
+    @Updatable
+    public Map<String, String> getTags() {
+        if (tags == null) {
+            tags = new HashMap<>();
+        }
+
+        return tags;
+    }
+
+    public void setTags(Map<String, String> tags) {
+        this.tags = tags;
+    }
+
     @Override
     public void copyFrom(CertificateBundle certificateBundle) {
         setName(certificateBundle.certificateIdentifier().name());
@@ -209,6 +243,7 @@ public class KeyVaultCertificateResource extends KeyVaultInnerResource implement
         setSid(certificateBundle.sid());
         setKeyId(certificateBundle.keyIdentifier().identifier());
         setKid(certificateBundle.kid());
+        setTags(certificateBundle.tags());
 
         setPolicy(Optional.ofNullable(certificateBundle.policy())
             .map(o -> {
@@ -220,7 +255,7 @@ public class KeyVaultCertificateResource extends KeyVaultInnerResource implement
 
     @Override
     public boolean refresh() {
-        Vault vault = getKeyVault();
+        Vault vault = getVault().getKeyVault();
         CertificateBundle certificateBundle = vault.client().getCertificate(vault.vaultUri(), getName());
 
         return certificateBundle != null;
@@ -228,7 +263,7 @@ public class KeyVaultCertificateResource extends KeyVaultInnerResource implement
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        Vault vault = getKeyVault();
+        Vault vault = getVault().getKeyVault();
         CreateCertificateRequest.Builder builder = new CreateCertificateRequest.Builder(vault.vaultUri(), getName());
 
         builder = builder.withPolicy(getPolicy().toCertificatePolicy());
@@ -274,7 +309,7 @@ public class KeyVaultCertificateResource extends KeyVaultInnerResource implement
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
-        Vault vault = getKeyVault();
+        Vault vault = getVault().getKeyVault();
         vault.client().deleteCertificate(vault.id(), getName());
     }
 }

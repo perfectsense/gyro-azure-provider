@@ -521,4 +521,10 @@ public class KeyVaultResource extends AzureResource implements Copyable<Vault> {
             }
         }
     }
+
+    Vault getKeyVault() {
+        Azure client = createClient();
+
+        return client.vaults().getById(getId());
+    }
 }

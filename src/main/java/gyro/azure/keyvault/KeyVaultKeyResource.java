@@ -1,7 +1,9 @@
 package gyro.azure.keyvault;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -12,6 +14,7 @@ import com.microsoft.azure.keyvault.requests.UpdateKeyRequest;
 import com.microsoft.azure.keyvault.webkey.JsonWebKeyOperation;
 import com.microsoft.azure.keyvault.webkey.JsonWebKeyType;
 import com.microsoft.azure.management.keyvault.Vault;
+import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.core.GyroUI;
 import gyro.core.Type;
@@ -50,15 +53,17 @@ import gyro.core.validation.ValidStrings;
  *     end
  */
 @Type("key-vault-key")
-public class KeyVaultKeyResource extends KeyVaultInnerResource implements Copyable<KeyBundle> {
+public class KeyVaultKeyResource extends AzureResource implements Copyable<KeyBundle> {
 
     private String name;
+    private KeyVaultResource vault;
     private String type;
     private KeyVaultKeyAttribute attribute;
     private Integer size;
     private List<String> operations;
     private String version;
     private String id;
+    private Map<String, String> tags;
 
     /**
      * The name of the key. (Required)
@@ -69,6 +74,18 @@ public class KeyVaultKeyResource extends KeyVaultInnerResource implements Copyab
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * The key vault under which the key is going to be created. (Required)
+     */
+    @Required
+    public KeyVaultResource getVault() {
+        return vault;
+    }
+
+    public void setVault(KeyVaultResource vault) {
+        this.vault = vault;
     }
 
     /**
@@ -152,6 +169,22 @@ public class KeyVaultKeyResource extends KeyVaultInnerResource implements Copyab
         this.id = id;
     }
 
+    /**
+     * Tags for the key.
+     */
+    @Updatable
+    public Map<String, String> getTags() {
+        if (tags == null) {
+            tags = new HashMap<>();
+        }
+
+        return tags;
+    }
+
+    public void setTags(Map<String, String> tags) {
+        this.tags = tags;
+    }
+
     @Override
     public void copyFrom(KeyBundle key) {
         setTags(key.tags());
@@ -175,7 +208,7 @@ public class KeyVaultKeyResource extends KeyVaultInnerResource implements Copyab
 
     @Override
     public boolean refresh() {
-        Vault vault = getKeyVault();
+        Vault vault = getVault().getKeyVault();
         KeyBundle keyBundle = vault.client().getKey(vault.vaultUri(), getName());
 
         if (keyBundle == null) {
@@ -189,7 +222,7 @@ public class KeyVaultKeyResource extends KeyVaultInnerResource implements Copyab
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        Vault vault = getKeyVault();
+        Vault vault = getVault().getKeyVault();
 
         CreateKeyRequest.Builder builder = new CreateKeyRequest.Builder(vault.vaultUri(), getName(), new JsonWebKeyType(getType()));
         builder.withAttributes(getAttribute().toKeyAttributes());
@@ -208,7 +241,7 @@ public class KeyVaultKeyResource extends KeyVaultInnerResource implements Copyab
     @Override
     public void update(
         GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
-        Vault vault = getKeyVault();
+        Vault vault = getVault().getKeyVault();
 
         UpdateKeyRequest.Builder builder = new UpdateKeyRequest.Builder(vault.vaultUri(), getName());
         builder.withAttributes(getAttribute().toKeyAttributes());
@@ -220,7 +253,7 @@ public class KeyVaultKeyResource extends KeyVaultInnerResource implements Copyab
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
-        Vault vault = getKeyVault();
+        Vault vault = getVault().getKeyVault();
 
         vault.client().deleteKey(vault.vaultUri(), getName());
     }
