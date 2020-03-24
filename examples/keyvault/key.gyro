@@ -1,0 +1,52 @@
+azure::resource-group resource-group-example-vault-keys
+    name: "resource-group-example-vault-keys"
+
+    tags: {
+        Name: "resource-group-example-vault-keys"
+    }
+end
+
+azure::key-vault vault-example-keys
+    resource-group: $(azure::resource-group resource-group-example-vault-keys)
+
+    name: "key-vault-example-keys"
+    enable-deployment: true
+    enable-template-deployment: true
+    enable-disk-encryption: true
+
+    access-policy
+        key-permissions: ["get", "import", "list", "delete", "update", "create"]
+        certificate-permissions: ['get', 'update', 'create', 'list', 'delete', 'import', 'backup', 'recover', 'restore', 'setissuers', 'deleteissuers', 'purge', 'listissuers', 'getissuers', 'managecontacts', 'manageissuers']
+        secret-permissions: ['set', 'get', 'list', 'delete']
+        object-id: "e0afa33f-9882-4cdc-abb8-c613a8949f9e"
+    end
+
+    access-policy
+        key-permissions: ["get", "import", "list", "delete", "update", "create"]
+        certificate-permissions: ['get', 'update', 'create', 'list', 'delete', 'import', 'backup', 'recover', 'restore', 'setissuers', 'deleteissuers', 'purge', 'listissuers', 'getissuers', 'managecontacts', 'manageissuers']
+        secret-permissions: ['set', 'get', 'list', 'delete']
+        object-id: "b7d674a2-7e88-47af-b772-5d90b4bf965a"
+    end
+
+    tags: {
+        Name: "key-vault-examples-keys"
+    }
+end
+
+azure::key-vault-key vault-key-example
+    name: "key-example-gyro"
+    vault: $(azure::key-vault vault-example-keys)
+    type: "RSA"
+
+    operations: ["encrypt", "decrypt"]
+
+    attribute
+        enabled : false
+        expires : "2020-04-04T15:54:12.000Z"
+        not-before : "2020-04-02T15:54:12.000Z"
+    end
+
+    tags: {
+        Name: "vault-key-examples"
+    }
+end

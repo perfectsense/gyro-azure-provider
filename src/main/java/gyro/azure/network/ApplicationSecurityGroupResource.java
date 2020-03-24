@@ -172,7 +172,7 @@ public class ApplicationSecurityGroupResource extends AzureResource implements C
         setResourceGroup(findById(ResourceGroupResource.class, applicationSecurityGroup.resourceGroupName()));
         setTags(applicationSecurityGroup.tags());
 
-        setProvisioningState(applicationSecurityGroup.provisioningState());
+        setProvisioningState(applicationSecurityGroup.provisioningState().toString());
         setResourceGuid(applicationSecurityGroup.resourceGuid());
         setEtag(applicationSecurityGroup.inner().etag());
         setType(applicationSecurityGroup.type());
