@@ -18,7 +18,7 @@ azure::disk disk-example
 end
 
 azure::snapshot snapshot-example
-    provider: "Disk"
+    provider: "disk"
     disk: $(azure::disk disk-example)
     name: "snapshot-name"
     resource-group: $(azure::resource-group resource-group-snapshot-example)
@@ -31,7 +31,7 @@ azure::snapshot snapshot-example
 end
 
 azure::snapshot snapshot-example-linux
-    provider: "Disk"
+    provider: "disk"
     disk: $(azure::disk disk-example)
     name: "snapshot-name-1"
     resource-group: $(azure::resource-group resource-group-snapshot-example)
@@ -44,7 +44,7 @@ azure::snapshot snapshot-example-linux
 end
 
 azure::snapshot snapshot-example-windows
-    provider: "Snapshot"
+    provider: "snapshot"
     snapshot: $(azure::snapshot snapshot-example)
     name: "snapshot-name-2"
     resource-group: $(azure::resource-group resource-group-snapshot-example)
