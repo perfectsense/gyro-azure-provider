@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@DocGroup("access-management")
+@DocGroup("AccessManagement")
 package gyro.azure.accessmanagement;
 
 import gyro.core.resource.DocGroup;
