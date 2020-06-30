@@ -1,6 +1,6 @@
 ## 0.99.2 (Unreleased)
 
-## 0.99.1 (June 29th, 2020)
+## 0.99.1 (July 1st, 2020)
 
 ENHANCEMENTS:
 
