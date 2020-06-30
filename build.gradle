@@ -58,7 +58,7 @@ configurations {
 def azureSdkVersion = '1.31.0'
 
 dependencies {
-    api 'gyro:gyro-core:0.99.5-SNAPSHOT'
+    api 'gyro:gyro-core:0.99.4'
 
     implementation 'com.psddev:dari-util:3.3.607-xe0f27a'
     implementation 'com.google.guava:guava:23.0'
