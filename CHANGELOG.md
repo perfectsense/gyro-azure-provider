@@ -1,29 +1,37 @@
-## 0.99.1
+## 0.99.2 (Unreleased)
+
+## 0.99.1 (July 1st, 2020)
+
+ENHANCEMENTS:
+
+* [51](https://github.com/perfectsense/gyro-azure-provider/issues/51): Add support for Lifecycle for Azure Storage.
+* [56](https://github.com/perfectsense/gyro-azure-provider/issues/56): Add support for Azure managed Identities.
+* [59](https://github.com/perfectsense/gyro-azure-provider/issues/59): Add support for Role Assignment.
+* [62](https://github.com/perfectsense/gyro-azure-provider/issues/62): Add support to manage System Managed Service Identity for VM.
+* [66](https://github.com/perfectsense/gyro-azure-provider/issues/66): Add support for Virtual Machine Image.
+* [87](https://github.com/perfectsense/gyro-azure-provider/issues/87): Add support for IP Forwarding for Network Interfaces
+* [91](https://github.com/perfectsense/gyro-azure-provider/issues/91): Add support for Availability Zones for Application Gateway
+* [92](https://github.com/perfectsense/gyro-azure-provider/issues/92): Add support for SKU's in Application Gateway
+* [115](https://github.com/perfectsense/gyro-azure-provider/issues/115): Add support for Secrets and Keys in Vault.
 
 ISSUES FIXED:
 
-* [107](https://github.com/perfectsense/gyro-azure-provider/issues/107): Application Gateway Backend Health Needs to be accessible
-* [109](https://github.com/perfectsense/gyro-azure-provider/issues/110): VirtualMachine#getGyroInstancePublicIpAddress returns null even if publicIpAdressIp has a value.
-* [105](https://github.com/perfectsense/gyro-azure-provider/issues/105): Scale Set Custom Data needs to be encoded
-* [101](https://github.com/perfectsense/gyro-azure-provider/issues/101): VirtualMachineResource#copyFrom() logic for AvailabilitySetResource fetching does not match casing of AvailabilitySetResource ID
-* [99](https://github.com/perfectsense/gyro-azure-provider/issues/99): Virtual Machine Resource ID is not suitable for Gyro Instance ID
-* [91](https://github.com/perfectsense/gyro-azure-provider/issues/91): Implement Availability Zones for Application Gateway
-* [87](https://github.com/perfectsense/gyro-azure-provider/issues/87): Implement IP Forwarding for Network Interfaces
-* [92](https://github.com/perfectsense/gyro-azure-provider/issues/92): Application Gateway - Implement SKU
-* [82](https://github.com/perfectsense/gyro-azure-provider/issues/82): AvailabilitySet is not applied to VirtualMachine
-* [85](https://github.com/perfectsense/gyro-azure-provider/issues/85): Private DNS Zone does not associate Network
-* [80](https://github.com/perfectsense/gyro-azure-provider/issues/80): VirtualMachineImageResource external query results in NPE
-* [58](https://github.com/perfectsense/gyro-azure-provider/issues/58): Differentiate between OS Disk and Data Disks in Azure VMs
-* [53](https://github.com/perfectsense/gyro-azure-provider/issues/53): Gyro does not clean up auto-created VM disks
-* [48](https://github.com/perfectsense/gyro-azure-provider/issues/48): Refactor Sql (QA, ResourceFinder, Direct Dependency, Copyable).
 * [49](https://github.com/perfectsense/gyro-azure-provider/issues/49): Public Ip Address Not Set at Startup for Network Interface.
-* [51](https://github.com/perfectsense/gyro-azure-provider/issues/51): Implement Lifecycle for Azure Storage.
+* [53](https://github.com/perfectsense/gyro-azure-provider/issues/53): Gyro does not clean up auto-created VM disks.
 * [55](https://github.com/perfectsense/gyro-azure-provider/issues/55): Azure VirtualMachine should Implement GyroInstance.
-* [56](https://github.com/perfectsense/gyro-azure-provider/issues/56): Implement Azure managed Identities.
-* [59](https://github.com/perfectsense/gyro-azure-provider/issues/59): Implement Role Assignment.
-* [62](https://github.com/perfectsense/gyro-azure-provider/issues/62): Add support to manage System Managed Service Identity for VM.
-* [64](https://github.com/perfectsense/gyro-azure-provider/issues/64): Expose ID field for CloudBlobContainerResource and CloudQueueResource.
-* [72](https://github.com/perfectsense/gyro-azure-provider/issues/72): Expose object id for System Managed Identity on Virtual Machine and Scale Set resources.
-* [66](https://github.com/perfectsense/gyro-azure-provider/issues/66): Implement Virtual Machine Image.
-* [70](https://github.com/perfectsense/gyro-azure-provider/issues/70): Add copyright license to java and gradle files.
-* [74](https://github.com/perfectsense/gyro-azure-provider/issues/70): Fixes storage account finder error
+* [58](https://github.com/perfectsense/gyro-azure-provider/issues/58): Differentiate between OS Disk and Data Disks in Azure VMs.
+* [64](https://github.com/perfectsense/gyro-azure-provider/issues/64): Expose ID fields for CloudBlobContainerResource and CloudQueueResource.
+* [72](https://github.com/perfectsense/gyro-azure-provider/issues/72): Expose object id for System Managed Identity on VM and Scale Set resources.
+* [74](https://github.com/perfectsense/gyro-azure-provider/issues/70): Fixes storage account finder error.
+* [80](https://github.com/perfectsense/gyro-azure-provider/issues/80): Fix NPE on VirtualMachineImageResource external query.
+* [82](https://github.com/perfectsense/gyro-azure-provider/issues/82): AvailabilitySet is not applied to VM.
+* [85](https://github.com/perfectsense/gyro-azure-provider/issues/85): Private DNS Zone does not associate Network
+* [99](https://github.com/perfectsense/gyro-azure-provider/issues/99): VM Resource ID is not suitable for Gyro Instance ID.
+* [101](https://github.com/perfectsense/gyro-azure-provider/issues/101): Match casing of AvailabilitySetResource ID on VM.
+* [105](https://github.com/perfectsense/gyro-azure-provider/issues/105): Scale Set Custom Data needs to be encoded.
+* [107](https://github.com/perfectsense/gyro-azure-provider/issues/107): Application Gateway Backend Health Needs to be accessible.
+* [109](https://github.com/perfectsense/gyro-azure-provider/issues/110): VirtualMachine#getGyroInstancePublicIpAddress returns null.
+
+MISC:
+
+* [114](https://github.com/perfectsense/gyro-azure-provider/issues/114): Implement Gyro SSH/List for Scale Sets.

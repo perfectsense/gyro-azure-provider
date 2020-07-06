@@ -61,12 +61,16 @@ See [Azure authentication for Gyro](https://gyro.dev/providers/azure/index.html#
 
 ## Supported Services
 
+* [AccessManagement](https://gyro.dev/providers/azure/accessmanagement/index.html)
 * [CDN](https://gyro.dev/providers/azure/cdn/index.html)
 * [Compute](https://gyro.dev/providers/azure/compute/index.html)
+* [CosmosDb](https://gyro.dev/providers/azure/cosmosdb/index.html)
 * [DNS](https://gyro.dev/providers/azure/dns/index.html)
 * [Identity](https://gyro.dev/providers/azure/identity/index.html)
+* [KeyVault](https://gyro.dev/providers/azure/keyvault/index.html)
 * [Network](https://gyro.dev/providers/azure/network/index.html)
 * [Resource](https://gyro.dev/providers/azure/resources/index.html)
+* [Sql](https://gyro.dev/providers/azure/sql/index.html)
 * [Storage](https://gyro.dev/providers/azure/storage/index.html)
 
 ## Developing the Azure Provider

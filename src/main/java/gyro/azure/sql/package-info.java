@@ -1,5 +1,5 @@
 /*
- * Copyright 2019, Perfect Sense, Inc.
+ * Copyright 2020, Perfect Sense, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@DocGroup("AccessManagement")
-package gyro.azure.accessmanagement;
+@DocGroup("Sql")
+package gyro.azure.sql;
 
 import gyro.core.resource.DocGroup;

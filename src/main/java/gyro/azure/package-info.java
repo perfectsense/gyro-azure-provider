@@ -29,7 +29,7 @@
  * .. code:: shell
  *
  *     {@literal @}repository: 'https://artifactory.psdops.com/gyro-releases'
- *     {@literal @}plugin: 'gyro:gyro-azure-provider:0.99.0'
+ *     {@literal @}plugin: 'gyro:gyro-azure-provider:0.99.1'
  *
  * This lets Gyro load the Azure provider plugin and lets you start managing Azure resources using Gyro.
  *
