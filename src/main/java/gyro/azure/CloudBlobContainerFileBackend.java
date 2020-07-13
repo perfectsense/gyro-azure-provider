@@ -127,7 +127,14 @@ public class CloudBlobContainerFileBackend extends FileBackend {
 
     @Override
     public void delete(String file) throws Exception {
-        container().getBlockBlobReference(prefixed(file)).delete();
+        // Delete the file only if it exists.
+        try {
+            container().getBlockBlobReference(prefixed(file)).delete();
+        } catch (StorageException e) {
+            if (e.getHttpStatusCode() != 404) {
+                throw e;
+            }
+        }
     }
 
     private Azure client() {
