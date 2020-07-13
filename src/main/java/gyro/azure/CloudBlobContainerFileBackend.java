@@ -16,6 +16,16 @@
 
 package gyro.azure;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.InvalidKeyException;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.storage.StorageAccount;
 import com.microsoft.azure.storage.CloudStorageAccount;
@@ -31,18 +41,9 @@ import gyro.core.Type;
 import gyro.core.auth.Credentials;
 import gyro.core.auth.CredentialsSettings;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.security.InvalidKeyException;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-
 @Type("cloud-blob-container")
 public class CloudBlobContainerFileBackend extends FileBackend {
+
     private String storageAccount;
     private String cloudBlobContainer;
     private String resourceGroup;
