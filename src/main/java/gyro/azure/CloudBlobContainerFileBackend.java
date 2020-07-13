@@ -109,10 +109,13 @@ public class CloudBlobContainerFileBackend extends FileBackend {
     @Override
     public OutputStream openOutput(String file) throws Exception {
         return new ByteArrayOutputStream() {
+
             public void close() {
                 try {
-                    container().getBlockBlobReference(prefixed(file)).uploadFromByteArray(toByteArray(), 0, toByteArray().length);
-                } catch (StorageException | URISyntaxException  | IOException e) {
+                    container()
+                        .getBlockBlobReference(prefixed(file))
+                        .uploadFromByteArray(toByteArray(), 0, toByteArray().length);
+                } catch (StorageException | URISyntaxException | IOException e) {
                     throw new GyroException(e.getMessage());
                 }
             }
@@ -126,16 +129,19 @@ public class CloudBlobContainerFileBackend extends FileBackend {
 
     private Azure client() {
         Credentials credentials = getRootScope().getSettings(CredentialsSettings.class)
-                .getCredentialsByName()
-                .get("azure::" + getCredentials());
+            .getCredentialsByName()
+            .get("azure::" + getCredentials());
 
         return AzureResource.createClient((AzureCredentials) credentials);
     }
 
     private CloudBlobContainer container() {
-        StorageAccountResource storage = getRootScope().findResourceById(StorageAccountResource.class, getStorageAccount());
+        StorageAccountResource storage = getRootScope().findResourceById(
+            StorageAccountResource.class,
+            getStorageAccount());
 
-        StorageAccount storageAccount = client().storageAccounts().getByResourceGroup(getResourceGroup(), getStorageAccount());
+        StorageAccount storageAccount = client().storageAccounts()
+            .getByResourceGroup(getResourceGroup(), getStorageAccount());
         storage.copyFrom(storageAccount);
 
         try {
