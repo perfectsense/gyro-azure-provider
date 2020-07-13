@@ -34,6 +34,7 @@ import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.ListBlobItem;
 import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.StringUtils;
 import gyro.azure.storage.StorageAccountResource;
 import gyro.core.FileBackend;
 import gyro.core.GyroException;
@@ -96,9 +97,11 @@ public class CloudBlobContainerFileBackend extends FileBackend {
 
     @Override
     public Stream<String> list() throws Exception {
-        Stream<ListBlobItem> blobItemStream = StreamSupport.stream(container().listBlobs(getPrefix(), true).spliterator(), false);
-        return blobItemStream.map(ListBlobItem::getUri)
-                .map(URI::getPath);
+        return StreamSupport.stream(container().listBlobs(getPrefix(), true).spliterator(), false)
+            .map(ListBlobItem::getUri)
+            .map(URI::getPath)
+            .filter(f -> f.endsWith(".gyro"))
+            .map(this::removeContainerAndPrefix);
     }
 
     @Override
@@ -156,5 +159,21 @@ public class CloudBlobContainerFileBackend extends FileBackend {
 
     private String prefixed(String file) {
         return getPrefix() != null ? getPrefix() + '/' + file : file;
+    }
+
+    private String removeContainerAndPrefix(String file) {
+        String cloudBlobContainer = getCloudBlobContainer();
+
+        if (StringUtils.isBlank(cloudBlobContainer)) {
+            throw new IllegalStateException("container can't be null.");
+        }
+
+        file = StringUtils.removeStart(file, "/" + cloudBlobContainer + "/");
+
+        if (getPrefix() != null && file.startsWith(getPrefix() + "/")) {
+            return file.substring(getPrefix().length() + 1);
+        }
+
+        return file;
     }
 }
