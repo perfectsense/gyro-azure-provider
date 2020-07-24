@@ -16,6 +16,11 @@
 
 package gyro.azure;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collections;
+import java.util.Properties;
+
 import com.microsoft.azure.AzureEnvironment;
 import com.microsoft.azure.AzureResponseBuilder;
 import com.microsoft.azure.credentials.ApplicationTokenCredentials;
@@ -26,16 +31,13 @@ import com.microsoft.azure.management.resources.fluentcore.utils.ResourceManager
 import com.microsoft.azure.serializer.AzureJacksonAdapter;
 import com.microsoft.rest.LogLevel;
 import com.microsoft.rest.RestClient;
+import com.psddev.dari.util.ObjectUtils;
+import com.psddev.dari.util.StringUtils;
 import gyro.core.GyroException;
 import gyro.core.auth.Credentials;
 import okhttp3.OkHttpClient;
 import okhttp3.Protocol;
 import retrofit2.Retrofit;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collections;
-import java.util.Properties;
 
 public class AzureCredentials extends Credentials {
 
@@ -79,11 +81,12 @@ public class AzureCredentials extends Credentials {
         } catch (IOException error) {
             throw new GyroException(error.getMessage());
         }
+        String tenant = ObjectUtils.to(String.class, properties.get("tenant"));
 
         AzureTokenCredentials credentials = new ApplicationTokenCredentials(
-            (String) properties.get("client"),
-            (String) properties.get("tenant"),
-            (String) properties.get("key"),
+            ObjectUtils.to(String.class, properties.get("client")),
+            tenant,
+            ObjectUtils.to(String.class, properties.get("key")),
             environment);
 
         OkHttpClient.Builder httpBuilder = new OkHttpClient.Builder().protocols(Collections.singletonList(Protocol.HTTP_1_1));
@@ -98,7 +101,12 @@ public class AzureCredentials extends Credentials {
             .build();
 
         try {
-            return Azure.authenticate(restClient, (String) properties.get("tenant")).withDefaultSubscription();
+            Azure.Authenticated authenticate = Azure.authenticate(restClient, tenant);
+            String subscription = ObjectUtils.to(String.class, properties.get("subscription"));
+
+            return StringUtils.isBlank(subscription)
+                ? authenticate.withDefaultSubscription()
+                : authenticate.withSubscription(subscription);
 
         } catch (IOException error) {
             throw new GyroException(error.getMessage(), error);
