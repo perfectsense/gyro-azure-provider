@@ -16,8 +16,6 @@
 
 package gyro.azure;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
@@ -32,6 +30,7 @@ import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
+import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import com.microsoft.azure.storage.blob.ListBlobItem;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.StringUtils;
@@ -106,35 +105,17 @@ public class CloudBlobContainerFileBackend extends FileBackend {
 
     @Override
     public InputStream openInput(String file) throws Exception {
-        return container().getBlockBlobReference(prefixed(file)).openInputStream();
+        return getBlockBlobReference(file).openInputStream();
     }
 
     @Override
     public OutputStream openOutput(String file) throws Exception {
-        return new ByteArrayOutputStream() {
-
-            public void close() {
-                try {
-                    container()
-                        .getBlockBlobReference(prefixed(file))
-                        .uploadFromByteArray(toByteArray(), 0, toByteArray().length);
-                } catch (StorageException | URISyntaxException | IOException e) {
-                    throw new GyroException(e.getMessage());
-                }
-            }
-        };
+        return getBlockBlobReference(file).openOutputStream();
     }
 
     @Override
     public void delete(String file) throws Exception {
-        // Delete the file only if it exists.
-        try {
-            container().getBlockBlobReference(prefixed(file)).delete();
-        } catch (StorageException e) {
-            if (e.getHttpStatusCode() != 404) {
-                throw e;
-            }
-        }
+        getBlockBlobReference(file).deleteIfExists();
     }
 
     private Azure client() {
@@ -182,5 +163,9 @@ public class CloudBlobContainerFileBackend extends FileBackend {
         }
 
         return file;
+    }
+
+    private CloudBlockBlob getBlockBlobReference(String file) throws Exception {
+        return container().getBlockBlobReference(prefixed(file));
     }
 }
