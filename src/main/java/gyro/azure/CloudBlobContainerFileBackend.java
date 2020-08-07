@@ -21,6 +21,7 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
+import java.util.Optional;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -40,7 +41,6 @@ import gyro.core.FileBackend;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.Type;
-import gyro.core.auth.Credentials;
 import gyro.core.auth.CredentialsSettings;
 
 @Type("cloud-blob-container")
@@ -152,26 +152,24 @@ public class CloudBlobContainerFileBackend extends FileBackend {
         }
     }
 
-    private Azure client() {
-        Credentials credentials = getRootScope().getSettings(CredentialsSettings.class)
-            .getCredentialsByName()
-            .get("azure::" + getCredentials());
-
-        return AzureResource.createClient((AzureCredentials) credentials);
-    }
-
     private CloudBlobContainer container() {
-        StorageAccountResource storage = getRootScope().findResourceById(
-            StorageAccountResource.class,
-            getStorageAccount());
-
-        StorageAccount storageAccount = client().storageAccounts()
-            .getByResourceGroup(getResourceGroup(), getStorageAccount());
+        String account = getStorageAccount();
+        StorageAccount storageAccount = Optional.ofNullable(getRootScope())
+            .map(e -> e.getSettings(CredentialsSettings.class))
+            .map(CredentialsSettings::getCredentialsByName)
+            .map(e -> e.get("azure::" + getCredentials()))
+            .filter(AzureCredentials.class::isInstance)
+            .map(AzureCredentials.class::cast)
+            .map(AzureResource::createClient)
+            .map(Azure::storageAccounts)
+            .map(e -> e.getByResourceGroup(getResourceGroup(), account))
+            .orElseThrow(() -> new GyroException("No storage account available!"));
+        StorageAccountResource storage = getRootScope().findResourceById(StorageAccountResource.class, account);
         storage.copyFrom(storageAccount);
 
         try {
-            CloudStorageAccount account = CloudStorageAccount.parse(storage.getConnection());
-            CloudBlobClient blobClient = account.createCloudBlobClient();
+            CloudStorageAccount cloudStorageAccount = CloudStorageAccount.parse(storage.getConnection());
+            CloudBlobClient blobClient = cloudStorageAccount.createCloudBlobClient();
 
             return blobClient.getContainerReference(getCloudBlobContainer());
         } catch (StorageException | URISyntaxException | InvalidKeyException ex) {
