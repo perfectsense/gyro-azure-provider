@@ -38,7 +38,6 @@ import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.StringUtils;
 import gyro.azure.storage.StorageAccountResource;
 import gyro.core.FileBackend;
-import gyro.core.FileBackendAccess;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.Type;
@@ -116,7 +115,7 @@ public class CloudBlobContainerFileBackend extends FileBackend {
     }
 
     @Override
-    public OutputStream openOutput(String file, FileBackendAccess acl) throws Exception {
+    public OutputStream openOutput(String file) throws Exception {
         return getBlockBlobReference(file).openOutputStream();
     }
 
@@ -131,7 +130,7 @@ public class CloudBlobContainerFileBackend extends FileBackend {
     }
 
     @Override
-    public void copy(String source, String destination, FileBackendAccess acl) throws Exception {
+    public void copy(String source, String destination) throws Exception {
         CloudBlockBlob target = getBlockBlobReference(destination);
         target.startCopy(getBlockBlobReference(source));
 
