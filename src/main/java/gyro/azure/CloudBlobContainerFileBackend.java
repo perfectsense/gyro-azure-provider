@@ -16,13 +16,12 @@
 
 package gyro.azure;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
+import java.util.Optional;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -32,14 +31,16 @@ import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
+import com.microsoft.azure.storage.blob.CloudBlockBlob;
+import com.microsoft.azure.storage.blob.CopyStatus;
 import com.microsoft.azure.storage.blob.ListBlobItem;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.StringUtils;
 import gyro.azure.storage.StorageAccountResource;
 import gyro.core.FileBackend;
+import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.Type;
-import gyro.core.auth.Credentials;
 import gyro.core.auth.CredentialsSettings;
 
 @Type("cloud-blob-container")
@@ -97,66 +98,78 @@ public class CloudBlobContainerFileBackend extends FileBackend {
 
     @Override
     public Stream<String> list() throws Exception {
-        return StreamSupport.stream(container().listBlobs(getPrefix(), true).spliterator(), false)
-            .map(ListBlobItem::getUri)
-            .map(URI::getPath)
-            .filter(f -> f.endsWith(".gyro"))
-            .map(this::removeContainerAndPrefix);
+        if (this.equals(GyroCore.getStateBackend(getName()))) {
+            return StreamSupport.stream(container().listBlobs(getPrefix(), true).spliterator(), false)
+                .map(ListBlobItem::getUri)
+                .map(URI::getPath)
+                .filter(f -> f.endsWith(".gyro"))
+                .map(this::removeContainerAndPrefix);
+        }
+
+        return Stream.empty();
     }
 
     @Override
     public InputStream openInput(String file) throws Exception {
-        return container().getBlockBlobReference(prefixed(file)).openInputStream();
+        return getBlockBlobReference(file).openInputStream();
     }
 
     @Override
     public OutputStream openOutput(String file) throws Exception {
-        return new ByteArrayOutputStream() {
-
-            public void close() {
-                try {
-                    container()
-                        .getBlockBlobReference(prefixed(file))
-                        .uploadFromByteArray(toByteArray(), 0, toByteArray().length);
-                } catch (StorageException | URISyntaxException | IOException e) {
-                    throw new GyroException(e.getMessage());
-                }
-            }
-        };
+        return getBlockBlobReference(file).openOutputStream();
     }
 
     @Override
     public void delete(String file) throws Exception {
-        // Delete the file only if it exists.
-        try {
-            container().getBlockBlobReference(prefixed(file)).delete();
-        } catch (StorageException e) {
-            if (e.getHttpStatusCode() != 404) {
-                throw e;
+        getBlockBlobReference(file).deleteIfExists();
+    }
+
+    @Override
+    public boolean exists(String file) throws Exception {
+        return getBlockBlobReference(file).exists();
+    }
+
+    @Override
+    public void copy(String source, String destination) throws Exception {
+        CloudBlockBlob target = getBlockBlobReference(destination);
+        target.startCopy(getBlockBlobReference(source));
+
+        long wait = 0L;
+
+        while (true) {
+            target.downloadAttributes();
+            CopyStatus copyStatus = target.getCopyState().getStatus();
+
+            if (copyStatus != CopyStatus.PENDING) {
+                if (copyStatus != CopyStatus.SUCCESS) {
+                    throw new GyroException(
+                        String.format("Copying %s to %s failed: %s", source, destination, copyStatus));
+                }
+                break;
             }
+            wait += 1000L;
+            Thread.sleep(wait);
         }
     }
 
-    private Azure client() {
-        Credentials credentials = getRootScope().getSettings(CredentialsSettings.class)
-            .getCredentialsByName()
-            .get("azure::" + getCredentials());
-
-        return AzureResource.createClient((AzureCredentials) credentials);
-    }
-
     private CloudBlobContainer container() {
-        StorageAccountResource storage = getRootScope().findResourceById(
-            StorageAccountResource.class,
-            getStorageAccount());
-
-        StorageAccount storageAccount = client().storageAccounts()
-            .getByResourceGroup(getResourceGroup(), getStorageAccount());
+        String account = getStorageAccount();
+        StorageAccount storageAccount = Optional.ofNullable(getRootScope())
+            .map(e -> e.getSettings(CredentialsSettings.class))
+            .map(CredentialsSettings::getCredentialsByName)
+            .map(e -> e.get("azure::" + getCredentials()))
+            .filter(AzureCredentials.class::isInstance)
+            .map(AzureCredentials.class::cast)
+            .map(AzureResource::createClient)
+            .map(Azure::storageAccounts)
+            .map(e -> e.getByResourceGroup(getResourceGroup(), account))
+            .orElseThrow(() -> new GyroException("No storage account available!"));
+        StorageAccountResource storage = getRootScope().findResourceById(StorageAccountResource.class, account);
         storage.copyFrom(storageAccount);
 
         try {
-            CloudStorageAccount account = CloudStorageAccount.parse(storage.getConnection());
-            CloudBlobClient blobClient = account.createCloudBlobClient();
+            CloudStorageAccount cloudStorageAccount = CloudStorageAccount.parse(storage.getConnection());
+            CloudBlobClient blobClient = cloudStorageAccount.createCloudBlobClient();
 
             return blobClient.getContainerReference(getCloudBlobContainer());
         } catch (StorageException | URISyntaxException | InvalidKeyException ex) {
@@ -182,5 +195,9 @@ public class CloudBlobContainerFileBackend extends FileBackend {
         }
 
         return file;
+    }
+
+    private CloudBlockBlob getBlockBlobReference(String file) throws Exception {
+        return container().getBlockBlobReference(prefixed(file));
     }
 }
