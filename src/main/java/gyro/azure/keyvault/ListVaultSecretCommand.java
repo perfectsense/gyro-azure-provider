@@ -7,13 +7,13 @@ import com.microsoft.azure.keyvault.models.SecretItem;
 import com.microsoft.azure.management.keyvault.Vault;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
-import io.airlift.airline.Arguments;
-import io.airlift.airline.Command;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Parameters;
 
-@Command(name = "list-secret", description = "List all secrets present in an Azure key vault")
+@Command(name = "list-secret", description = "List all secrets present in an Azure key vault.", mixinStandardHelpOptions = true)
 public class ListVaultSecretCommand extends AbstractVaultCommand {
 
-    @Arguments(description = "The command requires one argument. <vault-name>: the key-vault resource name used in the config whose secrets would be listed", required = true)
+    @Parameters(description = "The command requires one argument. <vault-name>: the key-vault resource name used in the config whose secrets would be listed.", arity = "1")
     private List<String> arguments;
 
     @Override
@@ -27,7 +27,7 @@ public class ListVaultSecretCommand extends AbstractVaultCommand {
             if (!secretItemPagedList.isEmpty()) {
                 secretItemPagedList.loadAll();
 
-                for (SecretItem secret: secretItemPagedList) {
+                for (SecretItem secret : secretItemPagedList) {
                     StringBuilder sb = new StringBuilder();
                     sb.append("\n***********************");
                     sb.append(String.format("\nName: %s", secret.identifier().name()));

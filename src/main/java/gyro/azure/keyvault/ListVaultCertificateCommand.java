@@ -17,25 +17,23 @@
 package gyro.azure.keyvault;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.microsoft.azure.PagedList;
 import com.microsoft.azure.keyvault.models.CertificateItem;
 import com.microsoft.azure.management.keyvault.Vault;
-import com.microsoft.azure.management.network.ApplicationGatewaySslCertificate;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
-import io.airlift.airline.Arguments;
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
-@Command(name = "list-certificate", description = "List all certificates present in an Azure key vault")
+@Command(name = "list-certificate", description = "List all certificates present in an Azure key vault.", mixinStandardHelpOptions = true)
 public class ListVaultCertificateCommand extends AbstractVaultCommand {
 
-    @Arguments(description = "The command requires one argument. <vault-name>: the key-vault resource name used in the config whose certificates would be listed", required = true)
+    @Parameters(description = "The command requires one argument. <vault-name>: the key-vault resource name used in the config whose certificates would be listed.", arity = "1")
     private List<String> arguments;
 
-    @Option(name = "--show-thumbprint", description = "Show thumbprint of the certificate")
+    @Option(names = "--show-thumbprint", description = "Show thumbprint of the certificate.")
     private boolean showThumbprint;
 
     @Override
@@ -49,14 +47,16 @@ public class ListVaultCertificateCommand extends AbstractVaultCommand {
             if (!certificateItemPagedList.isEmpty()) {
                 certificateItemPagedList.loadAll();
 
-                for (CertificateItem certificate: certificateItemPagedList) {
+                for (CertificateItem certificate : certificateItemPagedList) {
                     StringBuilder sb = new StringBuilder();
                     sb.append("\n***********************");
                     sb.append(String.format("\nName: %s", certificate.identifier().name()));
                     sb.append(String.format("\nVersion: %s", certificate.identifier().version()));
 
                     if (showThumbprint) {
-                        sb.append(String.format("\nThumbprint: %s", certificate.x509Thumbprint() != null ? new String(certificate.x509Thumbprint()) : null));
+                        sb.append(String.format(
+                            "\nThumbprint: %s",
+                            certificate.x509Thumbprint() != null ? new String(certificate.x509Thumbprint()) : null));
                     }
 
                     GyroCore.ui().write(sb.toString());

@@ -26,17 +26,17 @@ import com.microsoft.azure.management.keyvault.Vault;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
-import io.airlift.airline.Arguments;
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
-@Command(name = "add-certificate", description = "Add a certificate to an Azure key vault")
+@Command(name = "add-certificate", description = "Add a certificate to an Azure key vault.", mixinStandardHelpOptions = true)
 public class AddVaultCertificateCommand extends AbstractVaultCommand {
 
-    @Arguments(description = "The command requires three arguments. <vault-name>: the key-vault resource name used in the config to which the certificate would be added. <cert-name>: name of the certificate to be added. <path>: the path to the certificate file (.pfx)", required = true)
+    @Parameters(description = "The command requires three arguments. <vault-name>: the key-vault resource name used in the config to which the certificate would be added. <cert-name>: name of the certificate to be added. <path>: the path to the certificate file (.pfx)", arity = "1")
     private List<String> arguments;
 
-    @Option(name = { "--password" }, description = "Password used to encrypt the certificate file")
+    @Option(names = "--password", description = "Password used to encrypt the certificate file.", arity = "0..1", interactive = true)
     private String password;
 
     @Override

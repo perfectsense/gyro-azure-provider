@@ -23,20 +23,20 @@ import com.microsoft.azure.management.network.ApplicationGateway;
 import com.microsoft.azure.management.network.ApplicationGatewaySslCertificate;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
-import io.airlift.airline.Arguments;
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
-@Command(name = "list-certificate", description = "List all certificates present in an Azure application gateway")
+@Command(name = "list-certificate", description = "List all certificates present in an Azure application gateway.", mixinStandardHelpOptions = true)
 public class ListApplicationGatewayCertificateCommand extends AbstractApplicationGatewayCommand {
 
-    @Arguments(description = "The command requires one argument. <application-gateway-name>: the application gateway resource name used in the config whose certificates would be listed", required = true)
+    @Parameters(description = "The command requires one argument. <application-gateway-name>: the application gateway resource name used in the config whose certificates would be listed.", arity = "1")
     private List<String> arguments;
 
-    @Option(name = "--show-data", description = "Show data of the certificate")
+    @Option(names = "--show-data", description = "Show data of the certificate.")
     private boolean showData;
 
-    @Option(name = "--show-secret-id", description = "Show secret id of the certificate")
+    @Option(names = "--show-secret-id", description = "Show secret id of the certificate.")
     private boolean showSecretId;
 
     @Override
@@ -50,7 +50,7 @@ public class ListApplicationGatewayCertificateCommand extends AbstractApplicatio
                 .values());
 
             if (!sslCertificates.isEmpty()) {
-                for (ApplicationGatewaySslCertificate certificate: sslCertificates) {
+                for (ApplicationGatewaySslCertificate certificate : sslCertificates) {
                     StringBuilder sb = new StringBuilder();
                     sb.append("\n***********************");
                     sb.append(String.format("\nName: %s", certificate.name()));

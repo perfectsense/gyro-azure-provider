@@ -16,19 +16,13 @@
 
 package gyro.azure.keyvault;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.keyvault.Vault;
 import gyro.azure.AbstractAzureCommand;
-import gyro.azure.AzureCommand;
 import gyro.core.GyroException;
 import gyro.core.command.GyroCommand;
 import gyro.core.resource.Resource;
 import gyro.core.scope.RootScope;
-import io.airlift.airline.Cli;
-import io.airlift.airline.Help;
 
 public abstract class AbstractVaultCommand extends AbstractAzureCommand implements GyroCommand {
 
@@ -53,14 +47,5 @@ public abstract class AbstractVaultCommand extends AbstractAzureCommand implemen
         RootScope scope = getScope();
         Azure client = getClient();
         return getVault(vaultResourceName, scope, client);
-    }
-
-    public static void setVaultCommand(Cli.CliBuilder<Object> builder) {
-        List<Class<?>> subTypesOf = new ArrayList<>(AzureCommand.getReflections().getSubTypesOf(AbstractVaultCommand.class));
-
-        builder.withGroup("key-vault")
-            .withDescription("Manage azure key-vault secrets, keys and certificates")
-            .withDefaultCommand(Help.class)
-            .withCommands(subTypesOf);
     }
 }

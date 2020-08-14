@@ -21,13 +21,13 @@ import java.util.List;
 import com.microsoft.azure.management.keyvault.Vault;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
-import io.airlift.airline.Arguments;
-import io.airlift.airline.Command;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Parameters;
 
-@Command(name = "remove-certificate", description = "Remove a certificate from an Azure key vault")
+@Command(name = "remove-certificate", description = "Remove a certificate from an Azure key vault", mixinStandardHelpOptions = true)
 public class RemoveVaultCertificateCommand extends AbstractVaultCommand {
 
-    @Arguments(description = "The command requires two arguments. <vault-name>: the key-vault resource name used in the config from which the certificate would be removed. <cert-name>: name of the certificate to be removed.", required = true)
+    @Parameters(description = "The command requires two arguments. <vault-name>: the key-vault resource name used in the config from which the certificate would be removed. <cert-name>: name of the certificate to be removed.", arity = "1")
     private List<String> arguments;
 
     @Override

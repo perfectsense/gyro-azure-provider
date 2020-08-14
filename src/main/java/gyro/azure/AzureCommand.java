@@ -19,21 +19,23 @@ package gyro.azure;
 import java.util.List;
 
 import gyro.azure.keyvault.AbstractVaultCommand;
+import gyro.azure.keyvault.AzureKeyVaultCommand;
 import gyro.azure.network.AbstractApplicationGatewayCommand;
+import gyro.azure.network.AzureApplicationGatewayCommand;
 import gyro.core.command.GyroCommand;
-import io.airlift.airline.Arguments;
-import io.airlift.airline.Cli;
-import io.airlift.airline.Command;
-import io.airlift.airline.Help;
 import org.reflections.Reflections;
 import org.reflections.util.ClasspathHelper;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Parameters;
 
-@Command(name = "azure", description = "CLI command for all things azure")
+@Command(name = "azure", description = "CLI command for all things azure.", mixinStandardHelpOptions = true, subcommands = {
+    AzureKeyVaultCommand.class,
+    AzureApplicationGatewayCommand.class })
 public class AzureCommand implements GyroCommand {
 
     public static Reflections reflections;
 
-    @Arguments(description = "", required = true)
+    @Parameters(description = "", arity = "1")
     private List<String> arguments;
 
     public static Reflections getReflections() {
@@ -47,7 +49,7 @@ public class AzureCommand implements GyroCommand {
 
     @Override
     public void execute() throws Exception {
-        Cli.CliBuilder<Object> builder = Cli.builder("azure")
+        /*Cli.CliBuilder<Object> builder = Cli.builder("azure")
             .withDescription("CLI command for all things azure")
             .withDefaultCommand(Help.class)
             .withCommands(Help.class);
@@ -72,6 +74,6 @@ public class AzureCommand implements GyroCommand {
                 command.getClass().getName(),
                 Runnable.class.getName(),
                 GyroCommand.class.getName()));
-        }
+        }*/
     }
 }
