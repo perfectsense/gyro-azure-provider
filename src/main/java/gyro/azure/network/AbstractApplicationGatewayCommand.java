@@ -1,5 +1,7 @@
 package gyro.azure.network;
 
+import java.util.concurrent.Callable;
+
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.network.ApplicationGateway;
 import gyro.azure.AbstractAzureCommand;
@@ -8,7 +10,7 @@ import gyro.core.command.GyroCommand;
 import gyro.core.resource.Resource;
 import gyro.core.scope.RootScope;
 
-public abstract class AbstractApplicationGatewayCommand extends AbstractAzureCommand implements GyroCommand {
+public abstract class AbstractApplicationGatewayCommand extends AbstractAzureCommand implements GyroCommand, Callable<Integer> {
 
     ApplicationGateway getApplicationGateway(String applicationGatewayResourceName) {
         RootScope scope = getScope();
@@ -31,5 +33,11 @@ public abstract class AbstractApplicationGatewayCommand extends AbstractAzureCom
                 "No 'application-gateway' resource found with name - %s",
                 applicationGatewayResourceName));
         }
+    }
+
+    @Override
+    public Integer call() throws Exception {
+        execute();
+        return 0;
     }
 }

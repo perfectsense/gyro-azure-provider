@@ -16,6 +16,8 @@
 
 package gyro.azure.keyvault;
 
+import java.util.concurrent.Callable;
+
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.keyvault.Vault;
 import gyro.azure.AbstractAzureCommand;
@@ -24,7 +26,7 @@ import gyro.core.command.GyroCommand;
 import gyro.core.resource.Resource;
 import gyro.core.scope.RootScope;
 
-public abstract class AbstractVaultCommand extends AbstractAzureCommand implements GyroCommand {
+public abstract class AbstractVaultCommand extends AbstractAzureCommand implements GyroCommand, Callable<Integer> {
 
     public static Vault getVault(String vaultResourceName, RootScope scope, Azure client) {
         Resource resource = scope.findResource("azure::key-vault::" + vaultResourceName);
@@ -47,5 +49,11 @@ public abstract class AbstractVaultCommand extends AbstractAzureCommand implemen
         RootScope scope = getScope();
         Azure client = getClient();
         return getVault(vaultResourceName, scope, client);
+    }
+
+    @Override
+    public Integer call() throws Exception {
+        execute();
+        return 0;
     }
 }
