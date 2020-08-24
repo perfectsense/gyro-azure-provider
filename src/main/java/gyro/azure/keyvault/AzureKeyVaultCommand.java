@@ -1,7 +1,6 @@
 package gyro.azure.keyvault;
 
 import gyro.core.command.GyroCommandGroup;
-import gyro.core.command.VersionCommand;
 import picocli.CommandLine;
 
 @CommandLine.Command(name = "key-vault",
@@ -13,8 +12,6 @@ import picocli.CommandLine;
     optionListHeading = "%nOptions:%n",
     commandListHeading = "%nCommands:%n",
     usageHelpWidth = 100,
-    mixinStandardHelpOptions = true,
-    versionProvider = VersionCommand.class,
     subcommands = {
         AddVaultCertificateCommand.class,
         AddVaultSecretCommand.class,

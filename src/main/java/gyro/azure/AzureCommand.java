@@ -19,7 +19,6 @@ package gyro.azure;
 import gyro.azure.keyvault.AzureKeyVaultCommand;
 import gyro.azure.network.AzureApplicationGatewayCommand;
 import gyro.core.command.GyroCommand;
-import gyro.core.command.VersionCommand;
 import picocli.CommandLine.Command;
 
 @Command(name = "azure",
@@ -31,8 +30,6 @@ import picocli.CommandLine.Command;
     optionListHeading = "%nOptions:%n",
     commandListHeading = "%nCommands:%n",
     usageHelpWidth = 100,
-    mixinStandardHelpOptions = true,
-    versionProvider = VersionCommand.class,
     subcommands = {
         AzureKeyVaultCommand.class,
         AzureApplicationGatewayCommand.class
