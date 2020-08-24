@@ -19,11 +19,25 @@ package gyro.azure;
 import gyro.azure.keyvault.AzureKeyVaultCommand;
 import gyro.azure.network.AzureApplicationGatewayCommand;
 import gyro.core.command.GyroCommand;
+import gyro.core.command.VersionCommand;
 import picocli.CommandLine.Command;
 
-@Command(name = "azure", description = "CLI command for all things azure.", mixinStandardHelpOptions = true, subcommands = {
-    AzureKeyVaultCommand.class,
-    AzureApplicationGatewayCommand.class })
+@Command(name = "azure",
+    description = "Manage azure assets.",
+    synopsisHeading = "%n",
+    header = "Add, remove, or list assets part of key-vault and application-gateway.",
+    descriptionHeading = "%nDescription:%n%n",
+    parameterListHeading = "%nParameters:%n",
+    optionListHeading = "%nOptions:%n",
+    commandListHeading = "%nCommands:%n",
+    usageHelpWidth = 100,
+    mixinStandardHelpOptions = true,
+    versionProvider = VersionCommand.class,
+    subcommands = {
+        AzureKeyVaultCommand.class,
+        AzureApplicationGatewayCommand.class
+    }
+)
 public class AzureCommand implements GyroCommand {
 
     @Override

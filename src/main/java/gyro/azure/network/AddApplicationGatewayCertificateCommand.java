@@ -11,7 +11,12 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
-@Command(name = "add-certificate", description = "Add a certificate to an Azure application gateway.", mixinStandardHelpOptions = true)
+@Command(name = "add-certificate",
+    header = "Add a certificate to an Azure application gateway.",
+    synopsisHeading = "%n",
+    parameterListHeading = "%nParameters:%n",
+    optionListHeading = "%nOptions:%n",
+    usageHelpWidth = 100)
 public class AddApplicationGatewayCertificateCommand extends AbstractApplicationGatewayCommand {
 
     @Parameters(description = "The command requires two arguments. <application-gateway-name>: the application gateway resource name used in the config to which the certificate would be added. <cert-name>: name of the certificate to be added. <path>: the path to the certificate file (.pfx)", arity = "3")

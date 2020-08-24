@@ -8,7 +8,12 @@ import gyro.core.GyroException;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 
-@Command(name = "remove-secret", description = "Remove a secret from an Azure key vault.", mixinStandardHelpOptions = true)
+@Command(name = "remove-secret",
+    header = "Remove a secret from an Azure key vault.",
+    synopsisHeading = "%n",
+    parameterListHeading = "%nParameters:%n",
+    optionListHeading = "%nOptions:%n",
+    usageHelpWidth = 100)
 public class RemoveVaultSecretCommand extends AbstractVaultCommand {
 
     @Parameters(description = "The command requires two arguments. <vault-name>: the key-vault resource name used in the config from which the secret would be removed. <secret-name>: name of the secret to be removed.", arity = "1")

@@ -27,7 +27,12 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
-@Command(name = "list-certificate", description = "List all certificates present in an Azure key vault.", mixinStandardHelpOptions = true)
+@Command(name = "list-certificate",
+    header = "List all certificates present in an Azure key vault.",
+    synopsisHeading = "%n",
+    parameterListHeading = "%nParameters:%n",
+    optionListHeading = "%nOptions:%n",
+    usageHelpWidth = 100)
 public class ListVaultCertificateCommand extends AbstractVaultCommand {
 
     @Parameters(description = "The command requires one argument. <vault-name>: the key-vault resource name used in the config whose certificates would be listed.", arity = "1")

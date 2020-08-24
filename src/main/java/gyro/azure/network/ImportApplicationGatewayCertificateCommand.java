@@ -11,7 +11,12 @@ import gyro.core.GyroException;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 
-@Command(name = "import-certificate", description = "Import a certificate from an Azure vault to an application gateway.", mixinStandardHelpOptions = true)
+@Command(name = "import-certificate",
+    header = "Import a certificate from an Azure vault to an application gateway.",
+    synopsisHeading = "%n",
+    parameterListHeading = "%nParameters:%n",
+    optionListHeading = "%nOptions:%n",
+    usageHelpWidth = 100)
 public class ImportApplicationGatewayCertificateCommand extends AbstractApplicationGatewayCommand {
 
     @Parameters(description = "The command requires four arguments. <application-gateway-name>: the application gateway resource name used in the config to which the certificate would be imported to. <cert-name>: name of the certificate to be created on the application gateway. <vault-name>: the key-vault resource name used in the config from which to import the certificate from. <vault-cert-name>: name of the certificate in the vault to be imported.", arity = "1")

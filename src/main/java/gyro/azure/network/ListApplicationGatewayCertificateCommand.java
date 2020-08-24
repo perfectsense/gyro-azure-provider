@@ -27,7 +27,12 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
-@Command(name = "list-certificate", description = "List all certificates present in an Azure application gateway.", mixinStandardHelpOptions = true)
+@Command(name = "list-certificate",
+    header = "List all certificates present in an Azure application gateway.",
+    synopsisHeading = "%n",
+    parameterListHeading = "%nParameters:%n",
+    optionListHeading = "%nOptions:%n",
+    usageHelpWidth = 100)
 public class ListApplicationGatewayCertificateCommand extends AbstractApplicationGatewayCommand {
 
     @Parameters(description = "The command requires one argument. <application-gateway-name>: the application gateway resource name used in the config whose certificates would be listed.", arity = "1")

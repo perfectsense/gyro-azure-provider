@@ -30,7 +30,12 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
-@Command(name = "add-certificate", description = "Add a certificate to an Azure key vault.", mixinStandardHelpOptions = true)
+@Command(name = "add-certificate",
+    header = "Add a certificate to an Azure key vault.",
+    synopsisHeading = "%n",
+    parameterListHeading = "%nParameters:%n",
+    optionListHeading = "%nOptions:%n",
+    usageHelpWidth = 100)
 public class AddVaultCertificateCommand extends AbstractVaultCommand {
 
     @Parameters(description = "The command requires three arguments. <vault-name>: the key-vault resource name used in the config to which the certificate would be added. <cert-name>: name of the certificate to be added. <path>: the path to the certificate file (.pfx)", arity = "1")

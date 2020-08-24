@@ -13,7 +13,12 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
-@Command(name = "add-secret", description = "Add a secret to an Azure key vault.", mixinStandardHelpOptions = true)
+@Command(name = "add-secret",
+    header = "Add a secret to an Azure key vault.",
+    synopsisHeading = "%n",
+    parameterListHeading = "%nParameters:%n",
+    optionListHeading = "%nOptions:%n",
+    usageHelpWidth = 100)
 public class AddVaultSecretCommand extends AbstractVaultCommand {
 
     @Parameters(description = "The command requires three arguments. <vault-name>: the key-vault resource name used in the config to which the secret would be added. <secret-name>: name of the secret to be added. <value>: the secret value", arity = "1")

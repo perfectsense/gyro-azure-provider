@@ -10,7 +10,12 @@ import gyro.core.GyroException;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 
-@Command(name = "list-secret", description = "List all secrets present in an Azure key vault.", mixinStandardHelpOptions = true)
+@Command(name = "list-secret",
+    header = "List all secrets present in an Azure key vault.",
+    synopsisHeading = "%n",
+    parameterListHeading = "%nParameters:%n",
+    optionListHeading = "%nOptions:%n",
+    usageHelpWidth = 100)
 public class ListVaultSecretCommand extends AbstractVaultCommand {
 
     @Parameters(description = "The command requires one argument. <vault-name>: the key-vault resource name used in the config whose secrets would be listed.", arity = "1")
