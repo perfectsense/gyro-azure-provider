@@ -1,4 +1,10 @@
-## 0.99.2 (Unreleased)
+## 0.99.2 (August 25th, 2020)
+
+ENHANCEMENTS:
+
+* [126](https://github.com/perfectsense/gyro-azure-provider/issues/126): Support subscription from auth properties file.
+* [128](https://github.com/perfectsense/gyro-azure-provider/issues/128): Support remote file backend
+* [130](https://github.com/perfectsense/gyro-azure-provider/issues/130): Add `exists(String file)` and `copy(String source, String dest)` methods to FileBackend.
 
 ## 0.99.1 (July 6th, 2020)
 
