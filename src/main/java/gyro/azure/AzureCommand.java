@@ -16,62 +16,29 @@
 
 package gyro.azure;
 
-import java.util.List;
-
-import gyro.azure.keyvault.AbstractVaultCommand;
-import gyro.azure.network.AbstractApplicationGatewayCommand;
+import gyro.azure.keyvault.AzureKeyVaultCommand;
+import gyro.azure.network.AzureApplicationGatewayCommand;
 import gyro.core.command.GyroCommand;
-import io.airlift.airline.Arguments;
-import io.airlift.airline.Cli;
-import io.airlift.airline.Command;
-import io.airlift.airline.Help;
-import org.reflections.Reflections;
-import org.reflections.util.ClasspathHelper;
+import picocli.CommandLine.Command;
 
-@Command(name = "azure", description = "CLI command for all things azure")
-public class AzureCommand implements GyroCommand {
-
-    public static Reflections reflections;
-
-    @Arguments(description = "", required = true)
-    private List<String> arguments;
-
-    public static Reflections getReflections() {
-        if (reflections == null) {
-            reflections = new Reflections(new org.reflections.util.ConfigurationBuilder()
-                .setUrls(ClasspathHelper.forPackage("gyro.azure")));
-        }
-
-        return reflections;
+@Command(name = "azure",
+    description = "Manage azure assets.",
+    synopsisHeading = "%n",
+    header = "Add, remove, or list assets part of key-vault and application-gateway.",
+    descriptionHeading = "%nDescription:%n%n",
+    parameterListHeading = "%nParameters:%n",
+    optionListHeading = "%nOptions:%n",
+    commandListHeading = "%nCommands:%n",
+    usageHelpWidth = 100,
+    subcommands = {
+        AzureKeyVaultCommand.class,
+        AzureApplicationGatewayCommand.class
     }
+)
+public class AzureCommand implements GyroCommand {
 
     @Override
     public void execute() throws Exception {
-        Cli.CliBuilder<Object> builder = Cli.builder("azure")
-            .withDescription("CLI command for all things azure")
-            .withDefaultCommand(Help.class)
-            .withCommands(Help.class);
 
-        // Vault command loader
-        AbstractVaultCommand.setVaultCommand(builder);
-
-        // Application gateway command loader
-        AbstractApplicationGatewayCommand.setApplicationGatewayCommand(builder);
-
-        Cli<Object> gitParser = builder.build();
-
-        Object command = gitParser.parse(arguments);
-
-        if (command instanceof Runnable) {
-            ((Runnable) command).run();
-        } else if (command instanceof GyroCommand) {
-            ((GyroCommand) command).execute();
-        } else {
-            throw new IllegalStateException(String.format(
-                "[%s] must be an instance of [%s] or [%s]!",
-                command.getClass().getName(),
-                Runnable.class.getName(),
-                GyroCommand.class.getName()));
-        }
     }
 }

@@ -5,13 +5,18 @@ import java.util.List;
 import com.microsoft.azure.management.keyvault.Vault;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
-import io.airlift.airline.Arguments;
-import io.airlift.airline.Command;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Parameters;
 
-@Command(name = "remove-secret", description = "Remove a secret from an Azure key vault")
+@Command(name = "remove-secret",
+    header = "Remove a secret from an Azure key vault.",
+    synopsisHeading = "%n",
+    parameterListHeading = "%nParameters:%n",
+    optionListHeading = "%nOptions:%n",
+    usageHelpWidth = 100)
 public class RemoveVaultSecretCommand extends AbstractVaultCommand {
 
-    @Arguments(description = "The command requires two arguments. <vault-name>: the key-vault resource name used in the config from which the secret would be removed. <secret-name>: name of the secret to be removed.", required = true)
+    @Parameters(description = "The command requires two arguments. <vault-name>: the key-vault resource name used in the config from which the secret would be removed. <secret-name>: name of the secret to be removed.", arity = "1")
     private List<String> arguments;
 
     @Override

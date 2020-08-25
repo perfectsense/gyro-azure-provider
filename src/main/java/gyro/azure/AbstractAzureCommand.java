@@ -36,12 +36,12 @@ import gyro.core.scope.RootScope;
 import gyro.lang.ast.Node;
 import gyro.lang.ast.block.FileNode;
 import gyro.util.Bug;
-import io.airlift.airline.Option;
 import org.apache.commons.lang3.StringUtils;
+import picocli.CommandLine.Option;
 
 public abstract class AbstractAzureCommand {
 
-    @Option(name = "--credential", description = "The azure credentials to be used as defined in the project init file. When not specified the 'default' credential is used.")
+    @Option(names = "--credential", description = "The azure credentials to be used as defined in the project init file. When not specified the 'default' credential is used.")
     private String credential;
 
     private RootScope scope;
@@ -91,7 +91,9 @@ public abstract class AbstractAzureCommand {
             .get("azure::" + getCredential());
 
         if (credentials == null) {
-            throw new GyroException(String.format("No credentials with name - '%s' found. Check the your project init file.", getCredential()));
+            throw new GyroException(String.format(
+                "No credentials with name - '%s' found. Check the your project init file.",
+                getCredential()));
         }
 
         return AzureResource.createClient((AzureCredentials) credentials);
