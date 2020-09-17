@@ -34,14 +34,12 @@ import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import com.microsoft.azure.storage.blob.CopyStatus;
 import com.microsoft.azure.storage.blob.ListBlobItem;
-import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.StringUtils;
 import gyro.azure.storage.StorageAccountResource;
 import gyro.core.FileBackend;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.Type;
-import gyro.core.auth.CredentialsSettings;
 
 @Type("cloud-blob-container")
 public class CloudBlobContainerFileBackend extends FileBackend {
@@ -50,7 +48,6 @@ public class CloudBlobContainerFileBackend extends FileBackend {
     private String cloudBlobContainer;
     private String resourceGroup;
     private String prefix;
-    private String credentials;
 
     public String getStorageAccount() {
         return storageAccount;
@@ -82,18 +79,6 @@ public class CloudBlobContainerFileBackend extends FileBackend {
 
     public void setResourceGroup(String resourceGroup) {
         this.resourceGroup = resourceGroup;
-    }
-
-    public String getCredentials() {
-        if (ObjectUtils.isBlank(credentials)) {
-            setCredentials("default");
-        }
-
-        return credentials;
-    }
-
-    public void setCredentials(String credentials) {
-        this.credentials = credentials;
     }
 
     @Override
@@ -154,10 +139,7 @@ public class CloudBlobContainerFileBackend extends FileBackend {
 
     private CloudBlobContainer container() {
         String account = getStorageAccount();
-        StorageAccount storageAccount = Optional.ofNullable(getRootScope())
-            .map(e -> e.getSettings(CredentialsSettings.class))
-            .map(CredentialsSettings::getCredentialsByName)
-            .map(e -> e.get("azure::" + getCredentials()))
+        StorageAccount storageAccount = Optional.ofNullable(getCredentials("azure"))
             .filter(AzureCredentials.class::isInstance)
             .map(AzureCredentials.class::cast)
             .map(AzureResource::createClient)
