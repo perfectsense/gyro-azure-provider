@@ -68,6 +68,7 @@ public class KeyVaultKeyResource extends AzureResource implements Copyable<KeyBu
     /**
      * The name of the key. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }

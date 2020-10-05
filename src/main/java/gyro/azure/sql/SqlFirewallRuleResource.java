@@ -32,6 +32,7 @@ import com.microsoft.azure.management.sql.SqlFirewallRule;
 import com.microsoft.azure.management.sql.SqlFirewallRuleOperations.DefinitionStages.WithIPAddressRange;
 import com.microsoft.azure.management.sql.SqlFirewallRuleOperations.DefinitionStages.WithCreate;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 
 import java.util.Set;
 
@@ -59,7 +60,7 @@ public class SqlFirewallRuleResource extends AzureResource implements Copyable<S
     private SqlServerResource sqlServer;
 
     /**
-     * The ID of the firewall rule. (Required)
+     * The ID of the firewall rule.
      */
     @Output
     public String getId() {
@@ -73,6 +74,7 @@ public class SqlFirewallRuleResource extends AzureResource implements Copyable<S
     /**
      * The starting or only ip address of the firewall rule. (Required)
      */
+    @Required
     @Updatable
     public String getStartIpAddress() {
         return startIpAddress;
@@ -83,7 +85,7 @@ public class SqlFirewallRuleResource extends AzureResource implements Copyable<S
     }
 
     /**
-     * The ending ip address of the firewall rule. (Optional)
+     * The ending ip address of the firewall rule.
      */
     @Updatable
     public String getEndIpAddress() {
@@ -97,6 +99,7 @@ public class SqlFirewallRuleResource extends AzureResource implements Copyable<S
     /**
      * The name of the firewall rule. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }
@@ -108,6 +111,7 @@ public class SqlFirewallRuleResource extends AzureResource implements Copyable<S
     /**
      * The SQL Server where the Firewall Rule is found. (Required)
      */
+    @Required
     public SqlServerResource getSqlServer() {
         return sqlServer;
     }

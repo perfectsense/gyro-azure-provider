@@ -116,6 +116,7 @@ public class CloudFileResource extends AzureResource implements Copyable<CloudFi
     /**
      * The Storage Account where the file will be created. (Required)
      */
+    @Required
     public StorageAccountResource getStorageAccount() {
         return storageAccount;
     }

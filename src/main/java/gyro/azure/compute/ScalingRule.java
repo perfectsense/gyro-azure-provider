@@ -58,6 +58,7 @@ public class ScalingRule extends Diffable implements Copyable<ScaleRule> {
     /**
      * The source resource monitored by the Rule. (Required)
      */
+    @Required
     public String getMetricSourceId() {
         return metricSourceId;
     }

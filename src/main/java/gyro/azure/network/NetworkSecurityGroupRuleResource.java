@@ -60,6 +60,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource implements C
     /**
      * Name of the Network Security Rule. (Required)
      */
+    @Required
     public String getName() {
         return name;
     }
@@ -205,6 +206,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource implements C
     /**
      * Priority for the Network Security Rule. Valid values are any Integer from ``100`` to ``4096``. (Required)
      */
+    @Required
     @Range(min = 100, max = 4096)
     @Updatable
     public Integer getPriority() {

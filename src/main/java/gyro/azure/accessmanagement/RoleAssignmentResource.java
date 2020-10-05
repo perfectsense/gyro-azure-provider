@@ -63,6 +63,7 @@ public class RoleAssignmentResource extends AzureResource implements Copyable<Ro
     /**
      * The scope for the role assignment. ID of the level (Subscription, Resource Group etc.). (Required)
      */
+    @Required
     public String getScope() {
         return scope;
     }
