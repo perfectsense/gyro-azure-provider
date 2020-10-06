@@ -508,6 +508,11 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
         this.availabilityZones = availabilityZones;
     }
 
+    /**
+     * The managed service identity configuration for the application gateway.
+     *
+     * @subresource gyro.azure.network.ApplicationGatewayManagedServiceIdentity
+     */
     @Updatable
     public ApplicationGatewayManagedServiceIdentity getManagedServiceIdentity() {
         return managedServiceIdentity;

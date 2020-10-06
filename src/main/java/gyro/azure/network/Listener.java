@@ -89,6 +89,8 @@ public class Listener extends Diffable implements Copyable<ApplicationGatewayLis
 
     /**
      * Ssl configuration for the listener.
+     *
+     * @subresource gyro.azure.network.ListenerSslCertificate
      */
     @Updatable
     public ListenerSslCertificate getSslCertificate() {

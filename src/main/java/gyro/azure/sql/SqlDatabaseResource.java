@@ -143,7 +143,6 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
         return editionServiceObjective;
     }
 
-    @Updatable
     public void setEditionServiceObjective(String editionServiceObjective) {
         this.editionServiceObjective = editionServiceObjective;
     }
