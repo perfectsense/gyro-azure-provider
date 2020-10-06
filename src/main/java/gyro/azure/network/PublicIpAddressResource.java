@@ -38,6 +38,7 @@ import gyro.core.resource.Resource;
 import gyro.core.scope.State;
 import gyro.core.validation.Range;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -112,6 +113,7 @@ public class PublicIpAddressResource extends AzureResource implements Copyable<P
     /**
      * Specify Sku type. Valid values are ``BASIC`` or ``STANDARD``. Defaults to ``BASIC``.
      */
+    @ValidStrings({"BASIC", "STANDARD"})
     public SKU_TYPE getSkuType() {
         if (skuType == null) {
             skuType = SKU_TYPE.BASIC;

@@ -21,6 +21,7 @@ import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -54,6 +55,7 @@ public class ScalingProfile extends Diffable implements Copyable<AutoscaleProfil
      */
     @Required
     @Updatable
+    @ValidStrings({"FIXED", "RECURRENT_SCHEDULE", "FIXED_SCHEDULE", "METRIC"})
     public ProfileType getType() {
         return type;
     }

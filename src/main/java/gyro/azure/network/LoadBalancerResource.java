@@ -42,6 +42,7 @@ import com.microsoft.azure.management.network.LoadBalancer.DefinitionStages.With
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 
 import java.util.ArrayList;
@@ -243,6 +244,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
     /**
      * Specifies the sku type for the Load Balancer. Valid Values are ``BASIC`` or ``STANDARD``. Defaults to ``BASIC``.
      */
+    @ValidStrings({"BASIC", "STANDARD"})
     public SKU_TYPE getSkuType() {
         if (skuType == null) {
             skuType = SKU_TYPE.BASIC;

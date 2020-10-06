@@ -22,6 +22,7 @@ import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -60,6 +61,7 @@ public class ScalingRecurrentSchedule extends Diffable implements Copyable<Recur
      */
     @Required
     @Updatable
+    @ValidStrings({"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"})
     public Set<String> getDayOfWeeks() {
         return dayOfWeeks;
     }

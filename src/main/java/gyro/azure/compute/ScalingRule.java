@@ -27,6 +27,7 @@ import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Range;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import org.joda.time.Period;
 
 public class ScalingRule extends Diffable implements Copyable<ScaleRule> {
@@ -71,6 +72,7 @@ public class ScalingRule extends Diffable implements Copyable<ScaleRule> {
      * The type of metrics statistic showing how metrics from multiple instances are combined. Valid Values are ``AVERAGE`` or ``MIN`` or ``MAX`` or ``SUM``. Defaults to ``AVERAGE``.
      */
     @Updatable
+    @ValidStrings({"AVERAGE", "MIN", "MAX", "SUM"})
     public MetricStatisticType getStatisticType() {
         if (statisticType == null) {
             statisticType = MetricStatisticType.AVERAGE;
@@ -122,6 +124,7 @@ public class ScalingRule extends Diffable implements Copyable<ScaleRule> {
      */
     @Required
     @Updatable
+    @ValidStrings({"AVERAGE", "MINIMUM", "MAXIMUM", "TOTAL", "COUNT"})
     public TimeAggregationType getTimeAggregation() {
         return timeAggregation;
     }
@@ -135,6 +138,7 @@ public class ScalingRule extends Diffable implements Copyable<ScaleRule> {
      */
     @Required
     @Updatable
+    @ValidStrings({"EQUALS", "NOT_EQUALS", "GREATER_THAN", "GREATER_THAN_OR_EQUAL", "LESS_THAN", "LESS_THAN_OR_EQUAL"})
     public ComparisonOperationType getComparisonOperation() {
         return comparisonOperation;
     }
@@ -161,6 +165,7 @@ public class ScalingRule extends Diffable implements Copyable<ScaleRule> {
      */
     @Required
     @Updatable
+    @ValidStrings({"NONE", "INCREASE", "DECREASE"})
     public ScaleDirection getScaleDirection() {
         return scaleDirection;
     }
@@ -174,6 +179,7 @@ public class ScalingRule extends Diffable implements Copyable<ScaleRule> {
      */
     @Required
     @Updatable
+    @ValidStrings({"CHANGE_COUNT", "PERCENT_CHANGE_COUNT", "EXACT_COUNT"})
     public ScaleType getScaleType() {
         return scaleType;
     }

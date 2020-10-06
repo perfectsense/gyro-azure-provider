@@ -497,6 +497,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
      * Availability Zones this Application Gateway should be deployed to redundancy.
      * Valid values are ``1``, ``2``, ``3``.
      */
+    @ValidStrings({"1", "2", "3"})
     public Set<String> getAvailabilityZones() {
         return availabilityZones == null
                 ? availabilityZones = new HashSet<>()
