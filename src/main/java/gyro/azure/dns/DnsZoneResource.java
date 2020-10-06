@@ -95,7 +95,7 @@ public class DnsZoneResource extends AzureResource implements Copyable<DnsZone> 
     }
 
     /**
-     * The name of the Dns Zone. (Required)
+     * The name of the Dns Zone.
      */
     @Required
     public String getName() {
@@ -139,7 +139,7 @@ public class DnsZoneResource extends AzureResource implements Copyable<DnsZone> 
     }
 
     /**
-     * The Resource Group where the Dns Zone is found. (Required)
+     * The Resource Group where the Dns Zone is found.
      */
     @Required
     public ResourceGroupResource getResourceGroup() {

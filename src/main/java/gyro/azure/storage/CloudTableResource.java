@@ -55,7 +55,7 @@ public class CloudTableResource extends AzureResource implements Copyable<CloudT
     private StorageAccountResource storageAccount;
 
     /**
-     * The name of the Table (Required)
+     * The name of the Table
      */
     @Required
     public String getName() {
@@ -67,7 +67,7 @@ public class CloudTableResource extends AzureResource implements Copyable<CloudT
     }
 
     /**
-     * The Storage Account where the table will be created. (Required)
+     * The Storage Account where the table will be created.
      */
     @Required
     public StorageAccountResource getStorageAccount() {

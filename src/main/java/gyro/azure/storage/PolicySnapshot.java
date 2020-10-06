@@ -27,7 +27,7 @@ public class PolicySnapshot extends Diffable implements Copyable<ManagementPolic
     private Double deleteDays;
 
     /**
-     * Days after which snapshot of the blob object is deleted. (Required)
+     * Days after which snapshot of the blob object is deleted.
      */
     @Required
     @Updatable

@@ -57,7 +57,7 @@ public class CloudQueueResource extends AzureResource implements Copyable<CloudQ
     private String id;
 
     /**
-     * The name of the Queue (Required)
+     * The name of the Queue
      */
     @Required
     public String getName() {
@@ -69,7 +69,7 @@ public class CloudQueueResource extends AzureResource implements Copyable<CloudQ
     }
 
     /**
-     * The Storage Account where the queue will be created. (Required)
+     * The Storage Account where the queue will be created.
      */
     @Required
     public StorageAccountResource getStorageAccount() {

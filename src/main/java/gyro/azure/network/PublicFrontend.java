@@ -42,7 +42,7 @@ public class PublicFrontend extends Diffable implements Copyable<LoadBalancerPub
     private PublicIpAddressResource publicIpAddress;
 
     /**
-     * The name of the Public Frontend. (Required)
+     * The name of the Public Frontend.
      */
     @Required
     public String getName() {
@@ -54,7 +54,7 @@ public class PublicFrontend extends Diffable implements Copyable<LoadBalancerPub
     }
 
     /**
-     * The Public IP Address associated with the Public Frontend. (Required)
+     * The Public IP Address associated with the Public Frontend.
      */
     @Updatable
     @Required

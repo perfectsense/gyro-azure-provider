@@ -241,7 +241,7 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
     }
 
     /**
-     * The name of the endpoint. (Required)
+     * The name of the endpoint.
      */
     @Required
     public String getName() {
@@ -253,7 +253,7 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
     }
 
     /**
-     * The origin hostname. (Required)
+     * The origin hostname.
      */
     @Required
     public String getOriginHostname() {

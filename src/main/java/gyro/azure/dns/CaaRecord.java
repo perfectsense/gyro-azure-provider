@@ -42,7 +42,7 @@ public class CaaRecord extends Diffable implements Copyable<com.microsoft.azure.
     private String value;
 
     /**
-     * The flags for the record. Valid values are integers between 0 and 255. (Required)
+     * The flags for the record. Valid values are integers between 0 and 255.
      */
     @Required
     @Range(min = 0, max = 255)
@@ -55,7 +55,7 @@ public class CaaRecord extends Diffable implements Copyable<com.microsoft.azure.
     }
 
     /**
-     * The tag for the record. (Required)
+     * The tag for the record.
      */
     @Required
     public String getTag() {
@@ -67,7 +67,7 @@ public class CaaRecord extends Diffable implements Copyable<com.microsoft.azure.
     }
 
     /**
-     * The value for the record. (Required)
+     * The value for the record.
      */
     @Required
     public String getValue() {

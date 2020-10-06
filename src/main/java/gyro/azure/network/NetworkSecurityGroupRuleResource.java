@@ -58,7 +58,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource implements C
             "udp", SecurityRuleProtocol.UDP);
 
     /**
-     * Name of the Network Security Rule. (Required)
+     * Name of the Network Security Rule.
      */
     @Required
     public String getName() {
@@ -118,7 +118,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource implements C
     }
 
     /**
-     * A list of source ports for the Network Security Rule to work. (Required)
+     * A list of source ports for the Network Security Rule to work.
      */
     @Required
     @Updatable
@@ -151,7 +151,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource implements C
     }
 
     /**
-     * A list of destination ports for the Network Security Rule to work. (Required)
+     * A list of destination ports for the Network Security Rule to work.
      */
     @Required
     @Updatable
@@ -204,7 +204,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource implements C
     }
 
     /**
-     * Priority for the Network Security Rule. Valid values are any Integer from ``100`` to ``4096``. (Required)
+     * Priority for the Network Security Rule. Valid values are any Integer from ``100`` to ``4096``.
      */
     @Required
     @Range(min = 100, max = 4096)

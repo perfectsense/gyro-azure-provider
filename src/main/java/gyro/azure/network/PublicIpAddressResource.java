@@ -86,7 +86,7 @@ public class PublicIpAddressResource extends AzureResource implements Copyable<P
     public enum SKU_TYPE {BASIC, STANDARD}
 
     /**
-     * Name of the Public IP Address. (Required)
+     * Name of the Public IP Address.
      */
 
     @Required
@@ -99,7 +99,7 @@ public class PublicIpAddressResource extends AzureResource implements Copyable<P
     }
 
     /**
-     * The resource group under which this would reside. (Required)
+     * The resource group under which this would reside.
      */
     @Required
     public ResourceGroupResource getResourceGroup() {
@@ -139,7 +139,7 @@ public class PublicIpAddressResource extends AzureResource implements Copyable<P
     }
 
     /**
-     * Specify the idle time in minutes before time out. Valid values are any Integer between ``4`` and ``30``. (Required)
+     * Specify the idle time in minutes before time out. Valid values are any Integer between ``4`` and ``30``.
      */
     @Required
     @Range(min = 4, max = 30)

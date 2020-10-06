@@ -132,7 +132,7 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
     }
 
     /**
-     * The Resource Group under which the Storage Account would reside. (Required)
+     * The Resource Group under which the Storage Account would reside.
      */
     @Required
     public ResourceGroupResource getResourceGroup() {
@@ -156,7 +156,7 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
     }
 
     /**
-     * The name of the Storage Account. (Required)
+     * The name of the Storage Account.
      */
     @Id
     @Required

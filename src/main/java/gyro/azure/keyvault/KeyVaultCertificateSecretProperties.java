@@ -27,7 +27,7 @@ public class KeyVaultCertificateSecretProperties extends Diffable implements Cop
     private String contentType;
 
     /**
-     * The type of certificate to generate. Valid values are ``application/x-pem-file`` for ``PEM`` or ``application/x-pkcs12`` for ``PKCS #12``. (Required)
+     * The type of certificate to generate. Valid values are ``application/x-pem-file`` for ``PEM`` or ``application/x-pkcs12`` for ``PKCS #12``.
      */
     @Required
     @ValidStrings({"application/x-pem-file", "application/x-pkcs12"})

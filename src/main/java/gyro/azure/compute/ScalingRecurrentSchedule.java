@@ -33,7 +33,7 @@ public class ScalingRecurrentSchedule extends Diffable implements Copyable<Recur
     private Set<String> dayOfWeeks;
 
     /**
-     * The time zone of the recurrent policy. (Required)
+     * The time zone of the recurrent policy.
      */
     @Required
     public String getTimeZone() {
@@ -45,7 +45,7 @@ public class ScalingRecurrentSchedule extends Diffable implements Copyable<Recur
     }
 
     /**
-     * The start time of the recurrent policy. (Required)
+     * The start time of the recurrent policy.
      */
     @Required
     public String getStartTime() {
@@ -57,7 +57,7 @@ public class ScalingRecurrentSchedule extends Diffable implements Copyable<Recur
     }
 
     /**
-     * The set of weekdays for the recurrent policy. Valid values are ``MONDAY`` or ``TUESDAY`` or ``WEDNESDAY`` or ``THURSDAY`` or ``FRIDAY`` or ``SATURDAY`` or ``SUNDAY``. (Required)
+     * The set of weekdays for the recurrent policy. Valid values are ``MONDAY`` or ``TUESDAY`` or ``WEDNESDAY`` or ``THURSDAY`` or ``FRIDAY`` or ``SATURDAY`` or ``SUNDAY``.
      */
     @Required
     @Updatable

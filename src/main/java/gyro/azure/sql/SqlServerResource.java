@@ -70,7 +70,7 @@ public class SqlServerResource extends AzureResource implements Copyable<SqlServ
     private Map<String, String> tags;
 
     /**
-     * Determines if the azure portal will have access to the sql server. (Required)
+     * Determines if the azure portal will have access to the sql server.
      */
     @Required
     public Boolean getWithAccessFromAzureServices() {
@@ -86,7 +86,7 @@ public class SqlServerResource extends AzureResource implements Copyable<SqlServ
     }
 
     /**
-     * The administrator login. (Required)
+     * The administrator login.
      */
     @Required
     public String getAdministratorLogin() {
@@ -98,7 +98,7 @@ public class SqlServerResource extends AzureResource implements Copyable<SqlServ
     }
 
     /**
-     * The administrator password. (Required)
+     * The administrator password.
      */
     @Required
     @Updatable
@@ -123,7 +123,7 @@ public class SqlServerResource extends AzureResource implements Copyable<SqlServ
     }
 
     /**
-     * The name of the sql server. (Required)
+     * The name of the sql server.
      */
     @Id
     @Required
@@ -136,7 +136,7 @@ public class SqlServerResource extends AzureResource implements Copyable<SqlServ
     }
 
     /**
-     * The region of the sql server. (Required)
+     * The region of the sql server.
      */
     @Required
     @Override
@@ -149,7 +149,7 @@ public class SqlServerResource extends AzureResource implements Copyable<SqlServ
     }
 
     /**
-     * The Resource Group under which this sql server would reside. (Required)
+     * The Resource Group under which this sql server would reside.
      */
     @Required
     public ResourceGroupResource getResourceGroup() {

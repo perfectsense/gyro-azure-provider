@@ -221,7 +221,7 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
     }
 
     /**
-     * The name of the database. (Required)
+     * The name of the database.
      */
     @Required
     public String getName() {
@@ -277,7 +277,7 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
     }
 
     /**
-     * The SQL Server where the database is found. (Required)
+     * The SQL Server where the database is found.
      */
     @Required
     public SqlServerResource getSqlServer() {

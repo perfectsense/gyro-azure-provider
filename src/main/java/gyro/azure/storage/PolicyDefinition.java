@@ -27,7 +27,7 @@ public class PolicyDefinition extends Diffable implements Copyable<ManagementPol
     private PolicyFilter filter;
 
     /**
-     * The action details for the policy rule. (Required)
+     * The action details for the policy rule.
      *
      * @subresource gyro.azure.storage.PolicyAction
      */

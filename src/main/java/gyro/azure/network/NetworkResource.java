@@ -86,7 +86,7 @@ public class NetworkResource extends AzureResource implements Copyable<Network> 
     private Set<String> dnsServerIPs;
 
     /**
-     * Name of the Network. (Required)
+     * Name of the Network.
      */
     @Required
     public String getName() {
@@ -98,7 +98,7 @@ public class NetworkResource extends AzureResource implements Copyable<Network> 
     }
 
     /**
-     * The Resource Group under which the Network would reside. (Required)
+     * The Resource Group under which the Network would reside.
      */
     @Required
     public ResourceGroupResource getResourceGroup() {
@@ -110,7 +110,7 @@ public class NetworkResource extends AzureResource implements Copyable<Network> 
     }
 
     /**
-     * Address spaces for the Network. (Required)
+     * Address spaces for the Network.
      */
     @Required
     @Updatable

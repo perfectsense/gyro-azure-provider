@@ -187,7 +187,7 @@ public class KeyVaultResource extends AzureResource implements Copyable<Vault> {
     private String location;
 
     /**
-     * The name of the key vault. (Required)
+     * The name of the key vault.
      */
     @Required
     public String getName() {
@@ -199,7 +199,7 @@ public class KeyVaultResource extends AzureResource implements Copyable<Vault> {
     }
 
     /**
-     * The resource group under which the key vault would reside. (Required)
+     * The resource group under which the key vault would reside.
      */
     @Required
     public ResourceGroupResource getResourceGroup() {

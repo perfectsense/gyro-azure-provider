@@ -81,7 +81,7 @@ public class CaaRecordSetResource extends AzureResource implements Copyable<CaaR
     private String id;
 
     /**
-     * The set of CAA Records associated with the CAA Record Set. (Required)
+     * The set of CAA Records associated with the CAA Record Set.
      *
      * @subresource gyro.azure.dns.CaaRecord
      */
@@ -100,7 +100,7 @@ public class CaaRecordSetResource extends AzureResource implements Copyable<CaaR
     }
 
     /**
-     * The DNS Zone where the CAA Record resides Set. (Required)
+     * The DNS Zone where the CAA Record resides Set.
      */
     @Required
     public DnsZoneResource getDnsZone() {
@@ -128,7 +128,7 @@ public class CaaRecordSetResource extends AzureResource implements Copyable<CaaR
     }
 
     /**
-     * The name of the CAA Record Set. (Required)
+     * The name of the CAA Record Set.
      */
     @Required
     public String getName() {
@@ -140,7 +140,7 @@ public class CaaRecordSetResource extends AzureResource implements Copyable<CaaR
     }
 
     /**
-     * The Time To Live in Seconds for the CAA Record Set in the set. (Required)
+     * The Time To Live in Seconds for the CAA Record Set in the set.
      */
     @Required
     @Updatable

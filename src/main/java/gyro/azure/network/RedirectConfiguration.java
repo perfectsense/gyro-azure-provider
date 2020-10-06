@@ -54,7 +54,7 @@ public class RedirectConfiguration extends Diffable implements Copyable<Applicat
     private Boolean includePath;
 
     /**
-     * Name of the redirect configuration. (Required)
+     * Name of the redirect configuration.
      */
     @Required
     public String getName() {
@@ -66,7 +66,7 @@ public class RedirectConfiguration extends Diffable implements Copyable<Applicat
     }
 
     /**
-     * Type of the redirect configuration. Valid values are ``Permanent`` or ``Found`` or ``SeeOther`` or ``Temporary``  (Required)
+     * Type of the redirect configuration. Valid values are ``Permanent`` or ``Found`` or ``SeeOther`` or ``Temporary`` 
      */
     @ValidStrings({"Permanent", "Found", "SeeOther", "Temporary"})
     @Required

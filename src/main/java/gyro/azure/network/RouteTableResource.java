@@ -104,7 +104,7 @@ public class RouteTableResource extends AzureResource implements Copyable<RouteT
     }
 
     /**
-     * The name of the Route Table. (Required)
+     * The name of the Route Table.
      */
     @Required
     public String getName() {
@@ -116,7 +116,7 @@ public class RouteTableResource extends AzureResource implements Copyable<RouteT
     }
 
     /**
-     * The Resource Group where the the Route Table resides. (Required)
+     * The Resource Group where the the Route Table resides.
      */
     @Required
     public ResourceGroupResource getResourceGroup() {

@@ -77,7 +77,7 @@ public class DiskResource extends AzureResource implements Copyable<Disk> {
     private Map<String, String> tags;
 
     /**
-     * Name of the Disk. (Required)
+     * Name of the Disk.
      */
     @Required
     public String getName() {
@@ -102,7 +102,7 @@ public class DiskResource extends AzureResource implements Copyable<Disk> {
     }
 
     /**
-     * The resource group under which the Disk would reside. (Required)
+     * The resource group under which the Disk would reside.
      */
     @Required
     public ResourceGroupResource getResourceGroup() {
@@ -114,7 +114,7 @@ public class DiskResource extends AzureResource implements Copyable<Disk> {
     }
 
     /**
-     * Size of the Disk in Gb. (Required)
+     * Size of the Disk in Gb.
      */
     @Required
     @Updatable
@@ -141,7 +141,7 @@ public class DiskResource extends AzureResource implements Copyable<Disk> {
     }
 
     /**
-     * Type of Disk. Valid values are ``STANDARD_LRS`` or ``PREMIUM_LRS`` or ``STANDARDSSD_LRS``` or ```ULTRASSD_LRS```. (REQUIRED)
+     * Type of Disk. Valid values are ``STANDARD_LRS`` or ``PREMIUM_LRS`` or ``STANDARDSSD_LRS``` or ```ULTRASSD_LRS```.
      */
     @Required
     @ValidStrings({"STANDARD_LRS", "PREMIUM_LRS", "STANDARDSSD_LRS", "ULTRASSD_LRS"})

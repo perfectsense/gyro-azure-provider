@@ -95,7 +95,7 @@ public class AvailabilitySetResource extends AzureResource implements Copyable<A
     }
 
     /**
-     * The name of the Availability Set. (Required)
+     * The name of the Availability Set.
      */
     @Required
     public String getName() {
@@ -109,7 +109,7 @@ public class AvailabilitySetResource extends AzureResource implements Copyable<A
     }
 
     /**
-     * The Resource Group under which the Availability Set would reside. (Required)
+     * The Resource Group under which the Availability Set would reside.
      */
     @Required
     public ResourceGroupResource getResourceGroup() {

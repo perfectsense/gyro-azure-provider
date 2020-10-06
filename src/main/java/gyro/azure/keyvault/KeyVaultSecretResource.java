@@ -59,7 +59,7 @@ public class KeyVaultSecretResource extends AzureResource implements Copyable<Se
     private Map<String, String> tags;
 
     /**
-     * The name of the secret. (Required)
+     * The name of the secret.
      */
     @Required
     public String getName() {
@@ -71,7 +71,7 @@ public class KeyVaultSecretResource extends AzureResource implements Copyable<Se
     }
 
     /**
-     * The key vault under which the secret is going to be created. (Required)
+     * The key vault under which the secret is going to be created.
      */
     @Required
     public KeyVaultResource getVault() {
@@ -83,7 +83,7 @@ public class KeyVaultSecretResource extends AzureResource implements Copyable<Se
     }
 
     /**
-     * The value of the secret. (Required)
+     * The value of the secret.
      */
     @Required
     public String getValue() {
@@ -95,7 +95,7 @@ public class KeyVaultSecretResource extends AzureResource implements Copyable<Se
     }
 
     /**
-     * The attribute config for the secret. (Required)
+     * The attribute config for the secret.
      *
      * @subresource gyro.azure.keyvault.KeyVaultSecretAttribute
      */

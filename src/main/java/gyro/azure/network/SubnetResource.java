@@ -65,7 +65,7 @@ public class SubnetResource extends AzureResource implements Copyable<Subnet> {
     private String id;
     
     /**
-     * The address prefix in CIDR notation. (Required)
+     * The address prefix in CIDR notation.
      */
     @Required
     @Updatable
@@ -78,7 +78,7 @@ public class SubnetResource extends AzureResource implements Copyable<Subnet> {
     }
 
     /**
-     * The name of the Subnet. (Required)
+     * The name of the Subnet.
      */
     @Required
     public String getName() {

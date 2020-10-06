@@ -41,7 +41,7 @@ public class NicBackend extends Diffable implements Copyable<LoadBalancerBackend
     private LoadBalancerResource loadBalancer;
 
     /**
-     * The name of the backend pool present on the Load Balancer to associate with the IP configuration. (Required)
+     * The name of the backend pool present on the Load Balancer to associate with the IP configuration.
      */
     @Required
     public String getBackendName() {
@@ -53,7 +53,7 @@ public class NicBackend extends Diffable implements Copyable<LoadBalancerBackend
     }
 
     /**
-     * The Load Balancer to associate the IP Configuration to. (Required)
+     * The Load Balancer to associate the IP Configuration to.
      */
     @Required
     public LoadBalancerResource getLoadBalancer() {

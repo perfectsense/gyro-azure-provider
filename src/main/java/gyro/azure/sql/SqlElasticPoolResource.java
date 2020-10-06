@@ -113,7 +113,7 @@ public class SqlElasticPoolResource extends AzureResource implements Copyable<Sq
     }
 
     /**
-     * The maximum eDTU for the each database in the elastic pool. (Required)
+     * The maximum eDTU for the each database in the elastic pool.
      */
     @Required
     @Updatable
@@ -126,7 +126,7 @@ public class SqlElasticPoolResource extends AzureResource implements Copyable<Sq
     }
 
     /**
-     * The minimum of eDTU for each database in the elastic pool. (Required)
+     * The minimum of eDTU for each database in the elastic pool.
      */
     @Required
     @Updatable
@@ -139,7 +139,7 @@ public class SqlElasticPoolResource extends AzureResource implements Copyable<Sq
     }
 
     /**
-     * The total shared eDTU for the elastic pool. (Required)
+     * The total shared eDTU for the elastic pool.
      */
     @Required
     @Updatable
@@ -152,7 +152,7 @@ public class SqlElasticPoolResource extends AzureResource implements Copyable<Sq
     }
 
     /**
-     * The edition of the elastic pool. Valid values are ``Basic``, ``Premium``, or  ``Standard`` (Required)
+     * The edition of the elastic pool. Valid values are ``Basic``, ``Premium``, or  ``Standard``
      */
     @Required
     @ValidStrings({"Basic", "Premium", "Standard"})
@@ -178,7 +178,7 @@ public class SqlElasticPoolResource extends AzureResource implements Copyable<Sq
     }
 
     /**
-     * The name of the elastic pool. (Required)
+     * The name of the elastic pool.
      */
     @Required
     @Id
@@ -203,7 +203,7 @@ public class SqlElasticPoolResource extends AzureResource implements Copyable<Sq
     }
 
     /**
-     * The SQL Server where the elastic pool is found. (Required)
+     * The SQL Server where the elastic pool is found.
      */
     @Required
     public SqlServerResource getSqlServer() {

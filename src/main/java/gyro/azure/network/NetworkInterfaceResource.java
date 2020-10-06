@@ -84,7 +84,7 @@ public class NetworkInterfaceResource extends AzureResource implements Copyable<
     private Set<NicIpConfigurationResource> nicIpConfiguration;
 
     /**
-     * Name of the Network Interface. (Required)
+     * Name of the Network Interface.
      */
     @Required
     public String getName() {
@@ -96,7 +96,7 @@ public class NetworkInterfaceResource extends AzureResource implements Copyable<
     }
 
     /**
-     * The Resource Group under which the Network Interface would reside. (Required)
+     * The Resource Group under which the Network Interface would reside.
      */
     @Required
     public ResourceGroupResource getResourceGroup() {
@@ -108,7 +108,7 @@ public class NetworkInterfaceResource extends AzureResource implements Copyable<
     }
 
     /**
-     * The Virtual Network the Network Interface is going be assigned with. (Required)
+     * The Virtual Network the Network Interface is going be assigned with.
      */
     @Required
     public NetworkResource getNetwork() {
@@ -120,7 +120,7 @@ public class NetworkInterfaceResource extends AzureResource implements Copyable<
     }
 
     /**
-     * One of the subnet name from the assigned Virtual Network. (Required)
+     * One of the subnet name from the assigned Virtual Network.
      */
     @Required
     public String getSubnet() {

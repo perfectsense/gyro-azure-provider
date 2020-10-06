@@ -96,7 +96,7 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
     private String writeReplicationRegion;
 
     /**
-     * The database account kind. Valid values are ``AzureTable`` or ``Cassandra`` or ``Gremlin`` or ``MongoDB`` or ``Sql``. (Required)
+     * The database account kind. Valid values are ``AzureTable`` or ``Cassandra`` or ``Gremlin`` or ``MongoDB`` or ``Sql``.
      */
     @Required
     @ValidStrings({"AzureTable", "Cassandra", "Gremlin", "MongoDB", "Sql"})
@@ -109,7 +109,7 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
     }
 
     /**
-     * The consistency policy of the account. Valid values are ``BoundedStaleness``or ``Eventual`` or ``Session`` or ``Strong``. (Required)
+     * The consistency policy of the account. Valid values are ``BoundedStaleness``or ``Eventual`` or ``Session`` or ``Strong``.
      */
     @Required
     @ValidStrings({"BoundedStaleness", "Eventual", "Session", "Strong"})
@@ -174,7 +174,7 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
     }
 
     /**
-     * Name of the account. (Required)
+     * Name of the account.
      */
     @Required
     public String getName() {
@@ -202,7 +202,7 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
     }
 
     /**
-     * The resource group where the database is found. (Required)
+     * The resource group where the database is found.
      */
     @Required
     public ResourceGroupResource getResourceGroup() {

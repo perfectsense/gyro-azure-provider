@@ -163,7 +163,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
     }
 
     /**
-     * The name of the Load Balancer. (Required)
+     * The name of the Load Balancer.
      */
     @Required
     public String getName() {
@@ -175,7 +175,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
     }
 
     /**
-     * The Load Balancer rules associated with the Load Balancer. (Required)
+     * The Load Balancer rules associated with the Load Balancer.
      *
      * @subresource gyro.azure.network.LoadBalancerRule
      */
@@ -230,7 +230,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
     }
 
     /**
-     * The Resource Group under which the Load Balancer would reside. (Required)
+     * The Resource Group under which the Load Balancer would reside.
      */
     @Required
     public ResourceGroupResource getResourceGroup() {

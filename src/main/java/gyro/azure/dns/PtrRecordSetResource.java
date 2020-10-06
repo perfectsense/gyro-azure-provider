@@ -69,7 +69,7 @@ public class PtrRecordSetResource extends AzureResource implements Copyable<PtrR
     private String id;
 
     /**
-     * The DNS Zone where the Ptr Record Set resides. (Required)
+     * The DNS Zone where the Ptr Record Set resides.
      */
     @Required
     public DnsZoneResource getDnsZone() {
@@ -97,7 +97,7 @@ public class PtrRecordSetResource extends AzureResource implements Copyable<PtrR
     }
 
     /**
-     * The name of the Ptr Record Set. (Required)
+     * The name of the Ptr Record Set.
      */
     @Required
     public String getName() {
@@ -109,7 +109,7 @@ public class PtrRecordSetResource extends AzureResource implements Copyable<PtrR
     }
 
     /**
-     * The domain names associated with the Ptr Record Set. (Required)
+     * The domain names associated with the Ptr Record Set.
      */
     @Required
     @Updatable
@@ -126,7 +126,7 @@ public class PtrRecordSetResource extends AzureResource implements Copyable<PtrR
     }
 
     /**
-     * The Time To Live in Seconds for the Ptr Record Set in the set. (Required)
+     * The Time To Live in Seconds for the Ptr Record Set in the set.
      */
     @Required
     @Updatable

@@ -235,7 +235,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
     private String id;
 
     /**
-     * The resource group under which the Application Gateway would reside. (Required)
+     * The resource group under which the Application Gateway would reside.
      */
     @Required
     public ResourceGroupResource getResourceGroup() {
@@ -247,7 +247,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
     }
 
     /**
-     * The Network which would be associated with the Application Gateway. (Required)
+     * The Network which would be associated with the Application Gateway.
      */
     @Required
     public NetworkResource getNetwork() {
@@ -259,7 +259,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
     }
 
     /**
-     * The Public IP Address associated with the Application Gateway. (Required)
+     * The Public IP Address associated with the Application Gateway.
      */
     @Required
     public PublicIpAddressResource getPublicIpAddress() {
@@ -271,7 +271,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
     }
 
     /**
-     * One of the subnet name from the assigned virtual network for the Application Gateway. (Required)
+     * One of the subnet name from the assigned virtual network for the Application Gateway.
      */
     @Required
     public String getSubnet() {
@@ -283,7 +283,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
     }
 
     /**
-     * Name of the Application Gateway. (Required)
+     * Name of the Application Gateway.
      */
     @Required
     public String getName() {
@@ -295,7 +295,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
     }
 
     /**
-     * Request routing rule for the Application Gateway. (Required)
+     * Request routing rule for the Application Gateway.
      *
      * @subresource gyro.azure.network.RequestRoutingRule
      */
@@ -314,7 +314,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
     }
 
     /**
-     * Listener for the Application Gateway. (Required)
+     * Listener for the Application Gateway.
      *
      * @subresource gyro.azure.network.Listener
      */
@@ -405,7 +405,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
     }
 
     /**
-     * The SKU for the Application Gateway. Valid values are ``STANDARD_SMALL`` or ``STANDARD_MEDIUM`` or ``STANDARD_LARGE`` or ``WAF_MEDIUM`` or ``WAF_LARGE`` or ``STANDARD_V2`` or ``WAF_V2``. (Required)
+     * The SKU for the Application Gateway. Valid values are ``STANDARD_SMALL`` or ``STANDARD_MEDIUM`` or ``STANDARD_LARGE`` or ``WAF_MEDIUM`` or ``WAF_LARGE`` or ``STANDARD_V2`` or ``WAF_V2``.
      */
     @Required
     @ValidStrings({"STANDARD_SMALL", "STANDARD_MEDIUM", "STANDARD_LARGE", "WAF_MEDIUM", "WAF_LARGE", "STANDARD_V2", "WAF_V2"})
@@ -435,7 +435,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
     }
 
     /**
-     * Number of instances to scale for the Application Gateway. (Required)
+     * Number of instances to scale for the Application Gateway.
      */
     @Required
     @Updatable

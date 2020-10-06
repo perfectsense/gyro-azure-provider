@@ -47,7 +47,7 @@ public class KeyVaultCertificateX509Properties extends Diffable implements Copya
     }
 
     /**
-     * The x.500 distinguished name. (Required)
+     * The x.500 distinguished name.
      */
     @Required
     public String getSubject() {
@@ -72,7 +72,7 @@ public class KeyVaultCertificateX509Properties extends Diffable implements Copya
     }
 
     /**
-     * Validation of the certificate in months. Value should be between 1 to 12. (Required)
+     * Validation of the certificate in months. Value should be between 1 to 12.
      */
     @Required
     @Range(min = 1, max = 12)

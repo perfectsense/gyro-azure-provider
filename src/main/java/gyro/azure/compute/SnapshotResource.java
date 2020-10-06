@@ -111,7 +111,7 @@ public class SnapshotResource extends AzureResource implements Copyable<Snapshot
     }
 
     /**
-     * The name of the Snapshot. (Required)
+     * The name of the Snapshot.
      */
     @Required
     public String getName() {
@@ -123,7 +123,7 @@ public class SnapshotResource extends AzureResource implements Copyable<Snapshot
     }
 
     /**
-     * Determines what data type is used. Valid values are ``disk`` or ``snapshot`` or ``vhd``. (Required)
+     * Determines what data type is used. Valid values are ``disk`` or ``snapshot`` or ``vhd``.
      */
     @Required
     @ValidStrings({"disk", "snapshot", "vhd"})
@@ -136,7 +136,7 @@ public class SnapshotResource extends AzureResource implements Copyable<Snapshot
     }
 
     /**
-     * The Resource Group where the Snapshot resides in. (Required)
+     * The Resource Group where the Snapshot resides in.
      */
     @Required
     public ResourceGroupResource getResourceGroup() {
@@ -183,7 +183,7 @@ public class SnapshotResource extends AzureResource implements Copyable<Snapshot
     }
 
     /**
-     * The type of the disk, snapshot, or vhd used. Valid values are ``Linux`` or ``Windows`` or ``Data``. (Required)
+     * The type of the disk, snapshot, or vhd used. Valid values are ``Linux`` or ``Windows`` or ``Data``.
      */
     @Required
     @ValidStrings({"Linux", "Windows", "Data"})

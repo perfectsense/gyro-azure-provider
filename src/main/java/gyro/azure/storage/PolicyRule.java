@@ -72,7 +72,7 @@ public class PolicyRule extends Diffable implements Copyable<ManagementPolicyRul
     }
 
     /**
-     * The rule details. (Required)
+     * The rule details.
      *
      * @sunresource gyro.azure.storage.PolicyDefinition
      */

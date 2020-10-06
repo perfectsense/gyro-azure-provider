@@ -66,7 +66,7 @@ public class KeyVaultKeyResource extends AzureResource implements Copyable<KeyBu
     private Map<String, String> tags;
 
     /**
-     * The name of the key. (Required)
+     * The name of the key.
      */
     @Required
     public String getName() {
@@ -78,7 +78,7 @@ public class KeyVaultKeyResource extends AzureResource implements Copyable<KeyBu
     }
 
     /**
-     * The key vault under which the key is going to be created. (Required)
+     * The key vault under which the key is going to be created.
      */
     @Required
     public KeyVaultResource getVault() {
@@ -90,7 +90,7 @@ public class KeyVaultKeyResource extends AzureResource implements Copyable<KeyBu
     }
 
     /**
-     * The type of the key. Valid values are ``EC``, ``RSA``, ``RSA-HSM`` or ``oct`` (Required)
+     * The type of the key. Valid values are ``EC``, ``RSA``, ``RSA-HSM`` or ``oct``
      */
     @Required
     @ValidStrings({"EC", "RSA", "RSA-HSM", "oct"})
@@ -103,7 +103,7 @@ public class KeyVaultKeyResource extends AzureResource implements Copyable<KeyBu
     }
 
     /**
-     * The attribute config for the key. (Required)
+     * The attribute config for the key.
      *
      * @subresource gyro.azure.keyvault.KeyVaultKeyAttribute
      */

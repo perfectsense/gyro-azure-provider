@@ -63,7 +63,7 @@ public class IdentityResource extends AzureResource implements Copyable<Identity
     private String tenantId;
 
     /**
-     * The name of the identity. (Required)
+     * The name of the identity.
      */
     @Required
     public String getName() {
@@ -75,7 +75,7 @@ public class IdentityResource extends AzureResource implements Copyable<Identity
     }
 
     /**
-     * The resource group under which the identity would reside. (Required)
+     * The resource group under which the identity would reside.
      */
     @Required
     public ResourceGroupResource getResourceGroup() {

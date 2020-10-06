@@ -133,7 +133,7 @@ public class VMScaleSetScalingResource extends AzureResource implements Copyable
     private String id;
 
     /**
-     * The name of the Scaling. (Required)
+     * The name of the Scaling.
      */
     @Required
     public String getName() {
@@ -145,7 +145,7 @@ public class VMScaleSetScalingResource extends AzureResource implements Copyable
     }
 
     /**
-     * The Resource Group under which the Scaling would reside. (Required)
+     * The Resource Group under which the Scaling would reside.
      */
     @Required
     public ResourceGroupResource getResourceGroup() {
@@ -157,7 +157,7 @@ public class VMScaleSetScalingResource extends AzureResource implements Copyable
     }
 
     /**
-     * The Scale Set Scaling would target. (Required)
+     * The Scale Set Scaling would target.
      */
     @Required
     public VMScaleSetResource getScaleSet() {
@@ -169,7 +169,7 @@ public class VMScaleSetScalingResource extends AzureResource implements Copyable
     }
 
     /**
-     * The set of profiles for the Scaling. (Required)
+     * The set of profiles for the Scaling.
      *
      * @subresource gyro.azure.compute.ScalingProfile
      */

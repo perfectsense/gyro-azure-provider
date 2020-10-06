@@ -36,7 +36,7 @@ public class ProximityPlacementGroupResource extends Diffable implements Copyabl
     private Set<AvailabilitySetResource> availabilitySets;
 
     /**
-     * The name of the Proximity Placement Group. (Required)
+     * The name of the Proximity Placement Group.
      */
     @Required
     public String getName() {

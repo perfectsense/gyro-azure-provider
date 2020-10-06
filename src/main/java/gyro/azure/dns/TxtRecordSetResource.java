@@ -68,7 +68,7 @@ public class TxtRecordSetResource extends AzureResource implements Copyable<TxtR
     private String id;
 
     /**
-     * The dns zone where the Txt Record Set resides. (Required)
+     * The dns zone where the Txt Record Set resides.
      */
     @Required
     public DnsZoneResource getDnsZone() {
@@ -96,7 +96,7 @@ public class TxtRecordSetResource extends AzureResource implements Copyable<TxtR
     }
 
     /**
-     * The name of the Txt Record Set. (Required)
+     * The name of the Txt Record Set.
      */
     @Required
     public String getName() {
@@ -108,7 +108,7 @@ public class TxtRecordSetResource extends AzureResource implements Copyable<TxtR
     }
 
     /**
-     * The list of txt Txt Records Set. (Required)
+     * The list of txt Txt Records Set.
      */
     @Required
     @Updatable
@@ -125,7 +125,7 @@ public class TxtRecordSetResource extends AzureResource implements Copyable<TxtR
     }
 
     /**
-     * The Time To Live in Seconds for the Txt Record Set in the set. (Required)
+     * The Time To Live in Seconds for the Txt Record Set in the set.
      */
     @Required
     @Updatable

@@ -79,7 +79,7 @@ public class MxRecordSetResource extends AzureResource implements Copyable<MXRec
     private String id;
 
     /**
-     * The DNS Zone where the MX Record Set resides. (Required)
+     * The DNS Zone where the MX Record Set resides.
      */
     @Required
     public DnsZoneResource getDnsZone() {
@@ -91,7 +91,7 @@ public class MxRecordSetResource extends AzureResource implements Copyable<MXRec
     }
 
     /**
-     * The list of mx MX Records Set. (Required)
+     * The list of mx MX Records Set.
      *
      * @subresource gyro.azure.dns.MxRecord
      */
@@ -126,7 +126,7 @@ public class MxRecordSetResource extends AzureResource implements Copyable<MXRec
     }
 
     /**
-     * The name of the MX Record Set. (Required)
+     * The name of the MX Record Set.
      */
     @Required
     public String getName() {
@@ -138,7 +138,7 @@ public class MxRecordSetResource extends AzureResource implements Copyable<MXRec
     }
 
     /**
-     * The Time To Live in Seconds for the MX Record Set in the set. (Required)
+     * The Time To Live in Seconds for the MX Record Set in the set.
      */
     @Required
     @Updatable

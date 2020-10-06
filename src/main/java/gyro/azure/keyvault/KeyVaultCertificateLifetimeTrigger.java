@@ -41,7 +41,7 @@ public class KeyVaultCertificateLifetimeTrigger extends Diffable implements Copy
     }
 
     /**
-     * Percentage of lifetime at which to trigger. Value should be between ``1`` and ``99``. (Required)
+     * Percentage of lifetime at which to trigger. Value should be between ``1`` and ``99``.
      */
     @Required
     @Range(min = 1, max = 99)

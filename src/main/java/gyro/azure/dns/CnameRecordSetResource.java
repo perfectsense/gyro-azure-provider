@@ -65,7 +65,7 @@ public class CnameRecordSetResource extends AzureResource implements Copyable<CN
     private String id;
 
     /**
-     * The alias for the Cname Record Set. (Required)
+     * The alias for the Cname Record Set.
      */
     @Required
     public String getAlias() {
@@ -77,7 +77,7 @@ public class CnameRecordSetResource extends AzureResource implements Copyable<CN
     }
 
     /**
-     * The DNS Zone where the Cname Record Set resides. (Required)
+     * The DNS Zone where the Cname Record Set resides.
      */
     @Required
     public DnsZoneResource getDnsZone() {
@@ -105,7 +105,7 @@ public class CnameRecordSetResource extends AzureResource implements Copyable<CN
     }
 
     /**
-     * The name of the Cname Record Set. (Required)
+     * The name of the Cname Record Set.
      */
     @Required
     public String getName() {
@@ -117,7 +117,7 @@ public class CnameRecordSetResource extends AzureResource implements Copyable<CN
     }
 
     /**
-     * The Time To Live in Seconds for the Cname Records Set in the set. (Required)
+     * The Time To Live in Seconds for the Cname Records Set in the set.
      */
     @Required
     @Updatable

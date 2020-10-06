@@ -45,7 +45,7 @@ public class RouteResource extends Diffable implements Copyable<Route> {
     private String nextHopType;
 
     /**
-     * The destination address prefix to which the Route applies. Expressed in CIDR notation. (Required)
+     * The destination address prefix to which the Route applies. Expressed in CIDR notation.
      */
     @Required
     @Updatable
@@ -58,7 +58,7 @@ public class RouteResource extends Diffable implements Copyable<Route> {
     }
 
     /**
-     * The name of the Route. (Required)
+     * The name of the Route.
      */
     @Required
     public String getName() {
@@ -82,7 +82,7 @@ public class RouteResource extends Diffable implements Copyable<Route> {
     }
 
     /**
-     * The type of the next hop. Valid values are `` Internet`` or ``VirtualAppliance`` or ``VnetLocal`` or ``VirtualNetworkGateway`` or ``None``. (Required)
+     * The type of the next hop. Valid values are `` Internet`` or ``VirtualAppliance`` or ``VnetLocal`` or ``VirtualNetworkGateway`` or ``None``.
      */
     @Required
     @ValidStrings({"Internet", "VirtualAppliance", "VnetLocal", "VirtualNetworkGateway", "None"})

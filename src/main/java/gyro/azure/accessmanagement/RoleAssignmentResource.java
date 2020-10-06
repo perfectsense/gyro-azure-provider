@@ -61,7 +61,7 @@ public class RoleAssignmentResource extends AzureResource implements Copyable<Ro
     private String id;
 
     /**
-     * The scope for the role assignment. ID of the level (Subscription, Resource Group etc.). (Required)
+     * The scope for the role assignment. ID of the level (Subscription, Resource Group etc.).
      */
     @Required
     public String getScope() {
@@ -73,7 +73,7 @@ public class RoleAssignmentResource extends AzureResource implements Copyable<Ro
     }
 
     /**
-     * Role for the role assignment. `See Built In Roles <https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles>`_. (Required)
+     * Role for the role assignment. `See Built In Roles <https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles>`_.
      */
     @Required
     public String getRole() {

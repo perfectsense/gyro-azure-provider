@@ -69,7 +69,7 @@ public class ARecordSetResource extends AzureResource implements Copyable<ARecor
     private String id;
 
     /**
-     * The DNS Zone where the A Record Set resides. (Required)
+     * The DNS Zone where the A Record Set resides.
      */
     @Required
     public DnsZoneResource getDnsZone() {
@@ -81,7 +81,7 @@ public class ARecordSetResource extends AzureResource implements Copyable<ARecor
     }
 
     /**
-     * The ipv4 addresses associated with the A Record Set set. (Required)
+     * The ipv4 addresses associated with the A Record Set set.
      */
     @Required
     @Updatable
@@ -114,7 +114,7 @@ public class ARecordSetResource extends AzureResource implements Copyable<ARecor
     }
 
     /**
-     * The name of the A Record Set. (Required)
+     * The name of the A Record Set.
      */
     @Required
     public String getName() { return name; }
@@ -124,7 +124,7 @@ public class ARecordSetResource extends AzureResource implements Copyable<ARecor
     }
 
     /**
-     * The Time To Live in Seconds for the A Record Set in the set. (Required)
+     * The Time To Live in Seconds for the A Record Set in the set.
      */
     @Required
     @Updatable

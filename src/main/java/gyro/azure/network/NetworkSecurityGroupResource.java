@@ -83,7 +83,7 @@ public class NetworkSecurityGroupResource extends AzureResource implements Copya
     private Map<String, String> tags;
 
     /**
-     * Name of the Network Security Group. (Required)
+     * Name of the Network Security Group.
      */
     @Required
     public String getName() {
@@ -95,7 +95,7 @@ public class NetworkSecurityGroupResource extends AzureResource implements Copya
     }
 
     /**
-     * The Resource Group under which the Network Security Group would reside. (Required)
+     * The Resource Group under which the Network Security Group would reside.
      */
     @Required
     public ResourceGroupResource getResourceGroup() {

@@ -56,7 +56,7 @@ public class LoadBalancerRule extends Diffable implements Copyable<LoadBalancing
     private String protocol;
 
     /**
-     * The backend pool associated with the Load Balancer Rule. (Required)
+     * The backend pool associated with the Load Balancer Rule.
      */
     @Required
     public String getBackendName() {
@@ -68,7 +68,7 @@ public class LoadBalancerRule extends Diffable implements Copyable<LoadBalancing
     }
 
     /**
-     * The backend port that receives network traffic for the Load Balancer Rule. (Required)
+     * The backend port that receives network traffic for the Load Balancer Rule.
      */
     @Required
     @Updatable
@@ -97,7 +97,7 @@ public class LoadBalancerRule extends Diffable implements Copyable<LoadBalancing
     }
 
     /**
-     * The name of the frontend associated with the Load Balancer Rule. (Required)
+     * The name of the frontend associated with the Load Balancer Rule.
      */
     @Required
     @Updatable
@@ -110,7 +110,7 @@ public class LoadBalancerRule extends Diffable implements Copyable<LoadBalancing
     }
 
     /**
-     * The frontend port that receives network traffic for the Load Balancer Rule. (Required)
+     * The frontend port that receives network traffic for the Load Balancer Rule.
      */
     @Required
     @Updatable
@@ -123,7 +123,7 @@ public class LoadBalancerRule extends Diffable implements Copyable<LoadBalancing
     }
 
     /**
-     * The number of minutes before an unresponsive connection is closed for the Load Balancer Rule. (Required)
+     * The number of minutes before an unresponsive connection is closed for the Load Balancer Rule.
      */
     @Required
     @Updatable
@@ -136,7 +136,7 @@ public class LoadBalancerRule extends Diffable implements Copyable<LoadBalancing
     }
 
     /**
-     * The name of the Load Balancer Rule. (Required)
+     * The name of the Load Balancer Rule.
      */
     @Required
     public String getName() {
@@ -148,7 +148,7 @@ public class LoadBalancerRule extends Diffable implements Copyable<LoadBalancing
     }
 
     /**
-     * The health check probe associated with the Load Balancer Rule. (Required)
+     * The health check probe associated with the Load Balancer Rule.
      */
     @Required
     @Updatable
@@ -161,7 +161,7 @@ public class LoadBalancerRule extends Diffable implements Copyable<LoadBalancing
     }
 
     /**
-     * The protocol used by the Load Balancer Rule. (Required)
+     * The protocol used by the Load Balancer Rule.
      */
     @Required
     @Updatable

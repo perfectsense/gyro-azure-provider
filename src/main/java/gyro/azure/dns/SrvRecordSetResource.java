@@ -76,7 +76,7 @@ public class SrvRecordSetResource extends AzureResource implements Copyable<SrvR
     private String id;
 
     /**
-     * The DNS Zone where the Srv Record Set resides. (Required)
+     * The DNS Zone where the Srv Record Set resides.
      */
     @Required
     public DnsZoneResource getDnsZone() {
@@ -104,7 +104,7 @@ public class SrvRecordSetResource extends AzureResource implements Copyable<SrvR
     }
 
     /**
-     * The name of the Srv Record Set. (Required)
+     * The name of the Srv Record Set.
      */
     @Required
     public String getName() {
@@ -116,7 +116,7 @@ public class SrvRecordSetResource extends AzureResource implements Copyable<SrvR
     }
 
     /**
-     * The list of srv Srv Records Set. (Required)
+     * The list of srv Srv Records Set.
      *
      * @subresource gyro.azure.dns.SrvRecord
      */
@@ -135,7 +135,7 @@ public class SrvRecordSetResource extends AzureResource implements Copyable<SrvR
     }
 
     /**
-     * The Time To Live in Seconds for the Srv Record Set in the set. (Required)
+     * The Time To Live in Seconds for the Srv Record Set in the set.
      */
     @Required
     @Updatable

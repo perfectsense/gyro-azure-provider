@@ -30,7 +30,7 @@ public class LoadBalancerAttachment extends Diffable {
     private Set<String> inboundNatPools;
 
     /**
-     * The Load Balancer to be attached as internal/public-internet type to a Scale Set. (Required)
+     * The Load Balancer to be attached as internal/public-internet type to a Scale Set.
      */
     @Required
     @Updatable
@@ -43,7 +43,7 @@ public class LoadBalancerAttachment extends Diffable {
     }
 
     /**
-     * The corresponding Load Balancer Backends. (Required)
+     * The corresponding Load Balancer Backends.
      */
     @Required
     @Updatable

@@ -50,7 +50,7 @@ public class InboundNatRule extends Diffable implements Copyable<LoadBalancerInb
     private String protocol;
 
     /**
-     * The backend port that receives network traffic for the Inbound Nat Rule. (Required)
+     * The backend port that receives network traffic for the Inbound Nat Rule.
      */
     @Required
     @Updatable
@@ -79,7 +79,7 @@ public class InboundNatRule extends Diffable implements Copyable<LoadBalancerInb
     }
 
     /**
-     * The frontend associated with the Inbound Nat Rule. (Required)
+     * The frontend associated with the Inbound Nat Rule.
      */
     @Required
     @Updatable
@@ -92,7 +92,7 @@ public class InboundNatRule extends Diffable implements Copyable<LoadBalancerInb
     }
 
     /**
-     * The name of the Inbound Nat Rule. (Required)
+     * The name of the Inbound Nat Rule.
      */
     @Required
     public String getName() {
@@ -104,7 +104,7 @@ public class InboundNatRule extends Diffable implements Copyable<LoadBalancerInb
     }
 
     /**
-     * The frontend port that receives network traffic for the Inbound Nat Rule. (Required)
+     * The frontend port that receives network traffic for the Inbound Nat Rule.
      */
     @Required
     @Updatable
@@ -117,7 +117,7 @@ public class InboundNatRule extends Diffable implements Copyable<LoadBalancerInb
     }
 
     /**
-     * The protocol used by the Inbound Nat Rule. (Required)
+     * The protocol used by the Inbound Nat Rule.
      */
     @Required
     @ValidStrings({"TCP", "UDP"})

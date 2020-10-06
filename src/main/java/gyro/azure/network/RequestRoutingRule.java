@@ -51,7 +51,7 @@ public class RequestRoutingRule extends Diffable implements Copyable<Application
     private String redirectConfiguration;
 
     /**
-     * Name of the rule. (Required)
+     * Name of the rule.
      */
     @Required
     public String getName() {
@@ -63,7 +63,7 @@ public class RequestRoutingRule extends Diffable implements Copyable<Application
     }
 
     /**
-     * Name of the listener to associated with the rule. (Required)
+     * Name of the listener to associated with the rule.
      */
     @Required
     @Updatable
