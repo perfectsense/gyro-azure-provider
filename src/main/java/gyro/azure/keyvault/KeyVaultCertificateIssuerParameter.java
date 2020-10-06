@@ -28,6 +28,8 @@ public class KeyVaultCertificateIssuerParameter extends Diffable implements Copy
 
     /**
      * The name of the issuer of the certificate. Valid values are ``Self``, ``Unknown`` or any issuer already present in your azure account as a valid CA. (Required)
+     *
+     * @no-doc ValidStrings
      */
     @Required
     public String getName() {

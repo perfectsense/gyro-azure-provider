@@ -25,6 +25,7 @@ import com.microsoft.azure.keyvault.models.KeyProperties;
 import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidNumbers;
 import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 
@@ -62,6 +63,7 @@ public class KeyVaultCertificateKeyProperties extends Diffable implements Copyab
     /**
      * The key size. Valid values are ``2048``, ``3072`` or ``4096``.
      */
+    @ValidNumbers({2048, 3072, 4096})
     public Integer getSize() {
         return size;
     }

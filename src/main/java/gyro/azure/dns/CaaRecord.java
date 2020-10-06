@@ -18,6 +18,7 @@ package gyro.azure.dns;
 
 import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.validation.Range;
 import gyro.core.validation.Required;
 
 /**
@@ -44,6 +45,7 @@ public class CaaRecord extends Diffable implements Copyable<com.microsoft.azure.
      * The flags for the record. Valid values are integers between 0 and 255. (Required)
      */
     @Required
+    @Range(min = 0, max = 255)
     public Integer getFlags() {
         return flags;
     }
