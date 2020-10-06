@@ -114,7 +114,7 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
     private Boolean upgradeAccountV2;
 
     /**
-     * The cors rules associated with the Storage Account. (Optional)
+     * The cors rules associated with the Storage Account.
      *
      * @subresource gyro.azure.storage.Cors
      */
@@ -169,7 +169,7 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
     }
 
     /**
-     * The tags for the Storage Account. (Optional)
+     * The tags for the Storage Account.
      */
     @Updatable
     public Map<String, String> getTags() {

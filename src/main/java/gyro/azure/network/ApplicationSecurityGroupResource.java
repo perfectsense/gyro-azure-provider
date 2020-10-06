@@ -102,7 +102,7 @@ public class ApplicationSecurityGroupResource extends AzureResource implements C
     }
 
     /**
-     * The tags associated with the Application Security Group. (Optional)
+     * The tags associated with the Application Security Group.
      */
     @Updatable
     public Map<String, String> getTags() {

@@ -110,7 +110,7 @@ public class MxRecordSetResource extends AzureResource implements Copyable<MXRec
     }
 
     /**
-     * The metadata for the MX Record Set. (Optional)
+     * The metadata for the MX Record Set.
      */
     @Updatable
     public Map<String, String> getMetadata() {

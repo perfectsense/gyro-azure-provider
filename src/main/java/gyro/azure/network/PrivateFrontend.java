@@ -56,7 +56,7 @@ public class PrivateFrontend extends Diffable implements Copyable<LoadBalancerPr
     }
 
     /**
-     * The Private IP Address associated with the Private Frontend. (Optional)
+     * The Private IP Address associated with the Private Frontend.
      */
     @Updatable
     public String getPrivateIpAddress() {

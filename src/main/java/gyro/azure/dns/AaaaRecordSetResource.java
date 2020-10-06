@@ -99,7 +99,7 @@ public class AaaaRecordSetResource extends AzureResource implements Copyable<Aaa
     }
 
     /**
-     * The metadata for the AAAA Record Set. (Optional)
+     * The metadata for the AAAA Record Set.
      */
     @Updatable
     public Map<String, String> getMetadata() {

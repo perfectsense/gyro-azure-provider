@@ -112,7 +112,7 @@ public class CaaRecordSetResource extends AzureResource implements Copyable<CaaR
     }
 
     /**
-     * The metadata for the CAA Record Set. (Optional)
+     * The metadata for the CAA Record Set.
      */
     @Updatable
     public Map<String, String> getMetadata() {

@@ -88,7 +88,7 @@ public class SrvRecordSetResource extends AzureResource implements Copyable<SrvR
     }
 
     /**
-     * The metadata for the Srv Record Set. (Optional)
+     * The metadata for the Srv Record Set.
      */
     @Updatable
     public Map<String, String> getMetadata() {

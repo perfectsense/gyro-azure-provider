@@ -148,7 +148,7 @@ public class SnapshotResource extends AzureResource implements Copyable<Snapshot
     }
 
     /**
-     * Specifies the sku type. (Optional)
+     * Specifies the sku type.
      */
     @ValidStrings({"Premium_LRS", "Standard_LRS", "Standard_ZRS"})
     @Updatable
@@ -161,7 +161,7 @@ public class SnapshotResource extends AzureResource implements Copyable<Snapshot
     }
 
     /**
-     * Specifies the disk size in GB. (Optional)
+     * Specifies the disk size in GB.
      */
     public Integer getSize() {
         return size;
@@ -196,7 +196,7 @@ public class SnapshotResource extends AzureResource implements Copyable<Snapshot
     }
 
     /**
-     * The tags associated with the Snapshot. (Optional)
+     * The tags associated with the Snapshot.
      */
     @Updatable
     public Map<String, String> getTags() {

@@ -80,7 +80,7 @@ public class TxtRecordSetResource extends AzureResource implements Copyable<TxtR
     }
 
     /**
-     * The metadata for the Txt Record Set. (Optional)
+     * The metadata for the Txt Record Set.
      */
     @Updatable
     public Map<String, String> getMetadata() {

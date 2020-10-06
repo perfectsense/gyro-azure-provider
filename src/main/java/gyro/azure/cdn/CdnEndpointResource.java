@@ -99,7 +99,7 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
     private String type;
 
     /**
-     * Determines whether compression is enabled. (Optional)
+     * Determines whether compression is enabled.
      */
     @Updatable
     public Boolean getCompressionEnabled() {
@@ -127,7 +127,7 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
     }
 
     /**
-     * Determines what custom domains are associated with the endpoint. (Optional)
+     * Determines what custom domains are associated with the endpoint.
      */
     @Updatable
     public Set<String> getCustomDomains() {
@@ -143,7 +143,7 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
     }
 
     /**
-     * The set of geo-filters associated with the endpoint. (Optional)
+     * The set of geo-filters associated with the endpoint.
      *
      * @subresource gyro.azure.cdn.GeoFilter
      */
@@ -161,7 +161,7 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
     }
 
     /**
-     * The host header of the endpoint. (Optional)
+     * The host header of the endpoint.
      */
     @Updatable
     public String getHostHeader() {
@@ -173,7 +173,7 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
     }
 
     /**
-     * Determines whether http protocol is enabled. Defaults to ``false``. (Optional)
+     * Determines whether http protocol is enabled. Defaults to ``false``.
      */
     @Updatable
     public Boolean getHttpEnabled() {
@@ -189,7 +189,7 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
     }
 
     /**
-     * The http port. Required if http protocol is enabled. (Optional)
+     * The http port. Required if http protocol is enabled.
      */
     @Updatable
     public Integer getHttpPort() {
@@ -201,7 +201,7 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
     }
 
     /**
-     * Determines whether https protocol is enabled. Defaults to ``false``. (Optional)
+     * Determines whether https protocol is enabled. Defaults to ``false``.
      */
     @Updatable
     public Boolean getHttpsEnabled() {
@@ -217,7 +217,7 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
     }
 
     /**
-     * The https port. Required if https port is allowed. (Optional)
+     * The https port. Required if https port is allowed.
      */
     @Updatable
     public Integer getHttpsPort() {
@@ -229,7 +229,7 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
     }
 
     /**
-     * The origin path. (Optional)
+     * The origin path.
      */
     @Updatable
     public String getOriginPath() {
@@ -265,7 +265,7 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
     }
 
     /**
-     * Determines the query caching behavior. (Optional)
+     * Determines the query caching behavior.
      */
     @ValidStrings({"IGNORE_QUERY_STRING", "BYPASS_CACHING", "USE_QUERY_STRING"})
     @Updatable
@@ -278,7 +278,7 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
     }
 
     /**
-     * The tags associated with the endpoint. (Optional)
+     * The tags associated with the endpoint.
      */
     @Updatable
     public Map<String, String> getTags() {

@@ -161,7 +161,7 @@ public class SqlServerResource extends AzureResource implements Copyable<SqlServ
     }
 
     /**
-     * Determines if the system will set a local Managed Service Identity (MSI) for the sql server. (Optional)
+     * Determines if the system will set a local Managed Service Identity (MSI) for the sql server.
      */
     @Updatable
     public Boolean getSystemAssignedMsi() {
@@ -176,7 +176,7 @@ public class SqlServerResource extends AzureResource implements Copyable<SqlServ
     }
 
     /**
-     * The tags for the sql server. (Optional)
+     * The tags for the sql server.
      */
     @Updatable
     public Map<String, String> getTags() {

@@ -128,7 +128,7 @@ public class RouteTableResource extends AzureResource implements Copyable<RouteT
     }
 
     /**
-     * The routes of the Route Table. (Optional)
+     * The routes of the Route Table.
      */
     @Updatable
     public Set<RouteResource> getRoute() {
@@ -144,7 +144,7 @@ public class RouteTableResource extends AzureResource implements Copyable<RouteT
     }
 
     /**
-     * The tags associated with the Route Table. (Optional)
+     * The tags associated with the Route Table.
      */
     @Updatable
     public Map<String, String> getTags() {

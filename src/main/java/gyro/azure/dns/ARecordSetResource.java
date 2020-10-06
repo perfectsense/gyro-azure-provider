@@ -98,7 +98,7 @@ public class ARecordSetResource extends AzureResource implements Copyable<ARecor
     }
 
     /**
-     * The metadata for the A Record Set. (Optional)
+     * The metadata for the A Record Set.
      */
     @Updatable
     public Map<String, String> getMetadata() {

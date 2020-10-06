@@ -80,7 +80,7 @@ public class DnsZoneResource extends AzureResource implements Copyable<DnsZone> 
     }
 
     /**
-     * Determines if the Dns Zone is public or private. Defaults to public ``true``. (Optional)
+     * Determines if the Dns Zone is public or private. Defaults to public ``true``.
      */
     public Boolean getPublicAccess() {
         if (publicAccess == null) {
@@ -107,7 +107,7 @@ public class DnsZoneResource extends AzureResource implements Copyable<DnsZone> 
     }
 
     /**
-     * A list of virtual network id's that register hostnames in a private Dns Zone. Can be used when the access is private. (Optional)
+     * A list of virtual network id's that register hostnames in a private Dns Zone. Can be used when the access is private.
      */
     @Updatable
     public Set<NetworkResource> getRegistrationNetwork() {
@@ -123,7 +123,7 @@ public class DnsZoneResource extends AzureResource implements Copyable<DnsZone> 
     }
 
     /**
-     * A list of virtual network id's that resolve records in a private Dns Zone. Can be used when the access is private. (Optional)
+     * A list of virtual network id's that resolve records in a private Dns Zone. Can be used when the access is private.
      */
     @Updatable
     public Set<NetworkResource> getResolutionNetwork() {
@@ -151,7 +151,7 @@ public class DnsZoneResource extends AzureResource implements Copyable<DnsZone> 
     }
 
     /**
-     * The tags associated with the Dns Zone. (Optional)
+     * The tags associated with the Dns Zone.
      */
     @Updatable
     public Map<String, String> getTags() {

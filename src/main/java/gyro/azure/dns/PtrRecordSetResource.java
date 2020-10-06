@@ -81,7 +81,7 @@ public class PtrRecordSetResource extends AzureResource implements Copyable<PtrR
     }
 
     /**
-     * The metadata for the Ptr Record Set. (Optional)
+     * The metadata for the Ptr Record Set.
      */
     @Updatable
     public Map<String, String> getMetadata() {

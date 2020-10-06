@@ -118,7 +118,7 @@ public class CdnProfileResource extends AzureResource implements Copyable<CdnPro
     }
 
     /**
-     * The tags associated with the CDN Profile. (Optional)
+     * The tags associated with the CDN Profile.
      */
     @Updatable
     public Map<String, String> getTags() {

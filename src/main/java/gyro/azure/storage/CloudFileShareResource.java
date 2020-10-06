@@ -72,7 +72,7 @@ public class CloudFileShareResource extends AzureResource implements Copyable<Cl
     }
 
     /**
-     * The limit on the size of files in GB. (Optional)
+     * The limit on the size of files in GB.
      */
     @Updatable
     public Integer getShareQuota() {

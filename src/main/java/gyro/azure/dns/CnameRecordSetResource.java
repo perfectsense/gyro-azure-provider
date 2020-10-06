@@ -89,7 +89,7 @@ public class CnameRecordSetResource extends AzureResource implements Copyable<CN
     }
 
     /**
-     * The metadata for the Cname Record Set. (Optional)
+     * The metadata for the Cname Record Set.
      */
     @Updatable
     public Map<String, String> getMetadata() {
