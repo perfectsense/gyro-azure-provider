@@ -51,7 +51,7 @@ public class ScalingProfile extends Diffable implements Copyable<AutoscaleProfil
     }
 
     /**
-     * The type of the profile. Valid values are ``FIXED`` or ``RECURRENT_SCHEDULE`` or ``FIXED_SCHEDULE`` or ``METRIC``.
+     * The type of the profile.
      */
     @Required
     @Updatable

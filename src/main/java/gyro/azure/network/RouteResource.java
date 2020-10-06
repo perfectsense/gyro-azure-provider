@@ -82,7 +82,7 @@ public class RouteResource extends Diffable implements Copyable<Route> {
     }
 
     /**
-     * The type of the next hop. Valid values are `` Internet`` or ``VirtualAppliance`` or ``VnetLocal`` or ``VirtualNetworkGateway`` or ``None``.
+     * The type of the next hop.
      */
     @Required
     @ValidStrings({"Internet", "VirtualAppliance", "VnetLocal", "VirtualNetworkGateway", "None"})

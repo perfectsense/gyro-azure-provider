@@ -405,7 +405,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
     }
 
     /**
-     * The SKU for the Application Gateway. Valid values are ``STANDARD_SMALL`` or ``STANDARD_MEDIUM`` or ``STANDARD_LARGE`` or ``WAF_MEDIUM`` or ``WAF_LARGE`` or ``STANDARD_V2`` or ``WAF_V2``.
+     * The SKU for the Application Gateway.
      */
     @Required
     @ValidStrings({"STANDARD_SMALL", "STANDARD_MEDIUM", "STANDARD_LARGE", "WAF_MEDIUM", "WAF_LARGE", "STANDARD_V2", "WAF_V2"})
@@ -419,7 +419,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
     }
 
     /**
-     * The SKU for the Application Gateway. Valid Values are ``STANDARD``, ``STANDARD_V2``, ``WAF``, ``WAF_V2``.
+     * The SKU for the Application Gateway.
      */
     @Required
     @ValidStrings({"STANDARD", "STANDARD_V2", "WAF", "WAF_V2"})
@@ -495,7 +495,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
 
     /**
      * Availability Zones this Application Gateway should be deployed to redundancy.
-     * Valid values are ``1``, ``2``, ``3``.
+     *
      */
     @ValidStrings({"1", "2", "3"})
     public Set<String> getAvailabilityZones() {

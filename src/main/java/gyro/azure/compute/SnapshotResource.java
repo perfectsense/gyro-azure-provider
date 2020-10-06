@@ -123,7 +123,7 @@ public class SnapshotResource extends AzureResource implements Copyable<Snapshot
     }
 
     /**
-     * Determines what data type is used. Valid values are ``disk`` or ``snapshot`` or ``vhd``.
+     * Determines what data type is used.
      */
     @Required
     @ValidStrings({"disk", "snapshot", "vhd"})
@@ -148,7 +148,7 @@ public class SnapshotResource extends AzureResource implements Copyable<Snapshot
     }
 
     /**
-     * Specifies the sku type. Valid values are ``Premium_LRS`` or ``Standard_LRS`` or ``Standard_ZRS``. (Optional)
+     * Specifies the sku type. (Optional)
      */
     @ValidStrings({"Premium_LRS", "Standard_LRS", "Standard_ZRS"})
     @Updatable
@@ -183,7 +183,7 @@ public class SnapshotResource extends AzureResource implements Copyable<Snapshot
     }
 
     /**
-     * The type of the disk, snapshot, or vhd used. Valid values are ``Linux`` or ``Windows`` or ``Data``.
+     * The type of the disk, snapshot, or vhd used.
      */
     @Required
     @ValidStrings({"Linux", "Windows", "Data"})

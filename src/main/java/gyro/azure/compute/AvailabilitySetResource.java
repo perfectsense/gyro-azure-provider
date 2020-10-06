@@ -121,7 +121,7 @@ public class AvailabilitySetResource extends AzureResource implements Copyable<A
     }
 
     /**
-     * The Availability Set sku. Valid values are ``Aligned`` or ``Classic``. Defaults to ``Classic``. (Optional)
+     * The Availability Set sku. Defaults to ``Classic``. (Optional)
      */
     @ValidStrings({"Aligned", "Classic"})
     @Updatable

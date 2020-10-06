@@ -265,7 +265,7 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
     }
 
     /**
-     * Determines the query caching behavior. Valid values are ``IGNORE_QUERY_STRING`` or ``BYPASS_CACHING`` or ``USE_QUERY_STRING``. (Optional)
+     * Determines the query caching behavior. (Optional)
      */
     @ValidStrings({"IGNORE_QUERY_STRING", "BYPASS_CACHING", "USE_QUERY_STRING"})
     @Updatable
@@ -294,7 +294,7 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
     }
 
     /**
-     * The type of the endpoint. Valid values are ``Standard`` or ``Premium``. Defaults to ``Standard``.
+     * The type of the endpoint. Defaults to ``Standard``.
      */
     @ValidStrings({"Standard", "Premium"})
     public String getType() {

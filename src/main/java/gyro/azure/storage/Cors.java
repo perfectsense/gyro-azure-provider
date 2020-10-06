@@ -137,7 +137,7 @@ public class Cors extends Diffable implements Copyable<CorsRule> {
     }
 
     /**
-     * Specifies which service the rule belongs to. Valid values are ``blob`` or ``file`` or ``queue`` or ``table``.
+     * Specifies which service the rule belongs to.
      */
     @Required
     @ValidStrings({"blob", "file", "queue", "table"})

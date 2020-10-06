@@ -105,7 +105,7 @@ public class CdnProfileResource extends AzureResource implements Copyable<CdnPro
     }
 
     /**
-     * The sku of the CDN Profile. Valid values are ``Premium_Verizon`` or ``Standard_Verizon`` or ``Standard_Akamai``.
+     * The sku of the CDN Profile.
      */
     @Required
     @ValidStrings({"Premium_Verizon", "Standard_Verizon", "Standard_Akamai"})

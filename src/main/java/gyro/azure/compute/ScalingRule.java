@@ -69,7 +69,7 @@ public class ScalingRule extends Diffable implements Copyable<ScaleRule> {
     }
 
     /**
-     * The type of metrics statistic showing how metrics from multiple instances are combined. Valid Values are ``AVERAGE`` or ``MIN`` or ``MAX`` or ``SUM``. Defaults to ``AVERAGE``.
+     * The type of metrics statistic showing how metrics from multiple instances are combined. Defaults to ``AVERAGE``.
      */
     @Updatable
     @ValidStrings({"AVERAGE", "MIN", "MAX", "SUM"})
@@ -86,7 +86,7 @@ public class ScalingRule extends Diffable implements Copyable<ScaleRule> {
     }
 
     /**
-     * The range of time in which instance data is collected in seconds. Valid values are between ``300`` and ``43200``. Defaults ro ``600``.
+     * The range of time in which instance data is collected in seconds. Defaults ro ``600``.
      */
     @Range(min = 300, max = 43200)
     @Updatable
@@ -103,7 +103,7 @@ public class ScalingRule extends Diffable implements Copyable<ScaleRule> {
     }
 
     /**
-     * The granularity at which the instances are monitored in seconds. Valid values are between ``60`` and ``43200``. Defaults ro ``600``. Defaults to ``60``.
+     * The granularity at which the instances are monitored in seconds. Defaults ro ``600``. Defaults to ``60``.
      */
     @Range(min = 60, max = 43200)
     @Updatable
@@ -120,7 +120,7 @@ public class ScalingRule extends Diffable implements Copyable<ScaleRule> {
     }
 
     /**
-     * The way in which the data collected over time is combined. Valid values are ``AVERAGE`` or ``MINIMUM`` or ``MAXIMUM`` or ``TOTAL`` or ``COUNT``.
+     * The way in which the data collected over time is combined.
      */
     @Required
     @Updatable
@@ -134,7 +134,7 @@ public class ScalingRule extends Diffable implements Copyable<ScaleRule> {
     }
 
     /**
-     * The comparison operator to compare the metric data and the threshold. Valid values are ``EQUALS`` or ``NOT_EQUALS`` or ``GREATER_THAN`` or ``GREATER_THAN_OR_EQUAL`` or ``LESS_THAN`` or ``LESS_THAN_OR_EQUAL``.
+     * The comparison operator to compare the metric data and the threshold.
      */
     @Required
     @Updatable
@@ -161,7 +161,7 @@ public class ScalingRule extends Diffable implements Copyable<ScaleRule> {
     }
 
     /**
-     * The direction of scaling, to increase or decrease. Valid values are ``NONE`` or ``INCREASE`` or ``DECREASE``.
+     * The direction of scaling, to increase or decrease.
      */
     @Required
     @Updatable
@@ -175,7 +175,7 @@ public class ScalingRule extends Diffable implements Copyable<ScaleRule> {
     }
 
     /**
-     * The type of action when the Rule fires. Valid values are ``CHANGE_COUNT`` or ``PERCENT_CHANGE_COUNT`` or ``EXACT_COUNT``.
+     * The type of action when the Rule fires.
      */
     @Required
     @Updatable
@@ -189,7 +189,7 @@ public class ScalingRule extends Diffable implements Copyable<ScaleRule> {
     }
 
     /**
-     * The amount of time to wait since last scaling action in minutes. Valid values are between ``1`` and ``10080``.
+     * The amount of time to wait since last scaling action in minutes.
      */
     @Required
     @Updatable

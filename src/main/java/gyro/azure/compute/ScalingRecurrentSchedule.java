@@ -57,7 +57,7 @@ public class ScalingRecurrentSchedule extends Diffable implements Copyable<Recur
     }
 
     /**
-     * The set of weekdays for the recurrent policy. Valid values are ``MONDAY`` or ``TUESDAY`` or ``WEDNESDAY`` or ``THURSDAY`` or ``FRIDAY`` or ``SATURDAY`` or ``SUNDAY``.
+     * The set of weekdays for the recurrent policy.
      */
     @Required
     @Updatable

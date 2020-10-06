@@ -111,7 +111,7 @@ public class PublicIpAddressResource extends AzureResource implements Copyable<P
     }
 
     /**
-     * Specify Sku type. Valid values are ``BASIC`` or ``STANDARD``. Defaults to ``BASIC``.
+     * Specify Sku type. Defaults to ``BASIC``.
      */
     @ValidStrings({"BASIC", "STANDARD"})
     public SKU_TYPE getSkuType() {
@@ -139,7 +139,7 @@ public class PublicIpAddressResource extends AzureResource implements Copyable<P
     }
 
     /**
-     * Specify the idle time in minutes before time out. Valid values are any Integer between ``4`` and ``30``.
+     * Specify the idle time in minutes before time out.
      */
     @Required
     @Range(min = 4, max = 30)

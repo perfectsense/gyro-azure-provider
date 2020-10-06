@@ -204,7 +204,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource implements C
     }
 
     /**
-     * Priority for the Network Security Rule. Valid values are any Integer from ``100`` to ``4096``.
+     * Priority for the Network Security Rule.
      */
     @Required
     @Range(min = 100, max = 4096)
@@ -218,7 +218,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource implements C
     }
 
     /**
-     * Protocol for the Network Security Rule. Valid values are ``all`` or ``tcp`` or ``udp``. Defaults to ``all``.
+     * Protocol for the Network Security Rule. Defaults to ``all``.
      */
     @ValidStrings({"all", "tcp", "udp"})
     @Updatable

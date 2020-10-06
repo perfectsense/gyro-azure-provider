@@ -33,7 +33,7 @@ public class GeoFilter extends Diffable implements Copyable<com.microsoft.azure.
     private String relativePath;
 
     /**
-     * The action to be taken. Valid values are ``ALLOW`` or ``BLOCK``.
+     * The action to be taken.
      */
     @Required
     @ValidStrings({"ALLOW", "BLOCK"})

@@ -48,7 +48,7 @@ public class ProximityPlacementGroupResource extends Diffable implements Copyabl
     }
 
     /**
-     * The type of the Proximity Placement Group. Valid Values ``STANDARD`` or ``ULTRA``. Defaults to ``STANDARD``.
+     * The type of the Proximity Placement Group. Defaults to ``STANDARD``.
      */
     @ValidStrings({"STANDARD", "ULTRA"})
     public String getType() {

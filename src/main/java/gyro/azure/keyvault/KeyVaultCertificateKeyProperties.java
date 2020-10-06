@@ -61,7 +61,7 @@ public class KeyVaultCertificateKeyProperties extends Diffable implements Copyab
     }
 
     /**
-     * The key size. Valid values are ``2048``, ``3072`` or ``4096``.
+     * The key size.
      */
     @ValidNumbers({2048, 3072, 4096})
     public Integer getSize() {

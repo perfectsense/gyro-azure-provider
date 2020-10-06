@@ -298,7 +298,7 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
     }
 
     /**
-     * The os for the Virtual Machine. Valid values are ``Linux`` or ``Windows``.
+     * The os for the Virtual Machine.
      */
     @Required
     @ValidStrings({"linux", "windows"})
@@ -361,7 +361,7 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
     }
 
     /**
-     * Type of Virtual Machine image. Defaults to specialized. Valid values are ``popular`` or ``specialized`` or ``latest`` or ``specific`` or ``custom`` or ``gallery``.
+     * Type of Virtual Machine image. Defaults to specialized.
      */
     @Required
     @ValidStrings({"popular", "specialized", "latest", "specific", "custom", "gallery"})
@@ -434,7 +434,7 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
     }
 
     /**
-     * The data disk storage account type for the Virtual Machine. Valid values are ``STANDARD_LRS`` or ``PREMIUM_LRS`` or ``STANDARDSSD_LRS``.
+     * The data disk storage account type for the Virtual Machine.
      */
     @ValidStrings({"STANDARD_LRS", "PREMIUM_LRS", "STANDARDSSD_LRS"})
     @Updatable
@@ -447,7 +447,7 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
     }
 
     /**
-     * The os disk storage account type for the Virtual Machine. Valid values are ``STANDARD_LRS`` or ``PREMIUM_LRS`` or ``STANDARDSSD_LRS``.
+     * The os disk storage account type for the Virtual Machine.
      */
     @ValidStrings({"STANDARD_LRS", "PREMIUM_LRS", "STANDARDSSD_LRS"})
     public String getStorageAccountTypeOsDisk() {

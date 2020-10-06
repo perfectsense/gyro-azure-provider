@@ -129,7 +129,7 @@ public class KeyVaultKeyResource extends AzureResource implements Copyable<KeyBu
     }
 
     /**
-     * A set of key operations that you want to enable. Valid values are ``encrypt``, ``decrypt``, ``sign``, ``verify``, ``wrapKey`` or ``unwrapKey``.
+     * A set of key operations that you want to enable.
      */
     @Updatable
     @ValidStrings({"encrypt", "decrypt", "sign", "verify", "wrapKey", "unwrapKey"})

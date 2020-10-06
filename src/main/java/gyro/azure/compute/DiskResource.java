@@ -127,7 +127,7 @@ public class DiskResource extends AzureResource implements Copyable<Disk> {
     }
 
     /**
-     * Type of OS. Valid values are ``LINUX`` or ``WINDOWS``.
+     * Type of OS.
      */
     @Required
     @ValidStrings({"LINUX", "WINDOWS"})
@@ -141,7 +141,7 @@ public class DiskResource extends AzureResource implements Copyable<Disk> {
     }
 
     /**
-     * Type of Disk. Valid values are ``STANDARD_LRS`` or ``PREMIUM_LRS`` or ``STANDARDSSD_LRS``` or ```ULTRASSD_LRS```.
+     * Type of Disk.
      */
     @Required
     @ValidStrings({"STANDARD_LRS", "PREMIUM_LRS", "STANDARDSSD_LRS", "ULTRASSD_LRS"})
@@ -155,7 +155,7 @@ public class DiskResource extends AzureResource implements Copyable<Disk> {
     }
 
     /**
-     * Type of data source. Defaults to ``disk``. Valid values are ``disk`` or ``vhd`` or ``snapshot``.
+     * Type of data source. Defaults to ``disk``.
      */
     @ValidStrings({"disk", "vhd", "snapshot"})
     public String getDataLoadSourceType() {

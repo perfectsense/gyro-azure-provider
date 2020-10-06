@@ -96,7 +96,7 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
     private String writeReplicationRegion;
 
     /**
-     * The database account kind. Valid values are ``AzureTable`` or ``Cassandra`` or ``Gremlin`` or ``MongoDB`` or ``Sql``.
+     * The database account kind.
      */
     @Required
     @ValidStrings({"AzureTable", "Cassandra", "Gremlin", "MongoDB", "Sql"})
@@ -109,7 +109,7 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
     }
 
     /**
-     * The consistency policy of the account. Valid values are ``BoundedStaleness``or ``Eventual`` or ``Session`` or ``Strong``.
+     * The consistency policy of the account.
      */
     @Required
     @ValidStrings({"BoundedStaleness", "Eventual", "Session", "Strong"})
@@ -148,7 +148,7 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
     }
 
     /**
-     * The time amount of staleness (in seconds) tolerated. Valid values are ``5`` to ``86400``. Required when used with ``BoundedStaleness`` consistency policy. (Optional)
+     * The time amount of staleness (in seconds) tolerated. Required when used with ``BoundedStaleness`` consistency policy. (Optional)
      */
     @Range(min = 5, max = 86400)
     @Updatable
@@ -161,7 +161,7 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
     }
 
     /**
-     * This value represents the number of stale requests tolerated. Valid values are ``10`` to ``2147483647``. Required when used with ``BoundedStaleness`` consistency policy. (Optional)
+     * This value represents the number of stale requests tolerated. Required when used with ``BoundedStaleness`` consistency policy. (Optional)
      */
     @Range(min = 10, max = 2147483647)
     @Updatable

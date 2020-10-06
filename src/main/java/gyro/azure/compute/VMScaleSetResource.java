@@ -313,7 +313,7 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
     }
 
     /**
-     * The type of os for the VMs deployed by the Scale Set. Valid values are ``linux`` or ``windows``.
+     * The type of os for the VMs deployed by the Scale Set.
      */
     @Required
     @ValidStrings({"linux", "windows"})
@@ -326,7 +326,7 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
     }
 
     /**
-     * The type of image to be used for the VMs deployed by the Scale Set. Valid values are ``latest`` or ``popular`` or ``specific`` or ``custom`` or ``stored``.
+     * The type of image to be used for the VMs deployed by the Scale Set.
      */
     @Required
     @ValidStrings({"latest", "popular", "specific", "custom", "stored"})
@@ -635,7 +635,7 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
     }
 
     /**
-     * Set the OS Disk caching type for the VMs launched by this Scale Set. Valid values are ``NONE`` or ``READ_ONLY`` or ``READ_WRITE``.
+     * Set the OS Disk caching type for the VMs launched by this Scale Set.
      */
     @ValidStrings({"NONE", "READ_ONLY", "READ_WRITE"})
     public String getOsDiskCaching() {
@@ -692,7 +692,7 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
     }
 
     /**
-     * Set the policy for eviction of the flagged low priority VMs launched by this Scale Set. Allowed only of 'enable-low-priority-vm' is set to ``true``. Valid values are ``DEALLOCATE`` or ``DELETE``.
+     * Set the policy for eviction of the flagged low priority VMs launched by this Scale Set. Allowed only of 'enable-low-priority-vm' is set to ``true``.
      */
     @ValidStrings({"DEALLOCATE", "DELETE"})
     public String getLowPriorityVmPolicy() {

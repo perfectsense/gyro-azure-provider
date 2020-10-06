@@ -97,7 +97,7 @@ public class VirtualMachineImageResource extends AzureResource implements Copyab
     }
 
     /**
-     * The Hyper V Generation for the virtual machine image. Valid values are ``V1`` or ``V2``. Defaults to ``V1``.
+     * The Hyper V Generation for the virtual machine image. Defaults to ``V1``.
      */
     @ValidStrings({"V1", "V2"})
     public String getHyperVGeneration() {

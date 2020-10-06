@@ -111,7 +111,7 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
     }
 
     /**
-     * The create mode of the database. Valid values are ``Copy``, ``Default``, ``NonReadableSecondary``, ``OnlineSecondary``, ``PointInTimeRestore``, ``Recovery``, ``Restore``, or ``RestoreLongTermRetentionBackup``. (Optional)
+     * The create mode of the database. (Optional)
      */
     @ValidStrings({"Copy", "Default", "NonReadableSecondary", "OnlineSecondary", "PointInTimeRestore", "Recovery", "Restore", "RestoreLongTermRetentionBackup"})
     public String getCreateMode() {
@@ -123,7 +123,7 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
     }
 
     /**
-     * The edition of the database. Valid values are ``Basic``, ``Premium`` or ``Standard``. (Optional)
+     * The edition of the database. (Optional)
      */
     @ValidStrings({"Basic", "Premium", "Standard"})
     @Updatable
