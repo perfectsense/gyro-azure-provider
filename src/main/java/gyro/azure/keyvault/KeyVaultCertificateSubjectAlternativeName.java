@@ -41,7 +41,7 @@ public class KeyVaultCertificateSubjectAlternativeName extends Diffable implemen
     }
 
     /**
-     * A list of DNS names to be associated with the certificate. (Required)
+     * A list of DNS names to be associated with the certificate.
      */
     @Required
     public List<String> getDnsNames() {

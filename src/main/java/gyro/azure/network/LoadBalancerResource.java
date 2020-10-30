@@ -42,6 +42,7 @@ import com.microsoft.azure.management.network.LoadBalancer.DefinitionStages.With
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 
 import java.util.ArrayList;
@@ -113,7 +114,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
     public enum SKU_TYPE { STANDARD, BASIC }
 
     /**
-     * The Health Check Http Probes associated with the Load Balancer. (Optional)
+     * The Health Check Http Probes associated with the Load Balancer.
      *
      * @subresource gyro.azure.network.HealthCheckProbeHttp
      */
@@ -131,7 +132,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
     }
 
     /**
-     * The Health Check Tcp Probes associated with the Load Balancer. (Optional)
+     * The Health Check Tcp Probes associated with the Load Balancer.
      *
      * @subresource gyro.azure.network.HealthCheckProbeTcp
      */
@@ -162,7 +163,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
     }
 
     /**
-     * The name of the Load Balancer. (Required)
+     * The name of the Load Balancer.
      */
     @Required
     public String getName() {
@@ -174,7 +175,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
     }
 
     /**
-     * The Load Balancer rules associated with the Load Balancer. (Required)
+     * The Load Balancer rules associated with the Load Balancer.
      *
      * @subresource gyro.azure.network.LoadBalancerRule
      */
@@ -193,7 +194,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
     }
 
     /**
-     * The Private Frontend associated with the Load Balancer. (Optional)
+     * The Private Frontend associated with the Load Balancer.
      *
      * @subresource gyro.azure.network.PrivateFrontend
      */
@@ -211,7 +212,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
     }
 
     /**
-     * The Public Frontend associated with the Load Balancer. (Optional)
+     * The Public Frontend associated with the Load Balancer.
      *
      * @subresource gyro.azure.network.PublicFrontend
      */
@@ -229,7 +230,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
     }
 
     /**
-     * The Resource Group under which the Load Balancer would reside. (Required)
+     * The Resource Group under which the Load Balancer would reside.
      */
     @Required
     public ResourceGroupResource getResourceGroup() {
@@ -241,8 +242,9 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
     }
 
     /**
-     * Specifies the sku type for the Load Balancer. Valid Values are ``BASIC`` or ``STANDARD``. Defaults to ``BASIC``.
+     * Specifies the sku type for the Load Balancer. Defaults to ``BASIC``.
      */
+    @ValidStrings({"BASIC", "STANDARD"})
     public SKU_TYPE getSkuType() {
         if (skuType == null) {
             skuType = SKU_TYPE.BASIC;
@@ -256,7 +258,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
     }
 
     /**
-     * The tags associated with the Load Balancer. (Optional)
+     * The tags associated with the Load Balancer.
      */
     @Updatable
     public Map<String, String> getTags() {
@@ -272,7 +274,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
     }
 
     /**
-     * The Inbound Nat Pools Associated with the Load Balancer. (Optional)
+     * The Inbound Nat Pools Associated with the Load Balancer.
      *
      * @subresource gyro.azure.network.InboundNatPool
      */
@@ -290,7 +292,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
     }
 
     /**
-     * The Inbound Nat Rules associated with the Load Balancer. Nat rules may not be associated with a Load Balancer if a Nat Pool is associated. (Optional)
+     * The Inbound Nat Rules associated with the Load Balancer. Nat rules may not be associated with a Load Balancer if a Nat Pool is associated.
      *
      * @subresource gyro.azure.network.InboundNatRule
      */

@@ -107,7 +107,7 @@ public class KeyVaultCertificateResource extends AzureResource implements Copyab
     private Map<String, String> tags;
 
     /**
-     * The name of the certificate. (Required)
+     * The name of the certificate.
      */
     @Required
     public String getName() {
@@ -119,7 +119,7 @@ public class KeyVaultCertificateResource extends AzureResource implements Copyab
     }
 
     /**
-     * The key vault under which the certificate is going to be created. (Required)
+     * The key vault under which the certificate is going to be created.
      */
     @Required
     public KeyVaultResource getVault() {
@@ -131,7 +131,7 @@ public class KeyVaultCertificateResource extends AzureResource implements Copyab
     }
 
     /**
-     * The policy config for the certificate. (Required)
+     * The policy config for the certificate.
      *
      * @subresource gyro.azure.keyvault.KeyVaultCertificatePolicy
      */

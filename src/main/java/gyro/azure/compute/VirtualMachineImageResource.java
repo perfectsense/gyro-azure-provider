@@ -61,7 +61,7 @@ public class VirtualMachineImageResource extends AzureResource implements Copyab
     private String id;
 
     /**
-     * The name of the virtual machine image. (Required)
+     * The name of the virtual machine image.
      */
     @Required
     public String getName() {
@@ -73,7 +73,7 @@ public class VirtualMachineImageResource extends AzureResource implements Copyab
     }
 
     /**
-     * The resource group under which the virtual machine image would reside. (Required)
+     * The resource group under which the virtual machine image would reside.
      */
     @Required
     public ResourceGroupResource getResourceGroup() {
@@ -85,7 +85,7 @@ public class VirtualMachineImageResource extends AzureResource implements Copyab
     }
 
     /**
-     * The virtual machine from which the image would be generated. The virtual machine needs to be in the *Generalized* state. (Required)
+     * The virtual machine from which the image would be generated. The virtual machine needs to be in the *Generalized* state.
      */
     @Required
     public VirtualMachineResource getVirtualMachine() {
@@ -97,7 +97,7 @@ public class VirtualMachineImageResource extends AzureResource implements Copyab
     }
 
     /**
-     * The Hyper V Generation for the virtual machine image. Valid values are ``V1`` or ``V2``. Defaults to ``V1``.
+     * The Hyper V Generation for the virtual machine image. Defaults to ``V1``.
      */
     @ValidStrings({"V1", "V2"})
     public String getHyperVGeneration() {

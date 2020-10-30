@@ -63,7 +63,7 @@ public class CloudBlobContainerResource extends AzureResource implements Copyabl
     private String id;
 
     /**
-     * The name of the container. (Required)
+     * The name of the container.
      */
     @Id
     @Required
@@ -76,7 +76,7 @@ public class CloudBlobContainerResource extends AzureResource implements Copyabl
     }
 
     /**
-     * The public access of the container. Valid values are ``BLOB`` or ``CONTAINER`` or ``OFF`` (Required)
+     * The public access of the container. Valid values are ``BLOB`` or ``CONTAINER`` or ``OFF``
      */
     @Required
     @ValidStrings({"BLOB", "CONTAINER", "OFF"})
@@ -90,7 +90,7 @@ public class CloudBlobContainerResource extends AzureResource implements Copyabl
     }
 
     /**
-     * The storage account resource where the blob container will be created. (Required)
+     * The storage account resource where the blob container will be created.
      */
     @Required
     public StorageAccountResource getStorageAccount() {

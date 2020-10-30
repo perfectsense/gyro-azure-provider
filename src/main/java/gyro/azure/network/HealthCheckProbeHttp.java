@@ -42,7 +42,7 @@ public class HealthCheckProbeHttp extends AbstractHealthCheckProbe implements Co
     private String requestPath;
 
     /**
-     * The HTTP request path by the probe to call to check the health status. (Required)
+     * The HTTP request path by the probe to call to check the health status.
      */
     @Required
     @Updatable

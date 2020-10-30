@@ -27,7 +27,7 @@ public class ScalingFixedSchedule extends Diffable implements Copyable<TimeWindo
     private String timeZone;
 
     /**
-     * The start time of the fixed scaling. (Required)
+     * The start time of the fixed scaling.
      */
     @Required
     public String getStartTime() {
@@ -39,7 +39,7 @@ public class ScalingFixedSchedule extends Diffable implements Copyable<TimeWindo
     }
 
     /**
-     * The end time of the fixed scaling. (Required)
+     * The end time of the fixed scaling.
      */
     @Required
     public String getEndTime() {
@@ -51,7 +51,7 @@ public class ScalingFixedSchedule extends Diffable implements Copyable<TimeWindo
     }
 
     /**
-     * The time zone of the fixed scaling. (Required)
+     * The time zone of the fixed scaling.
      */
     @Required
     public String getTimeZone() {

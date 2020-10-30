@@ -68,7 +68,7 @@ public class CloudBlobResource extends AzureResource implements Copyable<CloudBl
     private String uri;
 
     /**
-     * The directory path of the Blob. (Required)
+     * The directory path of the Blob.
      */
     @Required
     public String getBlobDirectoryPath() {
@@ -84,7 +84,7 @@ public class CloudBlobResource extends AzureResource implements Copyable<CloudBl
     }
 
     /**
-     * The container where the Blob is found. (Required)
+     * The container where the Blob is found.
      */
     @Required
     public CloudBlobContainerResource getContainer() {
@@ -96,7 +96,7 @@ public class CloudBlobResource extends AzureResource implements Copyable<CloudBl
     }
 
     /**
-     * The path of the file to upload. (Required)
+     * The path of the file to upload.
      */
     @Required
     public String getFilePath() {
@@ -108,7 +108,7 @@ public class CloudBlobResource extends AzureResource implements Copyable<CloudBl
     }
 
     /**
-     * The Storage Account where the Blob will be created. (Required)
+     * The Storage Account where the Blob will be created.
      */
     @Required
     public StorageAccountResource getStorageAccount() {

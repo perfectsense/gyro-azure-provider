@@ -63,7 +63,7 @@ public class CloudFileDirectoryResource extends AzureResource implements Copyabl
     private StorageAccountResource storageAccount;
 
     /**
-     * The Cloud File Directory path. (Required)
+     * The Cloud File Directory path.
      */
     @Required
     @Id
@@ -92,7 +92,7 @@ public class CloudFileDirectoryResource extends AzureResource implements Copyabl
     }
 
     /**
-     * The Cloud File Share under which the Cloud File Directory resides. (Required)
+     * The Cloud File Share under which the Cloud File Directory resides.
      */
     @Required
     public CloudFileShareResource getCloudFileShare() {
@@ -104,7 +104,7 @@ public class CloudFileDirectoryResource extends AzureResource implements Copyabl
     }
 
     /**
-     * The Storage Account where the Cloud File Directory will be created. (Required)
+     * The Storage Account where the Cloud File Directory will be created.
      */
     @Required
     public StorageAccountResource getStorageAccount() {

@@ -48,7 +48,7 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
     private Set<ApplicationSecurityGroupResource> applicationSecurityGroups;
 
     /**
-     * Name of the IP Configuration. (Required)
+     * Name of the IP Configuration.
      */
     @Required
     public String getName() {

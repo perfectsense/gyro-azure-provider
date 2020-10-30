@@ -40,7 +40,7 @@ public class NicNatRule extends Diffable implements Copyable<LoadBalancerInbound
     private String inboundNatRuleName;
 
     /**
-     * The Load Balancer to associate the IP Configuration to. (Required)
+     * The Load Balancer to associate the IP Configuration to.
      */
     @Required
     public LoadBalancerResource getLoadBalancer() {
@@ -52,7 +52,7 @@ public class NicNatRule extends Diffable implements Copyable<LoadBalancerInbound
     }
 
     /**
-     * The name of the Inbound Nat Rule present on the Load Balancer to associate with the IP configuration. (Required)
+     * The name of the Inbound Nat Rule present on the Load Balancer to associate with the IP configuration.
      */
     @Required
     public String getInboundNatRuleName() {

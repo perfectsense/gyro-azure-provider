@@ -64,7 +64,7 @@ public class Probe extends Diffable implements Copyable<ApplicationGatewayProbe>
     private String httpResponseBodyMatch;
 
     /**
-     * Name of the Probe. (Required)
+     * Name of the Probe.
      */
     @Required
     public String getName() {
@@ -76,7 +76,7 @@ public class Probe extends Diffable implements Copyable<ApplicationGatewayProbe>
     }
 
     /**
-     * Host name associated with this Probe. (Required)
+     * Host name associated with this Probe.
      */
     @Required
     @Updatable
@@ -89,7 +89,7 @@ public class Probe extends Diffable implements Copyable<ApplicationGatewayProbe>
     }
 
     /**
-     * Path associated with this Probe. (Required)
+     * Path associated with this Probe.
      */
     @Required
     @Updatable

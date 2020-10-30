@@ -58,7 +58,7 @@ public class ResourceGroupResource extends AzureResource implements Copyable<Res
     private Map<String, String> tags;
 
     /**
-     * The name of the resource group. (Required)
+     * The name of the resource group.
      */
     @Required
     @Id

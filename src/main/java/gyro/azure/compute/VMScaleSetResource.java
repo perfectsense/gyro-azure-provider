@@ -167,7 +167,7 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
     private Set<IdentityResource> identities;
 
     /**
-     * The name of the Scale Set. (Required)
+     * The name of the Scale Set.
      */
     @Required
     public String getName() {
@@ -179,7 +179,7 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
     }
 
     /**
-     * The Resource Group under which the Scale Set would reside. (Required)
+     * The Resource Group under which the Scale Set would reside.
      */
     @Required
     public ResourceGroupResource getResourceGroup() {
@@ -191,7 +191,7 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
     }
 
     /**
-     * The SKU name of the Scale Set. (Required)
+     * The SKU name of the Scale Set.
      */
     @Required
     public String getSkuName() {
@@ -203,7 +203,7 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
     }
 
     /**
-     * The SKU tier of the Scale Set. (Required)
+     * The SKU tier of the Scale Set.
      */
     @Required
     public String getSkuTier() {
@@ -261,7 +261,7 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
     }
 
     /**
-     * The Virtual Network to be associated with the Scale Set. (Required)
+     * The Virtual Network to be associated with the Scale Set.
      */
     @Required
     public NetworkResource getNetwork() {
@@ -273,7 +273,7 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
     }
 
     /**
-     * The Subnet to be associated with the Scale Set. (Required)
+     * The Subnet to be associated with the Scale Set.
      */
     @Required
     public String getSubnetName() {
@@ -313,7 +313,7 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
     }
 
     /**
-     * The type of os for the VMs deployed by the Scale Set. Valid values are ``linux`` or ``windows``. (Required)
+     * The type of os for the VMs deployed by the Scale Set.
      */
     @Required
     @ValidStrings({"linux", "windows"})
@@ -326,7 +326,7 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
     }
 
     /**
-     * The type of image to be used for the VMs deployed by the Scale Set. Valid values are ``latest`` or ``popular`` or ``specific`` or ``custom`` or ``stored``. (Required)
+     * The type of image to be used for the VMs deployed by the Scale Set.
      */
     @Required
     @ValidStrings({"latest", "popular", "specific", "custom", "stored"})
@@ -339,7 +339,7 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
     }
 
     /**
-     * The root/admin user name for the os for the VMs deployed by the Scale Set. (Required)
+     * The root/admin user name for the os for the VMs deployed by the Scale Set.
      */
     @Required
     public String getAdminUserName() {
@@ -635,7 +635,7 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
     }
 
     /**
-     * Set the OS Disk caching type for the VMs launched by this Scale Set. Valid values are ``NONE`` or ``READ_ONLY`` or ``READ_WRITE``.
+     * Set the OS Disk caching type for the VMs launched by this Scale Set.
      */
     @ValidStrings({"NONE", "READ_ONLY", "READ_WRITE"})
     public String getOsDiskCaching() {
@@ -692,7 +692,7 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
     }
 
     /**
-     * Set the policy for eviction of the flagged low priority VMs launched by this Scale Set. Allowed only of 'enable-low-priority-vm' is set to ``true``. Valid values are ``DEALLOCATE`` or ``DELETE``.
+     * Set the policy for eviction of the flagged low priority VMs launched by this Scale Set. Allowed only of 'enable-low-priority-vm' is set to ``true``.
      */
     @ValidStrings({"DEALLOCATE", "DELETE"})
     public String getLowPriorityVmPolicy() {

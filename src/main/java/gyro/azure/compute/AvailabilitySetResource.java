@@ -95,7 +95,7 @@ public class AvailabilitySetResource extends AzureResource implements Copyable<A
     }
 
     /**
-     * The name of the Availability Set. (Required)
+     * The name of the Availability Set.
      */
     @Required
     public String getName() {
@@ -109,7 +109,7 @@ public class AvailabilitySetResource extends AzureResource implements Copyable<A
     }
 
     /**
-     * The Resource Group under which the Availability Set would reside. (Required)
+     * The Resource Group under which the Availability Set would reside.
      */
     @Required
     public ResourceGroupResource getResourceGroup() {
@@ -121,7 +121,7 @@ public class AvailabilitySetResource extends AzureResource implements Copyable<A
     }
 
     /**
-     * The Availability Set sku. Valid values are ``Aligned`` or ``Classic``. Defaults to ``Classic``. (Optional)
+     * The Availability Set sku. Defaults to ``Classic``.
      */
     @ValidStrings({"Aligned", "Classic"})
     @Updatable
@@ -138,7 +138,7 @@ public class AvailabilitySetResource extends AzureResource implements Copyable<A
     }
 
     /**
-     * The tags associated with the Availability Set. (Optional)
+     * The tags associated with the Availability Set.
      */
     @Updatable
     public Map<String, String> getTags() {
@@ -154,7 +154,7 @@ public class AvailabilitySetResource extends AzureResource implements Copyable<A
     }
 
     /**
-     * The update domain count of the availability set. (Optional)
+     * The update domain count of the availability set.
      */
     public Integer getUpdateDomainCount() {
         return updateDomainCount;

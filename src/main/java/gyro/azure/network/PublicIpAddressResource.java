@@ -38,6 +38,7 @@ import gyro.core.resource.Resource;
 import gyro.core.scope.State;
 import gyro.core.validation.Range;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -85,7 +86,7 @@ public class PublicIpAddressResource extends AzureResource implements Copyable<P
     public enum SKU_TYPE {BASIC, STANDARD}
 
     /**
-     * Name of the Public IP Address. (Required)
+     * Name of the Public IP Address.
      */
 
     @Required
@@ -98,7 +99,7 @@ public class PublicIpAddressResource extends AzureResource implements Copyable<P
     }
 
     /**
-     * The resource group under which this would reside. (Required)
+     * The resource group under which this would reside.
      */
     @Required
     public ResourceGroupResource getResourceGroup() {
@@ -110,8 +111,9 @@ public class PublicIpAddressResource extends AzureResource implements Copyable<P
     }
 
     /**
-     * Specify Sku type. Valid values are ``BASIC`` or ``STANDARD``. Defaults to ``BASIC``.
+     * Specify Sku type. Defaults to ``BASIC``.
      */
+    @ValidStrings({"BASIC", "STANDARD"})
     public SKU_TYPE getSkuType() {
         if (skuType == null) {
             skuType = SKU_TYPE.BASIC;
@@ -137,7 +139,7 @@ public class PublicIpAddressResource extends AzureResource implements Copyable<P
     }
 
     /**
-     * Specify the idle time in minutes before time out. Valid values are any Integer between ``4`` and ``30``. (Required)
+     * Specify the idle time in minutes before time out.
      */
     @Required
     @Range(min = 4, max = 30)

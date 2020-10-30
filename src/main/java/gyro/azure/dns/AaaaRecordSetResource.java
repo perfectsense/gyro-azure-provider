@@ -69,7 +69,7 @@ public class AaaaRecordSetResource extends AzureResource implements Copyable<Aaa
     private String id;
 
     /**
-     * The Dns Zone where the AAAA Record Set resides. (Required)
+     * The Dns Zone where the AAAA Record Set resides.
      */
     @Required
     public DnsZoneResource getDnsZone() {
@@ -81,7 +81,7 @@ public class AaaaRecordSetResource extends AzureResource implements Copyable<Aaa
     }
 
     /**
-     * The IPV6 addresses associated with the AAAA Record Set set. (Required)
+     * The IPV6 addresses associated with the AAAA Record Set set.
      */
     @Required
     @Updatable
@@ -99,7 +99,7 @@ public class AaaaRecordSetResource extends AzureResource implements Copyable<Aaa
     }
 
     /**
-     * The metadata for the AAAA Record Set. (Optional)
+     * The metadata for the AAAA Record Set.
      */
     @Updatable
     public Map<String, String> getMetadata() {
@@ -115,7 +115,7 @@ public class AaaaRecordSetResource extends AzureResource implements Copyable<Aaa
     }
 
     /**
-     * The name of the AAAA Record Set. (Required)
+     * The name of the AAAA Record Set.
      */
     @Required
     public String getName() {
@@ -127,7 +127,7 @@ public class AaaaRecordSetResource extends AzureResource implements Copyable<Aaa
     }
 
     /**
-     * The Time To Live in Seconds for the AAAA Record Set in the set. (Required)
+     * The Time To Live in Seconds for the AAAA Record Set in the set.
      */
     @Required
     @Updatable

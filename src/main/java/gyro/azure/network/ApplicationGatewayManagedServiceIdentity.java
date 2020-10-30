@@ -24,6 +24,9 @@ public class ApplicationGatewayManagedServiceIdentity extends Diffable implement
     private String principalId;
     private String type;
 
+    /**
+     * The identity to be associated with the application gateway.
+     */
     @Required
     @Updatable
     @CollectionMax(1)
@@ -39,6 +42,9 @@ public class ApplicationGatewayManagedServiceIdentity extends Diffable implement
         this.userAssignedIdentity = userAssignedIdentity;
     }
 
+    /**
+     * The tenant id of the service identity.
+     */
     @Output
     public String getTenantId() {
         return tenantId;
@@ -48,6 +54,9 @@ public class ApplicationGatewayManagedServiceIdentity extends Diffable implement
         this.tenantId = tenantId;
     }
 
+    /**
+     * The principal id of the service identity.
+     */
     @Output
     public String getPrincipalId() {
         return principalId;
@@ -57,6 +66,9 @@ public class ApplicationGatewayManagedServiceIdentity extends Diffable implement
         this.principalId = principalId;
     }
 
+    /**
+     * The type of the service identity.
+     */
     @Output
     public String getType() {
         return type;

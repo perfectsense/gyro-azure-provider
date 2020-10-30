@@ -44,7 +44,7 @@ public class PrivateFrontend extends Diffable implements Copyable<LoadBalancerPr
     private NetworkResource network;
 
     /**
-     * The name of the Private Frontend. (Required)
+     * The name of the Private Frontend.
      */
     @Required
     public String getName() {
@@ -56,7 +56,7 @@ public class PrivateFrontend extends Diffable implements Copyable<LoadBalancerPr
     }
 
     /**
-     * The Private IP Address associated with the Private Frontend. (Optional)
+     * The Private IP Address associated with the Private Frontend.
      */
     @Updatable
     public String getPrivateIpAddress() {
@@ -68,7 +68,7 @@ public class PrivateFrontend extends Diffable implements Copyable<LoadBalancerPr
     }
 
     /**
-     * The Network where the Subnet is found for the Private Frontend. (Required)
+     * The Network where the Subnet is found for the Private Frontend.
      */
     @Required
     @Updatable
@@ -81,7 +81,7 @@ public class PrivateFrontend extends Diffable implements Copyable<LoadBalancerPr
     }
 
     /**
-     * The name of the Subnet that is associated with the Private Frontend. (Required)
+     * The name of the Subnet that is associated with the Private Frontend.
      */
     @Required
     @Updatable

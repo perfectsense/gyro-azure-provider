@@ -47,7 +47,7 @@ public class Listener extends Diffable implements Copyable<ApplicationGatewayLis
     private ListenerSslCertificate sslCertificate;
 
     /**
-     * Name of the listener. (Required)
+     * Name of the listener.
      */
     @Required
     public String getName() {
@@ -59,7 +59,7 @@ public class Listener extends Diffable implements Copyable<ApplicationGatewayLis
     }
 
     /**
-     * Port for the Listener to listen to. (Required)
+     * Port for the Listener to listen to.
      */
     @Required
     @Updatable
@@ -89,6 +89,8 @@ public class Listener extends Diffable implements Copyable<ApplicationGatewayLis
 
     /**
      * Ssl configuration for the listener.
+     *
+     * @subresource gyro.azure.network.ListenerSslCertificate
      */
     @Updatable
     public ListenerSslCertificate getSslCertificate() {

@@ -22,6 +22,7 @@ import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -32,7 +33,7 @@ public class ScalingRecurrentSchedule extends Diffable implements Copyable<Recur
     private Set<String> dayOfWeeks;
 
     /**
-     * The time zone of the recurrent policy. (Required)
+     * The time zone of the recurrent policy.
      */
     @Required
     public String getTimeZone() {
@@ -44,7 +45,7 @@ public class ScalingRecurrentSchedule extends Diffable implements Copyable<Recur
     }
 
     /**
-     * The start time of the recurrent policy. (Required)
+     * The start time of the recurrent policy.
      */
     @Required
     public String getStartTime() {
@@ -56,10 +57,11 @@ public class ScalingRecurrentSchedule extends Diffable implements Copyable<Recur
     }
 
     /**
-     * The set of weekdays for the recurrent policy. Valid values are ``MONDAY`` or ``TUESDAY`` or ``WEDNESDAY`` or ``THURSDAY`` or ``FRIDAY`` or ``SATURDAY`` or ``SUNDAY``. (Required)
+     * The set of weekdays for the recurrent policy.
      */
     @Required
     @Updatable
+    @ValidStrings({"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"})
     public Set<String> getDayOfWeeks() {
         return dayOfWeeks;
     }

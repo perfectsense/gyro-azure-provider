@@ -65,7 +65,7 @@ public class SubnetResource extends AzureResource implements Copyable<Subnet> {
     private String id;
     
     /**
-     * The address prefix in CIDR notation. (Required)
+     * The address prefix in CIDR notation.
      */
     @Required
     @Updatable
@@ -78,7 +78,7 @@ public class SubnetResource extends AzureResource implements Copyable<Subnet> {
     }
 
     /**
-     * The name of the Subnet. (Required)
+     * The name of the Subnet.
      */
     @Required
     public String getName() {
@@ -90,7 +90,7 @@ public class SubnetResource extends AzureResource implements Copyable<Subnet> {
     }
 
     /**
-     * The associated Network Security Group. (Optional)
+     * The associated Network Security Group.
      */
     @Updatable
     public NetworkSecurityGroupResource getNetworkSecurityGroup() {
@@ -102,7 +102,7 @@ public class SubnetResource extends AzureResource implements Copyable<Subnet> {
     }
 
     /**
-     * The associated Route Table. (Optional)
+     * The associated Route Table.
      */
     @Updatable
     public RouteTableResource getRouteTable() {
@@ -114,7 +114,7 @@ public class SubnetResource extends AzureResource implements Copyable<Subnet> {
     }
 
     /**
-     * The service endpoints associated with the Subnet. (Optional)
+     * The service endpoints associated with the Subnet.
      */
     @Updatable
     public Map<String, List<String>> getServiceEndpoints() {

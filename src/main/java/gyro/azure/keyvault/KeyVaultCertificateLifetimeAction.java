@@ -28,9 +28,10 @@ public class KeyVaultCertificateLifetimeAction extends Diffable implements Copya
     private ActionType type;
 
     /**
-     * The lifetime action type. Valid values are ``EmailContacts`` or ``AutoRenew``. (Required)
+     * The lifetime action type.
      */
     @Required
+    @ValidStrings({"EmailContacts", "AutoRenew"})
     public ActionType getType() {
         return type;
     }

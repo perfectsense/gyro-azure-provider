@@ -72,7 +72,7 @@ public class SqlFailoverGroupResource extends AzureResource implements Copyable<
     private Map<String, String> tags;
 
     /**
-     * The databases within the failover group. (Optional)
+     * The databases within the failover group.
      */
     @Updatable
     public Set<String> getDatabaseIds() {
@@ -116,7 +116,7 @@ public class SqlFailoverGroupResource extends AzureResource implements Copyable<
     }
 
     /**
-     * The name of the failover group. (Required)
+     * The name of the failover group.
      */
     @Required
     @Id
@@ -129,7 +129,7 @@ public class SqlFailoverGroupResource extends AzureResource implements Copyable<
     }
 
     /**
-     * The IDs of the partner servers. (Optional)
+     * The IDs of the partner servers.
      */
     @Updatable
     public Set<String> getPartnerServerIds() {
@@ -145,7 +145,7 @@ public class SqlFailoverGroupResource extends AzureResource implements Copyable<
     }
 
     /**
-     * Determines if the read only policy is enabled. (Optional)
+     * Determines if the read only policy is enabled.
      */
     @Updatable
     public Boolean getReadOnlyPolicyEnabled() {
@@ -157,7 +157,7 @@ public class SqlFailoverGroupResource extends AzureResource implements Copyable<
     }
 
     /**
-     * Determines the grace period. Required when used with the automatic read and write policy. (Optional)
+     * Determines the grace period. Required when used with the automatic read and write policy.
      */
     @Updatable
     public Integer getReadWriteGracePeriod() {
@@ -169,7 +169,7 @@ public class SqlFailoverGroupResource extends AzureResource implements Copyable<
     }
 
     /**
-     * The sql server where the failover group is found. (Required)
+     * The sql server where the failover group is found.
      */
     @Required
     public SqlServerResource getSqlServer() {
@@ -181,7 +181,7 @@ public class SqlFailoverGroupResource extends AzureResource implements Copyable<
     }
 
     /**
-     * The tags for the failover group. (Optional)
+     * The tags for the failover group.
      */
     @Updatable
     public Map<String, String> getTags() {

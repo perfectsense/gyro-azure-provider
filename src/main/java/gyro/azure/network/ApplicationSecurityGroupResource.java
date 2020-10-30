@@ -78,7 +78,7 @@ public class ApplicationSecurityGroupResource extends AzureResource implements C
     }
 
     /**
-     * The name of the Application Security Group. (Required)
+     * The name of the Application Security Group.
      */
     @Required
     public String getName() {
@@ -90,7 +90,7 @@ public class ApplicationSecurityGroupResource extends AzureResource implements C
     }
 
     /**
-     * The Resource Group where the the Application Security Group is found. (Required)
+     * The Resource Group where the the Application Security Group is found.
      */
     @Required
     public ResourceGroupResource getResourceGroup() {
@@ -102,7 +102,7 @@ public class ApplicationSecurityGroupResource extends AzureResource implements C
     }
 
     /**
-     * The tags associated with the Application Security Group. (Optional)
+     * The tags associated with the Application Security Group.
      */
     @Updatable
     public Map<String, String> getTags() {

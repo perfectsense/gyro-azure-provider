@@ -58,7 +58,7 @@ public class BackendHttpConfiguration extends Diffable implements Copyable<Appli
     private String backendPath;
 
     /**
-     * Name of the Backend Http Configuration. (Required)
+     * Name of the Backend Http Configuration.
      */
     @Required
     public String getName() {
@@ -70,7 +70,7 @@ public class BackendHttpConfiguration extends Diffable implements Copyable<Appli
     }
 
     /**
-     * Port for the Backend Http Configuration. (Required)
+     * Port for the Backend Http Configuration.
      */
     @Required
     @Updatable

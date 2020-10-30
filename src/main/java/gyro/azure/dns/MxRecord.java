@@ -50,7 +50,7 @@ public class MxRecord extends Diffable implements Copyable<com.microsoft.azure.m
     private Integer preference;
 
     /**
-     * The mail exchange server's host name. (Required)
+     * The mail exchange server's host name.
      */
     @Required
     public String getExchange() {
@@ -62,7 +62,7 @@ public class MxRecord extends Diffable implements Copyable<com.microsoft.azure.m
     }
 
     /**
-     * The priority for the mail exchange host. The lower the value, the higher the priority. (Required)
+     * The priority for the mail exchange host. The lower the value, the higher the priority.
      */
     @Required
     @Updatable

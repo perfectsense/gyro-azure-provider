@@ -64,7 +64,7 @@ public class StorageLifeCycle extends AzureResource implements Copyable<Manageme
     }
 
     /**
-     * A set of rules for the lifecycle policy. (Required)
+     * A set of rules for the lifecycle policy.
      *
      * @subresource gyro.azure.storage.PolicyRule
      */

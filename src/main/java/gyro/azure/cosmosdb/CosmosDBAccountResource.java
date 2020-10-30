@@ -96,7 +96,7 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
     private String writeReplicationRegion;
 
     /**
-     * The database account kind. Valid values are ``AzureTable`` or ``Cassandra`` or ``Gremlin`` or ``MongoDB`` or ``Sql``. (Required)
+     * The database account kind.
      */
     @Required
     @ValidStrings({"AzureTable", "Cassandra", "Gremlin", "MongoDB", "Sql"})
@@ -109,7 +109,7 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
     }
 
     /**
-     * The consistency policy of the account. Valid values are ``BoundedStaleness``or ``Eventual`` or ``Session`` or ``Strong``. (Required)
+     * The consistency policy of the account.
      */
     @Required
     @ValidStrings({"BoundedStaleness", "Eventual", "Session", "Strong"})
@@ -136,7 +136,7 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
     }
 
     /**
-     * This value specifies the set of IP addresses or IP address ranges in CIDR form to be included as the allowed list of client IP's for a given database account. IP addresses/ranges must be comma separated and must not contain any spaces. (Optional)
+     * This value specifies the set of IP addresses or IP address ranges in CIDR form to be included as the allowed list of client IP's for a given database account. IP addresses/ranges must be comma separated and must not contain any spaces.
      */
     @Updatable
     public String getIpRangeFilter() {
@@ -148,7 +148,7 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
     }
 
     /**
-     * The time amount of staleness (in seconds) tolerated. Valid values are ``5`` to ``86400``. Required when used with ``BoundedStaleness`` consistency policy. (Optional)
+     * The time amount of staleness (in seconds) tolerated. Required when used with ``BoundedStaleness`` consistency policy.
      */
     @Range(min = 5, max = 86400)
     @Updatable
@@ -161,7 +161,7 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
     }
 
     /**
-     * This value represents the number of stale requests tolerated. Valid values are ``10`` to ``2147483647``. Required when used with ``BoundedStaleness`` consistency policy. (Optional)
+     * This value represents the number of stale requests tolerated. Required when used with ``BoundedStaleness`` consistency policy.
      */
     @Range(min = 10, max = 2147483647)
     @Updatable
@@ -174,7 +174,7 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
     }
 
     /**
-     * Name of the account. (Required)
+     * Name of the account.
      */
     @Required
     public String getName() {
@@ -186,7 +186,7 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
     }
 
     /**
-     * Sets the read location regions. (Optional)
+     * Sets the read location regions.
      */
     @Updatable
     public List<String> getReadReplicationRegions() {
@@ -202,7 +202,7 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
     }
 
     /**
-     * The resource group where the database is found. (Required)
+     * The resource group where the database is found.
      */
     @Required
     public ResourceGroupResource getResourceGroup() {
@@ -214,7 +214,7 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
     }
 
     /**
-     * The tags associated with the account. (Optional)
+     * The tags associated with the account.
      */
     @Updatable
     public Map<String, String> getTags() {
@@ -230,7 +230,7 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
     }
 
     /**
-     * The virtual network rules associated with the account. A list of Subnet ID is required. (Optional)
+     * The virtual network rules associated with the account. A list of Subnet ID is required.
      */
     @Updatable
     public List<String> getVirtualNetworkRules() {
@@ -246,7 +246,7 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
     }
 
     /**
-     * Sets the write location. Required when used with ``BoundedStaleness``, ``Eventual``, and ``Session`` consistency levels. (Optional)
+     * Sets the write location. Required when used with ``BoundedStaleness``, ``Eventual``, and ``Session`` consistency levels.
      */
     @Updatable
     public String getWriteReplicationRegion() {

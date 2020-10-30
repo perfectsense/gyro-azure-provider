@@ -22,7 +22,7 @@ public class ListenerSslCertificate extends Diffable implements Copyable<Applica
     }
 
     /**
-     * The name of the certificate to attach to the listener. (Required)
+     * The name of the certificate to attach to the listener.
      */
     @Required
     public String getCertificateName() {

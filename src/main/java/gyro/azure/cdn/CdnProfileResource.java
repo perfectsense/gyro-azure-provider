@@ -81,7 +81,7 @@ public class CdnProfileResource extends AzureResource implements Copyable<CdnPro
     }
 
     /**
-     * The name of the CDN Profile. (Required)
+     * The name of the CDN Profile.
      */
     @Required
     public String getName() {
@@ -93,7 +93,7 @@ public class CdnProfileResource extends AzureResource implements Copyable<CdnPro
     }
 
     /**
-     * The resource group where the CDN Profile is found. (Required)
+     * The resource group where the CDN Profile is found.
      */
     @Required
     public ResourceGroupResource getResourceGroup() {
@@ -105,7 +105,7 @@ public class CdnProfileResource extends AzureResource implements Copyable<CdnPro
     }
 
     /**
-     * The sku of the CDN Profile. Valid values are ``Premium_Verizon`` or ``Standard_Verizon`` or ``Standard_Akamai``. (Required)
+     * The sku of the CDN Profile.
      */
     @Required
     @ValidStrings({"Premium_Verizon", "Standard_Verizon", "Standard_Akamai"})
@@ -118,7 +118,7 @@ public class CdnProfileResource extends AzureResource implements Copyable<CdnPro
     }
 
     /**
-     * The tags associated with the CDN Profile. (Optional)
+     * The tags associated with the CDN Profile.
      */
     @Updatable
     public Map<String, String> getTags() {

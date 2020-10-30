@@ -43,7 +43,7 @@ public class SrvRecord extends Diffable implements Copyable<com.microsoft.azure.
     private Integer weight;
 
     /**
-     * The port on which the service is bounded. (Required)
+     * The port on which the service is bounded.
      */
     @Required
     public Integer getPort() {
@@ -55,7 +55,7 @@ public class SrvRecord extends Diffable implements Copyable<com.microsoft.azure.
     }
 
     /**
-     * The priority of the target host. The lower the value, the higher the priority. (Required)
+     * The priority of the target host. The lower the value, the higher the priority.
      */
     @Required
     public Integer getPriority() {
@@ -67,7 +67,7 @@ public class SrvRecord extends Diffable implements Copyable<com.microsoft.azure.
     }
 
     /**
-     * The canonical name of the target host. (Required)
+     * The canonical name of the target host.
      */
     @Required
     public String getTarget() {
@@ -79,7 +79,7 @@ public class SrvRecord extends Diffable implements Copyable<com.microsoft.azure.
     }
 
     /**
-     * The preference of the records with the same priority. The higher the value, the higher the preference. (Required)
+     * The preference of the records with the same priority. The higher the value, the higher the preference.
      */
     @Required
     public Integer getWeight() {

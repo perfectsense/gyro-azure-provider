@@ -54,7 +54,7 @@ public class Backend extends Diffable implements Copyable<ApplicationGatewayBack
     private Set<String> fqdns;
 
     /**
-     * Name of the backend. (Required)
+     * Name of the backend.
      */
     @Required
     public String getName() {

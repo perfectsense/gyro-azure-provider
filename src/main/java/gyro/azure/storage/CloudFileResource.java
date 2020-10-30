@@ -66,7 +66,7 @@ public class CloudFileResource extends AzureResource implements Copyable<CloudFi
     private StorageAccountResource storageAccount;
 
     /**
-     * The Cloud File Directory for the file. (Required)
+     * The Cloud File Directory for the file.
      */
     @Required
     public CloudFileDirectoryResource getCloudFileDirectory() {
@@ -78,7 +78,7 @@ public class CloudFileResource extends AzureResource implements Copyable<CloudFi
     }
 
     /**
-     * The Cloud File Share for the file. (Required)
+     * The Cloud File Share for the file.
      */
     @Required
     public CloudFileShareResource getCloudFileShare() {
@@ -90,7 +90,7 @@ public class CloudFileResource extends AzureResource implements Copyable<CloudFi
     }
 
     /**
-     * The path of the file to upload. (Required)
+     * The path of the file to upload.
      */
     @Required
     public String getFilePath() {
@@ -114,8 +114,9 @@ public class CloudFileResource extends AzureResource implements Copyable<CloudFi
     }
 
     /**
-     * The Storage Account where the file will be created. (Required)
+     * The Storage Account where the file will be created.
      */
+    @Required
     public StorageAccountResource getStorageAccount() {
         return storageAccount;
     }

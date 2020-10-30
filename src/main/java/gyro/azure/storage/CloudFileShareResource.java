@@ -59,7 +59,7 @@ public class CloudFileShareResource extends AzureResource implements Copyable<Cl
     private StorageAccountResource storageAccount;
 
     /**
-     * The name of the Cloud Share. (Required)
+     * The name of the Cloud Share.
      */
     @Required
     @Id
@@ -72,7 +72,7 @@ public class CloudFileShareResource extends AzureResource implements Copyable<Cl
     }
 
     /**
-     * The limit on the size of files in GB. (Optional)
+     * The limit on the size of files in GB.
      */
     @Updatable
     public Integer getShareQuota() {
@@ -84,7 +84,7 @@ public class CloudFileShareResource extends AzureResource implements Copyable<Cl
     }
 
     /**
-     * The Storage Account where the file share will be created. (Required)
+     * The Storage Account where the file share will be created.
      */
     @Required
     public StorageAccountResource getStorageAccount() {

@@ -54,7 +54,7 @@ public class ActiveDirectoryUserResource extends AzureResource implements Copyab
     private String id;
 
     /**
-     * Name of the user. (Required)
+     * Name of the user.
      */
     @Required
     public String getName() {
@@ -66,7 +66,7 @@ public class ActiveDirectoryUserResource extends AzureResource implements Copyab
     }
 
     /**
-     * Email of the user. (Required)
+     * Email of the user.
      */
     @Required
     public String getEmail() {
@@ -78,7 +78,7 @@ public class ActiveDirectoryUserResource extends AzureResource implements Copyab
     }
 
     /**
-     * The password for the user. (Required)
+     * The password for the user.
      */
     @Required
     public String getPassword() {

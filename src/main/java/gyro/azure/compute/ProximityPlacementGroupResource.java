@@ -36,7 +36,7 @@ public class ProximityPlacementGroupResource extends Diffable implements Copyabl
     private Set<AvailabilitySetResource> availabilitySets;
 
     /**
-     * The name of the Proximity Placement Group. (Required)
+     * The name of the Proximity Placement Group.
      */
     @Required
     public String getName() {
@@ -48,7 +48,7 @@ public class ProximityPlacementGroupResource extends Diffable implements Copyabl
     }
 
     /**
-     * The type of the Proximity Placement Group. Valid Values ``STANDARD`` or ``ULTRA``. Defaults to ``STANDARD``.
+     * The type of the Proximity Placement Group. Defaults to ``STANDARD``.
      */
     @ValidStrings({"STANDARD", "ULTRA"})
     public String getType() {

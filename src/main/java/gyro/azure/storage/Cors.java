@@ -57,7 +57,7 @@ public class Cors extends Diffable implements Copyable<CorsRule> {
     private String type;
 
     /**
-     * A list of the allowed headers. (Required)
+     * A list of the allowed headers.
      */
     @Required
     @Updatable
@@ -74,7 +74,7 @@ public class Cors extends Diffable implements Copyable<CorsRule> {
     }
 
     /**
-     * A list of the allowed methods. (Required)
+     * A list of the allowed methods.
      */
     @Required
     @Updatable
@@ -91,7 +91,7 @@ public class Cors extends Diffable implements Copyable<CorsRule> {
     }
 
     /**
-     * A list of the allowed origins. (Required)
+     * A list of the allowed origins.
      */
     @Required
     @Updatable
@@ -124,7 +124,7 @@ public class Cors extends Diffable implements Copyable<CorsRule> {
     }
 
     /**
-     * A maximum age, in seconds. (Required)
+     * A maximum age, in seconds.
      */
     @Required
     @Updatable
@@ -137,7 +137,7 @@ public class Cors extends Diffable implements Copyable<CorsRule> {
     }
 
     /**
-     * Specifies which service the rule belongs to. Valid values are ``blob`` or ``file`` or ``queue`` or ``table``. (Required)
+     * Specifies which service the rule belongs to.
      */
     @Required
     @ValidStrings({"blob", "file", "queue", "table"})
