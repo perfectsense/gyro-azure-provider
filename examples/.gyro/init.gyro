@@ -1,2 +1,11 @@
 @highlander: true
 @repository: 'https://artifactory.psdops.com/public'
+@repository: 'https://artifactory.psdops.com/gyro-snapshots'
+@plugin: 'gyro:gyro-azure-provider:0.99.3-SNAPSHOT'
+@plugin: 'gyro:gyro-ssh-plugin:0.99.1-SNAPSHOT'
+
+@credentials 'azure::credentials'
+    region: "eastus"
+    log-level: "basic"
+    credential-file-path: ""
+@end

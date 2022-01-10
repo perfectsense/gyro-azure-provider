@@ -16,7 +16,7 @@
 
 package gyro.azure;
 
-import com.microsoft.azure.management.Azure;
+import com.azure.resourcemanager.AzureResourceManager;
 import gyro.core.finder.Finder;
 
 import java.util.HashMap;
@@ -26,9 +26,9 @@ import java.util.stream.Collectors;
 
 public abstract class AzureFinder<M, R extends AzureResource> extends Finder<R> {
 
-    protected abstract List<M> findAllAzure(Azure client);
+    protected abstract List<M> findAllAzure(AzureResourceManager client);
 
-    protected abstract List<M> findAzure(Azure client, Map<String, String> filters);
+    protected abstract List<M> findAzure(AzureResourceManager client, Map<String, String> filters);
 
     @Override
     public List<R> find(Map<String, Object> filters) {
@@ -44,7 +44,7 @@ public abstract class AzureFinder<M, R extends AzureResource> extends Finder<R> 
             .collect(Collectors.toList());
     }
 
-    private Azure newClient() {
+    private AzureResourceManager newClient() {
         return AzureResource.createClient(credentials(AzureCredentials.class));
     }
 

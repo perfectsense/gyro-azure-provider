@@ -17,6 +17,7 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
+    id 'com.github.johnrengelman.shadow' version '5.2.0'
 }
 
 def releaseVersion = '0.99.3'
@@ -59,24 +60,36 @@ configurations {
     gyroDoclet
 }
 
-def azureSdkVersion = '1.31.0'
+/*shadowJar {
+    classifier = ''
+    include '*.jar'
+    include 'com/azure/**'
+    include 'gyro/azure/**'
+    include 'com/fasterxml/**'
+
+    // Relocating common dependencies
+    relocate 'com.azure', 'shaded.gyro.azure'
+    relocate 'com.fasterxml', 'shaded.gyro.aws.fasterxml'
+}
+
+build.dependsOn shadowJar*/
+
+def azureSdkVersion = '1.41.2'
 
 dependencies {
     api 'gyro:gyro-core:0.99.6' + (releaseBuild ? '' : '-SNAPSHOT')
 
     implementation 'com.psddev:dari-util:3.3.607-xe0f27a'
-    implementation 'com.google.guava:guava:23.0'
-    implementation 'com.microsoft.azure:adal4j:1.6.3'
-    implementation "com.microsoft.azure:azure:${azureSdkVersion}"
-    implementation "com.microsoft.azure:azure-mgmt-resources:${azureSdkVersion}"
-    implementation "com.microsoft.azure:azure-mgmt-network:${azureSdkVersion}"
-    implementation "com.microsoft.azure:azure-mgmt-compute:${azureSdkVersion}"
-    implementation "com.microsoft.azure:azure-mgmt-dns:${azureSdkVersion}"
-    implementation "com.microsoft.azure:azure-mgmt-storage:${azureSdkVersion}"
-    implementation 'com.github.seancfoley:ipaddress:5.0.2'
-    implementation 'org.reflections:reflections:0.9.10'
 
-    gyroDoclet 'gyro:gyro-doclet:0.99.1'
+    implementation 'com.azure.resourcemanager:azure-resourcemanager-kubernetesconfiguration:1.0.0-beta.2'
+    implementation 'com.azure.resourcemanager:azure-resourcemanager-resources:2.10.0'
+    implementation 'com.azure.resourcemanager:azure-resourcemanager:2.10.0'
+    implementation 'com.azure:azure-identity:1.4.2'
+    implementation 'com.azure:azure-core-http-okhttp:1.7.4'
+    implementation 'com.azure:azure-core:1.24.0'
+    implementation 'com.azure:azure-containers-containerregistry:1.0.0-beta.1'
+
+    gyroDoclet 'gyro:gyro-doclet:1.0.0'
 }
 
 task referenceDocs(type: Javadoc) {

@@ -16,16 +16,16 @@
 
 package gyro.azure;
 
+import com.azure.resourcemanager.AzureResourceManager;
 import gyro.core.resource.Resource;
-import com.microsoft.azure.management.Azure;
 
 public abstract class AzureResource extends Resource {
 
-    public static Azure createClient(AzureCredentials credentials) {
+    public static AzureResourceManager createClient(AzureCredentials credentials) {
         return credentials.createClient();
     }
 
-    protected Azure createClient() {
+    protected AzureResourceManager createClient() {
         return AzureResource.createClient(credentials(AzureCredentials.class));
     }
 
