@@ -59,10 +59,10 @@ configurations {
     gyroDoclet
 }
 
-def azureSdkVersion = '1.31.0'
+def azureSdkVersion = '1.41.2'
 
 dependencies {
-    api 'gyro:gyro-core:0.99.6' + (releaseBuild ? '' : '-SNAPSHOT')
+    api 'gyro:gyro-core:0.99.5' + (releaseBuild ? '' : '-SNAPSHOT')
 
     implementation 'com.psddev:dari-util:3.3.607-xe0f27a'
     implementation 'com.google.guava:guava:23.0'
@@ -76,7 +76,12 @@ dependencies {
     implementation 'com.github.seancfoley:ipaddress:5.0.2'
     implementation 'org.reflections:reflections:0.9.10'
 
-    gyroDoclet 'gyro:gyro-doclet:0.99.1'
+    implementation 'com.azure.resourcemanager:azure-resourcemanager:2.10.0'
+    implementation 'com.azure:azure-identity:1.4.2'
+    implementation 'com.azure:azure-core-http-okhttp:1.7.4'
+    runtimeOnly 'com.nimbusds:oauth2-oidc-sdk:9.21'
+
+    gyroDoclet 'gyro:gyro-doclet:1.0.0'
 }
 
 task referenceDocs(type: Javadoc) {

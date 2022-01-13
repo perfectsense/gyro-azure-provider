@@ -18,9 +18,17 @@ package gyro.azure;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.Properties;
 
+import com.azure.core.http.HttpClient;
+import com.azure.core.http.ProxyOptions;
+import com.azure.core.http.okhttp.OkHttpAsyncHttpClientBuilder;
+import com.azure.core.management.profile.AzureProfile;
+import com.azure.identity.ClientSecretCredential;
+import com.azure.identity.ClientSecretCredentialBuilder;
+import com.azure.resourcemanager.AzureResourceManager;
 import com.microsoft.azure.AzureEnvironment;
 import com.microsoft.azure.AzureResponseBuilder;
 import com.microsoft.azure.credentials.ApplicationTokenCredentials;
@@ -109,6 +117,46 @@ public class AzureCredentials extends Credentials {
                 : authenticate.withSubscription(subscription);
 
         } catch (IOException error) {
+            throw new GyroException(error.getMessage(), error);
+        }
+    }
+
+    public AzureResourceManager createResourceManagerClient() {
+        Properties properties;
+
+        try (InputStream input = openInput(getCredentialFilePath())) {
+            properties = new Properties();
+
+            properties.load(input);
+
+        } catch (IOException error) {
+            throw new GyroException(error.getMessage());
+        }
+
+        String tenant = ObjectUtils.to(String.class, properties.get("tenant"));
+
+        ClientSecretCredential credential = new ClientSecretCredentialBuilder()
+            .clientId(ObjectUtils.to(String.class, properties.get("client")))
+            .clientSecret(ObjectUtils.to(String.class, properties.get("key")))
+            .tenantId(tenant)
+            .build();
+
+        String subscription = ObjectUtils.to(String.class, properties.get("subscription"));
+
+        AzureProfile azureProfile = new AzureProfile(tenant, subscription, com.azure.core.management.AzureEnvironment.AZURE);
+
+        try {
+            AzureResourceManager.Authenticated authenticated = AzureResourceManager
+                .configure()
+                .withHttpClient(new OkHttpAsyncHttpClientBuilder().build())
+                .authenticate(credential, azureProfile);
+
+
+            return StringUtils.isBlank(subscription)
+                ? authenticated.withDefaultSubscription()
+                : authenticated.withSubscription(subscription);
+
+        } catch (Exception error) {
             throw new GyroException(error.getMessage(), error);
         }
     }

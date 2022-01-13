@@ -16,6 +16,7 @@
 
 package gyro.azure;
 
+import com.azure.resourcemanager.AzureResourceManager;
 import gyro.core.resource.Resource;
 import com.microsoft.azure.management.Azure;
 
@@ -31,6 +32,14 @@ public abstract class AzureResource extends Resource {
 
     protected String getRegion() {
         return credentials(AzureCredentials.class).getRegion();
+    }
+
+    public static AzureResourceManager createResourceManagerClient(AzureCredentials credentials) {
+        return credentials.createResourceManagerClient();
+    }
+
+    protected AzureResourceManager createResourceManagerClient() {
+        return AzureResource.createResourceManagerClient(credentials(AzureCredentials.class));
     }
 
 }
