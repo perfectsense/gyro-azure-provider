@@ -16,10 +16,11 @@
 
 package gyro.azure.network;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.network.Network;
-import com.microsoft.azure.management.network.Subnet;
-import com.microsoft.azure.management.resources.fluentcore.arm.Region;
+
+import com.azure.core.management.Region;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.network.models.Network;
+import com.azure.resourcemanager.network.models.Subnet;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.azure.resources.ResourceGroupResource;
@@ -244,7 +245,7 @@ public class NetworkResource extends AzureResource implements Copyable<Network> 
 
     @Override
     public boolean refresh() {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         Network network = client.networks().getById(getId());
 
@@ -259,7 +260,7 @@ public class NetworkResource extends AzureResource implements Copyable<Network> 
 
     @Override
     public void create(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         Network.DefinitionStages.WithCreate networkDefWithoutAddress = client.networks()
             .define(getName())
@@ -283,7 +284,7 @@ public class NetworkResource extends AzureResource implements Copyable<Network> 
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         Network network = client.networks().getById(getId());
 
@@ -321,12 +322,12 @@ public class NetworkResource extends AzureResource implements Copyable<Network> 
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         client.networks().deleteById(getId());
     }
 
-    Network getNetwork(Azure client) {
+    Network getNetwork(AzureResourceManager client) {
         return client.networks().getById(getId());
     }
 }

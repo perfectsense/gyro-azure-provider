@@ -16,17 +16,18 @@
 
 package gyro.azure.network;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.network.Network;
-import gyro.azure.AzureFinder;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.network.models.Network;
+import gyro.azure.AzureResourceManagerFinder;
 import gyro.core.Type;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Type("network")
-public class NetworkFinder extends AzureFinder<Network, NetworkResource> {
+public class NetworkFinder extends AzureResourceManagerFinder<Network, NetworkResource> {
     private String id;
 
     /**
@@ -41,12 +42,12 @@ public class NetworkFinder extends AzureFinder<Network, NetworkResource> {
     }
 
     @Override
-    protected List<Network> findAllAzure(Azure client) {
-        return client.networks().list();
+    protected List<Network> findAllAzure(AzureResourceManager client) {
+        return client.networks().list().stream().collect(Collectors.toList());
     }
 
     @Override
-    protected List<Network> findAzure(Azure client, Map<String, String> filters) {
+    protected List<Network> findAzure(AzureResourceManager client, Map<String, String> filters) {
         Network network = client.networks().getById(filters.get("id"));
         if (network == null) {
             return Collections.emptyList();
