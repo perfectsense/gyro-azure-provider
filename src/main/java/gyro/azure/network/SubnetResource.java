@@ -16,20 +16,22 @@
 
 package gyro.azure.network;
 
+import com.azure.core.management.Region;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.network.models.Network;
+import com.azure.resourcemanager.network.models.ServiceEndpointType;
+import com.azure.resourcemanager.network.models.Subnet;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Resource;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.network.Network;
-import com.microsoft.azure.management.network.ServiceEndpointType;
-import com.microsoft.azure.management.network.Subnet;
-import com.microsoft.azure.management.resources.fluentcore.arm.Region;
+
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 
@@ -63,7 +65,7 @@ public class SubnetResource extends AzureResource implements Copyable<Subnet> {
     private RouteTableResource routeTable;
     private Map<String, List<String>> serviceEndpoints;
     private String id;
-    
+
     /**
      * The address prefix in CIDR notation.
      */
@@ -157,7 +159,7 @@ public class SubnetResource extends AzureResource implements Copyable<Subnet> {
 
     @Override
     public void create(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         NetworkResource parent = (NetworkResource) parent();
 
@@ -182,12 +184,12 @@ public class SubnetResource extends AzureResource implements Copyable<Subnet> {
         }
 
         Network response = updateWithAttach.attach().apply();
-        setId(response.subnets().get(getName()).inner().id());
+        setId(response.subnets().get(getName()).id());
     }
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         NetworkResource parent = (NetworkResource) parent();
 
@@ -233,7 +235,7 @@ public class SubnetResource extends AzureResource implements Copyable<Subnet> {
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         NetworkResource parent = (NetworkResource) parent();
 
