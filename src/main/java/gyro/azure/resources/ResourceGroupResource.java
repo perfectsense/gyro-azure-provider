@@ -16,6 +16,9 @@
 
 package gyro.azure.resources;
 
+import com.azure.core.management.Region;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.resources.models.ResourceGroup;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.core.GyroUI;
@@ -24,9 +27,6 @@ import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.resources.ResourceGroup;
-import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 
@@ -107,7 +107,7 @@ public class ResourceGroupResource extends AzureResource implements Copyable<Res
 
     @Override
     public boolean refresh() {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         if (!client.resourceGroups().contain(getName())) {
             return false;
@@ -121,7 +121,7 @@ public class ResourceGroupResource extends AzureResource implements Copyable<Res
 
     @Override
     public void create(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         ResourceGroup resourceGroup = client.resourceGroups()
             .define(getName())
@@ -134,7 +134,7 @@ public class ResourceGroupResource extends AzureResource implements Copyable<Res
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         ResourceGroup resourceGroup = client.resourceGroups().getByName(getName());
 
@@ -143,7 +143,7 @@ public class ResourceGroupResource extends AzureResource implements Copyable<Res
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         client.resourceGroups().deleteByName(getName());
     }

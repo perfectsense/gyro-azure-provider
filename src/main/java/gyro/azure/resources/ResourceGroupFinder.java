@@ -16,14 +16,15 @@
 
 package gyro.azure.resources;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.resources.ResourceGroup;
-import gyro.azure.AzureFinder;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.resources.models.ResourceGroup;
+import gyro.azure.AzureResourceManagerFinder;
 import gyro.core.Type;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Query resource group.
@@ -36,7 +37,7 @@ import java.util.Map;
  *    resource-group: $(external-query azure::resource-group {})
  */
 @Type("resource-group")
-public class ResourceGroupFinder extends AzureFinder<ResourceGroup, ResourceGroupResource> {
+public class ResourceGroupFinder extends AzureResourceManagerFinder<ResourceGroup, ResourceGroupResource> {
     private String name;
 
     /**
@@ -51,12 +52,12 @@ public class ResourceGroupFinder extends AzureFinder<ResourceGroup, ResourceGrou
     }
 
     @Override
-    protected List<ResourceGroup> findAllAzure(Azure client) {
-        return client.resourceGroups().list();
+    protected List<ResourceGroup> findAllAzure(AzureResourceManager client) {
+        return client.resourceGroups().list().stream().collect(Collectors.toList());
     }
 
     @Override
-    protected List<ResourceGroup> findAzure(Azure client, Map<String, String> filters) {
+    protected List<ResourceGroup> findAzure(AzureResourceManager client, Map<String, String> filters) {
         if (client.resourceGroups().contain(filters.get("name"))) {
             return Collections.singletonList(client.resourceGroups().getByName(filters.get("name")));
         } else {
