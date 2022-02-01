@@ -16,14 +16,15 @@
 
 package gyro.azure.network;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.network.PublicIPAddress;
-import gyro.azure.AzureFinder;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.network.models.PublicIpAddress;
+import gyro.azure.AzureResourceManagerFinder;
 import gyro.core.Type;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Query public ip address.
@@ -36,7 +37,7 @@ import java.util.Map;
  *    public-ip-address: $(external-query azure::public-ip-address {})
  */
 @Type("public-ip-address")
-public class PublicIpAddressFinder extends AzureFinder<PublicIPAddress, PublicIpAddressResource> {
+public class PublicIpAddressFinder extends AzureResourceManagerFinder<PublicIpAddress, PublicIpAddressResource> {
     private String id;
 
     /**
@@ -51,13 +52,13 @@ public class PublicIpAddressFinder extends AzureFinder<PublicIPAddress, PublicIp
     }
 
     @Override
-    protected List<PublicIPAddress> findAllAzure(Azure client) {
-        return client.publicIPAddresses().list();
+    protected List<PublicIpAddress> findAllAzure(AzureResourceManager client) {
+        return client.publicIpAddresses().list().stream().collect(Collectors.toList());
     }
 
     @Override
-    protected List<PublicIPAddress> findAzure(Azure client, Map<String, String> filters) {
-        PublicIPAddress publicIPAddress = client.publicIPAddresses().getById(filters.get("id"));
+    protected List<PublicIpAddress> findAzure(AzureResourceManager client, Map<String, String> filters) {
+        PublicIpAddress publicIPAddress = client.publicIpAddresses().getById(filters.get("id"));
         if (publicIPAddress == null) {
             return Collections.emptyList();
         } else {

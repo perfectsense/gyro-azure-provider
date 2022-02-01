@@ -16,15 +16,15 @@
 
 package gyro.azure.network;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.network.IPAllocationMethod;
-import com.microsoft.azure.management.network.IpTag;
-import com.microsoft.azure.management.network.PublicIPAddress;
-import com.microsoft.azure.management.network.PublicIPAddress.DefinitionStages.WithCreate;
-import com.microsoft.azure.management.network.PublicIPSkuType;
-import com.microsoft.azure.management.resources.fluentcore.arm.AvailabilityZoneId;
-import com.microsoft.azure.management.resources.fluentcore.arm.ExpandableStringEnum;
-import com.microsoft.azure.management.resources.fluentcore.arm.Region;
+
+import com.azure.core.management.Region;
+import com.azure.core.util.ExpandableStringEnum;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.network.models.IpAllocationMethod;
+import com.azure.resourcemanager.network.models.IpTag;
+import com.azure.resourcemanager.network.models.PublicIPSkuType;
+import com.azure.resourcemanager.network.models.PublicIpAddress;
+import com.azure.resourcemanager.resources.fluentcore.arm.AvailabilityZoneId;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
@@ -65,7 +65,7 @@ import java.util.stream.Collectors;
  *     end
  */
 @Type("public-ip-address")
-public class PublicIpAddressResource extends AzureResource implements Copyable<PublicIPAddress> {
+public class PublicIpAddressResource extends AzureResource implements Copyable<PublicIpAddress> {
     private String name;
     private ResourceGroupResource resourceGroup;
     private SKU_TYPE skuType;
@@ -297,14 +297,14 @@ public class PublicIpAddressResource extends AzureResource implements Copyable<P
     }
 
     @Override
-    public void copyFrom(PublicIPAddress publicIpAddress) {
+    public void copyFrom(PublicIpAddress publicIpAddress) {
         setIpAddress(publicIpAddress.ipAddress());
         setDomainLabel(publicIpAddress.leafDomainLabel());
         setIdleTimeoutInMinute(publicIpAddress.idleTimeoutInMinutes());
         setTags(publicIpAddress.tags());
         setId(publicIpAddress.id());
         setName(publicIpAddress.name());
-        setIsDynamic(publicIpAddress.ipAllocationMethod().equals(IPAllocationMethod.DYNAMIC));
+        setIsDynamic(publicIpAddress.ipAllocationMethod().equals(IpAllocationMethod.DYNAMIC));
         setSkuType(publicIpAddress.sku().equals(PublicIPSkuType.BASIC) ? SKU_TYPE.BASIC : SKU_TYPE.STANDARD);
         setAvailabilityZoneIds(publicIpAddress.availabilityZones().stream().map(ExpandableStringEnum::toString).collect(Collectors.toSet()));
         setResourceGroup(findById(ResourceGroupResource.class, publicIpAddress.resourceGroupName()));
@@ -318,9 +318,9 @@ public class PublicIpAddressResource extends AzureResource implements Copyable<P
 
     @Override
     public boolean refresh() {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
-        PublicIPAddress publicIpAddress = client.publicIPAddresses().getById(getId());
+        PublicIpAddress publicIpAddress = client.publicIpAddresses().getById(getId());
 
         if (publicIpAddress == null) {
             return false;
@@ -333,9 +333,9 @@ public class PublicIpAddressResource extends AzureResource implements Copyable<P
 
     @Override
     public void create(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
-        WithCreate withCreate = client.publicIPAddresses()
+        PublicIpAddress.DefinitionStages.WithCreate withCreate = client.publicIpAddresses()
             .define(getName())
             .withRegion(Region.fromName(getRegion()))
             .withExistingResourceGroup(getResourceGroup().getName())
@@ -374,18 +374,18 @@ public class PublicIpAddressResource extends AzureResource implements Copyable<P
             }
         }
 
-        PublicIPAddress publicIpAddress = withCreate.withTags(getTags()).create();
+        PublicIpAddress publicIpAddress = withCreate.withTags(getTags()).create();
 
         copyFrom(publicIpAddress);
     }
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
-        PublicIPAddress publicIpAddress = client.publicIPAddresses().getById(getId());
+        PublicIpAddress publicIpAddress = client.publicIpAddresses().getById(getId());
 
-        PublicIPAddress.Update update = publicIpAddress.update();
+        PublicIpAddress.Update update = publicIpAddress.update();
 
         if (changedFieldNames.contains("idle-timeout-in-minute")) {
             update = update.withIdleTimeoutInMinutes(getIdleTimeoutInMinute());
@@ -417,14 +417,14 @@ public class PublicIpAddressResource extends AzureResource implements Copyable<P
         }
 
         if (!changedFieldNames.isEmpty()) {
-            PublicIPAddress response = update.apply();
+            PublicIpAddress response = update.apply();
             copyFrom(response);
         }
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Azure client = createClient();
-        client.publicIPAddresses().deleteById(getId());
+        AzureResourceManager client = createResourceManagerClient();
+        client.publicIpAddresses().deleteById(getId());
     }
 }
