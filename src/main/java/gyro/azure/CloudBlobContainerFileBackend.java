@@ -147,7 +147,7 @@ public class CloudBlobContainerFileBackend extends FileBackend {
             .map(e -> e.getByResourceGroup(getResourceGroup(), account))
             .orElseThrow(() -> new GyroException("No storage account available!"));
         StorageAccountResource storage = getRootScope().findResourceById(StorageAccountResource.class, account);
-        storage.copyFrom(storageAccount);
+        // storage.copyFrom(storageAccount); // TODO handle this
 
         try {
             CloudStorageAccount cloudStorageAccount = CloudStorageAccount.parse(storage.getConnection());

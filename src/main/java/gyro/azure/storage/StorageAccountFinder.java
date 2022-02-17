@@ -16,17 +16,18 @@
 
 package gyro.azure.storage;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.storage.StorageAccount;
-import gyro.azure.AzureFinder;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.storage.models.StorageAccount;
+import gyro.azure.AzureResourceManagerFinder;
 import gyro.core.Type;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Type("storage-account")
-public class StorageAccountFinder extends AzureFinder<StorageAccount, StorageAccountResource> {
+public class StorageAccountFinder extends AzureResourceManagerFinder<StorageAccount, StorageAccountResource> {
     private String id;
 
     /**
@@ -41,12 +42,12 @@ public class StorageAccountFinder extends AzureFinder<StorageAccount, StorageAcc
     }
 
     @Override
-    protected List<StorageAccount> findAllAzure(Azure client) {
-        return client.storageAccounts().list();
+    protected List<StorageAccount> findAllAzure(AzureResourceManager client) {
+        return client.storageAccounts().list().stream().collect(Collectors.toList());
     }
 
     @Override
-    protected List<StorageAccount> findAzure(Azure client, Map<String, String> filters) {
+    protected List<StorageAccount> findAzure(AzureResourceManager client, Map<String, String> filters) {
         StorageAccount storageAccount = client.storageAccounts().getById(filters.get("id"));
         if (storageAccount == null) {
             return Collections.emptyList();
