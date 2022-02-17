@@ -1,14 +1,15 @@
 package gyro.azure.keyvault;
 
-import com.microsoft.azure.keyvault.models.SecretAttributes;
+import java.time.OffsetDateTime;
+
+import com.azure.security.keyvault.secrets.models.SecretProperties;
 import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
-import org.joda.time.DateTime;
 
-public class KeyVaultSecretAttribute extends Diffable implements Copyable<SecretAttributes> {
+public class KeyVaultSecretAttribute extends Diffable implements Copyable<SecretProperties> {
     private Boolean enabled;
     private String expires;
     private String notBefore;
@@ -82,18 +83,18 @@ public class KeyVaultSecretAttribute extends Diffable implements Copyable<Secret
     }
 
     @Override
-    public void copyFrom(SecretAttributes attributes) {
-        setEnabled(attributes.enabled());
-        setExpires(attributes.expires() != null ? attributes.expires().toString() : null);
-        setNotBefore(attributes.notBefore() != null ? attributes.notBefore().toString() : null);
-        setCreated(attributes.created() != null ? attributes.created().toString() : null);
-        setUpdated(attributes.updated() != null ? attributes.updated().toString() : null);
+    public void copyFrom(SecretProperties attributes) {
+        setEnabled(attributes.isEnabled());
+        setExpires(attributes.getExpiresOn() != null ? attributes.getExpiresOn().toString() : null);
+        setNotBefore(attributes.getNotBefore() != null ? attributes.getNotBefore().toString() : null);
+        setCreated(attributes.getCreatedOn() != null ? attributes.getCreatedOn().toString() : null);
+        setUpdated(attributes.getUpdatedOn() != null ? attributes.getUpdatedOn().toString() : null);
     }
 
-    SecretAttributes toSecretAttributes() {
-        return (SecretAttributes) new SecretAttributes()
-            .withEnabled(getEnabled())
-            .withExpires(getExpires() != null ? DateTime.parse(getExpires()) : null)
-            .withNotBefore(getNotBefore() != null ? DateTime.parse(getNotBefore()) : null);
+    SecretProperties toSecretProperties() {
+        return new SecretProperties()
+            .setEnabled(getEnabled())
+            .setExpiresOn(getExpires() != null ? OffsetDateTime.parse(getExpires()) : null)
+            .setNotBefore(getNotBefore() != null ? OffsetDateTime.parse(getNotBefore()) : null);
     }
 }

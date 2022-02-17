@@ -255,7 +255,7 @@ public class KeyVaultCertificateResource extends AzureResource implements Copyab
 
     @Override
     public boolean refresh() {
-        Vault vault = getVault().getKeyVault();
+        Vault vault = getVault().getOldKeyVault();
         CertificateBundle certificateBundle = vault.client().getCertificate(vault.vaultUri(), getName());
 
         return certificateBundle != null;
@@ -263,7 +263,7 @@ public class KeyVaultCertificateResource extends AzureResource implements Copyab
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        Vault vault = getVault().getKeyVault();
+        Vault vault = getVault().getOldKeyVault();
         CreateCertificateRequest.Builder builder = new CreateCertificateRequest.Builder(vault.vaultUri(), getName());
 
         builder = builder.withPolicy(getPolicy().toCertificatePolicy());
@@ -309,7 +309,7 @@ public class KeyVaultCertificateResource extends AzureResource implements Copyab
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
-        Vault vault = getVault().getKeyVault();
+        Vault vault = getVault().getOldKeyVault();
         vault.client().deleteCertificate(vault.id(), getName());
     }
 }

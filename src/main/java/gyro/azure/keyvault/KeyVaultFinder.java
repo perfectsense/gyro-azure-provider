@@ -21,11 +21,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.microsoft.azure.PagedList;
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.keyvault.Vault;
-import com.microsoft.azure.management.resources.fluentcore.arm.models.HasName;
-import gyro.azure.AzureFinder;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.keyvault.models.Vault;
+import com.azure.resourcemanager.resources.fluentcore.arm.models.HasName;
+import gyro.azure.AzureResourceManagerFinder;
 import gyro.core.Type;
 
 /**
@@ -39,7 +38,7 @@ import gyro.core.Type;
  *    identity: $(external-query azure::key-vault {resource-group: "resource-group-example", name: "vault-example"})
  */
 @Type("key-vault")
-public class KeyVaultFinder extends AzureFinder<Vault, KeyVaultResource> {
+public class KeyVaultFinder extends AzureResourceManagerFinder<Vault, KeyVaultResource> {
 
     private String resourceGroup;
     private String name;
@@ -67,34 +66,34 @@ public class KeyVaultFinder extends AzureFinder<Vault, KeyVaultResource> {
     }
 
     @Override
-    protected List<Vault> findAllAzure(Azure client) {
+    protected List<Vault> findAllAzure(AzureResourceManager client) {
         List<Vault> vaults = new ArrayList<>();
         List<String> resourceGroups = client.resourceGroups().list().stream().map(HasName::name).collect(Collectors.toList());
         resourceGroups.forEach(o -> {
-            PagedList<Vault> vaultPagedList = client.vaults().listByResourceGroup(o);
-            vaultPagedList.loadAll();
-            vaults.addAll(vaultPagedList);
+            List<Vault> vaultList = client.vaults()
+                .listByResourceGroup(o).stream().collect(Collectors.toList());
+            vaults.addAll(vaultList);
         });
 
         return vaults;
     }
 
     @Override
-    protected List<Vault> findAzure(Azure client, Map<String, String> filters) {
+    protected List<Vault> findAzure(AzureResourceManager client, Map<String, String> filters) {
         List<Vault> vaults = new ArrayList<>();
 
         if (filters.containsKey("resource-group")) {
             if (filters.containsKey("name")) {
-                Vault vault = client.vaults().getByResourceGroup(filters.get("resource-group"), filters.get("name"));
+                Vault vault = client.vaults()
+                    .getByResourceGroup(filters.get("resource-group"), filters.get("name"));
 
                 if (vault != null) {
                     vaults.add(vault);
                 }
             } else {
-                PagedList<Vault> vaultPagedList = client.vaults().listByResourceGroup(filters.get("resource-group"));
-                if (vaultPagedList != null) {
-                    vaultPagedList.loadAll();
-                    vaults.addAll(vaultPagedList);
+                List<Vault> vaultList = client.vaults().listByResourceGroup(filters.get("resource-group")).stream().collect(Collectors.toList());
+                if (!vaultList.isEmpty()) {
+                    vaults.addAll(vaultList);
                 }
             }
         }
