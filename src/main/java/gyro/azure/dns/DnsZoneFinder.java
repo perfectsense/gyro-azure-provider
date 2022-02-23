@@ -16,16 +16,17 @@
 
 package gyro.azure.dns;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.dns.DnsZone;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.dns.models.DnsZone;
 import com.psddev.dari.util.ObjectUtils;
-import gyro.azure.AzureFinder;
+import gyro.azure.AzureResourceManagerFinder;
 import gyro.core.GyroException;
 import gyro.core.Type;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Query dns zone.
@@ -38,7 +39,7 @@ import java.util.Map;
  *    dns-zone: $(external-query azure::dns-zone {})
  */
 @Type("dns-zone")
-public class DnsZoneFinder extends AzureFinder<DnsZone, DnsZoneResource> {
+public class DnsZoneFinder extends AzureResourceManagerFinder<DnsZone, DnsZoneResource> {
     private String id;
 
     /**
@@ -53,12 +54,12 @@ public class DnsZoneFinder extends AzureFinder<DnsZone, DnsZoneResource> {
     }
 
     @Override
-    protected List<DnsZone> findAllAzure(Azure client) {
-        return client.dnsZones().list();
+    protected List<DnsZone> findAllAzure(AzureResourceManager client) {
+        return client.dnsZones().list().stream().collect(Collectors.toList());
     }
 
     @Override
-    protected List<DnsZone> findAzure(Azure client, Map<String, String> filters) {
+    protected List<DnsZone> findAzure(AzureResourceManager client, Map<String, String> filters) {
         if (ObjectUtils.isBlank(filters.get("id"))) {
             throw new GyroException("'id' is required.");
         }

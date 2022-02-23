@@ -16,11 +16,11 @@
 
 package gyro.azure.dns;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.dns.MXRecordSet;
-import com.microsoft.azure.management.dns.DnsZone;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.dns.models.DnsZone;
+import com.azure.resourcemanager.dns.models.MxRecordSet;
 import com.psddev.dari.util.ObjectUtils;
-import gyro.azure.AzureFinder;
+import gyro.azure.AzureResourceManagerFinder;
 import gyro.core.GyroException;
 import gyro.core.Type;
 
@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  *    mx-record-set: $(external-query azure::mx-record-set {})
  */
 @Type("mx-record-set")
-public class MxRecordSetFinder extends AzureFinder<MXRecordSet, MxRecordSetResource> {
+public class MxRecordSetFinder extends AzureResourceManagerFinder<MxRecordSet, MxRecordSetResource> {
     private String dnsZoneId;
     private String name;
 
@@ -67,12 +67,15 @@ public class MxRecordSetFinder extends AzureFinder<MXRecordSet, MxRecordSetResou
     }
 
     @Override
-    protected List<MXRecordSet> findAllAzure(Azure client) {
-        return client.dnsZones().list().stream().map(o -> o.mxRecordSets().list()).flatMap(List::stream).collect(Collectors.toList());
+    protected List<MxRecordSet> findAllAzure(AzureResourceManager client) {
+        return client.dnsZones().list().stream()
+            .map(o -> o.mxRecordSets().list().stream().collect(Collectors.toList()))
+            .flatMap(List::stream)
+            .collect(Collectors.toList());
     }
 
     @Override
-    protected List<MXRecordSet> findAzure(Azure client, Map<String, String> filters) {
+    protected List<MxRecordSet> findAzure(AzureResourceManager client, Map<String, String> filters) {
         if (ObjectUtils.isBlank(filters.get("dns-zone-id"))) {
             throw new GyroException("'dns-zone-id' is required.");
         }
@@ -84,7 +87,7 @@ public class MxRecordSetFinder extends AzureFinder<MXRecordSet, MxRecordSetResou
             if (filters.containsKey("name")) {
                 return Collections.singletonList(dnsZone.mxRecordSets().getByName(filters.get("name")));
             } else {
-                return dnsZone.mxRecordSets().list();
+                return dnsZone.mxRecordSets().list().stream().collect(Collectors.toList());
             }
         }
     }

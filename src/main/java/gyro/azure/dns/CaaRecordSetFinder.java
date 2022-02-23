@@ -16,11 +16,11 @@
 
 package gyro.azure.dns;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.dns.CaaRecordSet;
-import com.microsoft.azure.management.dns.DnsZone;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.dns.models.CaaRecordSet;
+import com.azure.resourcemanager.dns.models.DnsZone;
 import com.psddev.dari.util.ObjectUtils;
-import gyro.azure.AzureFinder;
+import gyro.azure.AzureResourceManagerFinder;
 import gyro.core.GyroException;
 import gyro.core.Type;
 
@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  *    caa-record-set: $(external-query azure::caa-record-set {})
  */
 @Type("caa-record-set")
-public class CaaRecordSetFinder extends AzureFinder<CaaRecordSet, CaaRecordSetResource> {
+public class CaaRecordSetFinder extends AzureResourceManagerFinder<CaaRecordSet, CaaRecordSetResource> {
     private String dnsZoneId;
     private String name;
 
@@ -67,12 +67,15 @@ public class CaaRecordSetFinder extends AzureFinder<CaaRecordSet, CaaRecordSetRe
     }
 
     @Override
-    protected List<CaaRecordSet> findAllAzure(Azure client) {
-        return client.dnsZones().list().stream().map(o -> o.caaRecordSets().list()).flatMap(List::stream).collect(Collectors.toList());
+    protected List<CaaRecordSet> findAllAzure(AzureResourceManager client) {
+        return client.dnsZones().list().stream()
+            .map(o -> o.caaRecordSets().list().stream().collect(Collectors.toList()))
+            .flatMap(List::stream)
+            .collect(Collectors.toList());
     }
 
     @Override
-    protected List<CaaRecordSet> findAzure(Azure client, Map<String, String> filters) {
+    protected List<CaaRecordSet> findAzure(AzureResourceManager client, Map<String, String> filters) {
         if (ObjectUtils.isBlank(filters.get("dns-zone-id"))) {
             throw new GyroException("'dns-zone-id' is required.");
         }
@@ -84,7 +87,7 @@ public class CaaRecordSetFinder extends AzureFinder<CaaRecordSet, CaaRecordSetRe
             if (filters.containsKey("name")) {
                 return Collections.singletonList(dnsZone.caaRecordSets().getByName(filters.get("name")));
             } else {
-                return dnsZone.caaRecordSets().list();
+                return dnsZone.caaRecordSets().list().stream().collect(Collectors.toList());
             }
         }
     }

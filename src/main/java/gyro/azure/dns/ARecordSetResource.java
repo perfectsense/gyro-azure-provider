@@ -16,6 +16,10 @@
 
 package gyro.azure.dns;
 
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.dns.models.ARecordSet;
+import com.azure.resourcemanager.dns.models.DnsRecordSet;
+import com.azure.resourcemanager.dns.models.DnsZone;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.core.GyroUI;
@@ -27,12 +31,6 @@ import gyro.core.resource.Updatable;
 
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.dns.ARecordSet;
-import com.microsoft.azure.management.dns.DnsRecordSet;
-import com.microsoft.azure.management.dns.DnsZone;
-import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.ARecordSetBlank;
-import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.WithARecordIPv4AddressOrAttachable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 
@@ -162,9 +160,12 @@ public class ARecordSetResource extends AzureResource implements Copyable<ARecor
 
     @Override
     public boolean refresh() {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
-        ARecordSet aRecordSet = client.dnsZones().getById(getDnsZone().getId()).aRecordSets().getByName(getName());
+        com.azure.resourcemanager.dns.models.ARecordSet aRecordSet = client.dnsZones()
+            .getById(getDnsZone().getId())
+            .aRecordSets()
+            .getByName(getName());
 
         if (aRecordSet == null) {
             return false;
@@ -177,14 +178,16 @@ public class ARecordSetResource extends AzureResource implements Copyable<ARecor
 
     @Override
     public void create(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
-        ARecordSetBlank<DnsZone.Update> defineARecordSetBlank =
-                client.dnsZones().getById(getDnsZone().getId()).update().defineARecordSet(getName());
+        DnsRecordSet.UpdateDefinitionStages.ARecordSetBlank<DnsZone.Update> updateARecordSetBlank = client.dnsZones()
+            .getById(getDnsZone().getId())
+            .update()
+            .defineARecordSet(getName());
 
-        WithARecordIPv4AddressOrAttachable<DnsZone.Update> createARecordSet = null;
+        DnsRecordSet.UpdateDefinitionStages.WithARecordIPv4AddressOrAttachable<DnsZone.Update> createARecordSet = null;
         for (String ip : getIpv4Addresses()) {
-            createARecordSet = defineARecordSetBlank.withIPv4Address(ip);
+            createARecordSet = updateARecordSetBlank.withIPv4Address(ip);
         }
 
         for (Map.Entry<String,String> e : getMetadata().entrySet()) {
@@ -202,7 +205,7 @@ public class ARecordSetResource extends AzureResource implements Copyable<ARecor
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         DnsRecordSet.UpdateARecordSet updateARecordSet =
                 client.dnsZones().getById(getDnsZone().getId()).update().updateARecordSet(getName());
@@ -251,7 +254,7 @@ public class ARecordSetResource extends AzureResource implements Copyable<ARecor
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         client.dnsZones().getById(getDnsZone().getId()).update().withoutARecordSet(getName()).apply();
     }

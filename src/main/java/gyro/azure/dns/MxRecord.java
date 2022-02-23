@@ -44,7 +44,7 @@ import gyro.core.validation.Required;
  *         end
  *     end
  */
-public class MxRecord extends Diffable implements Copyable<com.microsoft.azure.management.dns.MxRecord> {
+public class MxRecord extends Diffable implements Copyable<com.azure.resourcemanager.dns.models.MxRecord> {
 
     private String exchange;
     private Integer preference;
@@ -75,7 +75,7 @@ public class MxRecord extends Diffable implements Copyable<com.microsoft.azure.m
     }
 
     @Override
-    public void copyFrom(com.microsoft.azure.management.dns.MxRecord mxRecord) {
+    public void copyFrom(com.azure.resourcemanager.dns.models.MxRecord mxRecord) {
         setExchange(mxRecord.exchange());
         setPreference(mxRecord.preference());
     }

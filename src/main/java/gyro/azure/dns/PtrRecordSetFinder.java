@@ -16,11 +16,11 @@
 
 package gyro.azure.dns;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.dns.PtrRecordSet;
-import com.microsoft.azure.management.dns.DnsZone;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.dns.models.DnsZone;
+import com.azure.resourcemanager.dns.models.PtrRecordSet;
 import com.psddev.dari.util.ObjectUtils;
-import gyro.azure.AzureFinder;
+import gyro.azure.AzureResourceManagerFinder;
 import gyro.core.GyroException;
 import gyro.core.Type;
 
@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  *    ptr-record-set: $(external-query azure::ptr-record-set {})
  */
 @Type("ptr-record-set")
-public class PtrRecordSetFinder extends AzureFinder<PtrRecordSet, PtrRecordSetResource> {
+public class PtrRecordSetFinder extends AzureResourceManagerFinder<PtrRecordSet, PtrRecordSetResource> {
     private String dnsZoneId;
     private String name;
 
@@ -67,12 +67,15 @@ public class PtrRecordSetFinder extends AzureFinder<PtrRecordSet, PtrRecordSetRe
     }
 
     @Override
-    protected List<PtrRecordSet> findAllAzure(Azure client) {
-        return client.dnsZones().list().stream().map(o -> o.ptrRecordSets().list()).flatMap(List::stream).collect(Collectors.toList());
+    protected List<PtrRecordSet> findAllAzure(AzureResourceManager client) {
+        return client.dnsZones().list().stream()
+            .map(o -> o.ptrRecordSets().list().stream().collect(Collectors.toList()))
+            .flatMap(List::stream)
+            .collect(Collectors.toList());
     }
 
     @Override
-    protected List<PtrRecordSet> findAzure(Azure client, Map<String, String> filters) {
+    protected List<PtrRecordSet> findAzure(AzureResourceManager client, Map<String, String> filters) {
         if (ObjectUtils.isBlank(filters.get("dns-zone-id"))) {
             throw new GyroException("'dns-zone-id' is required.");
         }
@@ -84,7 +87,7 @@ public class PtrRecordSetFinder extends AzureFinder<PtrRecordSet, PtrRecordSetRe
             if (filters.containsKey("name")) {
                 return Collections.singletonList(dnsZone.ptrRecordSets().getByName(filters.get("name")));
             } else {
-                return dnsZone.ptrRecordSets().list();
+                return dnsZone.ptrRecordSets().list().stream().collect(Collectors.toList());
             }
         }
     }

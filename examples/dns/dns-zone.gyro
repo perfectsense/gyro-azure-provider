@@ -8,7 +8,6 @@ end
 
 azure::dns-zone dns-zone-example-zones
     name: "zones.example.com"
-    public-access: false
     resource-group: $(azure::resource-group resource-group-dns-zone-example)
     tags: {
        Name: "resource-group-dns-zone-example"

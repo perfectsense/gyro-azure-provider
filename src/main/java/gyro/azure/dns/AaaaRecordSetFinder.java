@@ -16,11 +16,11 @@
 
 package gyro.azure.dns;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.dns.AaaaRecordSet;
-import com.microsoft.azure.management.dns.DnsZone;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.dns.models.AaaaRecordSet;
+import com.azure.resourcemanager.dns.models.DnsZone;
 import com.psddev.dari.util.ObjectUtils;
-import gyro.azure.AzureFinder;
+import gyro.azure.AzureResourceManagerFinder;
 import gyro.core.GyroException;
 import gyro.core.Type;
 
@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  *    aaaa-record-set: $(external-query azure::aaaa-record-set {})
  */
 @Type("aaaa-record-set")
-public class AaaaRecordSetFinder extends AzureFinder<AaaaRecordSet, AaaaRecordSetResource> {
+public class AaaaRecordSetFinder extends AzureResourceManagerFinder<AaaaRecordSet, AaaaRecordSetResource> {
     private String dnsZoneId;
     private String name;
 
@@ -67,12 +67,15 @@ public class AaaaRecordSetFinder extends AzureFinder<AaaaRecordSet, AaaaRecordSe
     }
 
     @Override
-    protected List<AaaaRecordSet> findAllAzure(Azure client) {
-        return client.dnsZones().list().stream().map(o -> o.aaaaRecordSets().list()).flatMap(List::stream).collect(Collectors.toList());
+    protected List<AaaaRecordSet> findAllAzure(AzureResourceManager client) {
+        return client.dnsZones().list().stream()
+            .map(o -> o.aaaaRecordSets().list().stream().collect(Collectors.toList()))
+            .flatMap(List::stream)
+            .collect(Collectors.toList());
     }
 
     @Override
-    protected List<AaaaRecordSet> findAzure(Azure client, Map<String, String> filters) {
+    protected List<AaaaRecordSet> findAzure(AzureResourceManager client, Map<String, String> filters) {
         if (ObjectUtils.isBlank(filters.get("dns-zone-id"))) {
             throw new GyroException("'dns-zone-id' is required.");
         }
@@ -84,7 +87,7 @@ public class AaaaRecordSetFinder extends AzureFinder<AaaaRecordSet, AaaaRecordSe
             if (filters.containsKey("name")) {
                 return Collections.singletonList(dnsZone.aaaaRecordSets().getByName(filters.get("name")));
             } else {
-                return dnsZone.aaaaRecordSets().list();
+                return dnsZone.aaaaRecordSets().list().stream().collect(Collectors.toList());
             }
         }
     }

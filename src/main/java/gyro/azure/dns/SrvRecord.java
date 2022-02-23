@@ -35,7 +35,7 @@ import gyro.core.validation.Required;
  *         weight: 100
  *     end
  */
-public class SrvRecord extends Diffable implements Copyable<com.microsoft.azure.management.dns.SrvRecord> {
+public class SrvRecord extends Diffable implements Copyable<com.azure.resourcemanager.dns.models.SrvRecord> {
 
     private Integer port;
     private Integer priority;
@@ -91,7 +91,7 @@ public class SrvRecord extends Diffable implements Copyable<com.microsoft.azure.
     }
 
     @Override
-    public void copyFrom(com.microsoft.azure.management.dns.SrvRecord srvRecord) {
+    public void copyFrom(com.azure.resourcemanager.dns.models.SrvRecord srvRecord) {
         setPort(srvRecord.port());
         setPriority(srvRecord.priority());
         setTarget(srvRecord.target());

@@ -16,6 +16,10 @@
 
 package gyro.azure.dns;
 
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.dns.models.CnameRecordSet;
+import com.azure.resourcemanager.dns.models.DnsRecordSet;
+import com.azure.resourcemanager.dns.models.DnsZone;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.core.GyroUI;
@@ -27,11 +31,6 @@ import gyro.core.resource.Updatable;
 
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.dns.CNameRecordSet;
-import com.microsoft.azure.management.dns.DnsRecordSet;
-import com.microsoft.azure.management.dns.DnsZone;
-import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.WithCNameRecordSetAttachable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 
@@ -55,7 +54,7 @@ import java.util.Set;
  *     end
  */
 @Type("cname-record-set")
-public class CnameRecordSetResource extends AzureResource implements Copyable<CNameRecordSet> {
+public class CnameRecordSetResource extends AzureResource implements Copyable<CnameRecordSet> {
 
     private String alias;
     private DnsZoneResource dnsZone;
@@ -143,7 +142,7 @@ public class CnameRecordSetResource extends AzureResource implements Copyable<CN
     }
 
     @Override
-    public void copyFrom(CNameRecordSet cnameRecordSet) {
+    public void copyFrom(CnameRecordSet cnameRecordSet) {
         setAlias(cnameRecordSet.canonicalName());
         setMetadata(cnameRecordSet.metadata());
         setName(cnameRecordSet.name());
@@ -154,9 +153,9 @@ public class CnameRecordSetResource extends AzureResource implements Copyable<CN
 
     @Override
     public boolean refresh() {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
-        CNameRecordSet cnameRecordSet = client.dnsZones().getById(getDnsZone().getId()).cNameRecordSets().getByName(getName());
+        CnameRecordSet cnameRecordSet = client.dnsZones().getById(getDnsZone().getId()).cNameRecordSets().getByName(getName());
 
         if (cnameRecordSet == null) {
             return false;
@@ -169,11 +168,13 @@ public class CnameRecordSetResource extends AzureResource implements Copyable<CN
 
     @Override
     public void create(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
-        WithCNameRecordSetAttachable<DnsZone.Update> createCNameRecordSet =
-                client.dnsZones().getById(getDnsZone().getId()).update().
-                        defineCNameRecordSet(getName()).withAlias(getAlias());
+        DnsRecordSet.UpdateDefinitionStages.WithCNameRecordSetAttachable<DnsZone.Update> createCNameRecordSet = client.dnsZones()
+            .getById(getDnsZone().getId())
+            .update().
+            defineCNameRecordSet(getName())
+            .withAlias(getAlias());
 
         if (getTtl() != null) {
             createCNameRecordSet.withTimeToLive(getTtl());
@@ -190,7 +191,7 @@ public class CnameRecordSetResource extends AzureResource implements Copyable<CN
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         DnsRecordSet.UpdateCNameRecordSet updateCNameRecordSet =
                 client.dnsZones().getById(getDnsZone().getId()).update().updateCNameRecordSet(getName());
@@ -229,7 +230,7 @@ public class CnameRecordSetResource extends AzureResource implements Copyable<CN
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         client.dnsZones().getById(getDnsZone().getId()).update().withoutCaaRecordSet(getName()).apply();
     }
