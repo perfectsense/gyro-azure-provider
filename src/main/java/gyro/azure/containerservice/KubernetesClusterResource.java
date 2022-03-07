@@ -17,6 +17,7 @@ import com.azure.resourcemanager.containerservice.models.KubernetesCluster;
 import com.azure.resourcemanager.containerservice.models.KubernetesClusterAgentPool;
 import com.azure.resourcemanager.containerservice.models.KubernetesClusters;
 import com.azure.resourcemanager.containerservice.models.ManagedClusterAddonProfile;
+import com.azure.resourcemanager.containerservice.models.ManagedClusterApiServerAccessProfile;
 import com.azure.resourcemanager.containerservice.models.OSDiskType;
 import com.azure.resourcemanager.containerservice.models.OSType;
 import com.azure.resourcemanager.containerservice.models.PublicNetworkAccess;
@@ -42,7 +43,7 @@ import gyro.core.validation.Required;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Creates a Identity.
+ * Creates a Kubernetes Cluster.
  *
  * Example
  * -------
@@ -104,11 +105,7 @@ import org.apache.commons.lang3.StringUtils;
  *             Name: "kubernetes-cluster-example"
  *         }
  *
- *
  *     end
- *
- *
- *
  *
  */
 @Type("kubernetes-cluster")
@@ -135,6 +132,7 @@ public class KubernetesClusterResource extends AzureResource implements Copyable
     private Map<String, String> tags;
     private Boolean enablePrivateCluster;
     private ClusterPropertiesAutoScalerProfile autoScalerProfile;
+    private ApiServerAccessProfile apiServerAccessProfile;
 
     /**
      * Name of the cluster.
@@ -402,6 +400,20 @@ public class KubernetesClusterResource extends AzureResource implements Copyable
         this.autoScalerProfile = autoScalerProfile;
     }
 
+    /**
+     * Api server access profile config.
+     *
+     * @subresource gyro.azure.containerservice.ApiServerAccessProfile
+     */
+    @Updatable
+    public ApiServerAccessProfile getApiServerAccessProfile() {
+        return apiServerAccessProfile;
+    }
+
+    public void setApiServerAccessProfile(ApiServerAccessProfile apiServerAccessProfile) {
+        this.apiServerAccessProfile = apiServerAccessProfile;
+    }
+
     @Override
     public void copyFrom(KubernetesCluster cluster) {
         setName(cluster.name());
@@ -420,8 +432,8 @@ public class KubernetesClusterResource extends AzureResource implements Copyable
         setId(cluster.id());
         setResourceGroup(findById(ResourceGroupResource.class, cluster.resourceGroupName()));
         setTags(cluster.tags());
-        setEnablePrivateCluster(cluster.innerModel().publicNetworkAccess() != null ? cluster.innerModel().publicNetworkAccess().equals(PublicNetworkAccess.DISABLED) : null);
-
+        setEnablePrivateCluster(cluster.innerModel().publicNetworkAccess() == null
+            || cluster.innerModel().publicNetworkAccess().equals(PublicNetworkAccess.DISABLED));
 
         Set<ClusterAddonProfile> addonProfiles = new HashSet<>();
         try {
@@ -463,6 +475,17 @@ public class KubernetesClusterResource extends AzureResource implements Copyable
             autoScalerProfile.copyFrom(cluster.innerModel().autoScalerProfile());
         }
         setAutoScalerProfile(autoScalerProfile);
+
+        ApiServerAccessProfile apiServerAccessProfile = null;
+        if (cluster.innerModel().apiServerAccessProfile() != null) {
+            apiServerAccessProfile = newSubresource(ApiServerAccessProfile.class);
+            apiServerAccessProfile.copyFrom(cluster.innerModel().apiServerAccessProfile());
+
+            if (apiServerAccessProfile.getEnablePrivateCluster() != null) {
+                setEnablePrivateCluster(apiServerAccessProfile.getEnablePrivateCluster());
+            }
+        }
+        setApiServerAccessProfile(apiServerAccessProfile);
     }
 
     @Override
@@ -474,8 +497,10 @@ public class KubernetesClusterResource extends AzureResource implements Copyable
             .filter(o -> o.resourceGroupName().equals(getResourceGroup().getName()))
             .findFirst().orElse(null);
 
+        boolean privateCluster = getEnablePrivateCluster();
         if (cluster != null) {
             copyFrom(cluster);
+            setEnablePrivateCluster(privateCluster);
 
             return true;
         }
@@ -513,7 +538,7 @@ public class KubernetesClusterResource extends AzureResource implements Copyable
                 createStage = withCreate.defineAgentPool(agentPool.getName());
             }
 
-            WithAttach<? extends WithCreate> withAttach = createStage
+            WithAttach<? extends WithCreate> withAttach =   createStage
                 .withVirtualMachineSize(ContainerServiceVMSizeTypes.fromString(agentPool.getSize()))
                 .withAgentPoolVirtualMachineCount(agentPool.getCount())
 
@@ -572,13 +597,19 @@ public class KubernetesClusterResource extends AzureResource implements Copyable
         KubernetesCluster cluster = withCreate.create();
 
         setId(cluster.id());
+        state.save();
 
-        KubernetesCluster.Update update = cluster.update();
+        KubernetesCluster.Update update;
+        if (getApiServerAccessProfile() != null) {
+            cluster.innerModel()
+                .withApiServerAccessProfile(getApiServerAccessProfile().toManagedClusterApiServerAccessProfile());
+        }
+
+        update = cluster.update();
 
         if (getNetworkProfile() != null) {
             NetworkProfile networkProfile = getNetworkProfile();
             setNetworkProfile(null);
-            state.save();
             setNetworkProfile(networkProfile);
             update = update.withNetworkProfile(getNetworkProfile().toNetworkProfile());
         }
@@ -603,8 +634,23 @@ public class KubernetesClusterResource extends AzureResource implements Copyable
         KubernetesCluster cluster = client.kubernetesClusters()
             .getByResourceGroup(getResourceGroup().getName(), getName());
 
-        KubernetesCluster.Update update = cluster.update();
+        KubernetesCluster.Update update = null;
+        if (changedFieldNames.contains("api-server-access-profile")) {
+            if (getApiServerAccessProfile() != null) {
+                cluster.innerModel()
+                    .withApiServerAccessProfile(getApiServerAccessProfile().toManagedClusterApiServerAccessProfile());
+            } else {
+                if (getEnablePrivateCluster()) {
+                    cluster.innerModel()
+                        .withApiServerAccessProfile(ApiServerAccessProfile.defaultPrivate());
+                } else {
+                    cluster.innerModel()
+                        .withApiServerAccessProfile(ApiServerAccessProfile.defaultPublic());
+                }
+            }
+        }
 
+        update = cluster.update();
 
         if (changedFieldNames.contains("enable-rbac")) {
             if (getEnableRbac()) {
