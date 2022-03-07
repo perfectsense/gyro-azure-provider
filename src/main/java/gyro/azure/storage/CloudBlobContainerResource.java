@@ -46,7 +46,7 @@ import java.util.Set;
  *
  *     azure::cloud-blob-container blob-container-example
  *         name: "blobcontainer"
- *         public-access: "CONTAINER"
+ *         public-access: "Container"
  *         storage-account: $(azure::storage-account blob-storage-account-example)
  *     end
  */
@@ -73,10 +73,10 @@ public class CloudBlobContainerResource extends AzureResource implements Copyabl
     }
 
     /**
-     * The public access of the container. Valid values are ``Blob`` or ``Container`` or ``Off``
+     * The public access of the container. Valid values are ``Blob`` or ``Container`` or ``None``
      */
     @Required
-    @ValidStrings({"Blob", "Container", "Off"})
+    @ValidStrings({"Blob", "Container", "None"})
     @Updatable
     public String getPublicAccess() {
         return publicAccess;
@@ -124,7 +124,7 @@ public class CloudBlobContainerResource extends AzureResource implements Copyabl
 
     @Override
     public void copyFrom(BlobContainer container) {
-        setPublicAccess(container.publicAccess().toString());
+        setPublicAccess(container.publicAccess() != null ? container.publicAccess().toString() : "None");
         setName(container.name());
         setId(container.id());
         setMetadata(container.metadata());
