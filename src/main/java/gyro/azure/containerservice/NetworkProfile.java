@@ -108,7 +108,7 @@ public class NetworkProfile extends Diffable implements Copyable<ContainerServic
      * The load balancer sku for the network profile.
      */
     @Updatable
-    @ValidStrings({"standard", "basic"})
+    @ValidStrings({"Standard", "Basic"})
     public String getLoadBalancerSku() {
         return loadBalancerSku;
     }
