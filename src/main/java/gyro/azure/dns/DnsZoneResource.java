@@ -18,6 +18,8 @@ package gyro.azure.dns;
 
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.dns.models.DnsZone;
+import com.azure.resourcemanager.dns.models.NsRecordSet;
+import com.azure.resourcemanager.resources.fluentcore.arm.models.HasName;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.azure.resources.ResourceGroupResource;
@@ -30,9 +32,12 @@ import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Creates a DNS Zone.
@@ -57,6 +62,9 @@ public class DnsZoneResource extends AzureResource implements Copyable<DnsZone> 
     private String name;
     private ResourceGroupResource resourceGroup;
     private Map<String, String> tags;
+
+    private List<String> nsRecords;
+    private Map<String, List<String>> nameServers;
 
     /**
      * The ID of the Dns Zone.
@@ -111,12 +119,51 @@ public class DnsZoneResource extends AzureResource implements Copyable<DnsZone> 
         this.tags = tags;
     }
 
+    /**
+     * List of ns record names present in the Dns Zone.
+     */
+    @Output
+    public List<String> getNsRecords() {
+        if (nsRecords == null) {
+            nsRecords = new ArrayList<>();
+        }
+
+        return nsRecords;
+    }
+
+    public void setNsRecords(List<String> nsRecords) {
+        this.nsRecords = nsRecords;
+    }
+
+    /**
+     * A map of ns record names and corresponding name servers present in the Dns Zone.
+     */
+    @Output
+    public Map<String, List<String>> getNameServers() {
+        if (nameServers == null) {
+            nameServers = new HashMap<>();
+        }
+
+        return nameServers;
+    }
+
+    public void setNameServers(Map<String, List<String>> nameServers) {
+        this.nameServers = nameServers;
+    }
+
     @Override
     public void copyFrom(DnsZone dnsZone) {
         setId(dnsZone.id());
         setName(dnsZone.name());
         setResourceGroup(findById(ResourceGroupResource.class, dnsZone.resourceGroupName()));
         setTags(dnsZone.tags());
+
+        setNsRecords(dnsZone.nsRecordSets().list().stream()
+            .map(HasName::name)
+            .collect(Collectors.toList()));
+
+        setNameServers(dnsZone.nsRecordSets().list().stream()
+            .collect(Collectors.toMap(HasName::name, NsRecordSet::nameServers)));
     }
 
     @Override
