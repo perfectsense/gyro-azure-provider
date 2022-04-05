@@ -1,0 +1,16 @@
+azure::resource-group identity-example
+    name: "identity-example"
+
+    tags: {
+        Name: "identity-example"
+    }
+end
+
+azure::identity identity-example
+    name: "identity-example"
+    resource-group: $(azure::resource-group identity-example)
+
+    tags: {
+        Name: "identity-example"
+    }
+end
