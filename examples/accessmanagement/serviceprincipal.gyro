@@ -5,5 +5,5 @@ end
 
 azure::service-principal service-principal-example
     name: "application-service-principal-example"
-    application: $(azure::application application-example)
+    application: $(azure::application application-service-principal-example)
 end
