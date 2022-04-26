@@ -453,8 +453,6 @@ public class KubernetesClusterResource extends AzureResource implements Copyable
         setId(cluster.id());
         setResourceGroup(findById(ResourceGroupResource.class, cluster.resourceGroupName()));
         setTags(cluster.tags());
-        setEnablePrivateCluster(cluster.innerModel().publicNetworkAccess() == null
-            || cluster.innerModel().publicNetworkAccess().equals(PublicNetworkAccess.DISABLED));
 
         Set<ClusterAddonProfile> addonProfiles = new HashSet<>();
         try {
@@ -501,10 +499,6 @@ public class KubernetesClusterResource extends AzureResource implements Copyable
         if (cluster.innerModel().apiServerAccessProfile() != null) {
             apiServerAccessProfile = newSubresource(ApiServerAccessProfile.class);
             apiServerAccessProfile.copyFrom(cluster.innerModel().apiServerAccessProfile());
-
-            if (apiServerAccessProfile.getEnablePrivateCluster() != null) {
-                setEnablePrivateCluster(apiServerAccessProfile.getEnablePrivateCluster());
-            }
         }
         setApiServerAccessProfile(apiServerAccessProfile);
     }
@@ -518,10 +512,8 @@ public class KubernetesClusterResource extends AzureResource implements Copyable
             .filter(o -> o.resourceGroupName().equals(getResourceGroup().getName()))
             .findFirst().orElse(null);
 
-        boolean privateCluster = getEnablePrivateCluster();
         if (cluster != null) {
             copyFrom(cluster);
-            setEnablePrivateCluster(privateCluster);
 
             return true;
         }
