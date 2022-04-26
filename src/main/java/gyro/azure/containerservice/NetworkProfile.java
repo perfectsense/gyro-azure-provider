@@ -70,7 +70,7 @@ public class NetworkProfile extends Diffable implements Copyable<ContainerServic
     /**
      * The network plugin for the network profile.
      */
-    @Updatable
+    @Required
     @ValidStrings({"azure", "kubenet"})
     public String getNetworkPlugin() {
         return networkPlugin;

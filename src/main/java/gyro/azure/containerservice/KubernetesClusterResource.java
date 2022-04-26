@@ -32,10 +32,15 @@ import com.azure.resourcemanager.containerservice.models.KubeletDiskType;
 import com.azure.resourcemanager.containerservice.models.KubernetesCluster;
 import com.azure.resourcemanager.containerservice.models.KubernetesClusterAgentPool;
 import com.azure.resourcemanager.containerservice.models.KubernetesClusters;
+import com.azure.resourcemanager.containerservice.models.LoadBalancerSku;
 import com.azure.resourcemanager.containerservice.models.ManagedClusterAddonProfile;
 import com.azure.resourcemanager.containerservice.models.ManagedClusterApiServerAccessProfile;
+import com.azure.resourcemanager.containerservice.models.NetworkMode;
+import com.azure.resourcemanager.containerservice.models.NetworkPlugin;
+import com.azure.resourcemanager.containerservice.models.NetworkPolicy;
 import com.azure.resourcemanager.containerservice.models.OSDiskType;
 import com.azure.resourcemanager.containerservice.models.OSType;
+import com.azure.resourcemanager.containerservice.models.OutboundType;
 import com.azure.resourcemanager.containerservice.models.PublicNetworkAccess;
 import com.azure.resourcemanager.containerservice.models.ScaleSetEvictionPolicy;
 import com.azure.resourcemanager.containerservice.models.ScaleSetPriority;
@@ -585,6 +590,33 @@ public class KubernetesClusterResource extends AzureResource implements Copyable
             } else {
                 withCreate = withAttach.attach();
             }
+        }
+
+        if (getNetworkProfile() != null) {
+            NetworkProfile network = getNetworkProfile();
+            KubernetesCluster.DefinitionStages.NetworkProfileDefinitionStages.WithAttach<WithCreate> withAttach = withCreate.defineNetworkProfile()
+                .withNetworkPlugin(NetworkPlugin.fromString(network.getNetworkPlugin()));
+
+            if (!StringUtils.isBlank(network.getNetworkPolicy())) {
+                withAttach = withAttach.withNetworkPolicy(NetworkPolicy.fromString(network.getNetworkPolicy()));
+            }
+
+            if (!StringUtils.isBlank(network.getPodCidr())) {
+                withAttach = withAttach.withPodCidr(network.getPodCidr());
+            }
+            if (!StringUtils.isBlank(network.getDockerBridgeCidr())) {
+                withAttach = withAttach.withDockerBridgeCidr(network.getDockerBridgeCidr());
+            }
+
+            if (!StringUtils.isBlank(network.getServiceCidr())) {
+                withAttach = withAttach.withServiceCidr(network.getServiceCidr());
+            }
+
+            if (!StringUtils.isBlank(network.getLoadBalancerSku())) {
+                withAttach = withAttach.withLoadBalancerSku(LoadBalancerSku.fromString(network.getLoadBalancerSku()));
+            }
+
+            withCreate = withAttach.attach();
         }
 
         if (!getTags().isEmpty()) {
