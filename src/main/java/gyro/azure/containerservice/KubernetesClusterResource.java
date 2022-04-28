@@ -553,7 +553,7 @@ public class KubernetesClusterResource extends AzureResource implements Copyable
 
             WithAttach<? extends WithCreate> withAttach =   createStage
                 .withVirtualMachineSize(ContainerServiceVMSizeTypes.fromString(agentPool.getSize()))
-                .withAgentPoolVirtualMachineCount(agentPool.getCount())
+                .withAgentPoolVirtualMachineCount(agentPool.getMinimumNodeSize())
 
                 .withTags(agentPool.getTags())
                 .withAgentPoolMode(AgentPoolMode.fromString(agentPool.getMode()))
@@ -762,7 +762,7 @@ public class KubernetesClusterResource extends AzureResource implements Copyable
                 for (ClusterAgentPool agentPool : addAgentPool) {
                     WithAttach<? extends KubernetesCluster.Update> withAttach = update.defineAgentPool(agentPool.getName())
                         .withVirtualMachineSize(ContainerServiceVMSizeTypes.fromString(agentPool.getSize()))
-                        .withAgentPoolVirtualMachineCount(agentPool.getCount())
+                        .withAgentPoolVirtualMachineCount(agentPool.getMinimumNodeSize())
 
                         .withTags(agentPool.getTags())
                         .withAgentPoolMode(AgentPoolMode.fromString(agentPool.getMode()))
