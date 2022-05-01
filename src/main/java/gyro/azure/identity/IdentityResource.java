@@ -16,9 +16,9 @@
 
 package gyro.azure.identity;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.msi.Identity;
-import com.microsoft.azure.management.resources.fluentcore.arm.Region;
+import com.azure.core.management.Region;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.msi.models.Identity;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.azure.resources.ResourceGroupResource;
@@ -164,7 +164,7 @@ public class IdentityResource extends AzureResource implements Copyable<Identity
 
     @Override
     public boolean refresh() {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         Identity identity = client.identities().getById(getId());
 
@@ -179,7 +179,7 @@ public class IdentityResource extends AzureResource implements Copyable<Identity
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         Identity identity = client.identities().define(getName())
             .withRegion(Region.fromName(getRegion()))
@@ -192,7 +192,7 @@ public class IdentityResource extends AzureResource implements Copyable<Identity
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         Identity.Update update = client.identities().getById(getId()).update();
         IdentityResource oldResource = (IdentityResource) current;
@@ -212,7 +212,7 @@ public class IdentityResource extends AzureResource implements Copyable<Identity
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         client.identities().deleteById(getId());
     }

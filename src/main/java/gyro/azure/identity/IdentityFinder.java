@@ -16,14 +16,15 @@
 
 package gyro.azure.identity;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.msi.Identity;
-import gyro.azure.AzureFinder;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.msi.models.Identity;
+import gyro.azure.AzureResourceManagerFinder;
 import gyro.core.Type;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Query identity.
@@ -36,7 +37,7 @@ import java.util.Map;
  *    identity: $(external-query azure::identity {})
  */
 @Type("identity")
-public class IdentityFinder extends AzureFinder<Identity, IdentityResource> {
+public class IdentityFinder extends AzureResourceManagerFinder<Identity, IdentityResource> {
     private String id;
 
     /**
@@ -51,12 +52,12 @@ public class IdentityFinder extends AzureFinder<Identity, IdentityResource> {
     }
 
     @Override
-    protected List<Identity> findAllAzure(Azure client) {
-        return client.identities().list();
+    protected List<Identity> findAllAzure(AzureResourceManager client) {
+        return client.identities().list().stream().collect(Collectors.toList());
     }
 
     @Override
-    protected List<Identity> findAzure(Azure client, Map<String, String> filters) {
+    protected List<Identity> findAzure(AzureResourceManager client, Map<String, String> filters) {
         Identity identity = client.identities().getById(filters.get("id"));
 
         if (identity == null) {
