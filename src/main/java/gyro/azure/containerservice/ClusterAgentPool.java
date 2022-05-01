@@ -88,7 +88,6 @@ public class ClusterAgentPool extends Diffable implements Copyable<KubernetesClu
     /**
      * The node count of the agent pool.
      */
-    @Required
     @Updatable
     public Integer getCount() {
         return count;
