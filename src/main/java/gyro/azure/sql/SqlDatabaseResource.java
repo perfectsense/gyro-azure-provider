@@ -16,37 +16,6 @@
 
 package gyro.azure.sql;
 
-import com.microsoft.azure.management.sql.DatabaseEdition;
-import com.microsoft.azure.management.sql.SqlServer;
-import com.microsoft.rest.ExpandableStringEnum;
-import com.psddev.dari.util.ObjectUtils;
-import gyro.azure.AzureResource;
-import gyro.azure.Copyable;
-import gyro.azure.storage.StorageAccountResource;
-import gyro.core.GyroUI;
-import gyro.core.resource.Resource;
-import gyro.core.resource.Output;
-import gyro.core.Type;
-import gyro.core.resource.Updatable;
-
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.sql.CreateMode;
-import com.microsoft.azure.management.sql.SampleName;
-import com.microsoft.azure.management.sql.SqlDatabase;
-import com.microsoft.azure.management.sql.SqlDatabaseBasicStorage;
-import com.microsoft.azure.management.sql.SqlDatabasePremiumServiceObjective;
-import com.microsoft.azure.management.sql.SqlDatabasePremiumStorage;
-import com.microsoft.azure.management.sql.SqlDatabaseStandardServiceObjective;
-import com.microsoft.azure.management.sql.SqlDatabaseStandardStorage;
-import com.microsoft.azure.management.sql.SqlDatabaseOperations.DefinitionStages.WithAllDifferentOptions;
-import com.microsoft.azure.management.sql.SqlDatabaseOperations.DefinitionStages.WithExistingDatabaseAfterElasticPool;
-import com.microsoft.azure.management.storage.StorageAccount;
-import gyro.core.scope.State;
-import gyro.core.validation.Required;
-import gyro.core.validation.ValidStrings;
-import gyro.core.validation.ValidationError;
-import org.apache.commons.lang.StringUtils;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -54,6 +23,34 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import com.azure.core.util.ExpandableStringEnum;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.sql.models.CreateMode;
+import com.azure.resourcemanager.sql.models.SampleName;
+import com.azure.resourcemanager.sql.models.SqlDatabase;
+import com.azure.resourcemanager.sql.models.SqlDatabaseBasicStorage;
+import com.azure.resourcemanager.sql.models.SqlDatabaseOperations;
+import com.azure.resourcemanager.sql.models.SqlDatabasePremiumServiceObjective;
+import com.azure.resourcemanager.sql.models.SqlDatabasePremiumStorage;
+import com.azure.resourcemanager.sql.models.SqlDatabaseStandardServiceObjective;
+import com.azure.resourcemanager.sql.models.SqlDatabaseStandardStorage;
+import com.azure.resourcemanager.sql.models.SqlServer;
+import com.azure.resourcemanager.storage.models.StorageAccount;
+import com.psddev.dari.util.ObjectUtils;
+import gyro.azure.AzureResource;
+import gyro.azure.Copyable;
+import gyro.azure.storage.StorageAccountResource;
+import gyro.core.GyroUI;
+import gyro.core.Type;
+import gyro.core.resource.Output;
+import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
+import gyro.core.validation.ValidationError;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Creates a sql database.
@@ -113,7 +110,15 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
     /**
      * The create mode of the database.
      */
-    @ValidStrings({"Copy", "Default", "NonReadableSecondary", "OnlineSecondary", "PointInTimeRestore", "Recovery", "Restore", "RestoreLongTermRetentionBackup"})
+    @ValidStrings({
+        "Copy",
+        "Default",
+        "NonReadableSecondary",
+        "OnlineSecondary",
+        "PointInTimeRestore",
+        "Recovery",
+        "Restore",
+        "RestoreLongTermRetentionBackup" })
     public String getCreateMode() {
         return createMode;
     }
@@ -125,7 +130,7 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
     /**
      * The edition of the database.
      */
-    @ValidStrings({"Basic", "Premium", "Standard"})
+    @ValidStrings({ "Basic", "Premium", "Standard" })
     @Updatable
     public String getEdition() {
         return edition;
@@ -307,24 +312,25 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
     @Override
     public void copyFrom(SqlDatabase database) {
         setCollation(database.collation());
-        setCreateMode(database.inner().createMode() == null ? null : database.inner().createMode().toString());
+        setCreateMode(
+            database.innerModel().createMode() == null ? null : database.innerModel().createMode().toString());
         setSqlServer(findById(SqlServerResource.class, database.sqlServerName()));
         setElasticPool(findById(SqlElasticPoolResource.class, database.elasticPoolName()));
 
         if (getElasticPool() == null) {
             setEdition(database.edition().toString());
-            setEditionServiceObjective(database.serviceLevelObjective().toString());
+            setEditionServiceObjective(database.requestedServiceObjectiveName());
         }
 
         setMaxStorageCapacity(findMaxCapacity(database.maxSizeBytes()));
         setId(getSqlServer().getId() + "/databases/" + getName());
         setName(database.name());
-        setTags(database.inner().getTags());
+        setTags(database.innerModel().tags());
     }
 
     @Override
     public boolean refresh() {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         SqlDatabase database = getSqlDatabase(client);
 
@@ -339,18 +345,21 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
 
     @Override
     public void create(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
-        WithAllDifferentOptions buildDatabase = client.sqlServers().getById(getSqlServer().getId()).databases().define(getName());
+        SqlDatabaseOperations.DefinitionStages.WithAllDifferentOptions buildDatabase = client.sqlServers()
+            .getById(getSqlServer().getId())
+            .databases()
+            .define(getName());
 
         //configures the source database within the elastic pool
-        WithExistingDatabaseAfterElasticPool withExistingDatabaseAfterElasticPool;
+        SqlDatabaseOperations.DefinitionStages.WithExistingDatabaseAfterElasticPool withExistingDatabaseAfterElasticPool;
         if (getElasticPool() != null) {
             withExistingDatabaseAfterElasticPool = buildDatabase.withExistingElasticPool(getElasticPool().getName());
 
             if (getMaxStorageCapacity() != null) {
                 withExistingDatabaseAfterElasticPool.
-                        withMaxSizeBytes(SqlDatabasePremiumStorage.valueOf(getMaxStorageCapacity()).capacity());
+                    withMaxSizeBytes(SqlDatabasePremiumStorage.valueOf(getMaxStorageCapacity()).capacity());
             }
 
             if (getCollation() != null) {
@@ -358,22 +367,26 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
             }
 
             if (getImportFromContainerName() != null
-                    && getImportFromFilename() != null
-                    && getImportFromStorageAccountId() != null)
-            {
+                && getImportFromFilename() != null
+                && getImportFromStorageAccountId() != null) {
                 StorageAccount storageAccount = client.storageAccounts().getById(getStorageAccount().getId());
-                withExistingDatabaseAfterElasticPool.importFrom(storageAccount,
+                withExistingDatabaseAfterElasticPool.importFrom(
+                        storageAccount,
                         getImportFromContainerName(),
                         getImportFromFilename())
-                        .withSqlAdministratorLoginAndPassword(getSqlServer().getAdministratorLogin(), getSqlServer().getAdministratorPassword());
+                    .withSqlAdministratorLoginAndPassword(
+                        getSqlServer().getAdministratorLogin(),
+                        getSqlServer().getAdministratorPassword());
             } else if (getStorageUri() != null && getStorageAccount() != null) {
                 buildDatabase.importFrom(getStorageUri()).withStorageAccessKey(getStorageAccount().keys().get("key1"))
-                .withSqlAdministratorLoginAndPassword(getSqlServer().getAdministratorLogin(), getSqlServer().getAdministratorPassword());
+                    .withSqlAdministratorLoginAndPassword(
+                        getSqlServer().getAdministratorLogin(),
+                        getSqlServer().getAdministratorPassword());
             } else if (getWithSampleDatabase() != null) {
                 withExistingDatabaseAfterElasticPool.fromSample(SampleName.ADVENTURE_WORKS_LT);
             } else if (getSourceDatabaseName() != null) {
                 withExistingDatabaseAfterElasticPool.withSourceDatabase(getSourceDatabaseName())
-                                                    .withMode(CreateMode.fromString(getCreateMode()));
+                    .withMode(CreateMode.fromString(getCreateMode()));
             }
         } else {
             //or create a new database
@@ -383,17 +396,21 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
             if (getEdition() != null) {
                 if (PREMIUM_EDITION.equalsIgnoreCase(getEdition())) {
                     if (getEditionServiceObjective() != null && getMaxStorageCapacity() != null) {
-                        buildDatabase.withPremiumEdition(SqlDatabasePremiumServiceObjective.fromString(getEditionServiceObjective()),
-                                SqlDatabasePremiumStorage.valueOf(getMaxStorageCapacity()));
+                        buildDatabase.withPremiumEdition(
+                            SqlDatabasePremiumServiceObjective.fromString(getEditionServiceObjective()),
+                            SqlDatabasePremiumStorage.valueOf(getMaxStorageCapacity()));
                     } else {
-                        buildDatabase.withPremiumEdition(SqlDatabasePremiumServiceObjective.fromString(getEditionServiceObjective()));
+                        buildDatabase.withPremiumEdition(SqlDatabasePremiumServiceObjective.fromString(
+                            getEditionServiceObjective()));
                     }
                 } else if (STANDARD_EDITION.equalsIgnoreCase(getEdition())) {
                     if (getEditionServiceObjective() != null && getMaxStorageCapacity() != null) {
-                        buildDatabase.withStandardEdition(SqlDatabaseStandardServiceObjective.fromString(getEditionServiceObjective()),
-                                SqlDatabaseStandardStorage.valueOf(getMaxStorageCapacity()));
+                        buildDatabase.withStandardEdition(
+                            SqlDatabaseStandardServiceObjective.fromString(getEditionServiceObjective()),
+                            SqlDatabaseStandardStorage.valueOf(getMaxStorageCapacity()));
                     } else {
-                        buildDatabase.withStandardEdition(SqlDatabaseStandardServiceObjective.fromString(getEditionServiceObjective()));
+                        buildDatabase.withStandardEdition(SqlDatabaseStandardServiceObjective.fromString(
+                            getEditionServiceObjective()));
                     }
                 } else if (BASIC_EDITION.equalsIgnoreCase(getEdition())) {
                     if (getMaxStorageCapacity() != null) {
@@ -401,23 +418,29 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
                     } else {
                         buildDatabase.withBasicEdition();
                     }
-                } else {
-                    buildDatabase.withEdition(DatabaseEdition.fromString(getEdition()));
                 }
             }
         }
 
         //pick the source of data for the database
         if (getSourceDatabaseName() != null && getCreateMode() != null) {
-            SqlDatabase db = client.sqlServers().getById(getSqlServer().getId()).databases().get(getSourceDatabaseName());
+            SqlDatabase db = client.sqlServers()
+                .getById(getSqlServer().getId())
+                .databases()
+                .get(getSourceDatabaseName());
             buildDatabase.withSourceDatabase(db).withMode(CreateMode.fromString(getCreateMode()));
-        } else if (getImportFromStorageAccountId() != null && getImportFromContainerName() != null && getImportFromFilename() != null) {
+        } else if (getImportFromStorageAccountId() != null && getImportFromContainerName() != null
+            && getImportFromFilename() != null) {
             StorageAccount storageAccount = client.storageAccounts().getById(getImportFromStorageAccountId());
             buildDatabase.importFrom(storageAccount, getImportFromContainerName(), getImportFromFilename())
-                    .withSqlAdministratorLoginAndPassword(getSqlServer().getAdministratorLogin(), getSqlServer().getAdministratorPassword());
+                .withSqlAdministratorLoginAndPassword(
+                    getSqlServer().getAdministratorLogin(),
+                    getSqlServer().getAdministratorPassword());
         } else if (getStorageUri() != null && getStorageAccount() != null) {
             buildDatabase.importFrom(getStorageUri()).withStorageAccessKey(getStorageAccount().keys().get("key1"))
-                    .withSqlAdministratorLoginAndPassword(getSqlServer().getAdministratorLogin(), getSqlServer().getAdministratorPassword());
+                .withSqlAdministratorLoginAndPassword(
+                    getSqlServer().getAdministratorLogin(),
+                    getSqlServer().getAdministratorPassword());
         } else if (getWithSampleDatabase() != null) {
             buildDatabase.fromSample(SampleName.ADVENTURE_WORKS_LT);
         }
@@ -429,7 +452,7 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         SqlDatabase.Update update = getSqlDatabase(client).update();
 
@@ -440,15 +463,17 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
 
             if (PREMIUM_EDITION.equalsIgnoreCase(getEdition())) {
                 if (getEditionServiceObjective() != null && getMaxStorageCapacity() != null) {
-                    update.withPremiumEdition(SqlDatabasePremiumServiceObjective.fromString(getEditionServiceObjective()),
-                            SqlDatabasePremiumStorage.valueOf(getMaxStorageCapacity()));
+                    update.withPremiumEdition(
+                        SqlDatabasePremiumServiceObjective.fromString(getEditionServiceObjective()),
+                        SqlDatabasePremiumStorage.valueOf(getMaxStorageCapacity()));
                 } else {
                     update.withPremiumEdition(SqlDatabasePremiumServiceObjective.fromString(getEditionServiceObjective()));
                 }
             } else if (STANDARD_EDITION.equalsIgnoreCase(getEdition())) {
                 if (getEditionServiceObjective() != null && getMaxStorageCapacity() != null) {
-                    update.withStandardEdition(SqlDatabaseStandardServiceObjective.fromString(getEditionServiceObjective()),
-                            SqlDatabaseStandardStorage.valueOf(getMaxStorageCapacity()));
+                    update.withStandardEdition(
+                        SqlDatabaseStandardServiceObjective.fromString(getEditionServiceObjective()),
+                        SqlDatabaseStandardStorage.valueOf(getMaxStorageCapacity()));
                 } else {
                     update.withStandardEdition(SqlDatabaseStandardServiceObjective.fromString(getEditionServiceObjective()));
                 }
@@ -467,7 +492,7 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         SqlDatabase sqlDatabase = getSqlDatabase(client);
         if (sqlDatabase != null) {
@@ -485,7 +510,7 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
         return null;
     }
 
-    private SqlDatabase getSqlDatabase(Azure client) {
+    private SqlDatabase getSqlDatabase(AzureResourceManager client) {
         SqlDatabase sqlDatabase = null;
         SqlServer sqlServer = client.sqlServers().getById(getSqlServer().getId());
         if (sqlServer != null) {
@@ -500,24 +525,59 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
         List<ValidationError> errors = new ArrayList<>();
 
         if (PREMIUM_EDITION.equalsIgnoreCase(getEdition())) {
-            if (!Arrays.stream(SqlDatabasePremiumStorage.values()).map(Enum::toString).collect(Collectors.toSet()).contains(getMaxStorageCapacity())) {
-                errors.add(new ValidationError(this, "max-storage-capacity", "Invalid value for 'max-storage-capacity' when 'edition' set to 'Premium'."));
-            } else if (!SqlDatabasePremiumServiceObjective.values().stream().map(ExpandableStringEnum::toString).collect(Collectors.toSet()).contains(getEditionServiceObjective())) {
-                errors.add(new ValidationError(this, "edition-service-objective", "Invalid value for 'edition-service-objective' when 'edition' set to 'Premium'."));
+            if (!Arrays.stream(SqlDatabasePremiumStorage.values())
+                .map(Enum::toString)
+                .collect(Collectors.toSet())
+                .contains(getMaxStorageCapacity())) {
+                errors.add(new ValidationError(
+                    this,
+                    "max-storage-capacity",
+                    "Invalid value for 'max-storage-capacity' when 'edition' set to 'Premium'."));
+            } else if (!SqlDatabasePremiumServiceObjective.values()
+                .stream()
+                .map(ExpandableStringEnum::toString)
+                .collect(Collectors.toSet())
+                .contains(getEditionServiceObjective())) {
+                errors.add(new ValidationError(
+                    this,
+                    "edition-service-objective",
+                    "Invalid value for 'edition-service-objective' when 'edition' set to 'Premium'."));
             }
         } else if (STANDARD_EDITION.equalsIgnoreCase(getEdition())) {
-            if (!Arrays.stream(SqlDatabaseStandardStorage.values()).map(Enum::toString).collect(Collectors.toSet()).contains(getMaxStorageCapacity())) {
-                errors.add(new ValidationError(this, "max-storage-capacity", "Invalid value for 'max-storage-capacity' when 'edition' set to 'Standard'."));
-            } else if (!SqlDatabaseStandardServiceObjective.values().stream().map(ExpandableStringEnum::toString).collect(Collectors.toSet()).contains(getEditionServiceObjective())) {
-                errors.add(new ValidationError(this, "edition-service-objective", "Invalid value for 'edition-service-objective' when 'edition' set to 'Standard'."));
+            if (!Arrays.stream(SqlDatabaseStandardStorage.values())
+                .map(Enum::toString)
+                .collect(Collectors.toSet())
+                .contains(getMaxStorageCapacity())) {
+                errors.add(new ValidationError(
+                    this,
+                    "max-storage-capacity",
+                    "Invalid value for 'max-storage-capacity' when 'edition' set to 'Standard'."));
+            } else if (!SqlDatabaseStandardServiceObjective.values()
+                .stream()
+                .map(ExpandableStringEnum::toString)
+                .collect(Collectors.toSet())
+                .contains(getEditionServiceObjective())) {
+                errors.add(new ValidationError(
+                    this,
+                    "edition-service-objective",
+                    "Invalid value for 'edition-service-objective' when 'edition' set to 'Standard'."));
             }
         } else if (BASIC_EDITION.equalsIgnoreCase(getEdition())) {
-            if (!Arrays.stream(SqlDatabaseBasicStorage.values()).map(Enum::toString).collect(Collectors.toSet()).contains(getMaxStorageCapacity())) {
-                errors.add(new ValidationError(this, "max-storage-capacity", "Invalid value for 'max-storage-capacity' when 'edition' set to 'Basic'."));
+            if (!Arrays.stream(SqlDatabaseBasicStorage.values())
+                .map(Enum::toString)
+                .collect(Collectors.toSet())
+                .contains(getMaxStorageCapacity())) {
+                errors.add(new ValidationError(
+                    this,
+                    "max-storage-capacity",
+                    "Invalid value for 'max-storage-capacity' when 'edition' set to 'Basic'."));
             }
 
             if (!ObjectUtils.isBlank(getEditionServiceObjective())) {
-                errors.add(new ValidationError(this, "edition-service-objective", "Cannot set 'edition-service-objective' when 'edition' set to 'Basic'."));
+                errors.add(new ValidationError(
+                    this,
+                    "edition-service-objective",
+                    "Cannot set 'edition-service-objective' when 'edition' set to 'Basic'."));
             }
         }
 

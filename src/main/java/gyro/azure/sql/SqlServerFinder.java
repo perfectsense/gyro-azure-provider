@@ -16,14 +16,15 @@
 
 package gyro.azure.sql;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.sql.SqlServer;
-import gyro.azure.AzureFinder;
-import gyro.core.Type;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.sql.models.SqlServer;
+import gyro.azure.AzureResourceManagerFinder;
+import gyro.core.Type;
 
 /**
  * Query sql server.
@@ -36,7 +37,8 @@ import java.util.Map;
  *    sql-server: $(external-query azure::sql-server {})
  */
 @Type("sql-server")
-public class SqlServerFinder extends AzureFinder<SqlServer, SqlServerResource> {
+public class SqlServerFinder extends AzureResourceManagerFinder<SqlServer, SqlServerResource> {
+
     private String id;
 
     /**
@@ -51,12 +53,12 @@ public class SqlServerFinder extends AzureFinder<SqlServer, SqlServerResource> {
     }
 
     @Override
-    protected List<SqlServer> findAllAzure(Azure client) {
-        return client.sqlServers().list();
+    protected List<SqlServer> findAllAzure(AzureResourceManager client) {
+        return client.sqlServers().list().stream().collect(Collectors.toList());
     }
 
     @Override
-    protected List<SqlServer> findAzure(Azure client, Map<String, String> filters) {
+    protected List<SqlServer> findAzure(AzureResourceManager client, Map<String, String> filters) {
         SqlServer sqlServer = filters.containsKey("id") ? client.sqlServers().getById(filters.get("id")) : null;
         if (sqlServer != null) {
             return Collections.singletonList(sqlServer);
