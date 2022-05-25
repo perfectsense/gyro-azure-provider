@@ -16,15 +16,16 @@
 
 package gyro.azure.accessmanagement;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.graphrbac.ActiveDirectoryUser;
-import gyro.azure.AzureFinder;
-import gyro.core.GyroException;
-import gyro.core.Type;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.authorization.models.ActiveDirectoryUser;
+import gyro.azure.AzureResourceManagerFinder;
+import gyro.core.GyroException;
+import gyro.core.Type;
 
 /**
  * Query active directory user.
@@ -37,7 +38,9 @@ import java.util.Map;
  *    active-directory-user: $(external-query azure::active-directory-user {name: "gyro"})
  */
 @Type("active-directory-user")
-public class ActiveDirectoryUserFinder extends AzureFinder<ActiveDirectoryUser, ActiveDirectoryUserResource> {
+public class ActiveDirectoryUserFinder
+    extends AzureResourceManagerFinder<ActiveDirectoryUser, ActiveDirectoryUserResource> {
+
     private String id;
     private String name;
 
@@ -64,12 +67,12 @@ public class ActiveDirectoryUserFinder extends AzureFinder<ActiveDirectoryUser, 
     }
 
     @Override
-    protected List<ActiveDirectoryUser> findAllAzure(Azure client) {
-        return client.accessManagement().activeDirectoryUsers().list();
+    protected List<ActiveDirectoryUser> findAllAzure(AzureResourceManager client) {
+        return client.accessManagement().activeDirectoryUsers().list().stream().collect(Collectors.toList());
     }
 
     @Override
-    protected List<ActiveDirectoryUser> findAzure(Azure client, Map<String, String> filters) {
+    protected List<ActiveDirectoryUser> findAzure(AzureResourceManager client, Map<String, String> filters) {
         ActiveDirectoryUser user = null;
 
         if (filters.containsKey("id")) {

@@ -75,7 +75,11 @@ public class ApplicationResource extends AzureResource implements Copyable<Activ
 
     @Required
     @Updatable
-    @ValidStrings({"AzureADMyOrg", "AzureADMultipleOrgs", "AzureADandPersonalMicrosoftAccount", "PersonalMicrosoftAccount"})
+    @ValidStrings({
+        "AzureADMyOrg",
+        "AzureADMultipleOrgs",
+        "AzureADandPersonalMicrosoftAccount",
+        "PersonalMicrosoftAccount" })
     public String getAccountType() {
         return accountType;
     }

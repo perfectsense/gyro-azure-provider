@@ -16,6 +16,11 @@
 
 package gyro.azure.accessmanagement;
 
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Stream;
+
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.authorization.models.ActiveDirectoryGroup;
 import com.azure.resourcemanager.authorization.models.ActiveDirectoryUser;
@@ -30,11 +35,6 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
-
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Stream;
 
 /**
  * Creates a role assignment.
@@ -52,6 +52,7 @@ import java.util.stream.Stream;
  */
 @Type("role-assignment")
 public class RoleAssignmentResource extends AzureResource implements Copyable<RoleAssignment> {
+
     private String name;
     private String scope;
     private String role;
