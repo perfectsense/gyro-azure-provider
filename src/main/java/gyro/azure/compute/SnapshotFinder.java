@@ -16,14 +16,15 @@
 
 package gyro.azure.compute;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.compute.Snapshot;
-import gyro.azure.AzureFinder;
-import gyro.core.Type;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.compute.models.Snapshot;
+import gyro.azure.AzureResourceManagerFinder;
+import gyro.core.Type;
 
 /**
  * Query snapshot.
@@ -36,7 +37,8 @@ import java.util.Map;
  *    snapshot: $(external-query azure::snapshot {})
  */
 @Type("snapshot")
-public class SnapshotFinder extends AzureFinder<Snapshot, SnapshotResource> {
+public class SnapshotFinder extends AzureResourceManagerFinder<Snapshot, SnapshotResource> {
+
     private String id;
 
     /**
@@ -51,12 +53,12 @@ public class SnapshotFinder extends AzureFinder<Snapshot, SnapshotResource> {
     }
 
     @Override
-    protected List<Snapshot> findAllAzure(Azure client) {
-        return client.snapshots().list();
+    protected List<Snapshot> findAllAzure(AzureResourceManager client) {
+        return client.snapshots().list().stream().collect(Collectors.toList());
     }
 
     @Override
-    protected List<Snapshot> findAzure(Azure client, Map<String, String> filters) {
+    protected List<Snapshot> findAzure(AzureResourceManager client, Map<String, String> filters) {
         Snapshot snapshot = client.snapshots().getById(filters.get("id"));
         if (snapshot == null) {
             return Collections.emptyList();

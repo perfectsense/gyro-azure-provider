@@ -16,49 +16,57 @@
 
 package gyro.azure.compute;
 
-import com.microsoft.azure.SubResource;
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.compute.AvailabilitySets;
-import com.microsoft.azure.management.compute.CachingTypes;
-import com.microsoft.azure.management.compute.Disk;
-import com.microsoft.azure.management.compute.InstanceViewStatus;
-import com.microsoft.azure.management.compute.KnownLinuxVirtualMachineImage;
-import com.microsoft.azure.management.compute.KnownWindowsVirtualMachineImage;
-import com.microsoft.azure.management.compute.NetworkInterfaceReference;
-import com.microsoft.azure.management.compute.OperatingSystemTypes;
-import com.microsoft.azure.management.compute.StorageAccountTypes;
-import com.microsoft.azure.management.compute.VirtualMachine;
-import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithCreate;
-import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithLinuxCreateManaged;
-import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithLinuxCreateManagedOrUnmanaged;
-import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithLinuxCreateUnmanaged;
-import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithLinuxRootPasswordOrPublicKeyManaged;
-import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithLinuxRootPasswordOrPublicKeyManagedOrUnmanaged;
-import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithLinuxRootPasswordOrPublicKeyUnmanaged;
-import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithLinuxRootUsernameManaged;
-import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithLinuxRootUsernameManagedOrUnmanaged;
-import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithLinuxRootUsernameUnmanaged;
-import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithManagedCreate;
-import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithUnmanagedCreate;
-import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithFromImageCreateOptionsManaged;
-import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithFromImageCreateOptionsManagedOrUnmanaged;
-import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithFromImageCreateOptionsUnmanaged;
-import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithNetwork;
-import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithOS;
-import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithPrivateIP;
-import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithPublicIPAddress;
-import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithWindowsAdminUsernameManaged;
-import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithWindowsAdminUsernameManagedOrUnmanaged;
-import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithWindowsAdminUsernameUnmanaged;
-import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithWindowsCreateManaged;
-import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithWindowsCreateManagedOrUnmanaged;
-import com.microsoft.azure.management.compute.VirtualMachine.DefinitionStages.WithWindowsCreateUnmanaged;
-import com.microsoft.azure.management.compute.VirtualMachineDataDisk;
-import com.microsoft.azure.management.compute.VirtualMachineSizeTypes;
-import com.microsoft.azure.management.resources.fluentcore.arm.Region;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import com.azure.core.management.Region;
+import com.azure.core.management.SubResource;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.compute.models.CachingTypes;
+import com.azure.resourcemanager.compute.models.Disk;
+import com.azure.resourcemanager.compute.models.InstanceViewStatus;
+import com.azure.resourcemanager.compute.models.KnownLinuxVirtualMachineImage;
+import com.azure.resourcemanager.compute.models.KnownWindowsVirtualMachineImage;
+import com.azure.resourcemanager.compute.models.NetworkInterfaceReference;
+import com.azure.resourcemanager.compute.models.OperatingSystemTypes;
+import com.azure.resourcemanager.compute.models.StorageAccountTypes;
+import com.azure.resourcemanager.compute.models.VirtualMachine;
+import com.azure.resourcemanager.compute.models.VirtualMachine.DefinitionStages.WithCreate;
+import com.azure.resourcemanager.compute.models.VirtualMachine.DefinitionStages.WithFromImageCreateOptionsManaged;
+import com.azure.resourcemanager.compute.models.VirtualMachine.DefinitionStages.WithFromImageCreateOptionsManagedOrUnmanaged;
+import com.azure.resourcemanager.compute.models.VirtualMachine.DefinitionStages.WithFromImageCreateOptionsUnmanaged;
+import com.azure.resourcemanager.compute.models.VirtualMachine.DefinitionStages.WithLinuxCreateManaged;
+import com.azure.resourcemanager.compute.models.VirtualMachine.DefinitionStages.WithLinuxCreateManagedOrUnmanaged;
+import com.azure.resourcemanager.compute.models.VirtualMachine.DefinitionStages.WithLinuxCreateUnmanaged;
+import com.azure.resourcemanager.compute.models.VirtualMachine.DefinitionStages.WithLinuxRootPasswordOrPublicKeyManaged;
+import com.azure.resourcemanager.compute.models.VirtualMachine.DefinitionStages.WithLinuxRootPasswordOrPublicKeyManagedOrUnmanaged;
+import com.azure.resourcemanager.compute.models.VirtualMachine.DefinitionStages.WithLinuxRootPasswordOrPublicKeyUnmanaged;
+import com.azure.resourcemanager.compute.models.VirtualMachine.DefinitionStages.WithLinuxRootUsernameManaged;
+import com.azure.resourcemanager.compute.models.VirtualMachine.DefinitionStages.WithLinuxRootUsernameManagedOrUnmanaged;
+import com.azure.resourcemanager.compute.models.VirtualMachine.DefinitionStages.WithLinuxRootUsernameUnmanaged;
+import com.azure.resourcemanager.compute.models.VirtualMachine.DefinitionStages.WithManagedCreate;
+import com.azure.resourcemanager.compute.models.VirtualMachine.DefinitionStages.WithNetwork;
+import com.azure.resourcemanager.compute.models.VirtualMachine.DefinitionStages.WithOS;
+import com.azure.resourcemanager.compute.models.VirtualMachine.DefinitionStages.WithPrivateIP;
+import com.azure.resourcemanager.compute.models.VirtualMachine.DefinitionStages.WithPublicIPAddress;
+import com.azure.resourcemanager.compute.models.VirtualMachine.DefinitionStages.WithWindowsAdminUsernameManaged;
+import com.azure.resourcemanager.compute.models.VirtualMachine.DefinitionStages.WithWindowsAdminUsernameManagedOrUnmanaged;
+import com.azure.resourcemanager.compute.models.VirtualMachine.DefinitionStages.WithWindowsAdminUsernameUnmanaged;
+import com.azure.resourcemanager.compute.models.VirtualMachine.DefinitionStages.WithWindowsCreateManaged;
+import com.azure.resourcemanager.compute.models.VirtualMachine.DefinitionStages.WithWindowsCreateManagedOrUnmanaged;
+import com.azure.resourcemanager.compute.models.VirtualMachine.DefinitionStages.WithWindowsCreateUnmanaged;
+import com.azure.resourcemanager.compute.models.VirtualMachineDataDisk;
+import com.azure.resourcemanager.compute.models.VirtualMachineSizeTypes;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.StringUtils;
-
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.azure.identity.IdentityResource;
@@ -69,28 +77,16 @@ import gyro.azure.resources.ResourceGroupResource;
 import gyro.core.GyroException;
 import gyro.core.GyroInstance;
 import gyro.core.GyroUI;
+import gyro.core.Type;
 import gyro.core.resource.DiffableInternals;
 import gyro.core.resource.Id;
-import gyro.core.resource.Updatable;
-import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
-
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Creates a virtual machine.
@@ -126,6 +122,7 @@ import java.util.stream.Collectors;
  */
 @Type("virtual-machine")
 public class VirtualMachineResource extends AzureResource implements GyroInstance, Copyable<VirtualMachine> {
+
     private String name;
     private ResourceGroupResource resourceGroup;
     private NetworkResource network;
@@ -301,7 +298,7 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
      * The os for the Virtual Machine.
      */
     @Required
-    @ValidStrings({"linux", "windows"})
+    @ValidStrings({ "linux", "windows" })
     public String getOsType() {
         return osType != null ? osType.toLowerCase() : null;
     }
@@ -327,8 +324,8 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
     @Updatable
     public Boolean getDeleteOsDiskOnTerminate() {
         return deleteOsDiskOnTerminate == null
-                ? deleteOsDiskOnTerminate = Boolean.FALSE
-                : deleteOsDiskOnTerminate;
+            ? deleteOsDiskOnTerminate = Boolean.FALSE
+            : deleteOsDiskOnTerminate;
     }
 
     public void setDeleteOsDiskOnTerminate(Boolean deleteOsDiskOnTerminate) {
@@ -341,8 +338,8 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
     @Updatable
     public Set<DiskResource> getDataDisks() {
         return dataDisks == null
-                ? dataDisks = new LinkedHashSet<>()
-                : dataDisks;
+            ? dataDisks = new LinkedHashSet<>()
+            : dataDisks;
     }
 
     public void setDataDisks(Set<DiskResource> dataDisks) {
@@ -364,7 +361,7 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
      * Type of Virtual Machine image. Defaults to specialized.
      */
     @Required
-    @ValidStrings({"popular", "specialized", "latest", "specific", "custom", "gallery"})
+    @ValidStrings({ "popular", "specialized", "latest", "specific", "custom", "gallery" })
     public String getVmImageType() {
         if (vmImageType == null) {
             vmImageType = "specialized";
@@ -436,7 +433,7 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
     /**
      * The data disk storage account type for the Virtual Machine.
      */
-    @ValidStrings({"STANDARD_LRS", "PREMIUM_LRS", "STANDARDSSD_LRS"})
+    @ValidStrings({ "STANDARD_LRS", "PREMIUM_LRS", "STANDARDSSD_LRS" })
     @Updatable
     public String getStorageAccountTypeDataDisk() {
         return storageAccountTypeDataDisk;
@@ -449,7 +446,7 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
     /**
      * The os disk storage account type for the Virtual Machine.
      */
-    @ValidStrings({"STANDARD_LRS", "PREMIUM_LRS", "STANDARDSSD_LRS"})
+    @ValidStrings({ "STANDARD_LRS", "PREMIUM_LRS", "STANDARDSSD_LRS" })
     public String getStorageAccountTypeOsDisk() {
         return storageAccountTypeOsDisk;
     }
@@ -700,27 +697,32 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
         setId(virtualMachine.id());
         setVmId(virtualMachine.vmId());
 
-        setAvailabilitySet(virtualMachine.availabilitySetId() != null ? findById(AvailabilitySetResource.class, virtualMachine.availabilitySetId()) : null);
-        setPublicIpAddress(virtualMachine.getPrimaryPublicIPAddressId() != null ? findById(PublicIpAddressResource.class, virtualMachine.getPrimaryPublicIPAddressId()) : null);
+        setAvailabilitySet(virtualMachine.availabilitySetId() != null ? findById(
+            AvailabilitySetResource.class,
+            virtualMachine.availabilitySetId()) : null);
+        setPublicIpAddress(virtualMachine.getPrimaryPublicIPAddressId() != null ? findById(
+            PublicIpAddressResource.class,
+            virtualMachine.getPrimaryPublicIPAddressId()) : null);
         setOsType(virtualMachine.osType().name());
 
         setNetworkInterface(
-            findById(NetworkInterfaceResource.class,
-                virtualMachine.inner().networkProfile()
+            findById(
+                NetworkInterfaceResource.class,
+                virtualMachine.innerModel().networkProfile()
                     .networkInterfaces().stream()
                     .filter(NetworkInterfaceReference::primary).findFirst()
                     .map(SubResource::id).orElse(null)
             )
         );
         setSecondaryNetworkInterface(
-            virtualMachine.inner().networkProfile()
+            virtualMachine.innerModel().networkProfile()
                 .networkInterfaces().stream()
                 .filter(o -> !o.primary())
                 .map(o -> findById(NetworkInterfaceResource.class, o.id()))
                 .collect(Collectors.toSet())
         );
 
-        setVmSizeType(virtualMachine.inner().hardwareProfile().vmSize().toString());
+        setVmSizeType(virtualMachine.innerModel().hardwareProfile().vmSize().toString());
 
         Set<DiskResource> dataDisks = new LinkedHashSet<>();
         Map<Integer, VirtualMachineDataDisk> dataDiskMap = virtualMachine.dataDisks();
@@ -749,19 +751,26 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
         }
 
         setState(virtualMachine.powerState().toString());
-        setLocation(virtualMachine.inner().location());
+        setLocation(virtualMachine.innerModel().location());
         setComputerName(virtualMachine.computerName());
-        setPublicIpAddressIp(virtualMachine.getPrimaryPublicIPAddress()!= null ? virtualMachine.getPrimaryPublicIPAddress().ipAddress() : null);
-        InstanceViewStatus instanceViewStatus = virtualMachine.instanceView().statuses().stream().filter(o -> o.code().equals("ProvisioningState/succeeded")).findFirst().orElse(null);
-        setLaunchDate(instanceViewStatus != null ? instanceViewStatus.time().toDate() : null);
+        setPublicIpAddressIp(virtualMachine.getPrimaryPublicIPAddress() != null
+            ? virtualMachine.getPrimaryPublicIPAddress().ipAddress()
+            : null);
+        InstanceViewStatus instanceViewStatus = virtualMachine.instanceView()
+            .statuses()
+            .stream()
+            .filter(o -> o.code().equals("ProvisioningState/succeeded"))
+            .findFirst()
+            .orElse(null);
+        setLaunchDate(instanceViewStatus != null ? Date.from(instanceViewStatus.time().toInstant()) : null);
 
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
         setPrivateIpAddress(client.networkInterfaces().getById(getNetworkInterface().getId()).primaryPrivateIP());
     }
 
     @Override
     public boolean refresh() {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         VirtualMachine virtualMachine = client.virtualMachines().getById(getId());
 
@@ -776,7 +785,7 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
 
     @Override
     public void create(GyroUI ui, State state) {
-        VirtualMachine virtualMachine = doVMFluentWorkflow(createClient()).create();
+        VirtualMachine virtualMachine = doVMFluentWorkflow(createResourceManagerClient()).create();
         setId(virtualMachine.id());
         setVmId(virtualMachine.vmId());
         copyFrom(virtualMachine);
@@ -792,7 +801,7 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
      * Configure Generic Host attributes
      * @return {@link WithCreate} VM Definition object ready for creation
      */
-    private WithCreate doVMFluentWorkflow(Azure client) {
+    private WithCreate doVMFluentWorkflow(AzureResourceManager client) {
         WithNetwork initialVMBuilder = configureRegionAndResourceGroups(client.virtualMachines().define(getName()));
         WithOS networkConfigured = configureNetwork(client, initialVMBuilder);
         WithCreate osConfiguredVMBuilder = configureOS(client, networkConfigured);
@@ -810,7 +819,8 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
         }
 
         if (getAvailabilitySet() != null) {
-            osConfiguredVMBuilder = osConfiguredVMBuilder.withExistingAvailabilitySet(client.availabilitySets().getById(getAvailabilitySet().getId()));
+            osConfiguredVMBuilder = osConfiguredVMBuilder.withExistingAvailabilitySet(client.availabilitySets()
+                .getById(getAvailabilitySet().getId()));
         }
 
         if (getEnableSystemManagedServiceIdentity()) {
@@ -818,12 +828,13 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
         }
 
         for (IdentityResource identity : getIdentities()) {
-            osConfiguredVMBuilder = osConfiguredVMBuilder.withExistingUserAssignedManagedServiceIdentity(client.identities().getById(identity.getId()));
+            osConfiguredVMBuilder = osConfiguredVMBuilder.withExistingUserAssignedManagedServiceIdentity(client.identities()
+                .getById(identity.getId()));
         }
 
         return osConfiguredVMBuilder
-                .withSize(getVmSizeType())
-                .withTags(getTags());
+            .withSize(getVmSizeType())
+            .withTags(getTags());
     }
 
     /**
@@ -833,7 +844,7 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
      */
     private WithNetwork configureRegionAndResourceGroups(VirtualMachine.DefinitionStages.Blank initialVMBuilder) {
         return initialVMBuilder.withRegion(Region.fromName(getRegion()))
-                .withExistingResourceGroup(getResourceGroup().getName());
+            .withExistingResourceGroup(getResourceGroup().getName());
     }
 
     /**
@@ -842,20 +853,20 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
      * creates one with either a defined or generated private and public IP.
      * @return {@link WithOS} VM Definition object ready for OS configurations
      */
-    private WithOS configureNetwork(Azure client, WithNetwork initialVMBuilder) {
+    private WithOS configureNetwork(AzureResourceManager client, WithNetwork initialVMBuilder) {
 
         WithOS networkConfigured;
 
         if (!ObjectUtils.isBlank(getNetworkInterface())) {
             networkConfigured = initialVMBuilder.withExistingPrimaryNetworkInterface(
-                    client.networkInterfaces().getByResourceGroup(
-                            getResourceGroup().getName(), getNetworkInterface().getName()
-                    ));
+                client.networkInterfaces().getByResourceGroup(
+                    getResourceGroup().getName(), getNetworkInterface().getName()
+                ));
         } else {
 
             WithPrivateIP withPrivateIP = initialVMBuilder
-                    .withExistingPrimaryNetwork(client.networks().getById(getNetwork().getId()))
-                    .withSubnet(getSubnet());
+                .withExistingPrimaryNetwork(client.networks().getById(getNetwork().getId()))
+                .withSubnet(getSubnet());
 
             WithPublicIPAddress withPublicIpAddress;
             if (!ObjectUtils.isBlank(getPrivateIpAddress())) {
@@ -866,7 +877,8 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
 
             if (!ObjectUtils.isBlank(getPublicIpAddress())) {
                 networkConfigured = withPublicIpAddress.withExistingPrimaryPublicIPAddress(
-                        client.publicIPAddresses().getByResourceGroup(getResourceGroup().getName(), getPublicIpAddress().getName())
+                    client.publicIpAddresses()
+                        .getByResourceGroup(getResourceGroup().getName(), getPublicIpAddress().getName())
                 );
             } else {
                 networkConfigured = withPublicIpAddress.withoutPrimaryPublicIPAddress();
@@ -882,8 +894,8 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
      * Configures OS Disk, Admin User, and Data Disks
      * @return {@link WithCreate} VM Definition object ready for final generic configurations
      */
-    private WithCreate configureOS(Azure client, WithOS withOS) {
-        switch(getOsType()) {
+    private WithCreate configureOS(AzureResourceManager client, VirtualMachine.DefinitionStages.WithOS withOS) {
+        switch (getOsType()) {
             case "linux":
                 return configureLinux(client, withOS);
             case "windows":
@@ -898,39 +910,44 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
      * Configures OS Disk, Admin User, and Data Disks
      * @return {@link WithCreate} VM Definition object ready for final generic configurations
      */
-    private WithCreate configureLinux(Azure client, WithOS withOS) {
+    private WithCreate configureLinux(AzureResourceManager client, WithOS withOS) {
         switch (getVmImageType()) {
             case "custom":
                 return configureLinuxManaged(
-                        client,
-                        withOS.withLinuxCustomImage(getCustomImage()));
+                    client,
+                    withOS.withGeneralizedLinuxCustomImage(getCustomImage()));
             case "gallery":
                 return configureLinuxManaged(
-                        client,
-                        withOS.withLinuxGalleryImageVersion(getGalleryImageVersion()));
+                    client,
+                    withOS.withGeneralizedLinuxGalleryImageVersion(getGalleryImageVersion()));
             case "latest":
                 return configureLinuxManagedOrUnmanaged(
-                        client,
-                        withOS.withLatestLinuxImage(getImagePublisher(), getImageOffer(), getImageSku()));
+                    client,
+                    withOS.withLatestLinuxImage(getImagePublisher(), getImageOffer(), getImageSku()));
             case "popular":
                 return configureLinuxManagedOrUnmanaged(
-                        client,
-                        withOS.withPopularLinuxImage(KnownLinuxVirtualMachineImage.valueOf(getKnownVirtualImage())));
+                    client,
+                    withOS.withPopularLinuxImage(KnownLinuxVirtualMachineImage.valueOf(getKnownVirtualImage())));
             case "specific":
                 return configureLinuxManagedOrUnmanaged(
-                        client,
-                        withOS.withSpecificLinuxImageVersion(
-                                client.virtualMachineImages()
-                                .getImage(getImageRegion(), getImagePublisher(), getImageOffer(), getImageSku(), getImageVersion())
-                                .imageReference()));
+                    client,
+                    withOS.withSpecificLinuxImageVersion(
+                        client.virtualMachineImages()
+                            .getImage(
+                                getImageRegion(),
+                                getImagePublisher(),
+                                getImageOffer(),
+                                getImageSku(),
+                                getImageVersion())
+                            .imageReference()));
             case "stored":
                 return configureLinuxUnmanaged(
-                        client,
-                        withOS.withStoredLinuxImage(getStoredImage()));
+                    client,
+                    withOS.withStoredLinuxImage(getStoredImage()));
             case "specialized":
                 // Only Managed Disks are supported by Gyro currently
                 WithManagedCreate specializedOsManagedConfigured = withOS.withSpecializedOSDisk(
-                        client.disks().getById(getOsDisk().getId()), OperatingSystemTypes.LINUX);
+                    client.disks().getById(getOsDisk().getId()), OperatingSystemTypes.LINUX);
                 return configureManagedDataDisks(client, specializedOsManagedConfigured);
             default:
                 throw new GyroException(String.format("Linux VM Image Type [%s] is Unsupported!", getVmImageType()));
@@ -941,15 +958,21 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
      * Helper method in Virtual Machine workflow. Handles Managed Disk types.
      * @return {@link WithCreate} VM Definition object ready for final generic configurations
      */
-    private WithCreate configureLinuxManaged(Azure client, WithLinuxRootUsernameManaged vmImageTypeConfigured) {
-        return configureManagedDataDisks(client, configureLinuxAdmin(vmImageTypeConfigured).withCustomData(getEncodedCustomData()));
+    private WithCreate configureLinuxManaged(
+        AzureResourceManager client,
+        WithLinuxRootUsernameManaged vmImageTypeConfigured) {
+        return configureManagedDataDisks(
+            client,
+            configureLinuxAdmin(vmImageTypeConfigured).withCustomData(getEncodedCustomData()));
     }
 
     /**
      * Helper method in Virtual Machine workflow. Handles ManagedOrUnmanaged Disk types.
      * @return {@link WithCreate} VM Definition object ready for final generic configurations
      */
-    private WithCreate configureLinuxManagedOrUnmanaged(Azure client, WithLinuxRootUsernameManagedOrUnmanaged vmImageTypeConfigured) {
+    private WithCreate configureLinuxManagedOrUnmanaged(
+        AzureResourceManager client,
+        WithLinuxRootUsernameManagedOrUnmanaged vmImageTypeConfigured) {
         WithFromImageCreateOptionsManagedOrUnmanaged adminConfigured = configureLinuxAdmin(vmImageTypeConfigured);
         // Only managed disks are supported by Gyro currently.
         return configureManagedDataDisks(client, adminConfigured.withCustomData(getEncodedCustomData()));
@@ -959,8 +982,12 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
      * Helper method in Virtual Machine workflow. Handles Unmanaged Disk types.
      * @return {@link WithCreate} VM Definition object ready for final generic configurations
      */
-    private WithCreate configureLinuxUnmanaged(Azure client, WithLinuxRootUsernameUnmanaged vmImageTypeConfigured) {
-        return configureUnmanagedDataDisks(client, configureLinuxAdmin(vmImageTypeConfigured).withCustomData(getEncodedCustomData()));
+    private WithCreate configureLinuxUnmanaged(
+        AzureResourceManager client,
+        WithLinuxRootUsernameUnmanaged vmImageTypeConfigured) {
+        return configureUnmanagedDataDisks(
+            client,
+            configureLinuxAdmin(vmImageTypeConfigured).withCustomData(getEncodedCustomData()));
     }
 
     /**
@@ -969,7 +996,8 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
      */
     private WithFromImageCreateOptionsManaged configureLinuxAdmin(WithLinuxRootUsernameManaged vmImageTypeConfigured) {
         WithLinuxCreateManaged adminConfigured = null;
-        WithLinuxRootPasswordOrPublicKeyManaged rootUserConfigured = vmImageTypeConfigured.withRootUsername(getAdminUserName());
+        WithLinuxRootPasswordOrPublicKeyManaged rootUserConfigured = vmImageTypeConfigured.withRootUsername(
+            getAdminUserName());
         if (!StringUtils.isBlank(getAdminPassword())) {
             adminConfigured = rootUserConfigured.withRootPassword(getAdminPassword());
         }
@@ -991,7 +1019,8 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
      */
     private WithFromImageCreateOptionsManagedOrUnmanaged configureLinuxAdmin(WithLinuxRootUsernameManagedOrUnmanaged vmImageTypeConfigured) {
         WithLinuxCreateManagedOrUnmanaged adminConfigured = null;
-        WithLinuxRootPasswordOrPublicKeyManagedOrUnmanaged rootUserConfigured = vmImageTypeConfigured.withRootUsername(getAdminUserName());
+        WithLinuxRootPasswordOrPublicKeyManagedOrUnmanaged rootUserConfigured = vmImageTypeConfigured.withRootUsername(
+            getAdminUserName());
         if (!StringUtils.isBlank(getAdminPassword())) {
             adminConfigured = rootUserConfigured.withRootPassword(getAdminPassword());
         }
@@ -1013,7 +1042,8 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
      */
     private WithFromImageCreateOptionsUnmanaged configureLinuxAdmin(WithLinuxRootUsernameUnmanaged vmImageTypeConfigured) {
         WithLinuxCreateUnmanaged adminConfigured = null;
-        WithLinuxRootPasswordOrPublicKeyUnmanaged rootUserConfigured = vmImageTypeConfigured.withRootUsername(getAdminUserName());
+        WithLinuxRootPasswordOrPublicKeyUnmanaged rootUserConfigured = vmImageTypeConfigured.withRootUsername(
+            getAdminUserName());
         if (!StringUtils.isBlank(getAdminPassword())) {
             adminConfigured = rootUserConfigured.withRootPassword(getAdminPassword());
         }
@@ -1034,40 +1064,45 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
      * Configures OS Disk, Admin User, and Data Disks
      * @return {@link WithCreate} VM Definition object ready for final generic configurations
      */
-    private WithCreate configureWindows(Azure client, WithOS withOS) {
+    private WithCreate configureWindows(AzureResourceManager client, WithOS withOS) {
 
         switch (getVmImageType()) {
             case "custom":
                 return configureWindowsManaged(
-                        client,
-                        withOS.withWindowsCustomImage(getCustomImage()));
+                    client,
+                    withOS.withGeneralizedWindowsCustomImage(getCustomImage()));
             case "gallery":
                 return configureWindowsManaged(
-                        client,
-                        withOS.withWindowsGalleryImageVersion(getGalleryImageVersion()));
+                    client,
+                    withOS.withGeneralizedWindowsGalleryImageVersion(getGalleryImageVersion()));
             case "latest":
                 return configureWindowsManagedOrUnmanaged(
-                        client,
-                        withOS.withLatestWindowsImage(getImagePublisher(), getImageOffer(), getImageSku()));
+                    client,
+                    withOS.withLatestWindowsImage(getImagePublisher(), getImageOffer(), getImageSku()));
             case "popular":
                 return configureWindowsManagedOrUnmanaged(
-                        client,
-                        withOS.withPopularWindowsImage(KnownWindowsVirtualMachineImage.valueOf(getKnownVirtualImage())));
+                    client,
+                    withOS.withPopularWindowsImage(KnownWindowsVirtualMachineImage.valueOf(getKnownVirtualImage())));
             case "specific":
                 return configureWindowsManagedOrUnmanaged(
-                        client,
-                        withOS.withSpecificWindowsImageVersion(
-                                client.virtualMachineImages()
-                                .getImage(getImageRegion(), getImagePublisher(), getImageOffer(), getImageSku(), getImageVersion())
-                                .imageReference()));
+                    client,
+                    withOS.withSpecificWindowsImageVersion(
+                        client.virtualMachineImages()
+                            .getImage(
+                                getImageRegion(),
+                                getImagePublisher(),
+                                getImageOffer(),
+                                getImageSku(),
+                                getImageVersion())
+                            .imageReference()));
             case "stored":
                 return configureWindowsUnmanaged(
-                        client,
-                        withOS.withStoredWindowsImage(getStoredImage()));
+                    client,
+                    withOS.withStoredWindowsImage(getStoredImage()));
             case "specialized":
                 // Only Managed Disks are supported by Gyro currently
                 WithManagedCreate specializedOsManagedConfigured = withOS.withSpecializedOSDisk(
-                        client.disks().getById(getOsDisk().getId()), OperatingSystemTypes.WINDOWS);
+                    client.disks().getById(getOsDisk().getId()), OperatingSystemTypes.WINDOWS);
                 return configureManagedDataDisks(client, specializedOsManagedConfigured);
             default:
                 throw new GyroException(String.format("Windows VM Image Type [%s] is Unsupported!", getVmImageType()));
@@ -1078,40 +1113,46 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
      * Helper method in Virtual Machine Fluent workflow. Handles Managed Disk types.
      * @return {@link WithCreate} VM Definition object ready for final generic configurations
      */
-    private WithCreate configureWindowsManaged(Azure client, WithWindowsAdminUsernameManaged vmImageTypeConfigured) {
+    private WithCreate configureWindowsManaged(
+        AzureResourceManager client,
+        WithWindowsAdminUsernameManaged vmImageTypeConfigured) {
         WithWindowsCreateManaged adminConfigured = configureWindowsAdmin(vmImageTypeConfigured);
         return configureManagedDataDisks(
-                client,
-                adminConfigured.withoutAutoUpdate()
-                        .withoutVMAgent()
-                        .withTimeZone(getTimeZone())
-                        .withCustomData(getEncodedCustomData()));
+            client,
+            adminConfigured.withoutAutoUpdate()
+                .withoutVMAgent()
+                .withTimeZone(getTimeZone())
+                .withCustomData(getEncodedCustomData()));
     }
 
     /**
      * Helper method in Virtual Machine Fluent workflow. Handles ManagedOrUnmanaged Disk types.
      * @return {@link WithCreate} VM Definition object ready for final generic configurations
      */
-    private WithCreate configureWindowsManagedOrUnmanaged(Azure client, WithWindowsAdminUsernameManagedOrUnmanaged vmImageTypeConfigured) {
+    private WithCreate configureWindowsManagedOrUnmanaged(
+        AzureResourceManager client,
+        WithWindowsAdminUsernameManagedOrUnmanaged vmImageTypeConfigured) {
         WithWindowsCreateManagedOrUnmanaged adminConfigured = configureWindowsAdmin(vmImageTypeConfigured);
 
         // Only managed disks are supported by Gyro currently.
         return configureManagedDataDisks(
-                client,
-                adminConfigured.withoutAutoUpdate()
-                        .withoutVMAgent()
-                        .withTimeZone(getTimeZone())
-                        .withCustomData(getEncodedCustomData()));
+            client,
+            adminConfigured.withoutAutoUpdate()
+                .withoutVMAgent()
+                .withTimeZone(getTimeZone())
+                .withCustomData(getEncodedCustomData()));
     }
 
     /**
      * Helper method in Virtual Machine Fluent workflow. Handles Unmanaged Disk types.
      * @return {@link WithCreate} VM Definition object ready for final generic configurations
      */
-    private WithCreate configureWindowsUnmanaged(Azure client, WithWindowsAdminUsernameUnmanaged vmImageTypeConfigured) {
+    private WithCreate configureWindowsUnmanaged(
+        AzureResourceManager client,
+        WithWindowsAdminUsernameUnmanaged vmImageTypeConfigured) {
         return configureUnmanagedDataDisks(
-                client,
-                configureWindowsAdmin(vmImageTypeConfigured).withCustomData(getEncodedCustomData()));
+            client,
+            configureWindowsAdmin(vmImageTypeConfigured).withCustomData(getEncodedCustomData()));
     }
 
     /**
@@ -1120,7 +1161,7 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
      */
     private WithWindowsCreateManaged configureWindowsAdmin(WithWindowsAdminUsernameManaged vmImageTypeConfigured) {
         return vmImageTypeConfigured.withAdminUsername(getAdminUserName())
-                .withAdminPassword(getAdminPassword());
+            .withAdminPassword(getAdminPassword());
     }
 
     /**
@@ -1129,7 +1170,7 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
      */
     private WithWindowsCreateManagedOrUnmanaged configureWindowsAdmin(WithWindowsAdminUsernameManagedOrUnmanaged vmImageTypeConfigured) {
         return vmImageTypeConfigured.withAdminUsername(getAdminUserName())
-                .withAdminPassword(getAdminPassword());
+            .withAdminPassword(getAdminPassword());
     }
 
     /**
@@ -1138,7 +1179,7 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
      */
     private WithWindowsCreateUnmanaged configureWindowsAdmin(WithWindowsAdminUsernameUnmanaged vmImageTypeConfigured) {
         return vmImageTypeConfigured.withAdminUsername(getAdminUserName())
-                .withAdminPassword(getAdminPassword());
+            .withAdminPassword(getAdminPassword());
     }
 
     /**
@@ -1146,11 +1187,11 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
      * Configures Managed Data Disks and Managed Data Disk defaults.
      * @return {@link WithCreate} VM Definition object ready for final generic configurations
      */
-    private WithCreate configureManagedDataDisks(Azure client, WithManagedCreate adminConfigured) {
+    private WithCreate configureManagedDataDisks(AzureResourceManager client, WithManagedCreate adminConfigured) {
         WithManagedCreate diskDefaultsConfigured = adminConfigured
-                .withDataDiskDefaultCachingType(CachingTypes.fromString(getCachingType()))
-                .withDataDiskDefaultStorageAccountType(StorageAccountTypes.fromString(getStorageAccountTypeDataDisk()))
-                .withOSDiskStorageAccountType(StorageAccountTypes.fromString(getStorageAccountTypeOsDisk()));
+            .withDataDiskDefaultCachingType(CachingTypes.fromString(getCachingType()))
+            .withDataDiskDefaultStorageAccountType(StorageAccountTypes.fromString(getStorageAccountTypeDataDisk()))
+            .withOSDiskStorageAccountType(StorageAccountTypes.fromString(getStorageAccountTypeOsDisk()));
 
         for (DiskResource diskResource : getDataDisks()) {
             Disk disk = client.disks().getById(diskResource.getId());
@@ -1166,7 +1207,9 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
      * Fifth step in Virtual Machine Fluent workflow. Configures Data disks
      * @return {@link WithCreate} VM Definition object ready for final generic configurations
      */
-    private <T extends WithFromImageCreateOptionsManagedOrUnmanaged> WithCreate configureDataDisks(Azure client, T adminConfigured) {
+    private <T extends WithFromImageCreateOptionsManagedOrUnmanaged> WithCreate configureDataDisks(
+        AzureResourceManager client,
+        T adminConfigured) {
         // Only managed disks are supported by Gyro currently.
         return configureManagedDataDisks(client, adminConfigured);
     }
@@ -1175,7 +1218,9 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
      * Fifth step in Virtual Machine Fluent workflow. Configures Data disks
      * @return {@link WithCreate} VM Definition object ready for final generic configurations
      */
-    private WithCreate configureUnmanagedDataDisks(Azure client, WithUnmanagedCreate adminConfigured) {
+    private WithCreate configureUnmanagedDataDisks(
+        AzureResourceManager client,
+        VirtualMachine.DefinitionStages.WithUnmanagedCreate adminConfigured) {
         // Only managed disks are supported by Gyro currently.
         if (!getDataDisks().isEmpty()) {
             throw new GyroException("Unmanaged Data Disks are currently not supported by Gyro");
@@ -1186,7 +1231,7 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         VirtualMachine virtualMachine = client.virtualMachines().getById(getId());
 
@@ -1203,10 +1248,10 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
             }
 
             Set<String> wantedDataDiskIds = getDataDisks()
-                    .stream()
-                    .map(DiskResource::getId)
-                    .filter(s -> client.disks().getById(s) != null)
-                    .collect(Collectors.toSet());
+                .stream()
+                .map(DiskResource::getId)
+                .filter(s -> client.disks().getById(s) != null)
+                .collect(Collectors.toSet());
 
             Set<String> diskIdsToRemove = new LinkedHashSet<>(currentDataDiskIdsToLun.keySet());
             diskIdsToRemove.removeAll(wantedDataDiskIds);
@@ -1240,7 +1285,8 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
             }
 
             for (IdentityResource identity : getIdentities()) {
-                update = update.withExistingUserAssignedManagedServiceIdentity(client.identities().getById(identity.getId()));
+                update = update.withExistingUserAssignedManagedServiceIdentity(client.identities()
+                    .getById(identity.getId()));
             }
         }
 
@@ -1250,20 +1296,22 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         VirtualMachine virtualMachine = client.virtualMachines().getById(getId());
         client.virtualMachines().deleteById(getId());
 
         if (getDeleteOsDiskOnTerminate()
-                && virtualMachine != null
-                && !"specialized".equals(getVmImageType())) {
+            && virtualMachine != null
+            && !"specialized".equals(getVmImageType())) {
             client.disks().deleteById(virtualMachine.osDiskId());
         }
     }
 
     private String getEncodedCustomData() {
-        return !ObjectUtils.isBlank(getCustomData()) ? Base64.getEncoder().encodeToString(getCustomData().getBytes()) : null;
+        return !ObjectUtils.isBlank(getCustomData())
+            ? Base64.getEncoder().encodeToString(getCustomData().getBytes())
+            : null;
     }
 
     private String getDecodedCustomData(String data) {
@@ -1276,46 +1324,82 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
 
         if ("custom".equals(getVmImageType())) {
             if (getCustomImage() == null) {
-                errors.add(new ValidationError(this, "custom-image", "[custom-image] is required when using 'custom' [os-type]!"));
+                errors.add(new ValidationError(
+                    this,
+                    "custom-image",
+                    "[custom-image] is required when using 'custom' [os-type]!"));
             }
         } else if ("gallery".equals(getVmImageType())) {
             if (getGalleryImageVersion() == null) {
-                errors.add(new ValidationError(this, "gallery-image-version", "[gallery-image-version] is required when using 'gallery' [os-type]!"));
+                errors.add(new ValidationError(
+                    this,
+                    "gallery-image-version",
+                    "[gallery-image-version] is required when using 'gallery' [os-type]!"));
             }
         } else if ("latest".equals(getVmImageType())) {
             if (getImagePublisher() == null) {
-                errors.add(new ValidationError(this, "image-publisher", "[image-publisher] is required when using 'latest' [os-type]!"));
+                errors.add(new ValidationError(
+                    this,
+                    "image-publisher",
+                    "[image-publisher] is required when using 'latest' [os-type]!"));
             }
             if (getImageOffer() == null) {
-                errors.add(new ValidationError(this, "image-offer", "[image-offer] is required when using 'latest' [os-type]!"));
+                errors.add(new ValidationError(
+                    this,
+                    "image-offer",
+                    "[image-offer] is required when using 'latest' [os-type]!"));
             }
             if (getImageSku() == null) {
-                errors.add(new ValidationError(this, "image-sku", "[image-sku] is required when using 'latest' [os-type]!"));
+                errors.add(new ValidationError(
+                    this,
+                    "image-sku",
+                    "[image-sku] is required when using 'latest' [os-type]!"));
             }
         } else if ("popular".equals(getVmImageType())) {
             if (getKnownVirtualImage() == null) {
-                errors.add(new ValidationError(this, "known-virtual-image", "[known-virtual-image] is required when using 'popular' [os-type]!"));
+                errors.add(new ValidationError(
+                    this,
+                    "known-virtual-image",
+                    "[known-virtual-image] is required when using 'popular' [os-type]!"));
             }
         } else if ("specific".equals(getVmImageType())) {
             if (getImageRegion() == null) {
-                errors.add(new ValidationError(this, "image-region", "[image-region] is required when using 'specific' [os-type]!"));
+                errors.add(new ValidationError(
+                    this,
+                    "image-region",
+                    "[image-region] is required when using 'specific' [os-type]!"));
             }
             if (getImagePublisher() == null) {
-                errors.add(new ValidationError(this, "image-publisher", "[image-publisher] is required when using 'specific' [os-type]!"));
+                errors.add(new ValidationError(
+                    this,
+                    "image-publisher",
+                    "[image-publisher] is required when using 'specific' [os-type]!"));
             }
             if (getImageSku() == null) {
-                errors.add(new ValidationError(this, "image-sku", "[image-sku] is required when using 'specific' [os-type]!"));
+                errors.add(new ValidationError(
+                    this,
+                    "image-sku",
+                    "[image-sku] is required when using 'specific' [os-type]!"));
             }
             if (getImageVersion() == null) {
-                errors.add(new ValidationError(this, "image-version", "[image-version] is required when using 'specific' [os-type]!"));
+                errors.add(new ValidationError(
+                    this,
+                    "image-version",
+                    "[image-version] is required when using 'specific' [os-type]!"));
             }
         } else if ("stored".equals(getVmImageType())) {
             if (getStoredImage() == null) {
-                errors.add(new ValidationError(this, "stored-image", "[stored-image] is required when using 'stored' [os-type]!"));
+                errors.add(new ValidationError(
+                    this,
+                    "stored-image",
+                    "[stored-image] is required when using 'stored' [os-type]!"));
             }
         } else if ("specialized".equals(getVmImageType())) {
             if (getOsDisk() == null) {
-                errors.add(new ValidationError(this, "os-disk", "[os-disk] is required when using 'specialized' [os-type]!"));
+                errors.add(new ValidationError(
+                    this,
+                    "os-disk",
+                    "[os-disk] is required when using 'specialized' [os-type]!"));
             }
         } else {
             errors.add(new ValidationError(this, "vm-image-type", "Unsupported [vm-image-type]!"));
@@ -1343,12 +1427,16 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
 
     @Override
     public String getGyroInstancePublicIpAddress() {
-        return getPublicIpAddress() != null && !ObjectUtils.isBlank(getPublicIpAddress().getIpAddress()) ? getPublicIpAddress().getIpAddress() : getPublicIpAddressIp();
+        return getPublicIpAddress() != null && !ObjectUtils.isBlank(getPublicIpAddress().getIpAddress())
+            ? getPublicIpAddress().getIpAddress()
+            : getPublicIpAddressIp();
     }
 
     @Override
     public String getGyroInstanceHostname() {
-        return getGyroInstancePublicIpAddress() != null ? getGyroInstancePublicIpAddress() : getGyroInstancePrivateIpAddress();
+        return getGyroInstancePublicIpAddress() != null
+            ? getGyroInstancePublicIpAddress()
+            : getGyroInstancePrivateIpAddress();
     }
 
     @Override

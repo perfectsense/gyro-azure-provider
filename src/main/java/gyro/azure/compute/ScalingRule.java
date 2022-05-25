@@ -16,32 +16,34 @@
 
 package gyro.azure.compute;
 
-import com.microsoft.azure.management.monitor.ComparisonOperationType;
-import com.microsoft.azure.management.monitor.MetricStatisticType;
-import com.microsoft.azure.management.monitor.ScaleDirection;
-import com.microsoft.azure.management.monitor.ScaleRule;
-import com.microsoft.azure.management.monitor.ScaleType;
-import com.microsoft.azure.management.monitor.TimeAggregationType;
+import java.time.Duration;
+
+import com.azure.resourcemanager.monitor.models.ComparisonOperationType;
+import com.azure.resourcemanager.monitor.models.MetricStatisticType;
+import com.azure.resourcemanager.monitor.models.ScaleDirection;
+import com.azure.resourcemanager.monitor.models.ScaleRule;
+import com.azure.resourcemanager.monitor.models.ScaleType;
+import com.azure.resourcemanager.monitor.models.TimeAggregationType;
 import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Range;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
-import org.joda.time.Period;
 
 public class ScalingRule extends Diffable implements Copyable<ScaleRule> {
+
     private String metricName;
     private String metricSourceId;
     private MetricStatisticType statisticType;
-    private Integer statisticDuration;
-    private Integer statisticFrequency;
+    private Long statisticDuration;
+    private Long statisticFrequency;
     private TimeAggregationType timeAggregation;
     private ComparisonOperationType comparisonOperation;
     private Double threshold;
     private ScaleDirection scaleDirection;
     private ScaleType scaleType;
-    private Integer cooldown;
+    private Long cooldown;
     private Integer instanceCountChange;
 
     /**
@@ -72,7 +74,7 @@ public class ScalingRule extends Diffable implements Copyable<ScaleRule> {
      * The type of metrics statistic showing how metrics from multiple instances are combined. Defaults to ``AVERAGE``.
      */
     @Updatable
-    @ValidStrings({"AVERAGE", "MIN", "MAX", "SUM"})
+    @ValidStrings({ "AVERAGE", "MIN", "MAX", "SUM" })
     public MetricStatisticType getStatisticType() {
         if (statisticType == null) {
             statisticType = MetricStatisticType.AVERAGE;
@@ -90,15 +92,15 @@ public class ScalingRule extends Diffable implements Copyable<ScaleRule> {
      */
     @Range(min = 300, max = 43200)
     @Updatable
-    public Integer getStatisticDuration() {
+    public Long getStatisticDuration() {
         if (statisticDuration == null) {
-            statisticDuration = 600;
+            statisticDuration = 600L;
         }
 
         return statisticDuration;
     }
 
-    public void setStatisticDuration(Integer statisticDuration) {
+    public void setStatisticDuration(Long statisticDuration) {
         this.statisticDuration = statisticDuration;
     }
 
@@ -107,15 +109,15 @@ public class ScalingRule extends Diffable implements Copyable<ScaleRule> {
      */
     @Range(min = 60, max = 43200)
     @Updatable
-    public Integer getStatisticFrequency() {
+    public Long getStatisticFrequency() {
         if (statisticFrequency == null) {
-            statisticFrequency = 60;
+            statisticFrequency = 60L;
         }
 
         return statisticFrequency;
     }
 
-    public void setStatisticFrequency(Integer statisticFrequency) {
+    public void setStatisticFrequency(Long statisticFrequency) {
         this.statisticFrequency = statisticFrequency;
     }
 
@@ -124,7 +126,7 @@ public class ScalingRule extends Diffable implements Copyable<ScaleRule> {
      */
     @Required
     @Updatable
-    @ValidStrings({"AVERAGE", "MINIMUM", "MAXIMUM", "TOTAL", "COUNT"})
+    @ValidStrings({ "AVERAGE", "MINIMUM", "MAXIMUM", "TOTAL", "COUNT" })
     public TimeAggregationType getTimeAggregation() {
         return timeAggregation;
     }
@@ -138,7 +140,13 @@ public class ScalingRule extends Diffable implements Copyable<ScaleRule> {
      */
     @Required
     @Updatable
-    @ValidStrings({"EQUALS", "NOT_EQUALS", "GREATER_THAN", "GREATER_THAN_OR_EQUAL", "LESS_THAN", "LESS_THAN_OR_EQUAL"})
+    @ValidStrings({
+        "EQUALS",
+        "NOT_EQUALS",
+        "GREATER_THAN",
+        "GREATER_THAN_OR_EQUAL",
+        "LESS_THAN",
+        "LESS_THAN_OR_EQUAL" })
     public ComparisonOperationType getComparisonOperation() {
         return comparisonOperation;
     }
@@ -165,7 +173,7 @@ public class ScalingRule extends Diffable implements Copyable<ScaleRule> {
      */
     @Required
     @Updatable
-    @ValidStrings({"NONE", "INCREASE", "DECREASE"})
+    @ValidStrings({ "NONE", "INCREASE", "DECREASE" })
     public ScaleDirection getScaleDirection() {
         return scaleDirection;
     }
@@ -179,7 +187,7 @@ public class ScalingRule extends Diffable implements Copyable<ScaleRule> {
      */
     @Required
     @Updatable
-    @ValidStrings({"CHANGE_COUNT", "PERCENT_CHANGE_COUNT", "EXACT_COUNT"})
+    @ValidStrings({ "CHANGE_COUNT", "PERCENT_CHANGE_COUNT", "EXACT_COUNT" })
     public ScaleType getScaleType() {
         return scaleType;
     }
@@ -194,11 +202,11 @@ public class ScalingRule extends Diffable implements Copyable<ScaleRule> {
     @Required
     @Updatable
     @Range(min = 1, max = 10080)
-    public Integer getCooldown() {
+    public Long getCooldown() {
         return cooldown;
     }
 
-    public void setCooldown(Integer cooldown) {
+    public void setCooldown(Long cooldown) {
         this.cooldown = cooldown;
     }
 
@@ -218,9 +226,9 @@ public class ScalingRule extends Diffable implements Copyable<ScaleRule> {
     @Override
     public void copyFrom(ScaleRule rule) {
         setComparisonOperation(rule.condition());
-        setCooldown(rule.coolDown().toStandardMinutes().getMinutes());
-        setStatisticDuration(rule.duration().toStandardSeconds().getSeconds());
-        setStatisticFrequency(rule.frequency().toStandardSeconds().getSeconds());
+        setCooldown(rule.cooldown().toMinutes());
+        setStatisticDuration(rule.duration().toSeconds());
+        setStatisticFrequency(rule.frequency().toSeconds());
         setStatisticType(rule.frequencyStatistic());
         setMetricName(rule.metricName());
         setMetricSourceId(rule.metricSource());
@@ -234,17 +242,31 @@ public class ScalingRule extends Diffable implements Copyable<ScaleRule> {
     ScaleRule.DefinitionStages.WithAttach attachRule(ScaleRule.DefinitionStages.Blank withBlank) {
         return withBlank.withMetricSource(getMetricSourceId())
             .withMetricName(getMetricName())
-            .withStatistic(Period.seconds(getStatisticDuration()), Period.seconds(getStatisticFrequency()), getStatisticType())
+            .withStatistic(
+                Duration.ofSeconds(getStatisticDuration()),
+                Duration.ofSeconds(getStatisticFrequency()),
+                getStatisticType())
             .withCondition(getTimeAggregation(), getComparisonOperation(), getThreshold())
-            .withScaleAction(getScaleDirection(), getScaleType(), getInstanceCountChange(), Period.minutes(getCooldown()));
+            .withScaleAction(
+                getScaleDirection(),
+                getScaleType(),
+                getInstanceCountChange(),
+                Duration.ofMinutes(getCooldown()));
     }
 
     ScaleRule.ParentUpdateDefinitionStages.WithAttach attachRule(ScaleRule.ParentUpdateDefinitionStages.Blank withBlank) {
         return withBlank.withMetricSource(getMetricSourceId())
             .withMetricName(getMetricName())
-            .withStatistic(Period.seconds(getStatisticDuration()), Period.seconds(getStatisticFrequency()), getStatisticType())
+            .withStatistic(
+                Duration.ofSeconds(getStatisticDuration()),
+                Duration.ofSeconds(getStatisticFrequency()),
+                getStatisticType())
             .withCondition(getTimeAggregation(), getComparisonOperation(), getThreshold())
-            .withScaleAction(getScaleDirection(), getScaleType(), getInstanceCountChange(), Period.minutes(getCooldown()));
+            .withScaleAction(
+                getScaleDirection(),
+                getScaleType(),
+                getInstanceCountChange(),
+                Duration.ofMinutes(getCooldown()));
     }
 
     @Override
@@ -252,6 +274,11 @@ public class ScalingRule extends Diffable implements Copyable<ScaleRule> {
         String format = String.format("%s %s %s %s %s %s %s %s %s", getStatisticType(), getStatisticDuration(),
             getStatisticFrequency(), getTimeAggregation(), getComparisonOperation(),
             getThreshold(), getScaleType(), getCooldown(), getInstanceCountChange());
-        return String.format("Rule (%s with direction %s for target %s) %s", getMetricName(), getScaleDirection(), getMetricSourceId(), format.hashCode());
+        return String.format(
+            "Rule (%s with direction %s for target %s) %s",
+            getMetricName(),
+            getScaleDirection(),
+            getMetricSourceId(),
+            format.hashCode());
     }
 }

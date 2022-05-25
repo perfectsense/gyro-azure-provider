@@ -16,14 +16,15 @@
 
 package gyro.azure.compute;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.compute.VirtualMachineScaleSet;
-import gyro.azure.AzureFinder;
-import gyro.core.Type;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.compute.models.VirtualMachineScaleSet;
+import gyro.azure.AzureResourceManagerFinder;
+import gyro.core.Type;
 
 /**
  * Query scale set.
@@ -36,7 +37,8 @@ import java.util.Map;
  *    scale-set: $(external-query azure::scale-set {})
  */
 @Type("scale-set")
-public class VMScaleSetFinder extends AzureFinder<VirtualMachineScaleSet, VMScaleSetResource> {
+public class VMScaleSetFinder extends AzureResourceManagerFinder<VirtualMachineScaleSet, VMScaleSetResource> {
+
     private String id;
 
     /**
@@ -51,12 +53,12 @@ public class VMScaleSetFinder extends AzureFinder<VirtualMachineScaleSet, VMScal
     }
 
     @Override
-    protected List<VirtualMachineScaleSet> findAllAzure(Azure client) {
-        return client.virtualMachineScaleSets().list();
+    protected List<VirtualMachineScaleSet> findAllAzure(AzureResourceManager client) {
+        return client.virtualMachineScaleSets().list().stream().collect(Collectors.toList());
     }
 
     @Override
-    protected List<VirtualMachineScaleSet> findAzure(Azure client, Map<String, String> filters) {
+    protected List<VirtualMachineScaleSet> findAzure(AzureResourceManager client, Map<String, String> filters) {
         VirtualMachineScaleSet scaleSet = client.virtualMachineScaleSets().getById(filters.get("id"));
         if (scaleSet == null) {
             return Collections.emptyList();

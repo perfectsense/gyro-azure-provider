@@ -16,19 +16,19 @@
 
 package gyro.azure.compute;
 
-import com.microsoft.azure.management.monitor.AutoscaleProfile;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import com.azure.resourcemanager.monitor.models.AutoscaleProfile;
 import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 public class ScalingProfile extends Diffable implements Copyable<AutoscaleProfile> {
-    public enum ProfileType {FIXED, RECURRENT_SCHEDULE, FIXED_SCHEDULE, METRIC}
+
     private String name;
     private ProfileType type;
     private Integer defaultInstanceCount;
@@ -55,7 +55,7 @@ public class ScalingProfile extends Diffable implements Copyable<AutoscaleProfil
      */
     @Required
     @Updatable
-    @ValidStrings({"FIXED", "RECURRENT_SCHEDULE", "FIXED_SCHEDULE", "METRIC"})
+    @ValidStrings({ "FIXED", "RECURRENT_SCHEDULE", "FIXED_SCHEDULE", "METRIC" })
     public ProfileType getType() {
         return type;
     }
@@ -163,7 +163,7 @@ public class ScalingProfile extends Diffable implements Copyable<AutoscaleProfil
             ScalingRecurrentSchedule schedule = newSubresource(ScalingRecurrentSchedule.class);
             schedule.copyFrom(profile.recurrentSchedule());
             setRecurrentSchedule(schedule);
-        } else if (profile.rules() != null && !profile.rules().isEmpty()){
+        } else if (profile.rules() != null && !profile.rules().isEmpty()) {
             setType(ProfileType.METRIC);
             setRule(profile.rules().stream().map(o -> {
                 ScalingRule rule = newSubresource(ScalingRule.class);
@@ -178,5 +178,12 @@ public class ScalingProfile extends Diffable implements Copyable<AutoscaleProfil
     @Override
     public String primaryKey() {
         return getName();
+    }
+
+    public enum ProfileType {
+        FIXED,
+        RECURRENT_SCHEDULE,
+        FIXED_SCHEDULE,
+        METRIC
     }
 }

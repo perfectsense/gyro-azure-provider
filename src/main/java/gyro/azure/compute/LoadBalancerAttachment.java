@@ -16,15 +16,16 @@
 
 package gyro.azure.compute;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import gyro.azure.network.LoadBalancerResource;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 
-import java.util.HashSet;
-import java.util.Set;
-
 public class LoadBalancerAttachment extends Diffable {
+
     private LoadBalancerResource loadBalancer;
     private Set<String> backends;
     private Set<String> inboundNatPools;

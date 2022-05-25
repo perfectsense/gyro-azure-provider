@@ -16,14 +16,15 @@
 
 package gyro.azure.compute;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.compute.VirtualMachine;
-import gyro.azure.AzureFinder;
-import gyro.core.Type;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.compute.models.VirtualMachine;
+import gyro.azure.AzureResourceManagerFinder;
+import gyro.core.Type;
 
 /**
  * Query virtual machine.
@@ -36,7 +37,8 @@ import java.util.Map;
  *    virtual-machine: $(external-query azure::virtual-machine {})
  */
 @Type("virtual-machine")
-public class VirtualMachineFinder extends AzureFinder<VirtualMachine, VirtualMachineResource> {
+public class VirtualMachineFinder extends AzureResourceManagerFinder<VirtualMachine, VirtualMachineResource> {
+
     private String id;
 
     /**
@@ -49,13 +51,14 @@ public class VirtualMachineFinder extends AzureFinder<VirtualMachine, VirtualMac
     public void setId(String id) {
         this.id = id;
     }
+
     @Override
-    protected List<VirtualMachine> findAllAzure(Azure client) {
-        return client.virtualMachines().list();
+    protected List<VirtualMachine> findAllAzure(AzureResourceManager client) {
+        return client.virtualMachines().list().stream().collect(Collectors.toList());
     }
 
     @Override
-    protected List<VirtualMachine> findAzure(Azure client, Map<String, String> filters) {
+    protected List<VirtualMachine> findAzure(AzureResourceManager client, Map<String, String> filters) {
         VirtualMachine virtualMachine = client.virtualMachines().getById(filters.get("id"));
 
         if (virtualMachine == null) {

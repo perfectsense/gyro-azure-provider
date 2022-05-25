@@ -16,14 +16,15 @@
 
 package gyro.azure.compute;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.compute.VirtualMachineCustomImage;
-import gyro.azure.AzureFinder;
-import gyro.core.Type;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.compute.models.VirtualMachineCustomImage;
+import gyro.azure.AzureResourceManagerFinder;
+import gyro.core.Type;
 
 /**
  * Query virtual machine image.
@@ -36,7 +37,9 @@ import java.util.Map;
  *    virtual-machine-image: $(external-query azure::virtual-machine-image {})
  */
 @Type("virtual-machine-image")
-public class VirtualMachineImageFinder extends AzureFinder<VirtualMachineCustomImage, VirtualMachineImageResource> {
+public class VirtualMachineImageFinder
+    extends AzureResourceManagerFinder<VirtualMachineCustomImage, VirtualMachineImageResource> {
+
     private String id;
 
     /**
@@ -51,12 +54,12 @@ public class VirtualMachineImageFinder extends AzureFinder<VirtualMachineCustomI
     }
 
     @Override
-    protected List<VirtualMachineCustomImage> findAllAzure(Azure client) {
-        return client.virtualMachineCustomImages().list();
+    protected List<VirtualMachineCustomImage> findAllAzure(AzureResourceManager client) {
+        return client.virtualMachineCustomImages().list().stream().collect(Collectors.toList());
     }
 
     @Override
-    protected List<VirtualMachineCustomImage> findAzure(Azure client, Map<String, String> filters) {
+    protected List<VirtualMachineCustomImage> findAzure(AzureResourceManager client, Map<String, String> filters) {
         VirtualMachineCustomImage image = client.virtualMachineCustomImages().getById(filters.get("id"));
 
         if (image == null) {

@@ -16,33 +16,33 @@
 
 package gyro.azure.compute;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.compute.Disk;
-import com.microsoft.azure.management.compute.DiskSkuTypes;
-import com.microsoft.azure.management.compute.DiskStorageAccountTypes;
-import com.microsoft.azure.management.compute.OperatingSystemTypes;
-import com.microsoft.azure.management.resources.fluentcore.arm.Region;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import com.azure.core.management.Region;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.compute.models.Disk;
+import com.azure.resourcemanager.compute.models.DiskSkuTypes;
+import com.azure.resourcemanager.compute.models.DiskStorageAccountTypes;
+import com.azure.resourcemanager.compute.models.OperatingSystemTypes;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.azure.resources.ResourceGroupResource;
 import gyro.azure.storage.StorageAccountResource;
 import gyro.core.GyroUI;
-import gyro.core.resource.Id;
-import gyro.core.resource.Updatable;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Creates a disk.
@@ -65,6 +65,7 @@ import java.util.Set;
  */
 @Type("disk")
 public class DiskResource extends AzureResource implements Copyable<Disk> {
+
     private String name;
     private String id;
     private ResourceGroupResource resourceGroup;
@@ -130,7 +131,7 @@ public class DiskResource extends AzureResource implements Copyable<Disk> {
      * Type of OS.
      */
     @Required
-    @ValidStrings({"LINUX", "WINDOWS"})
+    @ValidStrings({ "LINUX", "WINDOWS" })
     @Updatable
     public String getOsType() {
         return osType != null ? osType.toUpperCase() : null;
@@ -144,7 +145,7 @@ public class DiskResource extends AzureResource implements Copyable<Disk> {
      * Type of Disk.
      */
     @Required
-    @ValidStrings({"STANDARD_LRS", "PREMIUM_LRS", "STANDARDSSD_LRS", "ULTRASSD_LRS"})
+    @ValidStrings({ "STANDARD_LRS", "PREMIUM_LRS", "STANDARDSSD_LRS", "ULTRASSD_LRS" })
     @Updatable
     public String getType() {
         return type != null ? type.toUpperCase() : null;
@@ -157,7 +158,7 @@ public class DiskResource extends AzureResource implements Copyable<Disk> {
     /**
      * Type of data source. Defaults to ``disk``.
      */
-    @ValidStrings({"disk", "vhd", "snapshot"})
+    @ValidStrings({ "disk", "vhd", "snapshot" })
     public String getDataLoadSourceType() {
         if (dataLoadSourceType == null) {
             dataLoadSourceType = "disk";
@@ -220,7 +221,7 @@ public class DiskResource extends AzureResource implements Copyable<Disk> {
 
     @Override
     public boolean refresh() {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         Disk disk = client.disks().getById(getId());
 
@@ -235,7 +236,7 @@ public class DiskResource extends AzureResource implements Copyable<Disk> {
 
     @Override
     public void create(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         Disk.DefinitionStages.WithDiskSource diskDefWithoutData = client.disks()
             .define(getName())
@@ -290,7 +291,7 @@ public class DiskResource extends AzureResource implements Copyable<Disk> {
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         Disk disk = client.disks().getById(getId());
 
@@ -317,7 +318,7 @@ public class DiskResource extends AzureResource implements Copyable<Disk> {
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         client.disks().deleteById(getId());
     }
@@ -327,7 +328,10 @@ public class DiskResource extends AzureResource implements Copyable<Disk> {
         List<ValidationError> errors = new ArrayList<>();
 
         if (getDataLoadSourceType().equals("vhd") && getDataLoadSourceStorageAccount() == null) {
-            errors.add(new ValidationError(this, "data-load-source-storage-account", "required when `data-load-source-type` is set to `vhd`."));
+            errors.add(new ValidationError(
+                this,
+                "data-load-source-storage-account",
+                "required when `data-load-source-type` is set to `vhd`."));
         }
 
         return errors;

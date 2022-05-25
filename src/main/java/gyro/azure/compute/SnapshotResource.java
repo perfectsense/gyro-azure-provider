@@ -16,32 +16,30 @@
 
 package gyro.azure.compute;
 
-import com.microsoft.azure.management.compute.CreationSourceType;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import com.azure.core.management.Region;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.compute.models.CreationSourceType;
+import com.azure.resourcemanager.compute.models.Snapshot;
+import com.azure.resourcemanager.compute.models.SnapshotSkuType;
+import com.azure.resourcemanager.compute.models.SnapshotStorageAccountTypes;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.azure.resources.ResourceGroupResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.Type;
 import gyro.core.resource.Id;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
-import gyro.core.Type;
-import gyro.core.resource.Output;
-
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.compute.Snapshot;
-import com.microsoft.azure.management.compute.SnapshotSkuType;
-import com.microsoft.azure.management.compute.SnapshotStorageAccountTypes;
-import com.microsoft.azure.management.compute.Snapshot.DefinitionStages.WithCreate;
-import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
-
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Creates a snapshot.
@@ -66,6 +64,7 @@ import java.util.Set;
  */
 @Type("snapshot")
 public class SnapshotResource extends AzureResource implements Copyable<Snapshot> {
+
     private static final String SOURCE_DATA = "Data";
     private static final String SOURCE_LINUX = "Linux";
     private static final String SOURCE_WINDOWS = "Windows";
@@ -126,7 +125,7 @@ public class SnapshotResource extends AzureResource implements Copyable<Snapshot
      * Determines what data type is used.
      */
     @Required
-    @ValidStrings({"disk", "snapshot", "vhd"})
+    @ValidStrings({ "disk", "snapshot", "vhd" })
     public String getProvider() {
         return provider;
     }
@@ -150,7 +149,7 @@ public class SnapshotResource extends AzureResource implements Copyable<Snapshot
     /**
      * Specifies the sku type.
      */
-    @ValidStrings({"Premium_LRS", "Standard_LRS", "Standard_ZRS"})
+    @ValidStrings({ "Premium_LRS", "Standard_LRS", "Standard_ZRS" })
     @Updatable
     public String getSku() {
         return sku;
@@ -186,7 +185,7 @@ public class SnapshotResource extends AzureResource implements Copyable<Snapshot
      * The type of the disk, snapshot, or vhd used.
      */
     @Required
-    @ValidStrings({"Linux", "Windows", "Data"})
+    @ValidStrings({ "Linux", "Windows", "Data" })
     public String getSource() {
         return source;
     }
@@ -245,16 +244,16 @@ public class SnapshotResource extends AzureResource implements Copyable<Snapshot
         setDisk(null);
         setSnapshot(null);
         if (snapshot.source().type().equals(CreationSourceType.COPIED_FROM_DISK)) {
-            setDisk(findById(DiskResource.class, snapshot.inner().creationData().sourceResourceId()));
+            setDisk(findById(DiskResource.class, snapshot.innerModel().creationData().sourceResourceId()));
         } else if (snapshot.source().type().equals(CreationSourceType.COPIED_FROM_SNAPSHOT)) {
-            setSnapshot(findById(SnapshotResource.class, snapshot.inner().creationData().sourceResourceId()));
+            setSnapshot(findById(SnapshotResource.class, snapshot.innerModel().creationData().sourceResourceId()));
         }
-        setCreationTime(snapshot.inner().timeCreated().toDate());
+        setCreationTime(Date.from(snapshot.innerModel().timeCreated().toInstant()));
     }
 
     @Override
     public boolean refresh() {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         Snapshot snapshot = client.snapshots().getById(getId());
 
@@ -269,13 +268,13 @@ public class SnapshotResource extends AzureResource implements Copyable<Snapshot
 
     @Override
     public void create(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         Snapshot.DefinitionStages.WithSnapshotSource withSnapshotSource = client.snapshots().define(getName())
-                .withRegion(Region.fromName(getRegion()))
-                .withExistingResourceGroup(getResourceGroup().getName());
+            .withRegion(Region.fromName(getRegion()))
+            .withExistingResourceGroup(getResourceGroup().getName());
 
-        WithCreate withCreate = null;
+        Snapshot.DefinitionStages.WithCreate withCreate = null;
 
         boolean invalidSource = false;
 
@@ -323,25 +322,25 @@ public class SnapshotResource extends AzureResource implements Copyable<Snapshot
         }
 
         Snapshot snapshot = withCreate.withTags(getTags())
-                .create();
+            .create();
 
         copyFrom(snapshot);
     }
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         client.snapshots().getById(getId())
-                .update()
-                .withSku(SnapshotSkuType.fromStorageAccountType(SnapshotStorageAccountTypes.fromString(getSku())))
-                .withTags(getTags())
-                .apply();
+            .update()
+            .withSku(SnapshotSkuType.fromStorageAccountType(SnapshotStorageAccountTypes.fromString(getSku())))
+            .withTags(getTags())
+            .apply();
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         client.snapshots().deleteById(getId());
     }

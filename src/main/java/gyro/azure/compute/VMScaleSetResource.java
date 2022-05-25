@@ -16,17 +16,26 @@
 
 package gyro.azure.compute;
 
-import com.microsoft.azure.PagedList;
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.compute.CachingTypes;
-import com.microsoft.azure.management.compute.KnownLinuxVirtualMachineImage;
-import com.microsoft.azure.management.compute.KnownWindowsVirtualMachineImage;
-import com.microsoft.azure.management.compute.ProximityPlacementGroupType;
-import com.microsoft.azure.management.compute.VirtualMachineEvictionPolicyTypes;
-import com.microsoft.azure.management.compute.VirtualMachineScaleSet;
-import com.microsoft.azure.management.compute.VirtualMachineScaleSetSkuTypes;
-import com.microsoft.azure.management.compute.VirtualMachineScaleSetVM;
-import com.microsoft.azure.management.resources.fluentcore.arm.Region;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import com.azure.core.http.rest.PagedIterable;
+import com.azure.core.management.Region;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.compute.models.CachingTypes;
+import com.azure.resourcemanager.compute.models.KnownLinuxVirtualMachineImage;
+import com.azure.resourcemanager.compute.models.KnownWindowsVirtualMachineImage;
+import com.azure.resourcemanager.compute.models.ProximityPlacementGroupType;
+import com.azure.resourcemanager.compute.models.VirtualMachineEvictionPolicyTypes;
+import com.azure.resourcemanager.compute.models.VirtualMachineScaleSet;
+import com.azure.resourcemanager.compute.models.VirtualMachineScaleSetSkuTypes;
+import com.azure.resourcemanager.compute.models.VirtualMachineScaleSetVM;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
@@ -50,15 +59,6 @@ import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Creates a scale set.
@@ -118,6 +118,7 @@ import java.util.stream.Collectors;
  */
 @Type("scale-set")
 public class VMScaleSetResource extends AzureResource implements GyroInstances, Copyable<VirtualMachineScaleSet> {
+
     private String name;
     private ResourceGroupResource resourceGroup;
     private String skuName;
@@ -316,7 +317,7 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
      * The type of os for the VMs deployed by the Scale Set.
      */
     @Required
-    @ValidStrings({"linux", "windows"})
+    @ValidStrings({ "linux", "windows" })
     public String getOsType() {
         return osType;
     }
@@ -329,7 +330,7 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
      * The type of image to be used for the VMs deployed by the Scale Set.
      */
     @Required
-    @ValidStrings({"latest", "popular", "specific", "custom", "stored"})
+    @ValidStrings({ "latest", "popular", "specific", "custom", "stored" })
     public String getImageType() {
         return imageType;
     }
@@ -637,7 +638,7 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
     /**
      * Set the OS Disk caching type for the VMs launched by this Scale Set.
      */
-    @ValidStrings({"NONE", "READ_ONLY", "READ_WRITE"})
+    @ValidStrings({ "NONE", "READ_ONLY", "READ_WRITE" })
     public String getOsDiskCaching() {
         if (osDiskCaching != null) {
             osDiskCaching = osDiskCaching.toUpperCase();
@@ -694,7 +695,7 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
     /**
      * Set the policy for eviction of the flagged low priority VMs launched by this Scale Set. Allowed only of 'enable-low-priority-vm' is set to ``true``.
      */
-    @ValidStrings({"DEALLOCATE", "DELETE"})
+    @ValidStrings({ "DEALLOCATE", "DELETE" })
     public String getLowPriorityVmPolicy() {
         return lowPriorityVmPolicy;
     }
@@ -772,7 +773,9 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
     }
 
     private String getEncodedCustomData() {
-        return !ObjectUtils.isBlank(getCustomData()) ? Base64.getEncoder().encodeToString(getCustomData().getBytes()) : null;
+        return !ObjectUtils.isBlank(getCustomData())
+            ? Base64.getEncoder().encodeToString(getCustomData().getBytes())
+            : null;
     }
 
     private String getDecodedCustomData(String data) {
@@ -789,11 +792,14 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
             setSkuTier(scaleSet.sku().sku().tier());
             setDoNotRunExtensionsOnOverprovisionedVMs(scaleSet.doNotRunExtensionsOnOverprovisionedVMs());
             setApplicationGatewayBackendPoolIds(new HashSet<>(scaleSet.applicationGatewayBackendAddressPoolsIds()));
-            setApplicationSecurityGroups(scaleSet.applicationSecurityGroupIds().stream().map(o -> findById(ApplicationSecurityGroupResource.class, o)).collect(Collectors.toSet()));
+            setApplicationSecurityGroups(scaleSet.applicationSecurityGroupIds()
+                .stream()
+                .map(o -> findById(ApplicationSecurityGroupResource.class, o))
+                .collect(Collectors.toSet()));
             setNetworkSecurityGroup(findById(NetworkSecurityGroupResource.class, scaleSet.networkSecurityGroupId()));
             setImagePublisher(scaleSet.storageProfile().imageReference().publisher());
 
-            if (scaleSet.inner().proximityPlacementGroup() != null) {
+            if (scaleSet.innerModel().proximityPlacementGroup() != null) {
                 setProximityPlacementGroup(newSubresource(ProximityPlacementGroupResource.class));
                 getProximityPlacementGroup().copyFrom(scaleSet.proximityPlacementGroup());
             } else {
@@ -810,7 +816,9 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
 
             if (scaleSet.getPrimaryInternalLoadBalancer() != null) {
                 LoadBalancerAttachment attachment = newSubresource(LoadBalancerAttachment.class);
-                attachment.setLoadBalancer(findById(LoadBalancerResource.class, scaleSet.getPrimaryInternalLoadBalancer().id()));
+                attachment.setLoadBalancer(findById(
+                    LoadBalancerResource.class,
+                    scaleSet.getPrimaryInternalLoadBalancer().id()));
                 attachment.setBackends(scaleSet.listPrimaryInternalLoadBalancerBackends().keySet());
                 attachment.setInboundNatPools(scaleSet.listPrimaryInternalLoadBalancerInboundNatPools().keySet());
                 setPrimaryInternalLoadBalancer(attachment);
@@ -820,7 +828,9 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
 
             if (scaleSet.getPrimaryInternetFacingLoadBalancer() != null) {
                 LoadBalancerAttachment attachment = newSubresource(LoadBalancerAttachment.class);
-                attachment.setLoadBalancer(findById(LoadBalancerResource.class, scaleSet.getPrimaryInternetFacingLoadBalancer().id()));
+                attachment.setLoadBalancer(findById(
+                    LoadBalancerResource.class,
+                    scaleSet.getPrimaryInternetFacingLoadBalancer().id()));
                 attachment.setBackends(scaleSet.listPrimaryInternetFacingLoadBalancerBackends().keySet());
                 attachment.setInboundNatPools(scaleSet.listPrimaryInternetFacingLoadBalancerInboundNatPools().keySet());
                 setPrimaryInternetFacingLoadBalancer(attachment);
@@ -848,11 +858,11 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
 
     @Override
     public boolean refresh() {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         VirtualMachineScaleSet scaleSet = client.virtualMachineScaleSets().getById(getId());
 
-        if (scaleSet == null)  {
+        if (scaleSet == null) {
             return false;
         }
 
@@ -863,9 +873,10 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
 
     @Override
     public void create(GyroUI ui, State state) {
-        Azure client = createClient();
-        
-        VirtualMachineScaleSet.DefinitionStages.WithProximityPlacementGroup withProximityPlacementGroup = client.virtualMachineScaleSets().define(getName())
+        AzureResourceManager client = createResourceManagerClient();
+
+        VirtualMachineScaleSet.DefinitionStages.WithProximityPlacementGroup withProximityPlacementGroup = client.virtualMachineScaleSets()
+            .define(getName())
             .withRegion(Region.fromName(getRegion()))
             .withExistingResourceGroup(getResourceGroup().getName())
             .withSku(VirtualMachineScaleSetSkuTypes.fromSkuNameAndTier(getSkuName(), getSkuTier()));
@@ -874,7 +885,9 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
 
         if (getProximityPlacementGroup() != null) {
             primaryStage = withProximityPlacementGroup
-                .withNewProximityPlacementGroup(getProximityPlacementGroup().getName(), ProximityPlacementGroupType.fromString(getProximityPlacementGroup().getType()))
+                .withNewProximityPlacementGroup(
+                    getProximityPlacementGroup().getName(),
+                    ProximityPlacementGroupType.fromString(getProximityPlacementGroup().getType()))
                 .withDoNotRunExtensionsOnOverprovisionedVMs(getDoNotRunExtensionsOnOverprovisionedVMs())
                 .withAdditionalCapabilities(getAdditionalCapability().toAdditionalCapabilities())
                 .withExistingPrimaryNetworkSubnet(client.networks().getById(getNetwork().getId()), getSubnetName());
@@ -890,9 +903,12 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
         if (getPrimaryInternetFacingLoadBalancer() == null) {
             internetFacingLbStage = primaryStage.withoutPrimaryInternetFacingLoadBalancer();
         } else {
-            internetFacingLbStage = primaryStage.withExistingPrimaryInternetFacingLoadBalancer(client.loadBalancers().getById(getPrimaryInternetFacingLoadBalancer().getLoadBalancer().getId()))
-                .withPrimaryInternetFacingLoadBalancerBackends(getPrimaryInternetFacingLoadBalancer().getBackends().toArray(new String[0]))
-                .withPrimaryInternetFacingLoadBalancerInboundNatPools(getPrimaryInternetFacingLoadBalancer().getInboundNatPools().toArray(new String[0]));
+            internetFacingLbStage = primaryStage.withExistingPrimaryInternetFacingLoadBalancer(client.loadBalancers()
+                    .getById(getPrimaryInternetFacingLoadBalancer().getLoadBalancer().getId()))
+                .withPrimaryInternetFacingLoadBalancerBackends(getPrimaryInternetFacingLoadBalancer().getBackends()
+                    .toArray(new String[0]))
+                .withPrimaryInternetFacingLoadBalancerInboundNatPools(getPrimaryInternetFacingLoadBalancer().getInboundNatPools()
+                    .toArray(new String[0]));
         }
 
         VirtualMachineScaleSet.DefinitionStages.WithOS internalLbStage;
@@ -900,9 +916,12 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
         if (getPrimaryInternalLoadBalancer() == null) {
             internalLbStage = internetFacingLbStage.withoutPrimaryInternalLoadBalancer();
         } else {
-            internalLbStage = internetFacingLbStage.withExistingPrimaryInternalLoadBalancer(client.loadBalancers().getById(getPrimaryInternalLoadBalancer().getLoadBalancer().getId()))
-                .withPrimaryInternalLoadBalancerBackends(getPrimaryInternalLoadBalancer().getBackends().toArray(new String[0]))
-                .withPrimaryInternalLoadBalancerInboundNatPools(getPrimaryInternalLoadBalancer().getInboundNatPools().toArray(new String[0]));
+            internalLbStage = internetFacingLbStage.withExistingPrimaryInternalLoadBalancer(client.loadBalancers()
+                    .getById(getPrimaryInternalLoadBalancer().getLoadBalancer().getId()))
+                .withPrimaryInternalLoadBalancerBackends(getPrimaryInternalLoadBalancer().getBackends()
+                    .toArray(new String[0]))
+                .withPrimaryInternalLoadBalancerInboundNatPools(getPrimaryInternalLoadBalancer().getInboundNatPools()
+                    .toArray(new String[0]));
         }
 
         VirtualMachineScaleSet.DefinitionStages.WithCreate finalStage = null;
@@ -915,13 +934,14 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
             if (getImageType().equals("latest")) {
                 linuxStageA = internalLbStage.withLatestLinuxImage(getImagePublisher(), getImageOffer(), getImageSku());
             } else if (getImageType().equals("popular")) {
-                linuxStageA = internalLbStage.withPopularLinuxImage(KnownLinuxVirtualMachineImage.valueOf(getKnownVirtualImage()));
+                linuxStageA = internalLbStage.withPopularLinuxImage(KnownLinuxVirtualMachineImage.valueOf(
+                    getKnownVirtualImage()));
             } else if (getImageType().equals("specific")) {
                 linuxStageA = internalLbStage.withSpecificLinuxImageVersion(client.virtualMachineImages()
                     .getImage(getImageRegion(), getImagePublisher(), getImageOffer(), getImageSku(), getImageVersion())
                     .imageReference());
             } else if (getImageType().equals("custom")) {
-                linuxStageB = internalLbStage.withLinuxCustomImage(getCustomImage());
+                linuxStageB = internalLbStage.withGeneralizedLinuxCustomImage(getCustomImage());
             } else { // stored
                 linuxStageC = internalLbStage.withStoredLinuxImage(getStoredImage());
             }
@@ -929,7 +949,9 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
             // Todo Data Dsk and Os Disk
             if (linuxStageA != null) {
                 if (!ObjectUtils.isBlank(getAdminPassword()) && !ObjectUtils.isBlank(getSsh())) {
-                    finalStage = linuxStageA.withRootUsername(getAdminUserName()).withRootPassword(getAdminPassword()).withSsh(getSsh());
+                    finalStage = linuxStageA.withRootUsername(getAdminUserName())
+                        .withRootPassword(getAdminPassword())
+                        .withSsh(getSsh());
                 } else if (!ObjectUtils.isBlank(getAdminPassword())) {
                     finalStage = linuxStageA.withRootUsername(getAdminUserName()).withRootPassword(getAdminPassword());
                 } else {
@@ -937,7 +959,9 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
                 }
             } else if (linuxStageB != null) {
                 if (!ObjectUtils.isBlank(getAdminPassword()) && !ObjectUtils.isBlank(getSsh())) {
-                    finalStage = linuxStageB.withRootUsername(getAdminUserName()).withRootPassword(getAdminPassword()).withSsh(getSsh());
+                    finalStage = linuxStageB.withRootUsername(getAdminUserName())
+                        .withRootPassword(getAdminPassword())
+                        .withSsh(getSsh());
                 } else if (!ObjectUtils.isBlank(getAdminPassword())) {
                     finalStage = linuxStageB.withRootUsername(getAdminUserName()).withRootPassword(getAdminPassword());
                 } else {
@@ -945,7 +969,9 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
                 }
             } else {
                 if (!ObjectUtils.isBlank(getAdminPassword()) && !ObjectUtils.isBlank(getSsh())) {
-                    finalStage = linuxStageC.withRootUsername(getAdminUserName()).withRootPassword(getAdminPassword()).withSsh(getSsh());
+                    finalStage = linuxStageC.withRootUsername(getAdminUserName())
+                        .withRootPassword(getAdminPassword())
+                        .withSsh(getSsh());
                 } else if (!ObjectUtils.isBlank(getAdminPassword())) {
                     finalStage = linuxStageC.withRootUsername(getAdminUserName()).withRootPassword(getAdminPassword());
                 } else {
@@ -959,15 +985,19 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
             VirtualMachineScaleSet.DefinitionStages.WithWindowsAdminUsernameUnmanaged windowsStageC = null;
 
             if (getImageType().equals("latest")) {
-                windowsStageA = internalLbStage.withLatestWindowsImage(getImagePublisher(), getImageOffer(), getImageSku());
+                windowsStageA = internalLbStage.withLatestWindowsImage(
+                    getImagePublisher(),
+                    getImageOffer(),
+                    getImageSku());
             } else if (getImageType().equals("popular")) {
-                windowsStageA = internalLbStage.withPopularWindowsImage(KnownWindowsVirtualMachineImage.valueOf(getKnownVirtualImage()));
+                windowsStageA = internalLbStage.withPopularWindowsImage(KnownWindowsVirtualMachineImage.valueOf(
+                    getKnownVirtualImage()));
             } else if (getImageType().equals("specific")) {
                 windowsStageA = internalLbStage.withSpecificWindowsImageVersion(client.virtualMachineImages()
                     .getImage(getImageRegion(), getImagePublisher(), getImageOffer(), getImageSku(), getImageVersion())
                     .imageReference());
             } else if (getImageType().equals("custom")) {
-                windowsStageB = internalLbStage.withWindowsCustomImage(getCustomImage());
+                windowsStageB = internalLbStage.withGeneralizedWindowsCustomImage(getCustomImage());
             } else { // stored
                 windowsStageC = internalLbStage.withStoredWindowsImage(getStoredImage());
             }
@@ -976,11 +1006,15 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
             VirtualMachineScaleSet.DefinitionStages.WithWindowsCreateManaged windowsStageManaged = null;
 
             if (windowsStageA != null) {
-                windowsStageUnmanaged = windowsStageA.withAdminUsername(getAdminUserName()).withAdminPassword(getAdminPassword()).withUnmanagedDisks();
+                windowsStageUnmanaged = windowsStageA.withAdminUsername(getAdminUserName())
+                    .withAdminPassword(getAdminPassword())
+                    .withUnmanagedDisks();
             } else if (windowsStageB != null) {
-                windowsStageManaged = windowsStageB.withAdminUsername(getAdminUserName()).withAdminPassword(getAdminPassword());
+                windowsStageManaged = windowsStageB.withAdminUsername(getAdminUserName())
+                    .withAdminPassword(getAdminPassword());
             } else {
-                windowsStageUnmanaged = windowsStageC.withAdminUsername(getAdminUserName()).withAdminPassword(getAdminPassword());
+                windowsStageUnmanaged = windowsStageC.withAdminUsername(getAdminUserName())
+                    .withAdminPassword(getAdminPassword());
             }
 
             if (windowsStageUnmanaged != null) {
@@ -1013,7 +1047,8 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
         }
 
         if (getStorageAccount() != null) {
-            finalStage = finalStage.withExistingStorageAccount(client.storageAccounts().getById(getStorageAccount().getId()));
+            finalStage = finalStage.withExistingStorageAccount(client.storageAccounts()
+                .getById(getStorageAccount().getId()));
         }
 
         finalStage = finalStage.withOverProvision(getEnableOverProvision());
@@ -1025,9 +1060,9 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
         if (getEnableBootDiagnostic()) {
             if (getBootDiagnosticBlob() != null) {
                 finalStage = finalStage.withBootDiagnostics(getBootDiagnosticBlob().getUri());
-            }
-            else if (getBootDiagnosticStorage() != null) {
-                finalStage = finalStage.withBootDiagnostics(client.storageAccounts().getById(getBootDiagnosticStorage().getId()));
+            } else if (getBootDiagnosticStorage() != null) {
+                finalStage = finalStage.withBootDiagnostics(client.storageAccounts()
+                    .getById(getBootDiagnosticStorage().getId()));
             } else {
                 finalStage = finalStage.withBootDiagnostics();
             }
@@ -1057,7 +1092,8 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
 
         if (getEnableLowPriorityVm()) {
             if (!ObjectUtils.isBlank(getLowPriorityVmPolicy())) {
-                finalStage = finalStage.withLowPriorityVirtualMachine(VirtualMachineEvictionPolicyTypes.fromString(getLowPriorityVmPolicy()));
+                finalStage = finalStage.withLowPriorityVirtualMachine(VirtualMachineEvictionPolicyTypes.fromString(
+                    getLowPriorityVmPolicy()));
             } else {
                 finalStage = finalStage.withLowPriorityVirtualMachine();
             }
@@ -1068,7 +1104,8 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
         }
 
         for (IdentityResource identity : getIdentities()) {
-            finalStage = finalStage.withExistingUserAssignedManagedServiceIdentity(client.identities().getById(identity.getId()));
+            finalStage = finalStage.withExistingUserAssignedManagedServiceIdentity(client.identities()
+                .getById(identity.getId()));
         }
 
         VirtualMachineScaleSet scaleSet = finalStage.create();
@@ -1077,7 +1114,7 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         VirtualMachineScaleSet scaleSet = client.virtualMachineScaleSets().getById(getId());
 
@@ -1085,20 +1122,31 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
         VirtualMachineScaleSet.UpdateStages.WithApply update;
 
         if (getPrimaryInternetFacingLoadBalancer() != null) {
-            a1 = scaleSet.update().withExistingPrimaryInternetFacingLoadBalancer(client.loadBalancers().getById(getPrimaryInternetFacingLoadBalancer().getLoadBalancer().getId()))
-                .withPrimaryInternetFacingLoadBalancerBackends(getPrimaryInternetFacingLoadBalancer().getBackends().toArray(new String[0]))
-                .withPrimaryInternetFacingLoadBalancerInboundNatPools(getPrimaryInternetFacingLoadBalancer().getInboundNatPools().toArray(new String[0]));
+            a1 = scaleSet.update()
+                .withExistingPrimaryInternetFacingLoadBalancer(client.loadBalancers()
+                    .getById(getPrimaryInternetFacingLoadBalancer().getLoadBalancer().getId()))
+                .withPrimaryInternetFacingLoadBalancerBackends(getPrimaryInternetFacingLoadBalancer().getBackends()
+                    .toArray(new String[0]))
+                .withPrimaryInternetFacingLoadBalancerInboundNatPools(getPrimaryInternetFacingLoadBalancer().getInboundNatPools()
+                    .toArray(new String[0]));
         }
 
         if (getPrimaryInternalLoadBalancer() != null) {
             if (a1 != null) {
-                update = a1.withExistingPrimaryInternalLoadBalancer(client.loadBalancers().getById(getPrimaryInternalLoadBalancer().getLoadBalancer().getId()))
-                    .withPrimaryInternalLoadBalancerBackends(getPrimaryInternalLoadBalancer().getBackends().toArray(new String[0]))
-                    .withPrimaryInternalLoadBalancerInboundNatPools(getPrimaryInternalLoadBalancer().getInboundNatPools().toArray(new String[0]));
+                update = a1.withExistingPrimaryInternalLoadBalancer(client.loadBalancers()
+                        .getById(getPrimaryInternalLoadBalancer().getLoadBalancer().getId()))
+                    .withPrimaryInternalLoadBalancerBackends(getPrimaryInternalLoadBalancer().getBackends()
+                        .toArray(new String[0]))
+                    .withPrimaryInternalLoadBalancerInboundNatPools(getPrimaryInternalLoadBalancer().getInboundNatPools()
+                        .toArray(new String[0]));
             } else {
-                update = scaleSet.update().withExistingPrimaryInternalLoadBalancer(client.loadBalancers().getById(getPrimaryInternalLoadBalancer().getLoadBalancer().getId()))
-                    .withPrimaryInternalLoadBalancerBackends(getPrimaryInternalLoadBalancer().getBackends().toArray(new String[0]))
-                    .withPrimaryInternalLoadBalancerInboundNatPools(getPrimaryInternalLoadBalancer().getInboundNatPools().toArray(new String[0]));
+                update = scaleSet.update()
+                    .withExistingPrimaryInternalLoadBalancer(client.loadBalancers()
+                        .getById(getPrimaryInternalLoadBalancer().getLoadBalancer().getId()))
+                    .withPrimaryInternalLoadBalancerBackends(getPrimaryInternalLoadBalancer().getBackends()
+                        .toArray(new String[0]))
+                    .withPrimaryInternalLoadBalancerInboundNatPools(getPrimaryInternalLoadBalancer().getInboundNatPools()
+                        .toArray(new String[0]));
             }
         } else {
             if (a1 != null) {
@@ -1153,9 +1201,9 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
         if (getEnableBootDiagnostic()) {
             if (getBootDiagnosticBlob() != null) {
                 update = update.withBootDiagnostics(getBootDiagnosticBlob().getUri());
-            }
-            else if (getBootDiagnosticStorage() != null) {
-                update = update.withBootDiagnostics(client.storageAccounts().getById(getBootDiagnosticStorage().getId()));
+            } else if (getBootDiagnosticStorage() != null) {
+                update = update.withBootDiagnostics(client.storageAccounts()
+                    .getById(getBootDiagnosticStorage().getId()));
             } else {
                 update = update.withBootDiagnostics();
             }
@@ -1183,7 +1231,8 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
             }
 
             for (IdentityResource identity : getIdentities()) {
-                update = update.withExistingUserAssignedManagedServiceIdentity(client.identities().getById(identity.getId()));
+                update = update.withExistingUserAssignedManagedServiceIdentity(client.identities()
+                    .getById(identity.getId()));
             }
         }
 
@@ -1194,7 +1243,7 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         client.virtualMachineScaleSets().deleteById(getId());
     }
@@ -1202,13 +1251,12 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
     @Override
     public List<GyroInstance> getInstances() {
         List<GyroInstance> instances = new ArrayList<>();
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         VirtualMachineScaleSet virtualMachineScaleSet = client.virtualMachineScaleSets().getById(getId());
 
         if (virtualMachineScaleSet != null) {
-            PagedList<VirtualMachineScaleSetVM> list = virtualMachineScaleSet.virtualMachines().list();
-            list.loadAll();
+            PagedIterable<VirtualMachineScaleSetVM> list = virtualMachineScaleSet.virtualMachines().list();
             List<String> instanceIds = list.stream()
                 .map(VirtualMachineScaleSetVM::instanceId)
                 .collect(Collectors.toList());

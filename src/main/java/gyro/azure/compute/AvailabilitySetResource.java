@@ -16,28 +16,27 @@
 
 package gyro.azure.compute;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import com.azure.core.management.Region;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.compute.models.AvailabilitySet;
+import com.azure.resourcemanager.compute.models.AvailabilitySetSkuTypes;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.azure.resources.ResourceGroupResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
-import gyro.core.resource.Id;
-import gyro.core.resource.Updatable;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
-
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.compute.AvailabilitySet;
-import com.microsoft.azure.management.compute.AvailabilitySetSkuTypes;
-import com.microsoft.azure.management.resources.fluentcore.arm.Region;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Creates an availability set.
@@ -100,8 +99,8 @@ public class AvailabilitySetResource extends AzureResource implements Copyable<A
     @Required
     public String getName() {
         return name != null
-                ? name.toUpperCase()
-                : name;
+            ? name.toUpperCase()
+            : name;
     }
 
     public void setName(String name) {
@@ -123,14 +122,14 @@ public class AvailabilitySetResource extends AzureResource implements Copyable<A
     /**
      * The Availability Set sku. Defaults to ``Classic``.
      */
-    @ValidStrings({"Aligned", "Classic"})
+    @ValidStrings({ "Aligned", "Classic" })
     @Updatable
     public String getSku() {
         if (sku == null) {
             sku = "Classic";
         }
 
-         return sku;
+        return sku;
     }
 
     public void setSku(String sku) {
@@ -176,7 +175,7 @@ public class AvailabilitySetResource extends AzureResource implements Copyable<A
 
     @Override
     public boolean refresh() {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         AvailabilitySet availabilitySet = client.availabilitySets().getById(getId());
 
@@ -191,25 +190,26 @@ public class AvailabilitySetResource extends AzureResource implements Copyable<A
 
     @Override
     public void create(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         AvailabilitySet availabilitySet = client.availabilitySets().define(getName())
-                .withRegion(Region.fromName(getRegion()))
-                .withExistingResourceGroup(getResourceGroup().getName())
-                .withFaultDomainCount(getFaultDomainCount())
-                .withSku(AvailabilitySetSkuTypes.fromString(getSku()))
-                .withUpdateDomainCount(getUpdateDomainCount())
-                .withTags(getTags())
-                .create();
+            .withRegion(Region.fromName(getRegion()))
+            .withExistingResourceGroup(getResourceGroup().getName())
+            .withFaultDomainCount(getFaultDomainCount())
+            .withSku(AvailabilitySetSkuTypes.fromString(getSku()))
+            .withUpdateDomainCount(getUpdateDomainCount())
+            .withTags(getTags())
+            .create();
 
         copyFrom(availabilitySet);
     }
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
-        if (changedFieldNames.contains("sku") && AvailabilitySetSkuTypes.fromString(getSku()).equals(AvailabilitySetSkuTypes.CLASSIC)) {
+        if (changedFieldNames.contains("sku") && AvailabilitySetSkuTypes.fromString(getSku())
+            .equals(AvailabilitySetSkuTypes.CLASSIC)) {
             throw new GyroException("Changing param SKU from 'Aligned' to 'Classic' is not allowed");
         }
 
@@ -223,7 +223,7 @@ public class AvailabilitySetResource extends AzureResource implements Copyable<A
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         client.availabilitySets().deleteById(getId());
     }
