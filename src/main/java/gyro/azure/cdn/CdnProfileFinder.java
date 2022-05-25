@@ -16,14 +16,15 @@
 
 package gyro.azure.cdn;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.cdn.CdnProfile;
-import gyro.azure.AzureFinder;
-import gyro.core.Type;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.cdn.models.CdnProfile;
+import gyro.azure.AzureResourceManagerFinder;
+import gyro.core.Type;
 
 /**
  * Query cdn profile.
@@ -36,7 +37,8 @@ import java.util.Map;
  *    cdn-profile: $(external-query azure::cdn-profile {})
  */
 @Type("cdn-profile")
-public class CdnProfileFinder extends AzureFinder<CdnProfile, CdnProfileResource> {
+public class CdnProfileFinder extends AzureResourceManagerFinder<CdnProfile, CdnProfileResource> {
+
     private String id;
 
     /**
@@ -51,12 +53,12 @@ public class CdnProfileFinder extends AzureFinder<CdnProfile, CdnProfileResource
     }
 
     @Override
-    protected List<CdnProfile> findAllAzure(Azure client) {
-        return client.cdnProfiles().list();
+    protected List<CdnProfile> findAllAzure(AzureResourceManager client) {
+        return client.cdnProfiles().list().stream().collect(Collectors.toList());
     }
 
     @Override
-    protected List<CdnProfile> findAzure(Azure client, Map<String, String> filters) {
+    protected List<CdnProfile> findAzure(AzureResourceManager client, Map<String, String> filters) {
         CdnProfile cdnProfile = client.cdnProfiles().getById(filters.get("id"));
         if (cdnProfile == null) {
             return Collections.emptyList();

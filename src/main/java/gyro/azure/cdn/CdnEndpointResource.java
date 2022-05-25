@@ -16,23 +16,6 @@
 
 package gyro.azure.cdn;
 
-import gyro.azure.AzureResource;
-import gyro.azure.Copyable;
-import gyro.core.GyroUI;
-import gyro.core.resource.Resource;
-import gyro.core.resource.Updatable;
-
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.cdn.CdnProfile;
-import com.microsoft.azure.management.cdn.CdnEndpoint;
-import com.microsoft.azure.management.cdn.QueryStringCachingBehavior;
-import com.microsoft.azure.management.cdn.CdnEndpoint.UpdateDefinitionStages.WithPremiumAttach;
-import com.microsoft.azure.management.cdn.CdnEndpoint.UpdateDefinitionStages.WithStandardAttach;
-import gyro.core.scope.State;
-import gyro.core.validation.Required;
-import gyro.core.validation.ValidStrings;
-import gyro.core.validation.ValidationError;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,6 +23,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.cdn.models.CdnEndpoint;
+import com.azure.resourcemanager.cdn.models.CdnProfile;
+import com.azure.resourcemanager.cdn.models.QueryStringCachingBehavior;
+import gyro.azure.AzureResource;
+import gyro.azure.Copyable;
+import gyro.core.GyroUI;
+import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
+import gyro.core.validation.ValidationError;
 
 /**
  * Creates a cdn endpoint.
@@ -267,7 +264,7 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
     /**
      * Determines the query caching behavior.
      */
-    @ValidStrings({"IGNORE_QUERY_STRING", "BYPASS_CACHING", "USE_QUERY_STRING"})
+    @ValidStrings({ "IGNORE_QUERY_STRING", "BYPASS_CACHING", "USE_QUERY_STRING" })
     @Updatable
     public String getQueryCachingBehavior() {
         return queryCachingBehavior;
@@ -296,7 +293,7 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
     /**
      * The type of the endpoint. Defaults to ``Standard``.
      */
-    @ValidStrings({"Standard", "Premium"})
+    @ValidStrings({ "Standard", "Premium" })
     public String getType() {
         if (type == null) {
             type = TYPE_STANDARD;
@@ -342,15 +339,15 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
 
     @Override
     public void create(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         CdnProfileResource parent = (CdnProfileResource) parent();
 
         CdnProfile cdnProfile = client.cdnProfiles().getById(parent.getId());
 
         if (TYPE_PREMIUM.equalsIgnoreCase(getType())) {
-            WithPremiumAttach<CdnProfile.Update> createPremiumEndpoint =
-                    cdnProfile.update().defineNewPremiumEndpoint(getName(), getOriginHostname());
+            CdnEndpoint.UpdateDefinitionStages.WithPremiumAttach<CdnProfile.Update> createPremiumEndpoint =
+                cdnProfile.update().defineNewPremiumEndpoint(getName(), getOriginHostname());
 
             if (getHostHeader() != null) {
                 createPremiumEndpoint.withHostHeader(getHostHeader());
@@ -383,12 +380,12 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
             copyFrom(profile.endpoints().get(getName()));
 
         } else if (TYPE_STANDARD.equalsIgnoreCase(getType())) {
-            WithStandardAttach<CdnProfile.Update> createStandardEndpoint =
-                    cdnProfile.update().defineNewEndpoint(getName(), getOriginHostname());
+            CdnEndpoint.UpdateDefinitionStages.WithStandardAttach<CdnProfile.Update> createStandardEndpoint =
+                cdnProfile.update().defineNewEndpoint(getName(), getOriginHostname());
 
             if (getCompressionEnabled() != null && getContentTypesToCompress() != null) {
                 createStandardEndpoint.withCompressionEnabled(getCompressionEnabled())
-                        .withContentTypesToCompress(getContentTypesToCompress());
+                    .withContentTypesToCompress(getContentTypesToCompress());
             }
 
             if (!getGeoFilter().isEmpty()) {
@@ -419,8 +416,8 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
 
             if (getQueryCachingBehavior() != null) {
                 createStandardEndpoint
-                        .withQueryStringCachingBehavior(QueryStringCachingBehavior
-                                .valueOf(getQueryCachingBehavior()));
+                    .withQueryStringCachingBehavior(QueryStringCachingBehavior
+                        .valueOf(getQueryCachingBehavior()));
             }
 
             for (String customDomain : getCustomDomains()) {
@@ -435,7 +432,7 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         CdnProfileResource parent = (CdnProfileResource) parent();
 
@@ -443,7 +440,7 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
 
         if (TYPE_PREMIUM.equalsIgnoreCase(getType())) {
             CdnEndpoint.UpdatePremiumEndpoint updatePremiumEndpoint =
-                    cdnProfile.update().updatePremiumEndpoint(getName());
+                cdnProfile.update().updatePremiumEndpoint(getName());
 
             if (getHostHeader() != null) {
                 updatePremiumEndpoint.withHostHeader(getHostHeader());
@@ -476,12 +473,12 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
 
         } else if (TYPE_STANDARD.equalsIgnoreCase(getType())) {
             CdnEndpoint.UpdateStandardEndpoint updateStandardEndpoint =
-                    cdnProfile
+                cdnProfile
                     .update().updateEndpoint(getName());
 
             if (getCompressionEnabled() != null && getContentTypesToCompress() != null) {
                 updateStandardEndpoint.withCompressionEnabled(getCompressionEnabled())
-                        .withContentTypesToCompress(getContentTypesToCompress());
+                    .withContentTypesToCompress(getContentTypesToCompress());
             }
 
             if (!getGeoFilter().isEmpty()) {
@@ -512,7 +509,7 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
 
             if (getQueryCachingBehavior() != null) {
                 updateStandardEndpoint
-                        .withQueryStringCachingBehavior(QueryStringCachingBehavior
+                    .withQueryStringCachingBehavior(QueryStringCachingBehavior
                         .valueOf(getQueryCachingBehavior()));
             }
 
@@ -527,7 +524,7 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         CdnProfileResource parent = (CdnProfileResource) parent();
 
@@ -538,8 +535,8 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
         update.apply();
     }
 
-    private List<com.microsoft.azure.management.cdn.GeoFilter> toGeoFilters() {
-        List<com.microsoft.azure.management.cdn.GeoFilter> geoFilters = new ArrayList<>();
+    private List<com.azure.resourcemanager.cdn.models.GeoFilter> toGeoFilters() {
+        List<com.azure.resourcemanager.cdn.models.GeoFilter> geoFilters = new ArrayList<>();
 
         getGeoFilter().forEach(geo -> geoFilters.add(geo.toGeoFilter()));
 
@@ -565,23 +562,38 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
         List<ValidationError> errors = new ArrayList<>();
 
         if (!getHttpEnabled() && !getHttpsEnabled()) {
-            errors.add(new ValidationError(this, null, "Both 'http-enabled' and 'https-enabled' cannot be set to false."));
+            errors.add(new ValidationError(
+                this,
+                null,
+                "Both 'http-enabled' and 'https-enabled' cannot be set to false."));
         }
 
         if (!getHttpEnabled() && getHttpPort() != null) {
-            errors.add(new ValidationError(this, "http-port", "'http-port' cannot be configured when 'http-enabled' is set to false."));
+            errors.add(new ValidationError(
+                this,
+                "http-port",
+                "'http-port' cannot be configured when 'http-enabled' is set to false."));
         }
 
         if (getHttpEnabled() && getHttpPort() == null) {
-            errors.add(new ValidationError(this, "http-port", "'http-port' is required when 'http-enabled' is set to true."));
+            errors.add(new ValidationError(
+                this,
+                "http-port",
+                "'http-port' is required when 'http-enabled' is set to true."));
         }
 
         if (!getHttpsEnabled() && getHttpsPort() != null) {
-            errors.add(new ValidationError(this, "https-port", "'https-port' cannot be configured when 'https-enabled' is set to false."));
+            errors.add(new ValidationError(
+                this,
+                "https-port",
+                "'https-port' cannot be configured when 'https-enabled' is set to false."));
         }
 
         if (getHttpsEnabled() && getHttpsPort() == null) {
-            errors.add(new ValidationError(this, "https-port", "'https-port' is required when 'https-enabled' is set to true."));
+            errors.add(new ValidationError(
+                this,
+                "https-port",
+                "'https-port' is required when 'https-enabled' is set to true."));
         }
 
         return errors;

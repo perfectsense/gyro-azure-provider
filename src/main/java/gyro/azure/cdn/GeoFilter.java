@@ -16,17 +16,17 @@
 
 package gyro.azure.cdn;
 
-import gyro.azure.Copyable;
-import gyro.core.resource.Diffable;
-import com.microsoft.azure.management.cdn.GeoFilterActions;
-import gyro.core.validation.Required;
-import gyro.core.validation.ValidStrings;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-public class GeoFilter extends Diffable implements Copyable<com.microsoft.azure.management.cdn.GeoFilter> {
+import com.azure.resourcemanager.cdn.models.GeoFilterActions;
+import gyro.azure.Copyable;
+import gyro.core.resource.Diffable;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
+
+public class GeoFilter extends Diffable implements Copyable<com.azure.resourcemanager.cdn.models.GeoFilter> {
 
     private String action;
     private Set<String> countryCodes;
@@ -36,7 +36,7 @@ public class GeoFilter extends Diffable implements Copyable<com.microsoft.azure.
      * The action to be taken.
      */
     @Required
-    @ValidStrings({"ALLOW", "BLOCK"})
+    @ValidStrings({ "ALLOW", "BLOCK" })
     public String getAction() {
         return action;
     }
@@ -74,7 +74,7 @@ public class GeoFilter extends Diffable implements Copyable<com.microsoft.azure.
     }
 
     @Override
-    public void copyFrom(com.microsoft.azure.management.cdn.GeoFilter geoFilter) {
+    public void copyFrom(com.azure.resourcemanager.cdn.models.GeoFilter geoFilter) {
         setAction(geoFilter.action().name());
         setCountryCodes(new HashSet<>(geoFilter.countryCodes()));
         setRelativePath(geoFilter.relativePath());
@@ -84,8 +84,8 @@ public class GeoFilter extends Diffable implements Copyable<com.microsoft.azure.
         return String.format("%s/%s/%s", getAction(), getCountryCodes(), getRelativePath());
     }
 
-    public com.microsoft.azure.management.cdn.GeoFilter toGeoFilter() {
-        com.microsoft.azure.management.cdn.GeoFilter geoFilter = new com.microsoft.azure.management.cdn.GeoFilter();
+    public com.azure.resourcemanager.cdn.models.GeoFilter toGeoFilter() {
+        com.azure.resourcemanager.cdn.models.GeoFilter geoFilter = new com.azure.resourcemanager.cdn.models.GeoFilter();
 
         geoFilter.withAction(GeoFilterActions.fromString(getAction()));
         geoFilter.withCountryCodes(new ArrayList<>(getCountryCodes()));
