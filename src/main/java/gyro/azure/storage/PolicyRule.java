@@ -16,15 +16,17 @@
 
 package gyro.azure.storage;
 
-import com.microsoft.azure.management.storage.ManagementPolicyRule;
+import com.azure.resourcemanager.storage.models.ManagementPolicyRule;
+import com.azure.resourcemanager.storage.models.RuleType;
 import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 
 public class PolicyRule extends Diffable implements Copyable<ManagementPolicyRule> {
+
     private String name;
-    private String type;
+    private RuleType type;
     private Boolean enabled;
     private PolicyDefinition definition;
 
@@ -43,15 +45,15 @@ public class PolicyRule extends Diffable implements Copyable<ManagementPolicyRul
     /**
      * Type of rule. Currently only supported value is ``Lifecycle``. Defaults to ``Lifecycle``.
      */
-    public String getType() {
+    public RuleType getType() {
         if (type == null) {
-            type = "Lifecycle";
+            type = RuleType.LIFECYCLE;
         }
 
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(RuleType type) {
         this.type = type;
     }
 

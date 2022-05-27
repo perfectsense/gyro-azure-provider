@@ -16,14 +16,18 @@
 
 package gyro.azure.storage;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.storage.BlobTypes;
-import com.microsoft.azure.management.storage.ManagementPolicy;
-import com.microsoft.azure.management.storage.ManagementPolicyRule;
-import com.microsoft.azure.management.storage.ManagementPolicySchema;
-import com.microsoft.azure.management.storage.StorageAccount;
-import com.microsoft.azure.management.storage.PolicyRule.DefinitionStages.WithBlobTypesToFilterFor;
-import com.microsoft.azure.management.storage.PolicyRule.DefinitionStages.WithPolicyRuleAttachable;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.storage.models.BlobTypes;
+import com.azure.resourcemanager.storage.models.ManagementPolicy;
+import com.azure.resourcemanager.storage.models.ManagementPolicyRule;
+import com.azure.resourcemanager.storage.models.ManagementPolicySchema;
+import com.azure.resourcemanager.storage.models.StorageAccount;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.core.GyroException;
@@ -35,13 +39,8 @@ import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 public class StorageLifeCycle extends AzureResource implements Copyable<ManagementPolicy> {
+
     private String name;
     private String id;
     private Date lastModified;
@@ -115,7 +114,7 @@ public class StorageLifeCycle extends AzureResource implements Copyable<Manageme
     public void copyFrom(ManagementPolicy policy) {
         setName(policy.name());
         setId(policy.id());
-        setLastModified(policy.lastModifiedTime().toDate());
+        setLastModified(Date.from(policy.lastModifiedTime().toInstant()));
 
         getRule().clear();
         for (ManagementPolicyRule rule : policy.policy().rules()) {
@@ -132,33 +131,45 @@ public class StorageLifeCycle extends AzureResource implements Copyable<Manageme
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         StorageAccountResource parent = (StorageAccountResource) parent();
 
         if (!parent.getUpgradeAccountV2()) {
-            throw new GyroException("Cannot create lifecycle for a storage account not of 'General Purpose Account Kind V2'.");
+            throw new GyroException(
+                "Cannot create lifecycle for a storage account not of 'General Purpose Account Kind V2'.");
         }
 
         StorageAccount storageAccount = client.storageAccounts().getById(parent.getId());
 
-        ManagementPolicy.DefinitionStages.WithRule withRule = storageAccount.manager().managementPolicies().define(getName())
+        ManagementPolicy.DefinitionStages.WithRule withRule = storageAccount.manager()
+            .managementPolicies()
+            .define(getName())
             .withExistingStorageAccount(parent.getResourceGroup().getName(), parent.getName());
 
         ManagementPolicy.DefinitionStages.WithCreate create = null;
 
         for (PolicyRule rule : getRule()) {
-            WithBlobTypesToFilterFor withBlobTypesToFilterFor = create == null
-                ? withRule.defineRule(rule.getName()).withLifecycleRuleType()
-                : create.defineRule(rule.getName()).withLifecycleRuleType();
+            com.azure.resourcemanager.storage.models.PolicyRule.DefinitionStages.WithBlobTypesToFilterFor withBlobTypesToFilterFor =
+                create == null
+                    ? withRule.defineRule(rule.getName()).withLifecycleRuleType()
+                    : create.defineRule(rule.getName()).withLifecycleRuleType();
 
-            WithPolicyRuleAttachable withPolicyRuleAttachable = withBlobTypesToFilterFor
-                .withBlobTypesToFilterFor(rule.getDefinition().getFilter().getBlobTypes().stream().map(BlobTypes::fromString).collect(Collectors.toList()))
+            com.azure.resourcemanager.storage.models.PolicyRule.DefinitionStages.WithPolicyRuleAttachable withPolicyRuleAttachable = withBlobTypesToFilterFor
+                .withBlobTypesToFilterFor(rule.getDefinition()
+                    .getFilter()
+                    .getBlobTypes()
+                    .stream()
+                    .map(BlobTypes::fromString)
+                    .collect(Collectors.toList()))
                 .withPrefixesToFilterFor(new ArrayList<>(rule.getDefinition().getFilter().getPrefixMatches()))
                 .withActionsOnBaseBlob(rule.getDefinition().getAction().getBaseBlob().toManagementPolicyBaseBlob());
 
             if (rule.getDefinition().getAction().getSnapshot() != null) {
-                create = withPolicyRuleAttachable.withActionsOnSnapShot(rule.getDefinition().getAction().getSnapshot().toManagementPolicySnapShot()).attach();
+                create = withPolicyRuleAttachable.withActionsOnSnapShot(rule.getDefinition()
+                    .getAction()
+                    .getSnapshot()
+                    .toManagementPolicySnapShot()).attach();
             } else {
                 create = withPolicyRuleAttachable.attach();
             }
@@ -179,7 +190,7 @@ public class StorageLifeCycle extends AzureResource implements Copyable<Manageme
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         ManagementPolicySchema policySchema = new ManagementPolicySchema();
         policySchema.withRules(getRule().stream().map(PolicyRule::toManagementPolicyRule).collect(Collectors.toList()));
@@ -192,25 +203,22 @@ public class StorageLifeCycle extends AzureResource implements Copyable<Manageme
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         StorageAccountResource parent = (StorageAccountResource) parent();
         StorageAccount storageAccount = client.storageAccounts().getById(parent.getId());
 
         storageAccount.manager()
             .managementPolicies()
-            .inner()
-            .delete(parent.getResourceGroup().getName(), parent.getName());
+            .deleteAsync(parent.getResourceGroup().getName(), parent.getName()).block();
     }
 
-    private ManagementPolicy getManagementPolicy(Azure client) {
+    private ManagementPolicy getManagementPolicy(AzureResourceManager client) {
         StorageAccountResource parent = (StorageAccountResource) parent();
         StorageAccount storageAccount = client.storageAccounts().getById(parent.getId());
 
         return storageAccount.manager()
             .managementPolicies()
-            .getAsync(parent.getResourceGroup().getName(), parent.getName())
-            .toBlocking()
-            .single();
+            .getAsync(parent.getResourceGroup().getName(), parent.getName()).block();
     }
 }

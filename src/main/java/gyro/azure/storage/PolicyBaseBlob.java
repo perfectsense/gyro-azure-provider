@@ -16,17 +16,18 @@
 
 package gyro.azure.storage;
 
-import com.microsoft.azure.management.storage.DateAfterModification;
-import com.microsoft.azure.management.storage.ManagementPolicyBaseBlob;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.azure.resourcemanager.storage.models.DateAfterModification;
+import com.azure.resourcemanager.storage.models.ManagementPolicyBaseBlob;
 import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.ValidationError;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class PolicyBaseBlob extends Diffable implements Copyable<ManagementPolicyBaseBlob> {
+
     private Double deleteDays;
     private Double tierToArchiveDays;
     private Double tierToCoolDays;
@@ -74,23 +75,30 @@ public class PolicyBaseBlob extends Diffable implements Copyable<ManagementPolic
 
     @Override
     public void copyFrom(ManagementPolicyBaseBlob policyBaseBlob) {
-        setDeleteDays(policyBaseBlob.delete() != null ? policyBaseBlob.delete().daysAfterModificationGreaterThan() : null);
-        setTierToArchiveDays(policyBaseBlob.tierToArchive() != null ? policyBaseBlob.tierToArchive().daysAfterModificationGreaterThan() : null);
-        setTierToCoolDays(policyBaseBlob.tierToCool() != null ? policyBaseBlob.tierToCool().daysAfterModificationGreaterThan() : null);
+        setDeleteDays(policyBaseBlob.delete() != null
+            ? (double) policyBaseBlob.delete().daysAfterModificationGreaterThan()
+            : null);
+        setTierToArchiveDays(policyBaseBlob.tierToArchive() != null ? (double) policyBaseBlob.tierToArchive()
+            .daysAfterModificationGreaterThan() : null);
+        setTierToCoolDays(policyBaseBlob.tierToCool() != null ? (double) policyBaseBlob.tierToCool()
+            .daysAfterModificationGreaterThan() : null);
     }
 
     ManagementPolicyBaseBlob toManagementPolicyBaseBlob() {
         ManagementPolicyBaseBlob blob = new ManagementPolicyBaseBlob();
         if (getDeleteDays() != null) {
-            blob.withDelete(new DateAfterModification().withDaysAfterModificationGreaterThan(getDeleteDays()));
+            blob.withDelete(new DateAfterModification().withDaysAfterModificationGreaterThan(Float.parseFloat(
+                getDeleteDays().toString())));
         }
 
         if (getTierToArchiveDays() != null) {
-            blob.withTierToArchive(new DateAfterModification().withDaysAfterModificationGreaterThan(getTierToArchiveDays()));
+            blob.withTierToArchive(new DateAfterModification().withDaysAfterModificationGreaterThan(Float.parseFloat(
+                getTierToArchiveDays().toString())));
         }
 
         if (getTierToCoolDays() != null) {
-            blob.withTierToCool(new DateAfterModification().withDaysAfterModificationGreaterThan(getTierToCoolDays()));
+            blob.withTierToCool(new DateAfterModification().withDaysAfterModificationGreaterThan(Float.parseFloat(
+                getTierToCoolDays().toString())));
         }
 
         return blob;
@@ -101,7 +109,10 @@ public class PolicyBaseBlob extends Diffable implements Copyable<ManagementPolic
         List<ValidationError> errors = new ArrayList<>();
 
         if (getDeleteDays() == null && getTierToCoolDays() == null && getTierToArchiveDays() == null) {
-            errors.add(new ValidationError(this, null, "At least one of 'delete-days' or 'tier-to-cool-days' or 'tier-to-archive-days' is required."));
+            errors.add(new ValidationError(
+                this,
+                null,
+                "At least one of 'delete-days' or 'tier-to-cool-days' or 'tier-to-archive-days' is required."));
         }
 
         return errors;

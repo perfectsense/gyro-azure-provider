@@ -16,32 +16,21 @@
 
 package gyro.azure.storage;
 
+import java.io.BufferedInputStream;
+import java.util.Set;
+
+import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.BlobContainerClient;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroInputStream;
 import gyro.core.GyroUI;
 import gyro.core.Type;
-import gyro.core.resource.Resource;
-import com.microsoft.azure.storage.CloudStorageAccount;
-import com.microsoft.azure.storage.StorageException;
-import com.microsoft.azure.storage.blob.CloudBlobClient;
-import com.microsoft.azure.storage.blob.CloudBlobContainer;
-import com.microsoft.azure.storage.blob.CloudBlobDirectory;
-import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import gyro.core.resource.Output;
+import gyro.core.resource.Resource;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
-import org.apache.commons.lang.StringUtils;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.InvalidKeyException;
-import java.util.Iterator;
-import java.util.Set;
-
 
 /**
  * Creates a cloud blob
@@ -52,35 +41,29 @@ import java.util.Set;
  * .. code-block:: gyro
  *
  *     azure::cloud-blob blob-example
- *         blob-directory-path: "/path/to/blob"
+ *         blob-path: "/path/to/blob"
  *         container: $(azure::cloud-blob-container blob-container-example)
  *         file-path: "test-blob-doc.txt"
- *         storage-account: $(azure::storage-account blob-storage-account-example)
  *     end
  */
 @Type("cloud-blob")
-public class CloudBlobResource extends AzureResource implements Copyable<CloudBlockBlob> {
+public class CloudBlobResource extends AzureResource implements Copyable<BlobClient> {
 
-    private String blobDirectoryPath;
+    private String blobPath;
     private CloudBlobContainerResource container;
     private String filePath;
-    private StorageAccountResource storageAccount;
     private String uri;
 
     /**
      * The directory path of the Blob.
      */
     @Required
-    public String getBlobDirectoryPath() {
-        if (blobDirectoryPath != null && !blobDirectoryPath.startsWith("/")) {
-            blobDirectoryPath = "/" + blobDirectoryPath;
-        }
-
-        return blobDirectoryPath;
+    public String getBlobPath() {
+        return blobPath;
     }
 
-    public void setBlobDirectoryPath(String blobDirectoryPath) {
-        this.blobDirectoryPath = blobDirectoryPath;
+    public void setBlobPath(String blobPath) {
+        this.blobPath = blobPath;
     }
 
     /**
@@ -108,18 +91,6 @@ public class CloudBlobResource extends AzureResource implements Copyable<CloudBl
     }
 
     /**
-     * The Storage Account where the Blob will be created.
-     */
-    @Required
-    public StorageAccountResource getStorageAccount() {
-        return storageAccount;
-    }
-
-    public void setStorageAccount(StorageAccountResource storageAccount) {
-        this.storageAccount = storageAccount;
-    }
-
-    /**
      * The fully qualified uri of the Blob.
      */
     @Output
@@ -132,12 +103,11 @@ public class CloudBlobResource extends AzureResource implements Copyable<CloudBl
     }
 
     @Override
-    public void copyFrom(CloudBlockBlob blob) {
+    public void copyFrom(BlobClient blob) {
         try {
-            setUri(blob.getUri().toString());
-            setBlobDirectoryPath(blob.getName());
-            setContainer(findById(CloudBlobContainerResource.class, blob.getContainer().getName()));
-            setStorageAccount(findById(StorageAccountResource.class, blob.getContainer().getStorageUri().getPrimaryUri().getAuthority().split(".blob.core")[0]));
+            setUri(blob.getBlobUrl());
+            setBlobPath(blob.getBlobName());
+            setContainer(findById(CloudBlobContainerResource.class, blob.getContainerName()));
         } catch (Exception ex) {
             throw new GyroException(ex.getMessage());
         }
@@ -145,26 +115,26 @@ public class CloudBlobResource extends AzureResource implements Copyable<CloudBl
 
     @Override
     public boolean refresh() {
-        try {
-            CloudBlockBlob blob = cloudBlobBlob();
-            if (!blob.exists()) {
-                return false;
-            }
-
-            copyFrom(blob);
-
-            return true;
-        } catch (StorageException | URISyntaxException | InvalidKeyException ex) {
-            throw new GyroException(ex.getMessage());
+        BlobClient blob = blob();
+        if (!blob.exists()) {
+            return false;
         }
+
+        copyFrom(blob);
+
+        return true;
     }
 
     @Override
-    public void create(GyroUI ui, State state) throws StorageException, URISyntaxException, InvalidKeyException, IOException {
-        CloudBlockBlob blob = cloudBlobBlob();
-        GyroInputStream file = openInput(getFilePath());
-        blob.upload(file, file.available());
-        setUri(blob.getUri().toString());
+    public void create(GyroUI ui, State state) {
+        BlobClient blob = blob();
+
+        try (GyroInputStream inputStream = openInput(getFilePath())) {
+            blob.upload(new BufferedInputStream(inputStream), inputStream.available());
+        }
+
+        blob = blob();
+        setUri(blob.getBlobUrl());
     }
 
     @Override
@@ -173,34 +143,14 @@ public class CloudBlobResource extends AzureResource implements Copyable<CloudBl
     }
 
     @Override
-    public void delete(GyroUI ui, State state) throws StorageException, URISyntaxException, InvalidKeyException {
-        CloudBlockBlob blob = cloudBlobBlob();
+    public void delete(GyroUI ui, State state) {
+        BlobClient blob = blob();
         blob.delete();
     }
 
-    private CloudBlockBlob cloudBlobBlob() throws StorageException, URISyntaxException, InvalidKeyException {
-        CloudStorageAccount account = CloudStorageAccount.parse(getStorageAccount().getConnection());
-        CloudBlobClient client = account.createCloudBlobClient();
-        CloudBlobContainer container = client.getContainerReference(getContainer().getName());
+    private BlobClient blob() {
+        BlobContainerClient client = getContainer().blobContainer();
 
-        if (StringUtils.countMatches(getBlobDirectoryPath(), "/") > 1) {
-            CloudBlobDirectory directory = createDirectories();
-            return directory.getBlockBlobReference(getBlobDirectoryPath().substring(getBlobDirectoryPath().lastIndexOf("/") + 1));
-        } else {
-            return container.getBlockBlobReference(getBlobDirectoryPath().substring(getBlobDirectoryPath().lastIndexOf("/") + 1));
-        }
-    }
-
-    private CloudBlobDirectory createDirectories() throws StorageException, URISyntaxException, InvalidKeyException {
-        CloudStorageAccount account = CloudStorageAccount.parse(getStorageAccount().getConnection());
-        CloudBlobClient client = account.createCloudBlobClient();
-        CloudBlobContainer container = client.getContainerReference(getContainer().getName());
-        Path directoryPath = Paths.get(getBlobDirectoryPath()).getParent();
-        Iterator<Path> iter = directoryPath.iterator();
-        CloudBlobDirectory directory = container.getDirectoryReference(iter.next().toString());
-        while (iter.hasNext()) {
-            directory = directory.getDirectoryReference(iter.next().toString());
-        }
-        return directory;
+        return client.getBlobClient(getBlobPath());
     }
 }

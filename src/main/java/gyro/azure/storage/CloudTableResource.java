@@ -16,24 +16,19 @@
 
 package gyro.azure.storage;
 
-import gyro.azure.AzureResource;
+import java.util.Set;
 
+import com.azure.data.tables.TableClient;
+import com.azure.data.tables.TableServiceClient;
+import com.azure.data.tables.TableServiceClientBuilder;
+import com.azure.data.tables.models.TableServiceException;
+import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
-import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
-
-import com.microsoft.azure.storage.CloudStorageAccount;
-import com.microsoft.azure.storage.StorageException;
-import com.microsoft.azure.storage.table.CloudTable;
-import com.microsoft.azure.storage.table.CloudTableClient;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
-
-import java.net.URISyntaxException;
-import java.security.InvalidKeyException;
-import java.util.Set;
 
 /**
  * Creates a cloud table
@@ -49,7 +44,7 @@ import java.util.Set;
  *     end
  */
 @Type("cloud-table")
-public class CloudTableResource extends AzureResource implements Copyable<CloudTable> {
+public class CloudTableResource extends AzureResource implements Copyable<TableClient> {
 
     private String name;
     private StorageAccountResource storageAccount;
@@ -79,31 +74,27 @@ public class CloudTableResource extends AzureResource implements Copyable<CloudT
     }
 
     @Override
-    public void copyFrom(CloudTable cloudTable) {
-        setName(cloudTable.getName());
-        setStorageAccount(findById(StorageAccountResource.class, cloudTable.getStorageUri().getPrimaryUri().getAuthority().split(".table.core")[0]));
+    public void copyFrom(TableClient cloudTable) {
+        setName(cloudTable.getTableName());
+        setStorageAccount(findById(StorageAccountResource.class, cloudTable.getAccountName()));
     }
 
     @Override
     public boolean refresh() {
-        try {
-            CloudTable cloudTable = cloudTable();
-            if (!cloudTable.exists()) {
-                return false;
-            }
-
-            copyFrom(cloudTable);
-
-            return true;
-        } catch (StorageException | URISyntaxException | InvalidKeyException ex) {
-            throw new GyroException(ex.getMessage());
+        TableClient tableClient = verifiedCloudTable();
+        if (tableClient == null) {
+            return false;
         }
+
+        copyFrom(tableClient);
+
+        return true;
     }
 
     @Override
-    public void create(GyroUI ui, State state) throws StorageException, URISyntaxException, InvalidKeyException {
-        CloudTable cloudTable = cloudTable();
-        cloudTable.create();
+    public void create(GyroUI ui, State state) {
+        TableClient tableClient = cloudTable();
+        tableClient.createTable();
     }
 
     @Override
@@ -112,14 +103,36 @@ public class CloudTableResource extends AzureResource implements Copyable<CloudT
     }
 
     @Override
-    public void delete(GyroUI ui, State state) throws StorageException, URISyntaxException, InvalidKeyException {
-        CloudTable cloudTable = cloudTable();
-        cloudTable.delete();
+    public void delete(GyroUI ui, State state) {
+        TableClient tableClient = cloudTable();
+        tableClient.deleteTable();
     }
 
-    private CloudTable cloudTable() throws StorageException, URISyntaxException, InvalidKeyException {
-        CloudStorageAccount account = CloudStorageAccount.parse(getStorageAccount().getConnection());
-        CloudTableClient tableClient = account.createCloudTableClient();
-        return tableClient.getTableReference(getName());
+    private TableClient cloudTable() {
+        TableServiceClient client = new TableServiceClientBuilder()
+            .connectionString(getStorageAccount().getConnection())
+            .buildClient();
+
+        TableClient tableClient = client.getTableClient(getName());
+
+        try {
+            tableClient.getAccessPolicies();
+        } catch (TableServiceException ex) {
+            tableClient = null;
+        }
+
+        return tableClient;
+    }
+
+    private TableClient verifiedCloudTable() {
+        TableClient tableClient = cloudTable();
+
+        try {
+            tableClient.getAccessPolicies();
+        } catch (TableServiceException ex) {
+            tableClient = null;
+        }
+
+        return tableClient;
     }
 }

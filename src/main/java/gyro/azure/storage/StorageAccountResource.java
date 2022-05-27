@@ -16,6 +16,13 @@
 
 package gyro.azure.storage;
 
+import java.net.URISyntaxException;
+import java.security.InvalidKeyException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import com.azure.core.management.Region;
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.storage.models.Kind;
@@ -25,20 +32,13 @@ import gyro.azure.Copyable;
 import gyro.azure.resources.ResourceGroupResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
-import gyro.core.resource.Id;
-import gyro.core.resource.Updatable;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
-
-import java.net.URISyntaxException;
-import java.security.InvalidKeyException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Creates a storage account
@@ -220,7 +220,8 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
     public boolean refresh() {
         AzureResourceManager client = createResourceManagerClient();
 
-        StorageAccount storageAccount = client.storageAccounts().getByResourceGroup(getResourceGroup().getName(), getName());
+        StorageAccount storageAccount = client.storageAccounts()
+            .getByResourceGroup(getResourceGroup().getName(), getName());
 
         if (storageAccount == null) {
             return false;
@@ -253,7 +254,8 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws URISyntaxException, InvalidKeyException {
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames)
+        throws URISyntaxException, InvalidKeyException {
         AzureResourceManager client = createResourceManagerClient();
 
         StorageAccount storageAccount = client.storageAccounts().getById(getId());
@@ -280,9 +282,10 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
     }
 
     public String getConnection() {
-        return "DefaultEndpointsProtocol=https;"
-                + "AccountName=" + getName() + ";"
-                + "AccountKey=" + keys().get("key1");
+        return String.format("DefaultEndpointsProtocol=https;"
+            + "AccountName=%s;"
+            + "AccountKey=%s;"
+            + "EndpointSuffix=core.windows.net", getName(), keys().get("key1"));
     }
 
     public Map<String, String> keys() {

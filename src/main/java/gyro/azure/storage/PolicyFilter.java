@@ -16,16 +16,17 @@
 
 package gyro.azure.storage;
 
-import com.microsoft.azure.management.storage.ManagementPolicyFilter;
-import gyro.azure.Copyable;
-import gyro.core.resource.Diffable;
-import gyro.core.resource.Updatable;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.azure.resourcemanager.storage.models.ManagementPolicyFilter;
+import gyro.azure.Copyable;
+import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
+
 public class PolicyFilter extends Diffable implements Copyable<ManagementPolicyFilter> {
+
     private Set<String> blobTypes;
     private Set<String> prefixMatches;
 
