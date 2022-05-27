@@ -16,6 +16,11 @@
 
 package gyro.azure.network;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.azure.core.management.Region;
 import com.azure.core.util.ExpandableStringEnum;
@@ -30,21 +35,15 @@ import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.azure.resources.ResourceGroupResource;
 import gyro.core.GyroUI;
-import gyro.core.resource.Id;
-import gyro.core.resource.Updatable;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Range;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Creates a public ip address.
@@ -66,6 +65,7 @@ import java.util.stream.Collectors;
  */
 @Type("public-ip-address")
 public class PublicIpAddressResource extends AzureResource implements Copyable<PublicIpAddress> {
+
     private String name;
     private ResourceGroupResource resourceGroup;
     private SKU_TYPE skuType;
@@ -82,8 +82,6 @@ public class PublicIpAddressResource extends AzureResource implements Copyable<P
     private Boolean hasAssignedLoadBalancer;
     private Boolean hasAssignedNetworkInterface;
     private String version;
-
-    public enum SKU_TYPE {BASIC, STANDARD}
 
     /**
      * Name of the Public IP Address.
@@ -113,7 +111,7 @@ public class PublicIpAddressResource extends AzureResource implements Copyable<P
     /**
      * Specify Sku type. Defaults to ``BASIC``.
      */
-    @ValidStrings({"BASIC", "STANDARD"})
+    @ValidStrings({ "BASIC", "STANDARD" })
     public SKU_TYPE getSkuType() {
         if (skuType == null) {
             skuType = SKU_TYPE.BASIC;
@@ -306,7 +304,10 @@ public class PublicIpAddressResource extends AzureResource implements Copyable<P
         setName(publicIpAddress.name());
         setIsDynamic(publicIpAddress.ipAllocationMethod().equals(IpAllocationMethod.DYNAMIC));
         setSkuType(publicIpAddress.sku().equals(PublicIPSkuType.BASIC) ? SKU_TYPE.BASIC : SKU_TYPE.STANDARD);
-        setAvailabilityZoneIds(publicIpAddress.availabilityZones().stream().map(ExpandableStringEnum::toString).collect(Collectors.toSet()));
+        setAvailabilityZoneIds(publicIpAddress.availabilityZones()
+            .stream()
+            .map(ExpandableStringEnum::toString)
+            .collect(Collectors.toSet()));
         setResourceGroup(findById(ResourceGroupResource.class, publicIpAddress.resourceGroupName()));
         setFqdn(publicIpAddress.fqdn());
         setHasAssignedLoadBalancer(publicIpAddress.hasAssignedLoadBalancer());
@@ -426,5 +427,10 @@ public class PublicIpAddressResource extends AzureResource implements Copyable<P
     public void delete(GyroUI ui, State state) {
         AzureResourceManager client = createResourceManagerClient();
         client.publicIpAddresses().deleteById(getId());
+    }
+
+    public enum SKU_TYPE {
+        BASIC,
+        STANDARD
     }
 }

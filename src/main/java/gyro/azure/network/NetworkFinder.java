@@ -16,18 +16,19 @@
 
 package gyro.azure.network;
 
-import com.azure.resourcemanager.AzureResourceManager;
-import com.azure.resourcemanager.network.models.Network;
-import gyro.azure.AzureResourceManagerFinder;
-import gyro.core.Type;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.network.models.Network;
+import gyro.azure.AzureResourceManagerFinder;
+import gyro.core.Type;
+
 @Type("network")
 public class NetworkFinder extends AzureResourceManagerFinder<Network, NetworkResource> {
+
     private String id;
 
     /**

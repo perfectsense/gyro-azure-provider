@@ -16,15 +16,15 @@
 
 package gyro.azure.network;
 
-import com.azure.resourcemanager.AzureResourceManager;
-import com.azure.resourcemanager.network.models.PublicIpAddress;
-import gyro.azure.AzureResourceManagerFinder;
-import gyro.core.Type;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.network.models.PublicIpAddress;
+import gyro.azure.AzureResourceManagerFinder;
+import gyro.core.Type;
 
 /**
  * Query public ip address.
@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
  */
 @Type("public-ip-address")
 public class PublicIpAddressFinder extends AzureResourceManagerFinder<PublicIpAddress, PublicIpAddressResource> {
+
     private String id;
 
     /**

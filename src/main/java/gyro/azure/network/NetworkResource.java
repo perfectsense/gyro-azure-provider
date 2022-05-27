@@ -16,6 +16,13 @@
 
 package gyro.azure.network;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import com.azure.core.management.Region;
 import com.azure.resourcemanager.AzureResourceManager;
@@ -25,21 +32,13 @@ import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.azure.resources.ResourceGroupResource;
 import gyro.core.GyroUI;
-import gyro.core.resource.Id;
-import gyro.core.resource.Updatable;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * Creates a virtual network.
@@ -74,6 +73,7 @@ import java.util.stream.Collectors;
  */
 @Type("network")
 public class NetworkResource extends AzureResource implements Copyable<Network> {
+
     private String name;
     private ResourceGroupResource resourceGroup;
     private Set<String> addressSpaces;

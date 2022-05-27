@@ -1,6 +1,6 @@
 package gyro.azure.network;
 
-import com.microsoft.azure.management.network.ApplicationGatewaySslCertificate;
+import com.azure.resourcemanager.network.models.ApplicationGatewaySslCertificate;
 import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.validation.Required;

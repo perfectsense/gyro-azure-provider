@@ -18,9 +18,9 @@ package gyro.azure.network;
 
 import java.util.Optional;
 
-import com.microsoft.azure.management.network.ApplicationGateway.DefinitionStages.WithCreate;
-import com.microsoft.azure.management.network.ApplicationGateway.Update;
-import com.microsoft.azure.management.network.ApplicationGatewayListener;
+import com.azure.resourcemanager.network.models.ApplicationGateway.DefinitionStages.WithCreate;
+import com.azure.resourcemanager.network.models.ApplicationGateway.Update;
+import com.azure.resourcemanager.network.models.ApplicationGatewayListener;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
@@ -41,6 +41,7 @@ import gyro.core.validation.Required;
  *     end
  */
 public class Listener extends Diffable implements Copyable<ApplicationGatewayListener> {
+
     private String name;
     private Integer port;
     private Boolean privateFrontend;

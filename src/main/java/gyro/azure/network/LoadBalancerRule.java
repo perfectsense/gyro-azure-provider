@@ -16,12 +16,11 @@
 
 package gyro.azure.network;
 
+import com.azure.resourcemanager.network.models.LoadBalancingRule;
+import com.azure.resourcemanager.network.models.TransportProtocol;
 import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
-
-import com.microsoft.azure.management.network.LoadBalancingRule;
-import com.microsoft.azure.management.network.TransportProtocol;
 import gyro.core.validation.Required;
 
 /**
@@ -45,6 +44,7 @@ import gyro.core.validation.Required;
  *    end
  */
 public class LoadBalancerRule extends Diffable implements Copyable<LoadBalancingRule> {
+
     private String backendName;
     private Integer backendPort;
     private Boolean floatingIp;

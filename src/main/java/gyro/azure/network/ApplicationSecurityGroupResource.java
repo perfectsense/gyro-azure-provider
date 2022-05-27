@@ -16,25 +16,24 @@
 
 package gyro.azure.network;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import com.azure.core.management.Region;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.network.models.ApplicationSecurityGroup;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.azure.resources.ResourceGroupResource;
 import gyro.core.GyroUI;
-import gyro.core.resource.Id;
-import gyro.core.resource.Resource;
-import gyro.core.resource.Output;
 import gyro.core.Type;
+import gyro.core.resource.Id;
+import gyro.core.resource.Output;
+import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
-
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.network.ApplicationSecurityGroup;
-import com.microsoft.azure.management.resources.fluentcore.arm.Region;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Creates an application security group
@@ -54,6 +53,7 @@ import java.util.Set;
  */
 @Type("application-security-group")
 public class ApplicationSecurityGroupResource extends AzureResource implements Copyable<ApplicationSecurityGroup> {
+
     private String id;
     private String name;
     private ResourceGroupResource resourceGroup;
@@ -172,15 +172,15 @@ public class ApplicationSecurityGroupResource extends AzureResource implements C
         setResourceGroup(findById(ResourceGroupResource.class, applicationSecurityGroup.resourceGroupName()));
         setTags(applicationSecurityGroup.tags());
 
-        setProvisioningState(applicationSecurityGroup.provisioningState().toString());
+        setProvisioningState(applicationSecurityGroup.provisioningState());
         setResourceGuid(applicationSecurityGroup.resourceGuid());
-        setEtag(applicationSecurityGroup.inner().etag());
+        setEtag(applicationSecurityGroup.innerModel().etag());
         setType(applicationSecurityGroup.type());
     }
 
     @Override
     public boolean refresh() {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         ApplicationSecurityGroup applicationSecurityGroup = client.applicationSecurityGroups().getById(getId());
 
@@ -195,7 +195,7 @@ public class ApplicationSecurityGroupResource extends AzureResource implements C
 
     @Override
     public void create(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         ApplicationSecurityGroup applicationSecurityGroup = client.applicationSecurityGroups().define(getName())
             .withRegion(Region.fromName(getRegion()))
@@ -208,14 +208,14 @@ public class ApplicationSecurityGroupResource extends AzureResource implements C
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         client.applicationSecurityGroups().getById(getId()).update().withTags(getTags()).apply();
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         client.applicationSecurityGroups().deleteById(getId());
     }

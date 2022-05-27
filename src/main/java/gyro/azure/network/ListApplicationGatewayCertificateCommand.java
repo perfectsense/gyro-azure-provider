@@ -19,8 +19,8 @@ package gyro.azure.network;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.microsoft.azure.management.network.ApplicationGateway;
-import com.microsoft.azure.management.network.ApplicationGatewaySslCertificate;
+import com.azure.resourcemanager.network.models.ApplicationGateway;
+import com.azure.resourcemanager.network.models.ApplicationGatewaySslCertificate;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import picocli.CommandLine.Command;
@@ -49,7 +49,7 @@ public class ListApplicationGatewayCertificateCommand extends AbstractApplicatio
         if (arguments.size() == 1) {
             String applicationGatewayResourceName = arguments.get(0);
 
-            ApplicationGateway applicationGateway = getApplicationGateway(applicationGatewayResourceName);
+            ApplicationGateway applicationGateway = getApplicationGatewayResourceManager(applicationGatewayResourceName);
 
             List<ApplicationGatewaySslCertificate> sslCertificates = new ArrayList<>(applicationGateway.sslCertificates()
                 .values());

@@ -16,14 +16,15 @@
 
 package gyro.azure.network;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.network.NetworkInterface;
-import gyro.azure.AzureFinder;
-import gyro.core.Type;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.network.models.NetworkInterface;
+import gyro.azure.AzureResourceManagerFinder;
+import gyro.core.Type;
 
 /**
  * Query network interface.
@@ -36,7 +37,8 @@ import java.util.Map;
  *    network-interface: $(external-query azure::network-interface {})
  */
 @Type("network-interface")
-public class NetworkInterfaceFinder extends AzureFinder<NetworkInterface, NetworkInterfaceResource> {
+public class NetworkInterfaceFinder extends AzureResourceManagerFinder<NetworkInterface, NetworkInterfaceResource> {
+
     private String id;
 
     /**
@@ -51,12 +53,12 @@ public class NetworkInterfaceFinder extends AzureFinder<NetworkInterface, Networ
     }
 
     @Override
-    protected List<NetworkInterface> findAllAzure(Azure client) {
-        return client.networkInterfaces().list();
+    protected List<NetworkInterface> findAllAzure(AzureResourceManager client) {
+        return client.networkInterfaces().list().stream().collect(Collectors.toList());
     }
 
     @Override
-    protected List<NetworkInterface> findAzure(Azure client, Map<String, String> filters) {
+    protected List<NetworkInterface> findAzure(AzureResourceManager client, Map<String, String> filters) {
         NetworkInterface networkInterface = client.networkInterfaces().getById(filters.get("id"));
         if (networkInterface == null) {
             return Collections.emptyList();

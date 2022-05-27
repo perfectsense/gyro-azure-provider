@@ -16,7 +16,7 @@
 
 package gyro.azure.network;
 
-import com.microsoft.azure.management.network.Route;
+import com.azure.resourcemanager.network.models.Route;
 import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
@@ -39,6 +39,7 @@ import gyro.core.validation.ValidStrings;
  *     end
  */
 public class RouteResource extends Diffable implements Copyable<Route> {
+
     private String destinationAddressPrefix;
     private String name;
     private String nextHopIpAddress;
@@ -85,7 +86,7 @@ public class RouteResource extends Diffable implements Copyable<Route> {
      * The type of the next hop.
      */
     @Required
-    @ValidStrings({"Internet", "VirtualAppliance", "VnetLocal", "VirtualNetworkGateway", "None"})
+    @ValidStrings({ "Internet", "VirtualAppliance", "VnetLocal", "VirtualNetworkGateway", "None" })
     @Updatable
     public String getNextHopType() {
         return nextHopType;
@@ -104,7 +105,7 @@ public class RouteResource extends Diffable implements Copyable<Route> {
     public void copyFrom(Route route) {
         setDestinationAddressPrefix(route.destinationAddressPrefix());
         setName(route.name());
-        setNextHopIpAddress(route.nextHopIPAddress());
+        setNextHopIpAddress(route.nextHopIpAddress());
         setNextHopType(route.nextHopType().toString());
     }
 }

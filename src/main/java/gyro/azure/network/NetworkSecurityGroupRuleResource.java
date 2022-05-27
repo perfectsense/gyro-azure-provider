@@ -16,29 +16,34 @@
 
 package gyro.azure.network;
 
-import com.google.common.collect.ImmutableMap;
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.network.NetworkSecurityGroup;
-import com.microsoft.azure.management.network.NetworkSecurityRule;
-import com.microsoft.azure.management.network.SecurityRuleAccess;
-import com.microsoft.azure.management.network.SecurityRuleDirection;
-import com.microsoft.azure.management.network.SecurityRuleProtocol;
-import gyro.azure.AzureResource;
-import gyro.azure.Copyable;
-import gyro.core.GyroUI;
-import gyro.core.resource.Updatable;
-import gyro.core.resource.Resource;
-import gyro.core.scope.State;
-import gyro.core.validation.Range;
-import gyro.core.validation.Required;
-import gyro.core.validation.ValidStrings;
-
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.network.models.NetworkSecurityGroup;
+import com.azure.resourcemanager.network.models.NetworkSecurityRule;
+import com.azure.resourcemanager.network.models.SecurityRuleAccess;
+import com.azure.resourcemanager.network.models.SecurityRuleDirection;
+import com.azure.resourcemanager.network.models.SecurityRuleProtocol;
+import com.google.common.collect.ImmutableMap;
+import gyro.azure.AzureResource;
+import gyro.azure.Copyable;
+import gyro.core.GyroUI;
+import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
+import gyro.core.validation.Range;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
+
 public class NetworkSecurityGroupRuleResource extends AzureResource implements Copyable<NetworkSecurityRule> {
+
+    private static final Map<String, SecurityRuleProtocol> protocolMap = ImmutableMap
+        .of("all", SecurityRuleProtocol.ASTERISK,
+            "tcp", SecurityRuleProtocol.TCP,
+            "udp", SecurityRuleProtocol.UDP);
     private String name;
     private Boolean inboundRule;
     private Boolean allowRule;
@@ -51,11 +56,6 @@ public class NetworkSecurityGroupRuleResource extends AzureResource implements C
     private String description;
     private Integer priority;
     private String protocol;
-
-    private static final Map<String, SecurityRuleProtocol> protocolMap = ImmutableMap
-        .of("all", SecurityRuleProtocol.ASTERISK,
-            "tcp", SecurityRuleProtocol.TCP,
-            "udp", SecurityRuleProtocol.UDP);
 
     /**
      * Name of the Network Security Rule.
@@ -220,7 +220,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource implements C
     /**
      * Protocol for the Network Security Rule. Defaults to ``all``.
      */
-    @ValidStrings({"all", "tcp", "udp"})
+    @ValidStrings({ "all", "tcp", "udp" })
     @Updatable
     public String getProtocol() {
         if (protocol == null) {
@@ -266,14 +266,20 @@ public class NetworkSecurityGroupRuleResource extends AzureResource implements C
 
         setDescription(networkSecurityRule.description());
         setPriority(networkSecurityRule.priority());
-        setProtocol(networkSecurityRule.protocol().toString().equals("*") ? "all" : networkSecurityRule.protocol().toString());
+        setProtocol(networkSecurityRule.protocol().toString().equals("*")
+            ? "all"
+            : networkSecurityRule.protocol().toString());
 
         if (!networkSecurityRule.sourceApplicationSecurityGroupIds().isEmpty()) {
-            setFromApplicationSecurityGroup(findById(ApplicationSecurityGroupResource.class, networkSecurityRule.sourceApplicationSecurityGroupIds().iterator().next()));
+            setFromApplicationSecurityGroup(findById(
+                ApplicationSecurityGroupResource.class,
+                networkSecurityRule.sourceApplicationSecurityGroupIds().iterator().next()));
         }
 
         if (!networkSecurityRule.destinationApplicationSecurityGroupIds().isEmpty()) {
-            setToApplicationSecurityGroup(findById(ApplicationSecurityGroupResource.class, networkSecurityRule.destinationApplicationSecurityGroupIds().iterator().next()));
+            setToApplicationSecurityGroup(findById(
+                ApplicationSecurityGroupResource.class,
+                networkSecurityRule.destinationApplicationSecurityGroupIds().iterator().next()));
         }
     }
 
@@ -284,7 +290,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource implements C
 
     @Override
     public void create(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         NetworkSecurityGroupResource parent = (NetworkSecurityGroupResource) parent();
 
@@ -350,7 +356,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource implements C
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         NetworkSecurityGroupResource parent = (NetworkSecurityGroupResource) parent();
 
@@ -405,7 +411,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource implements C
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         NetworkSecurityGroupResource parent = (NetworkSecurityGroupResource) parent();
 

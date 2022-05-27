@@ -16,14 +16,15 @@
 
 package gyro.azure.network;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.network.ApplicationSecurityGroup;
-import gyro.azure.AzureFinder;
-import gyro.core.Type;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.network.models.ApplicationSecurityGroup;
+import gyro.azure.AzureResourceManagerFinder;
+import gyro.core.Type;
 
 /**
  * Query application security group.
@@ -36,7 +37,9 @@ import java.util.Map;
  *    application-security-group: $(external-query azure::application-security-group {})
  */
 @Type("application-security-group")
-public class ApplicationSecurityGroupFinder extends AzureFinder<ApplicationSecurityGroup, ApplicationSecurityGroupResource> {
+public class ApplicationSecurityGroupFinder
+    extends AzureResourceManagerFinder<ApplicationSecurityGroup, ApplicationSecurityGroupResource> {
+
     private String id;
 
     /**
@@ -51,13 +54,14 @@ public class ApplicationSecurityGroupFinder extends AzureFinder<ApplicationSecur
     }
 
     @Override
-    protected List<ApplicationSecurityGroup> findAllAzure(Azure client) {
-        return client.applicationSecurityGroups().list();
+    protected List<ApplicationSecurityGroup> findAllAzure(AzureResourceManager client) {
+        return client.applicationSecurityGroups().list().stream().collect(Collectors.toList());
     }
 
     @Override
-    protected List<ApplicationSecurityGroup> findAzure(Azure client, Map<String, String> filters) {
-        ApplicationSecurityGroup applicationSecurityGroup = client.applicationSecurityGroups().getById(filters.get("id"));
+    protected List<ApplicationSecurityGroup> findAzure(AzureResourceManager client, Map<String, String> filters) {
+        ApplicationSecurityGroup applicationSecurityGroup = client.applicationSecurityGroups()
+            .getById(filters.get("id"));
         if (applicationSecurityGroup == null) {
             return Collections.emptyList();
         } else {

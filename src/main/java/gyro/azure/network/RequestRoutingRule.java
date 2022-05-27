@@ -16,12 +16,12 @@
 
 package gyro.azure.network;
 
-import com.microsoft.azure.management.network.ApplicationGateway.Update;
-import com.microsoft.azure.management.network.ApplicationGatewayRequestRoutingRule;
-import com.microsoft.azure.management.network.ApplicationGatewayRequestRoutingRule.UpdateDefinitionStages.WithBackendHttpConfigOrRedirect;
-import com.microsoft.azure.management.network.ApplicationGatewayRequestRoutingRule.DefinitionStages;
-import com.microsoft.azure.management.network.ApplicationGateway.DefinitionStages.WithRequestRoutingRuleOrCreate;
-import com.microsoft.azure.management.network.ApplicationGateway.DefinitionStages.WithRequestRoutingRule;
+import com.azure.resourcemanager.network.models.ApplicationGateway.DefinitionStages.WithRequestRoutingRule;
+import com.azure.resourcemanager.network.models.ApplicationGateway.DefinitionStages.WithRequestRoutingRuleOrCreate;
+import com.azure.resourcemanager.network.models.ApplicationGateway.Update;
+import com.azure.resourcemanager.network.models.ApplicationGatewayRequestRoutingRule;
+import com.azure.resourcemanager.network.models.ApplicationGatewayRequestRoutingRule.DefinitionStages;
+import com.azure.resourcemanager.network.models.ApplicationGatewayRequestRoutingRule.UpdateDefinitionStages.WithBackendHttpConfigOrRedirect;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
@@ -44,6 +44,7 @@ import gyro.core.validation.Required;
  *     end
  */
 public class RequestRoutingRule extends Diffable implements Copyable<ApplicationGatewayRequestRoutingRule> {
+
     private String name;
     private String listener;
     private String backend;
@@ -115,7 +116,8 @@ public class RequestRoutingRule extends Diffable implements Copyable<Application
     public void copyFrom(ApplicationGatewayRequestRoutingRule rule) {
         setBackend(rule.backend() != null ? rule.backend().name() : null);
         setListener(rule.listener() != null ? rule.listener().name() : null);
-        setBackendHttpConfiguration(rule.backendHttpConfiguration() != null ? rule.backendHttpConfiguration().name() : null);
+        setBackendHttpConfiguration(
+            rule.backendHttpConfiguration() != null ? rule.backendHttpConfiguration().name() : null);
         setRedirectConfiguration(rule.redirectConfiguration() != null ? rule.redirectConfiguration().name() : null);
         setName(rule.name());
     }
@@ -125,7 +127,9 @@ public class RequestRoutingRule extends Diffable implements Copyable<Application
         return getName();
     }
 
-    WithRequestRoutingRuleOrCreate createRequestRoutingRule(WithRequestRoutingRule preAttach, WithRequestRoutingRuleOrCreate attach) {
+    WithRequestRoutingRuleOrCreate createRequestRoutingRule(
+        WithRequestRoutingRule preAttach,
+        WithRequestRoutingRuleOrCreate attach) {
         DefinitionStages.WithBackendHttpConfigOrRedirect<WithRequestRoutingRuleOrCreate> partialAttach;
         if (attach == null) {
             partialAttach = preAttach.defineRequestRoutingRule(getName()).fromListener(getListener());

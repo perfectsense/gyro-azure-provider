@@ -16,14 +16,15 @@
 
 package gyro.azure.network;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.network.LoadBalancer;
-import gyro.azure.AzureFinder;
-import gyro.core.Type;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.network.models.LoadBalancer;
+import gyro.azure.AzureResourceManagerFinder;
+import gyro.core.Type;
 
 /**
  * Query load balancer.
@@ -36,7 +37,8 @@ import java.util.Map;
  *    load-balancer: $(external-query azure::load-balancer {})
  */
 @Type("load-balancer")
-public class LoadBalancerFinder extends AzureFinder<LoadBalancer, LoadBalancerResource> {
+public class LoadBalancerFinder extends AzureResourceManagerFinder<LoadBalancer, LoadBalancerResource> {
+
     private String id;
 
     /**
@@ -51,12 +53,12 @@ public class LoadBalancerFinder extends AzureFinder<LoadBalancer, LoadBalancerRe
     }
 
     @Override
-    protected List<LoadBalancer> findAllAzure(Azure client) {
-        return client.loadBalancers().list();
+    protected List<LoadBalancer> findAllAzure(AzureResourceManager client) {
+        return client.loadBalancers().list().stream().collect(Collectors.toList());
     }
 
     @Override
-    protected List<LoadBalancer> findAzure(Azure client, Map<String, String> filters) {
+    protected List<LoadBalancer> findAzure(AzureResourceManager client, Map<String, String> filters) {
         LoadBalancer loadBalancer = client.loadBalancers().getById(filters.get("id"));
         if (loadBalancer == null) {
             return Collections.emptyList();

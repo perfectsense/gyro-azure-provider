@@ -16,10 +16,9 @@
 
 package gyro.azure.network;
 
+import com.azure.resourcemanager.network.models.LoadBalancerBackend;
 import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
-
-import com.microsoft.azure.management.network.LoadBalancerBackend;
 import gyro.core.validation.Required;
 
 /**

@@ -16,44 +16,44 @@
 
 package gyro.azure.network;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.network.ApplicationGateway;
-import com.microsoft.azure.management.network.ApplicationGateway.Update;
-import com.microsoft.azure.management.network.ApplicationGatewayBackend;
-import com.microsoft.azure.management.network.ApplicationGatewayBackendHealth;
-import com.microsoft.azure.management.network.ApplicationGatewayBackendHealthStatus;
-import com.microsoft.azure.management.network.ApplicationGatewayBackendHttpConfiguration;
-import com.microsoft.azure.management.network.ApplicationGatewayBackendHttpConfigurationHealth;
-import com.microsoft.azure.management.network.ApplicationGatewayBackendServerHealth;
-import com.microsoft.azure.management.network.ApplicationGatewayListener;
-import com.microsoft.azure.management.network.ApplicationGatewayProbe;
-import com.microsoft.azure.management.network.ApplicationGatewayRedirectConfiguration;
-import com.microsoft.azure.management.network.ApplicationGatewayRequestRoutingRule;
-import com.microsoft.azure.management.network.ApplicationGatewayRequestRoutingRuleType;
-import com.microsoft.azure.management.network.ApplicationGatewaySkuName;
-import com.microsoft.azure.management.network.ApplicationGatewayTier;
-import com.microsoft.azure.management.resources.fluentcore.arm.AvailabilityZoneId;
-import com.microsoft.azure.management.resources.fluentcore.arm.Region;
-import gyro.azure.AzureResource;
-import gyro.azure.Copyable;
-import gyro.azure.resources.ResourceGroupResource;
-import gyro.core.GyroException;
-import gyro.core.GyroUI;
-import gyro.core.resource.Id;
-import gyro.core.resource.Updatable;
-import gyro.core.Type;
-import gyro.core.resource.Output;
-import gyro.core.resource.Resource;
-import gyro.core.scope.State;
-import gyro.core.validation.Required;
-import gyro.core.validation.ValidStrings;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import com.azure.core.management.Region;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.network.models.ApplicationGateway;
+import com.azure.resourcemanager.network.models.ApplicationGateway.Update;
+import com.azure.resourcemanager.network.models.ApplicationGatewayBackend;
+import com.azure.resourcemanager.network.models.ApplicationGatewayBackendHealth;
+import com.azure.resourcemanager.network.models.ApplicationGatewayBackendHealthStatus;
+import com.azure.resourcemanager.network.models.ApplicationGatewayBackendHttpConfiguration;
+import com.azure.resourcemanager.network.models.ApplicationGatewayBackendHttpConfigurationHealth;
+import com.azure.resourcemanager.network.models.ApplicationGatewayBackendServerHealth;
+import com.azure.resourcemanager.network.models.ApplicationGatewayListener;
+import com.azure.resourcemanager.network.models.ApplicationGatewayProbe;
+import com.azure.resourcemanager.network.models.ApplicationGatewayRedirectConfiguration;
+import com.azure.resourcemanager.network.models.ApplicationGatewayRequestRoutingRule;
+import com.azure.resourcemanager.network.models.ApplicationGatewayRequestRoutingRuleType;
+import com.azure.resourcemanager.network.models.ApplicationGatewaySkuName;
+import com.azure.resourcemanager.network.models.ApplicationGatewayTier;
+import com.azure.resourcemanager.resources.fluentcore.arm.AvailabilityZoneId;
+import gyro.azure.AzureResource;
+import gyro.azure.Copyable;
+import gyro.azure.resources.ResourceGroupResource;
+import gyro.core.GyroException;
+import gyro.core.GyroUI;
+import gyro.core.Type;
+import gyro.core.resource.Id;
+import gyro.core.resource.Output;
+import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 
 /**
  * Creates an Application Gateway.
@@ -212,6 +212,7 @@ import java.util.stream.Collectors;
  */
 @Type("application-gateway")
 public class ApplicationGatewayResource extends AzureResource implements Copyable<ApplicationGateway> {
+
     private ResourceGroupResource resourceGroup;
     private NetworkResource network;
     private PublicIpAddressResource publicIpAddress;
@@ -408,7 +409,14 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
      * The SKU for the Application Gateway.
      */
     @Required
-    @ValidStrings({"STANDARD_SMALL", "STANDARD_MEDIUM", "STANDARD_LARGE", "WAF_MEDIUM", "WAF_LARGE", "STANDARD_V2", "WAF_V2"})
+    @ValidStrings({
+        "STANDARD_SMALL",
+        "STANDARD_MEDIUM",
+        "STANDARD_LARGE",
+        "WAF_MEDIUM",
+        "WAF_LARGE",
+        "STANDARD_V2",
+        "WAF_V2" })
     @Updatable
     public String getSkuSize() {
         return skuSize != null ? skuSize.toUpperCase() : null;
@@ -422,12 +430,12 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
      * The SKU for the Application Gateway.
      */
     @Required
-    @ValidStrings({"STANDARD", "STANDARD_V2", "WAF", "WAF_V2"})
+    @ValidStrings({ "STANDARD", "STANDARD_V2", "WAF", "WAF_V2" })
     @Updatable
     public String getSkuTier() {
         return skuTier != null
-                ? skuTier.toUpperCase()
-                : null;
+            ? skuTier.toUpperCase()
+            : null;
     }
 
     public void setSkuTier(String skuTier) {
@@ -497,11 +505,11 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
      * Availability Zones this Application Gateway should be deployed to redundancy.
      *
      */
-    @ValidStrings({"1", "2", "3"})
+    @ValidStrings({ "1", "2", "3" })
     public Set<String> getAvailabilityZones() {
         return availabilityZones == null
-                ? availabilityZones = new HashSet<>()
-                : availabilityZones;
+            ? availabilityZones = new HashSet<>()
+            : availabilityZones;
     }
 
     public void setAvailabilityZones(Set<String> availabilityZones) {
@@ -539,7 +547,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
         Map<String, Integer> healthMap = new HashMap<>();
         int total = 0;
 
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
         ApplicationGateway applicationGateway = client.applicationGateways().getById(getId());
 
         if (applicationGateway != null) {
@@ -582,9 +590,9 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
         setResourceGroup(findById(ResourceGroupResource.class, applicationGateway.resourceGroupName()));
 
         getAvailabilityZones().clear();
-        if (applicationGateway.inner() != null
-                && applicationGateway.inner().zones() != null) {
-            for (String availabilityZone : applicationGateway.inner().zones()) {
+        if (applicationGateway.innerModel() != null
+            && applicationGateway.innerModel().zones() != null) {
+            for (String availabilityZone : applicationGateway.innerModel().zones()) {
                 getAvailabilityZones().add(availabilityZone);
             }
         }
@@ -604,14 +612,16 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
         }
 
         getBackendHttpConfiguration().clear();
-        for (ApplicationGatewayBackendHttpConfiguration backendHttpConfig : applicationGateway.backendHttpConfigurations().values()) {
+        for (ApplicationGatewayBackendHttpConfiguration backendHttpConfig : applicationGateway.backendHttpConfigurations()
+            .values()) {
             BackendHttpConfiguration backendHttpConfiguration = newSubresource(BackendHttpConfiguration.class);
             backendHttpConfiguration.copyFrom(backendHttpConfig);
             getBackendHttpConfiguration().add(backendHttpConfiguration);
         }
 
         getRedirectConfiguration().clear();
-        for (ApplicationGatewayRedirectConfiguration applicationGatewayRedirectConfig: applicationGateway.redirectConfigurations().values()) {
+        for (ApplicationGatewayRedirectConfiguration applicationGatewayRedirectConfig : applicationGateway.redirectConfigurations()
+            .values()) {
             RedirectConfiguration redirectConfiguration = newSubresource(RedirectConfiguration.class);
             redirectConfiguration.copyFrom(applicationGatewayRedirectConfig);
             getRedirectConfiguration().add(redirectConfiguration);
@@ -625,8 +635,10 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
         }
 
         getRequestRoutingRule().clear();
-        for (ApplicationGatewayRequestRoutingRule applicationGatewayRequestRoutingRule: applicationGateway.requestRoutingRules().values()) {
-            if (applicationGatewayRequestRoutingRule.ruleType().equals(ApplicationGatewayRequestRoutingRuleType.BASIC)) {
+        for (ApplicationGatewayRequestRoutingRule applicationGatewayRequestRoutingRule : applicationGateway.requestRoutingRules()
+            .values()) {
+            if (applicationGatewayRequestRoutingRule.ruleType()
+                .equals(ApplicationGatewayRequestRoutingRuleType.BASIC)) {
                 RequestRoutingRule requestRoutingRule = newSubresource(RequestRoutingRule.class);
                 requestRoutingRule.copyFrom(applicationGatewayRequestRoutingRule);
                 getRequestRoutingRule().add(requestRoutingRule);
@@ -634,16 +646,16 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
         }
 
         setManagedServiceIdentity(null);
-        if (applicationGateway.inner().identity() != null) {
+        if (applicationGateway.innerModel().identity() != null) {
             ApplicationGatewayManagedServiceIdentity identity = newSubresource(ApplicationGatewayManagedServiceIdentity.class);
-            identity.copyFrom(applicationGateway.inner().identity());
+            identity.copyFrom(applicationGateway.innerModel().identity());
             setManagedServiceIdentity(identity);
         }
     }
 
     @Override
     public boolean refresh() {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         ApplicationGateway applicationGateway = client.applicationGateways().getById(getId());
 
@@ -658,7 +670,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
 
     @Override
     public void create(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         ApplicationGateway.DefinitionStages.WithRequestRoutingRule withRequestRoutingRule = client.applicationGateways()
             .define(getName()).withRegion(Region.fromName(getRegion()))
@@ -689,11 +701,11 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
             withCreate = backendHttpConfiguration.createBackendHttpConfiguration(withCreate);
         }
 
-        for (RedirectConfiguration redirectConfiguration: getRedirectConfiguration()) {
+        for (RedirectConfiguration redirectConfiguration : getRedirectConfiguration()) {
             withCreate = redirectConfiguration.createRedirectConfiguration(withCreate);
         }
 
-        for (Probe probe: getProbe()) {
+        for (Probe probe : getProbe()) {
             withCreate = probe.createProbe(withCreate);
         }
 
@@ -708,9 +720,9 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
             withCreate.withIdentity(getManagedServiceIdentity().toManagedServiceIdentity());
         }
 
-        ApplicationGateway applicationGateway = withCreate.withExistingPublicIPAddress(
-            client.publicIPAddresses().getById(getPublicIpAddress().getId())
-        )
+        ApplicationGateway applicationGateway = withCreate.withExistingPublicIpAddress(
+                client.publicIpAddresses().getById(getPublicIpAddress().getId())
+            )
             .withInstanceCount(getInstanceCount())
             .withSize(ApplicationGatewaySkuName.fromString(getSkuSize()))
             .withTier(ApplicationGatewayTier.fromString(getSkuTier()))
@@ -723,13 +735,13 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
 
     @Override
     public void update(GyroUI ui, State state, Resource resource, Set<String> changedFieldNames) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         ApplicationGateway applicationGateway = client.applicationGateways().getById(getId());
 
         ApplicationGateway.Update update = applicationGateway.update()
-                .withSize(ApplicationGatewaySkuName.fromString(getSkuSize()))
-                .withTier(ApplicationGatewayTier.fromString(getSkuTier()));
+            .withSize(ApplicationGatewaySkuName.fromString(getSkuSize()))
+            .withTier(ApplicationGatewayTier.fromString(getSkuTier()));
 
         ApplicationGatewayResource oldApplicationGatewayResource = (ApplicationGatewayResource) resource;
 
@@ -747,7 +759,6 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
 
         update = saveRequestRoutingRule(oldApplicationGatewayResource.getRequestRoutingRule(), update);
 
-
         if (changedFieldNames.contains("managed-service-identity")) {
             if (getManagedServiceIdentity() == null) {
                 throw new GyroException("Cannot unset 'managed-service-identity'.");
@@ -763,7 +774,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         client.applicationGateways().deleteById(getId());
     }
@@ -873,7 +884,9 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
         return update;
     }
 
-    private Update saveBackendHttpConfiguration(Set<BackendHttpConfiguration> oldBackendHttpConfigurations, Update update) {
+    private Update saveBackendHttpConfiguration(
+        Set<BackendHttpConfiguration> oldBackendHttpConfigurations,
+        Update update) {
         Set<String> backendHttpConfigurationNames = getBackendHttpConfiguration().stream()
             .map(BackendHttpConfiguration::getName).collect(Collectors.toSet());
 
@@ -992,7 +1005,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
                 .filter(o -> !getTags().containsKey(o))
                 .collect(Collectors.toList());
 
-            for (String tag: removeTags) {
+            for (String tag : removeTags) {
                 update = update.withoutTag(tag);
             }
 

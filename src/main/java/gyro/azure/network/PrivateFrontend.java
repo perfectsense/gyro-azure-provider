@@ -16,11 +16,10 @@
 
 package gyro.azure.network;
 
+import com.azure.resourcemanager.network.models.LoadBalancerPrivateFrontend;
 import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
-
-import com.microsoft.azure.management.network.LoadBalancerPrivateFrontend;
 import gyro.core.validation.Required;
 
 /**
@@ -38,6 +37,7 @@ import gyro.core.validation.Required;
  *    end
  */
 public class PrivateFrontend extends Diffable implements Copyable<LoadBalancerPrivateFrontend> {
+
     private String name;
     private String privateIpAddress;
     private String subnetName;
@@ -96,7 +96,7 @@ public class PrivateFrontend extends Diffable implements Copyable<LoadBalancerPr
     @Override
     public void copyFrom(LoadBalancerPrivateFrontend privateFrontend) {
         setName(privateFrontend.name());
-        setPrivateIpAddress(privateFrontend.privateIPAddress());
+        setPrivateIpAddress(privateFrontend.privateIpAddress());
         setSubnetName(privateFrontend.subnetName());
         setNetwork(findById(NetworkResource.class, privateFrontend.networkId()));
     }

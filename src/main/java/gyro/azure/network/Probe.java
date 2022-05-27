@@ -16,19 +16,19 @@
 
 package gyro.azure.network;
 
-import com.microsoft.azure.management.network.ApplicationGateway.Update;
-import com.microsoft.azure.management.network.ApplicationGatewayProbe;
-import com.microsoft.azure.management.network.ApplicationGatewayProbe.UpdateDefinitionStages.WithProtocol;
-import com.microsoft.azure.management.network.ApplicationGatewayProbe.UpdateDefinitionStages.WithAttach;
-import com.microsoft.azure.management.network.ApplicationGatewayProtocol;
-import com.microsoft.azure.management.network.ApplicationGateway.DefinitionStages.WithCreate;
+import java.util.HashSet;
+import java.util.Set;
+
+import com.azure.resourcemanager.network.models.ApplicationGateway.DefinitionStages.WithCreate;
+import com.azure.resourcemanager.network.models.ApplicationGateway.Update;
+import com.azure.resourcemanager.network.models.ApplicationGatewayProbe;
+import com.azure.resourcemanager.network.models.ApplicationGatewayProbe.UpdateDefinitionStages.WithAttach;
+import com.azure.resourcemanager.network.models.ApplicationGatewayProbe.UpdateDefinitionStages.WithProtocol;
+import com.azure.resourcemanager.network.models.ApplicationGatewayProtocol;
 import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Creates a Probe.
@@ -53,6 +53,7 @@ import java.util.Set;
  *     end
  */
 public class Probe extends Diffable implements Copyable<ApplicationGatewayProbe> {
+
     private String name;
     private String hostName;
     private String path;
@@ -203,7 +204,7 @@ public class Probe extends Diffable implements Copyable<ApplicationGatewayProbe>
         setUnhealthyThreshold(probe.retriesBeforeUnhealthy());
         setHttpResponseCodes(new HashSet<>(probe.healthyHttpResponseStatusCodeRanges()));
         setHttpResponseBodyMatch(probe.healthyHttpResponseBodyContents());
-        setHttpsProtocol(probe.inner().protocol().equals(ApplicationGatewayProtocol.HTTPS));
+        setHttpsProtocol(probe.innerModel().protocol().equals(ApplicationGatewayProtocol.HTTPS));
     }
 
     @Override
@@ -212,7 +213,8 @@ public class Probe extends Diffable implements Copyable<ApplicationGatewayProbe>
     }
 
     WithCreate createProbe(WithCreate attach) {
-        ApplicationGatewayProbe.DefinitionStages.WithProtocol<WithCreate> attachWithProtocol = attach.defineProbe(getName())
+        ApplicationGatewayProbe.DefinitionStages.WithProtocol<WithCreate> attachWithProtocol = attach.defineProbe(
+                getName())
             .withHost(getHostName()).withPath(getPath());
 
         ApplicationGatewayProbe.DefinitionStages.WithAttach<WithCreate> withCreateWithAttach;

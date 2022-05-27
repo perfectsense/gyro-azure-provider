@@ -16,31 +16,28 @@
 
 package gyro.azure.network;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import com.azure.core.management.Region;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.network.models.Route;
+import com.azure.resourcemanager.network.models.Route.DefinitionStages.WithNextHopType;
+import com.azure.resourcemanager.network.models.RouteNextHopType;
+import com.azure.resourcemanager.network.models.RouteTable;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.azure.resources.ResourceGroupResource;
 import gyro.core.GyroUI;
-import gyro.core.resource.Id;
-import gyro.core.resource.Updatable;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
-
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.network.Route;
-import com.microsoft.azure.management.network.RouteNextHopType;
-import com.microsoft.azure.management.network.RouteTable;
-import com.microsoft.azure.management.network.Route.DefinitionStages.WithNextHopType;
-import com.microsoft.azure.management.resources.fluentcore.arm.Region;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Creates a route table.
@@ -67,6 +64,7 @@ import java.util.Set;
  */
 @Type("route-table")
 public class RouteTableResource extends AzureResource implements Copyable<RouteTable> {
+
     private Boolean bgpRoutePropagationDisabled;
     private String id;
     private String name;
@@ -178,7 +176,7 @@ public class RouteTableResource extends AzureResource implements Copyable<RouteT
 
     @Override
     public boolean refresh() {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         RouteTable routeTable = client.routeTables().getById(getId());
 
@@ -193,13 +191,12 @@ public class RouteTableResource extends AzureResource implements Copyable<RouteT
 
     @Override
     public void create(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         RouteTable.DefinitionStages.WithCreate withCreate;
         withCreate = client.routeTables().define(getName())
             .withRegion(Region.fromName(getRegion()))
             .withExistingResourceGroup(getResourceGroup().getName());
-
 
         if (getBgpRoutePropagationDisabled()) {
             withCreate.withDisableBgpRoutePropagation();
@@ -223,7 +220,7 @@ public class RouteTableResource extends AzureResource implements Copyable<RouteT
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         RouteTableResource currentResource = (RouteTableResource) current;
 
@@ -258,7 +255,7 @@ public class RouteTableResource extends AzureResource implements Copyable<RouteT
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createResourceManagerClient();
 
         client.routeTables().deleteById(getId());
     }
