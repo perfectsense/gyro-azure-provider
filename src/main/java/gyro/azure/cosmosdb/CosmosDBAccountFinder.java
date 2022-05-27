@@ -16,14 +16,15 @@
 
 package gyro.azure.cosmosdb;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.cosmosdb.CosmosDBAccount;
-import gyro.azure.AzureFinder;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.cosmos.models.CosmosDBAccount;
+import gyro.azure.AzureResourceManagerFinder;
 import gyro.core.Type;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Query cosmos db.
@@ -36,7 +37,7 @@ import java.util.Map;
  *    cosmos-db: $(external-query azure::cosmos-db {})
  */
 @Type("cosmos-db")
-public class CosmosDBAccountFinder extends AzureFinder<CosmosDBAccount, CosmosDBAccountResource> {
+public class CosmosDBAccountFinder extends AzureResourceManagerFinder<CosmosDBAccount, CosmosDBAccountResource> {
     private String id;
 
     /**
@@ -51,12 +52,12 @@ public class CosmosDBAccountFinder extends AzureFinder<CosmosDBAccount, CosmosDB
     }
 
     @Override
-    protected List<CosmosDBAccount> findAllAzure(Azure client) {
-        return client.cosmosDBAccounts().list();
+    protected List<CosmosDBAccount> findAllAzure(AzureResourceManager client) {
+        return client.cosmosDBAccounts().list().stream().collect(Collectors.toList());
     }
 
     @Override
-    protected List<CosmosDBAccount> findAzure(Azure client, Map<String, String> filters) {
+    protected List<CosmosDBAccount> findAzure(AzureResourceManager client, Map<String, String> filters) {
         CosmosDBAccount cosmosDBAccount = client.cosmosDBAccounts().getById(filters.get("id"));
         if (cosmosDBAccount == null) {
             return Collections.emptyList();
