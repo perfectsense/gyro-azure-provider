@@ -2,9 +2,11 @@ package gyro.azure.network;
 
 import java.util.List;
 
-import com.microsoft.azure.keyvault.models.CertificateBundle;
-import com.microsoft.azure.management.keyvault.Vault;
-import com.microsoft.azure.management.network.ApplicationGateway;
+import com.azure.resourcemanager.keyvault.models.Vault;
+import com.azure.resourcemanager.network.models.ApplicationGateway;
+import com.azure.security.keyvault.certificates.CertificateClient;
+import com.azure.security.keyvault.certificates.CertificateClientBuilder;
+import com.azure.security.keyvault.certificates.models.KeyVaultCertificateWithPolicy;
 import gyro.azure.keyvault.AbstractVaultCommand;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
@@ -32,13 +34,19 @@ public class ImportApplicationGatewayCertificateCommand extends AbstractApplicat
 
             ApplicationGateway applicationGateway = getApplicationGateway(applicationGatewayResourceName);
 
-            Vault vault = AbstractVaultCommand.getVault(vaultResourceName, getScope(), getClient());
+            Vault vault = AbstractVaultCommand.getVault(vaultResourceName, getScope(), getResourceManagerClient());
 
-            CertificateBundle certificate = vault.client().getCertificate(vault.vaultUri(), vaultCertificateName);
+            CertificateClient client = new CertificateClientBuilder()
+                .vaultUrl(vault.vaultUri())
+                .credential(null)
+                .buildClient();
+
+            KeyVaultCertificateWithPolicy certificate = client.getCertificate(vaultCertificateName);
+
 
             applicationGateway.update()
                 .defineSslCertificate(certificateName)
-                .withKeyVaultSecretId(certificate.sid())
+                .withKeyVaultSecretId(certificate.getSecretId())
                 .attach()
                 .apply();
 

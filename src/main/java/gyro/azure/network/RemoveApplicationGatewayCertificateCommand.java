@@ -26,7 +26,7 @@ public class RemoveApplicationGatewayCertificateCommand extends AbstractApplicat
             String applicationGatewayResourceName = arguments.get(0);
             String certificateName = arguments.get(1);
 
-            ApplicationGateway applicationGateway = getApplicationGatewayResourceManager(applicationGatewayResourceName);
+            ApplicationGateway applicationGateway = getApplicationGateway(applicationGatewayResourceName);
 
             ApplicationGatewayListener listener = applicationGateway.listeners()
                 .values()

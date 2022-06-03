@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.azure.core.credential.TokenCredential;
 import com.azure.resourcemanager.AzureResourceManager;
 import gyro.core.finder.Finder;
 
@@ -45,6 +46,10 @@ public abstract class AzureResourceManagerFinder<M, R extends AzureResource> ext
 
     private AzureResourceManager newClient() {
         return AzureResource.createResourceManagerClient(credentials(AzureCredentials.class));
+    }
+
+    protected TokenCredential getTokenCredential() {
+        return AzureResource.getTokenCredential(credentials(AzureCredentials.class));
     }
 
     @SuppressWarnings("unchecked")

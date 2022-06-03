@@ -32,7 +32,7 @@ public class AddApplicationGatewayCertificateCommand extends AbstractApplication
             String certificateName = arguments.get(1);
             String certificatePath = arguments.get(2);
 
-            ApplicationGateway applicationGateway = getApplicationGatewayResourceManager(applicationGatewayResourceName);
+            ApplicationGateway applicationGateway = getApplicationGateway(applicationGatewayResourceName);
 
             applicationGateway.update().defineSslCertificate(certificateName)
                 .withPfxFromFile(new File(certificatePath))

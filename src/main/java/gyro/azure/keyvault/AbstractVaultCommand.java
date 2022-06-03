@@ -18,8 +18,8 @@ package gyro.azure.keyvault;
 
 import java.util.concurrent.Callable;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.keyvault.Vault;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.keyvault.models.Vault;
 import gyro.azure.AbstractAzureCommand;
 import gyro.core.GyroException;
 import gyro.core.command.GyroCommand;
@@ -28,7 +28,7 @@ import gyro.core.scope.RootScope;
 
 public abstract class AbstractVaultCommand extends AbstractAzureCommand implements GyroCommand, Callable<Integer> {
 
-    public static Vault getVault(String vaultResourceName, RootScope scope, Azure client) {
+    public static Vault getVault(String vaultResourceName, RootScope scope, AzureResourceManager client) {
         Resource resource = scope.findResource("azure::key-vault::" + vaultResourceName);
 
         if (resource instanceof KeyVaultResource) {
@@ -47,7 +47,7 @@ public abstract class AbstractVaultCommand extends AbstractAzureCommand implemen
 
     Vault getVault(String vaultResourceName) {
         RootScope scope = getScope();
-        Azure client = getClient();
+        AzureResourceManager client = getResourceManagerClient();
         return getVault(vaultResourceName, scope, client);
     }
 

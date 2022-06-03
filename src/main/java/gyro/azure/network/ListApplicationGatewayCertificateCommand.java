@@ -49,7 +49,7 @@ public class ListApplicationGatewayCertificateCommand extends AbstractApplicatio
         if (arguments.size() == 1) {
             String applicationGatewayResourceName = arguments.get(0);
 
-            ApplicationGateway applicationGateway = getApplicationGatewayResourceManager(applicationGatewayResourceName);
+            ApplicationGateway applicationGateway = getApplicationGateway(applicationGatewayResourceName);
 
             List<ApplicationGatewaySslCertificate> sslCertificates = new ArrayList<>(applicationGateway.sslCertificates()
                 .values());

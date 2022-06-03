@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 import com.azure.core.management.Region;
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.keyvault.models.Vault;
-import com.microsoft.azure.management.Azure;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.azure.resources.ResourceGroupResource;
@@ -520,11 +519,5 @@ public class KeyVaultResource extends AzureResource implements Copyable<Vault> {
         AzureResourceManager client = createResourceManagerClient();
 
         return client.vaults().getByResourceGroup(getResourceGroup().getName(), getName());
-    }
-
-    com.microsoft.azure.management.keyvault.Vault getOldKeyVault() {
-        Azure client = createClient();
-
-        return client.vaults().getById(getId());
     }
 }

@@ -77,7 +77,7 @@ dependencies {
     implementation 'org.reflections:reflections:0.9.10'
 
     implementation 'com.azure.resourcemanager:azure-resourcemanager:2.14.0'
-    implementation 'com.azure:azure-security-keyvault-certificates:4.3.1'
+    implementation 'com.azure:azure-security-keyvault-certificates:4.3.2'
     implementation 'com.azure:azure-data-tables:12.3.0'
     implementation 'com.azure:azure-storage-queue:12.12.2'
     implementation 'com.azure:azure-storage-file-share:12.12.2'
@@ -85,6 +85,7 @@ dependencies {
     implementation 'com.azure:azure-identity:1.5.0'
     implementation 'com.azure:azure-core-http-okhttp:1.8.0'
     runtimeOnly 'com.nimbusds:oauth2-oidc-sdk:9.34'
+    implementation 'com.azure:azure-security-keyvault-certificates:4.3.2'
 
     gyroDoclet 'gyro:gyro-doclet:1.0.0'
 }

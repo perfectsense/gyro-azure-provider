@@ -16,9 +16,15 @@
 
 package gyro.azure.keyvault;
 
+import java.time.Duration;
 import java.util.List;
 
-import com.microsoft.azure.management.keyvault.Vault;
+import com.azure.core.util.polling.LongRunningOperationStatus;
+import com.azure.core.util.polling.SyncPoller;
+import com.azure.resourcemanager.keyvault.models.Vault;
+import com.azure.security.keyvault.certificates.CertificateClient;
+import com.azure.security.keyvault.certificates.CertificateClientBuilder;
+import com.azure.security.keyvault.certificates.models.DeletedCertificate;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import picocli.CommandLine.Command;
@@ -43,7 +49,20 @@ public class RemoveVaultCertificateCommand extends AbstractVaultCommand {
 
             Vault vault = getVault(vaultResourceName);
 
-            vault.client().deleteCertificate(vault.vaultUri(), certificateName);
+            CertificateClient client = new CertificateClientBuilder()
+                .vaultUrl(vault.vaultUri())
+                .credential(getTokenCredential())
+                .buildClient();
+
+            SyncPoller<DeletedCertificate, Void> syncPoller = client.beginDeleteCertificate(
+                certificateName);
+            try {
+                syncPoller.waitUntil(Duration.ofMinutes(5), LongRunningOperationStatus.SUCCESSFULLY_COMPLETED);
+                syncPoller.getFinalResult();
+            } catch (IllegalArgumentException ex) {
+                // Do something
+            }
+
             GyroCore.ui().write("\nCertificate removed.");
 
         } else {
