@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.network.models.RouteTable;
-import gyro.azure.AzureResourceManagerFinder;
+import gyro.azure.AzureFinder;
 import gyro.core.Type;
 
 /**
@@ -37,7 +37,7 @@ import gyro.core.Type;
  *    route-table: $(external-query azure::route-table {})
  */
 @Type("route-table")
-public class RouteTableFinder extends AzureResourceManagerFinder<RouteTable, RouteTableResource> {
+public class RouteTableFinder extends AzureFinder<RouteTable, RouteTableResource> {
 
     private String id;
 

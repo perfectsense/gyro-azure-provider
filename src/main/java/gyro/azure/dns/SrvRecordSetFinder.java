@@ -20,7 +20,7 @@ import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.dns.models.DnsZone;
 import com.azure.resourcemanager.dns.models.SrvRecordSet;
 import com.psddev.dari.util.ObjectUtils;
-import gyro.azure.AzureResourceManagerFinder;
+import gyro.azure.AzureFinder;
 import gyro.core.GyroException;
 import gyro.core.Type;
 
@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  *    srv-record-set: $(external-query azure::srv-record-set {})
  */
 @Type("srv-record-set")
-public class SrvRecordSetFinder extends AzureResourceManagerFinder<SrvRecordSet, SrvRecordSetResource> {
+public class SrvRecordSetFinder extends AzureFinder<SrvRecordSet, SrvRecordSetResource> {
     private String dnsZoneId;
     private String name;
 

@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.containerregistry.models.Registry;
-import gyro.azure.AzureResourceManagerFinder;
+import gyro.azure.AzureFinder;
 import gyro.core.Type;
 
 /**
@@ -37,7 +37,7 @@ import gyro.core.Type;
  *    registry: $(external-query azure::registry {})
  */
 @Type("registry")
-public class RegistryFinder extends AzureResourceManagerFinder<Registry, RegistryResource> {
+public class RegistryFinder extends AzureFinder<Registry, RegistryResource> {
 
     private String id;
 

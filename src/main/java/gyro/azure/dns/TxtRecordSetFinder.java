@@ -20,7 +20,7 @@ import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.dns.models.DnsZone;
 import com.azure.resourcemanager.dns.models.TxtRecordSet;
 import com.psddev.dari.util.ObjectUtils;
-import gyro.azure.AzureResourceManagerFinder;
+import gyro.azure.AzureFinder;
 import gyro.core.GyroException;
 import gyro.core.Type;
 
@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  *    txt-record-set: $(external-query azure::txt-record-set {})
  */
 @Type("txt-record-set")
-public class TxtRecordSetFinder extends AzureResourceManagerFinder<TxtRecordSet, TxtRecordSetResource> {
+public class TxtRecordSetFinder extends AzureFinder<TxtRecordSet, TxtRecordSetResource> {
     private String dnsZoneId;
     private String name;
 

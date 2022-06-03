@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.network.models.ApplicationSecurityGroup;
-import gyro.azure.AzureResourceManagerFinder;
+import gyro.azure.AzureFinder;
 import gyro.core.Type;
 
 /**
@@ -38,7 +38,7 @@ import gyro.core.Type;
  */
 @Type("application-security-group")
 public class ApplicationSecurityGroupFinder
-    extends AzureResourceManagerFinder<ApplicationSecurityGroup, ApplicationSecurityGroupResource> {
+    extends AzureFinder<ApplicationSecurityGroup, ApplicationSecurityGroupResource> {
 
     private String id;
 

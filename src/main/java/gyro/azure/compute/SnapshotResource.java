@@ -253,7 +253,7 @@ public class SnapshotResource extends AzureResource implements Copyable<Snapshot
 
     @Override
     public boolean refresh() {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         Snapshot snapshot = client.snapshots().getById(getId());
 
@@ -268,7 +268,7 @@ public class SnapshotResource extends AzureResource implements Copyable<Snapshot
 
     @Override
     public void create(GyroUI ui, State state) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         Snapshot.DefinitionStages.WithSnapshotSource withSnapshotSource = client.snapshots().define(getName())
             .withRegion(Region.fromName(getRegion()))
@@ -329,7 +329,7 @@ public class SnapshotResource extends AzureResource implements Copyable<Snapshot
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         client.snapshots().getById(getId())
             .update()
@@ -340,7 +340,7 @@ public class SnapshotResource extends AzureResource implements Copyable<Snapshot
 
     @Override
     public void delete(GyroUI ui, State state) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         client.snapshots().deleteById(getId());
     }

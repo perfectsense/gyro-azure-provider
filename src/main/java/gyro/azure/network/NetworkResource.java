@@ -245,7 +245,7 @@ public class NetworkResource extends AzureResource implements Copyable<Network> 
 
     @Override
     public boolean refresh() {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         Network network = client.networks().getById(getId());
 
@@ -260,7 +260,7 @@ public class NetworkResource extends AzureResource implements Copyable<Network> 
 
     @Override
     public void create(GyroUI ui, State state) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         Network.DefinitionStages.WithCreate networkDefWithoutAddress = client.networks()
             .define(getName())
@@ -284,7 +284,7 @@ public class NetworkResource extends AzureResource implements Copyable<Network> 
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         Network network = client.networks().getById(getId());
 
@@ -322,7 +322,7 @@ public class NetworkResource extends AzureResource implements Copyable<Network> 
 
     @Override
     public void delete(GyroUI ui, State state) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         client.networks().deleteById(getId());
     }

@@ -18,34 +18,17 @@ package gyro.azure;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetSocketAddress;
-import java.util.Collections;
 import java.util.Properties;
 
-import com.azure.core.http.HttpClient;
-import com.azure.core.http.ProxyOptions;
+import com.azure.core.credential.TokenCredential;
 import com.azure.core.http.okhttp.OkHttpAsyncHttpClientBuilder;
 import com.azure.core.management.profile.AzureProfile;
-import com.azure.identity.ClientSecretCredential;
 import com.azure.identity.ClientSecretCredentialBuilder;
 import com.azure.resourcemanager.AzureResourceManager;
-import com.microsoft.azure.AzureEnvironment;
-import com.microsoft.azure.AzureResponseBuilder;
-import com.microsoft.azure.credentials.ApplicationTokenCredentials;
-import com.microsoft.azure.credentials.AzureTokenCredentials;
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.resources.fluentcore.utils.ProviderRegistrationInterceptor;
-import com.microsoft.azure.management.resources.fluentcore.utils.ResourceManagerThrottlingInterceptor;
-import com.microsoft.azure.serializer.AzureJacksonAdapter;
-import com.microsoft.rest.LogLevel;
-import com.microsoft.rest.RestClient;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.StringUtils;
 import gyro.core.GyroException;
 import gyro.core.auth.Credentials;
-import okhttp3.OkHttpClient;
-import okhttp3.Protocol;
-import retrofit2.Retrofit;
 
 public class AzureCredentials extends Credentials {
 
@@ -77,8 +60,7 @@ public class AzureCredentials extends Credentials {
         this.logLevel = logLevel;
     }
 
-    public Azure createClient() {
-        AzureEnvironment environment = AzureEnvironment.AZURE;
+    public AzureResourceManager crateClient() {
         Properties properties;
 
         try (InputStream input = openInput(getCredentialFilePath())) {
@@ -89,57 +71,12 @@ public class AzureCredentials extends Credentials {
         } catch (IOException error) {
             throw new GyroException(error.getMessage());
         }
+
         String tenant = ObjectUtils.to(String.class, properties.get("tenant"));
 
-        AzureTokenCredentials credentials = new ApplicationTokenCredentials(
+        TokenCredential credential = getTokenCredential(tenant,
             ObjectUtils.to(String.class, properties.get("client")),
-            tenant,
-            ObjectUtils.to(String.class, properties.get("key")),
-            environment);
-
-        OkHttpClient.Builder httpBuilder = new OkHttpClient.Builder().protocols(Collections.singletonList(Protocol.HTTP_1_1));
-        RestClient restClient = new RestClient.Builder(httpBuilder, new Retrofit.Builder())
-            .withBaseUrl(credentials.environment(), AzureEnvironment.Endpoint.RESOURCE_MANAGER)
-            .withCredentials(credentials)
-            .withSerializerAdapter(new AzureJacksonAdapter())
-            .withResponseBuilderFactory(new AzureResponseBuilder.Factory())
-            .withInterceptor(new ProviderRegistrationInterceptor(credentials))
-            .withInterceptor(new ResourceManagerThrottlingInterceptor())
-            .withLogLevel(LogLevel.valueOf(getLogLevel()))
-            .build();
-
-        try {
-            Azure.Authenticated authenticate = Azure.authenticate(restClient, tenant);
-            String subscription = ObjectUtils.to(String.class, properties.get("subscription"));
-
-            return StringUtils.isBlank(subscription)
-                ? authenticate.withDefaultSubscription()
-                : authenticate.withSubscription(subscription);
-
-        } catch (IOException error) {
-            throw new GyroException(error.getMessage(), error);
-        }
-    }
-
-    public AzureResourceManager createResourceManagerClient() {
-        Properties properties;
-
-        try (InputStream input = openInput(getCredentialFilePath())) {
-            properties = new Properties();
-
-            properties.load(input);
-
-        } catch (IOException error) {
-            throw new GyroException(error.getMessage());
-        }
-
-        String tenant = ObjectUtils.to(String.class, properties.get("tenant"));
-
-        ClientSecretCredential credential = new ClientSecretCredentialBuilder()
-            .clientId(ObjectUtils.to(String.class, properties.get("client")))
-            .clientSecret(ObjectUtils.to(String.class, properties.get("key")))
-            .tenantId(tenant)
-            .build();
+            ObjectUtils.to(String.class, properties.get("key")));
 
         String subscription = ObjectUtils.to(String.class, properties.get("subscription"));
 
@@ -159,6 +96,31 @@ public class AzureCredentials extends Credentials {
         } catch (Exception error) {
             throw new GyroException(error.getMessage(), error);
         }
+    }
+
+    public TokenCredential getTokenCredential(String tenant, String client, String key) {
+        return new ClientSecretCredentialBuilder()
+            .clientId(ObjectUtils.to(String.class, client))
+            .clientSecret(ObjectUtils.to(String.class, key))
+            .tenantId(tenant)
+            .build();
+    }
+
+    public TokenCredential getTokenCredential() {
+        Properties properties;
+
+        try (InputStream input = openInput(getCredentialFilePath())) {
+            properties = new Properties();
+
+            properties.load(input);
+
+        } catch (IOException error) {
+            throw new GyroException(error.getMessage());
+        }
+
+        return getTokenCredential(ObjectUtils.to(String.class, properties.get("tenant")),
+            ObjectUtils.to(String.class, properties.get("client")),
+            ObjectUtils.to(String.class, properties.get("key")));
     }
 
 }

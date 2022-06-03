@@ -97,7 +97,7 @@ public abstract class AbstractAzureCommand {
                 getCredential()));
         }
 
-        return AzureResource.createResourceManagerClient((AzureCredentials) credentials);
+        return AzureResource.createClient((AzureCredentials) credentials);
     }
 
     public TokenCredential getTokenCredential() {

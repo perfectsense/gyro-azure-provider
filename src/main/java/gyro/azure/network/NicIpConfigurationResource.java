@@ -185,7 +185,7 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
             return;
         }
 
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         NetworkInterfaceResource parent = (NetworkInterfaceResource) parent();
 
@@ -229,7 +229,7 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         NetworkInterfaceResource parent = (NetworkInterfaceResource) parent();
 
@@ -303,7 +303,7 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
             return;
         }
 
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         NetworkInterfaceResource parent = (NetworkInterfaceResource) parent();
 

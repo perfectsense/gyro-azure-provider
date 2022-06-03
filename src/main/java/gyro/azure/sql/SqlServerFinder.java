@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.sql.models.SqlServer;
-import gyro.azure.AzureResourceManagerFinder;
+import gyro.azure.AzureFinder;
 import gyro.core.Type;
 
 /**
@@ -37,7 +37,7 @@ import gyro.core.Type;
  *    sql-server: $(external-query azure::sql-server {})
  */
 @Type("sql-server")
-public class SqlServerFinder extends AzureResourceManagerFinder<SqlServer, SqlServerResource> {
+public class SqlServerFinder extends AzureFinder<SqlServer, SqlServerResource> {
 
     private String id;
 

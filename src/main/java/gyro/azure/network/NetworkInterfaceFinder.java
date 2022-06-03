@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.network.models.NetworkInterface;
-import gyro.azure.AzureResourceManagerFinder;
+import gyro.azure.AzureFinder;
 import gyro.core.Type;
 
 /**
@@ -37,7 +37,7 @@ import gyro.core.Type;
  *    network-interface: $(external-query azure::network-interface {})
  */
 @Type("network-interface")
-public class NetworkInterfaceFinder extends AzureResourceManagerFinder<NetworkInterface, NetworkInterfaceResource> {
+public class NetworkInterfaceFinder extends AzureFinder<NetworkInterface, NetworkInterfaceResource> {
 
     private String id;
 

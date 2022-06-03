@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.compute.models.VirtualMachineCustomImage;
-import gyro.azure.AzureResourceManagerFinder;
+import gyro.azure.AzureFinder;
 import gyro.core.Type;
 
 /**
@@ -38,7 +38,7 @@ import gyro.core.Type;
  */
 @Type("virtual-machine-image")
 public class VirtualMachineImageFinder
-    extends AzureResourceManagerFinder<VirtualMachineCustomImage, VirtualMachineImageResource> {
+    extends AzureFinder<VirtualMachineCustomImage, VirtualMachineImageResource> {
 
     private String id;
 

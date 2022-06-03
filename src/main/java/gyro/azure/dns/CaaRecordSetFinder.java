@@ -20,7 +20,7 @@ import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.dns.models.CaaRecordSet;
 import com.azure.resourcemanager.dns.models.DnsZone;
 import com.psddev.dari.util.ObjectUtils;
-import gyro.azure.AzureResourceManagerFinder;
+import gyro.azure.AzureFinder;
 import gyro.core.GyroException;
 import gyro.core.Type;
 
@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  *    caa-record-set: $(external-query azure::caa-record-set {})
  */
 @Type("caa-record-set")
-public class CaaRecordSetFinder extends AzureResourceManagerFinder<CaaRecordSet, CaaRecordSetResource> {
+public class CaaRecordSetFinder extends AzureFinder<CaaRecordSet, CaaRecordSetResource> {
     private String dnsZoneId;
     private String name;
 

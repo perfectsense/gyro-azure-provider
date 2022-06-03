@@ -131,7 +131,7 @@ public class StorageLifeCycle extends AzureResource implements Copyable<Manageme
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         StorageAccountResource parent = (StorageAccountResource) parent();
 
@@ -190,7 +190,7 @@ public class StorageLifeCycle extends AzureResource implements Copyable<Manageme
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         ManagementPolicySchema policySchema = new ManagementPolicySchema();
         policySchema.withRules(getRule().stream().map(PolicyRule::toManagementPolicyRule).collect(Collectors.toList()));
@@ -203,7 +203,7 @@ public class StorageLifeCycle extends AzureResource implements Copyable<Manageme
 
     @Override
     public void delete(GyroUI ui, State state) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         StorageAccountResource parent = (StorageAccountResource) parent();
         StorageAccount storageAccount = client.storageAccounts().getById(parent.getId());

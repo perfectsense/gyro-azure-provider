@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.sql.models.SqlDatabase;
 import com.azure.resourcemanager.sql.models.SqlServer;
-import gyro.azure.AzureResourceManagerFinder;
+import gyro.azure.AzureFinder;
 import gyro.core.Type;
 
 /**
@@ -39,7 +39,7 @@ import gyro.core.Type;
  *    sql-database: $(external-query azure::sql-database {})
  */
 @Type("sql-database")
-public class SqlDatabaseFinder extends AzureResourceManagerFinder<SqlDatabase, SqlDatabaseResource> {
+public class SqlDatabaseFinder extends AzureFinder<SqlDatabase, SqlDatabaseResource> {
 
     private String sqlServerId;
     private String name;

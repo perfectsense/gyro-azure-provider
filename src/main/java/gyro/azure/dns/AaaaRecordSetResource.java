@@ -163,7 +163,7 @@ public class AaaaRecordSetResource extends AzureResource implements Copyable<Aaa
 
     @Override
     public boolean refresh() {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         AaaaRecordSet aaaaRecordSet = client.dnsZones().getById(getDnsZone().getId()).aaaaRecordSets().getByName(getName());
 
@@ -178,7 +178,7 @@ public class AaaaRecordSetResource extends AzureResource implements Copyable<Aaa
 
     @Override
     public void create(GyroUI ui, State state) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         DnsRecordSet.UpdateDefinitionStages.AaaaRecordSetBlank<DnsZone.Update> defineAaaaRecordSet =
                 client.dnsZones().getById(getDnsZone().getId()).update().defineAaaaRecordSet(getName());
@@ -203,7 +203,7 @@ public class AaaaRecordSetResource extends AzureResource implements Copyable<Aaa
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         DnsRecordSet.UpdateAaaaRecordSet updateAaaaRecordSet =
                 client.dnsZones().getById(getDnsZone().getId()).update().updateAaaaRecordSet(getName());
@@ -252,7 +252,7 @@ public class AaaaRecordSetResource extends AzureResource implements Copyable<Aaa
 
     @Override
     public void delete(GyroUI ui, State state) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         client.dnsZones().getById(getDnsZone().getId()).update().withoutAaaaRecordSet(getName()).apply();
     }

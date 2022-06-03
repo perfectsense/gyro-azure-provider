@@ -177,7 +177,7 @@ public class MxRecordSetResource extends AzureResource implements Copyable<MxRec
 
     @Override
     public boolean refresh() {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         MxRecordSet mxRecordSet = client.dnsZones().getById(getDnsZone().getId()).mxRecordSets().getByName(getName());
 
@@ -192,7 +192,7 @@ public class MxRecordSetResource extends AzureResource implements Copyable<MxRec
 
     @Override
     public void create(GyroUI ui, State state) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         DnsRecordSet.UpdateDefinitionStages.MXRecordSetBlank<DnsZone.Update> defineMXRecordSet = client.dnsZones()
             .getById(getDnsZone().getId())
@@ -221,7 +221,7 @@ public class MxRecordSetResource extends AzureResource implements Copyable<MxRec
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         DnsRecordSet.UpdateMXRecordSet updateMXRecordSet =
                 client.dnsZones().getById(getDnsZone().getId()).update().updateMXRecordSet(getName());
@@ -281,7 +281,7 @@ public class MxRecordSetResource extends AzureResource implements Copyable<MxRec
 
     @Override
     public void delete(GyroUI ui, State state) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         client.dnsZones().getById(getDnsZone().getId()).update().withoutMXRecordSet(getName()).apply();
     }

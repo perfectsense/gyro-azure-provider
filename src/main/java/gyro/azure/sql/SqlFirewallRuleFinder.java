@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.sql.models.SqlFirewallRule;
 import com.azure.resourcemanager.sql.models.SqlServer;
-import gyro.azure.AzureResourceManagerFinder;
+import gyro.azure.AzureFinder;
 import gyro.core.Type;
 
 /**
@@ -39,7 +39,7 @@ import gyro.core.Type;
  *    sql-firewall-rule: $(external-query azure::sql-firewall-rule {})
  */
 @Type("sql-firewall-rule")
-public class SqlFirewallRuleFinder extends AzureResourceManagerFinder<SqlFirewallRule, SqlFirewallRuleResource> {
+public class SqlFirewallRuleFinder extends AzureFinder<SqlFirewallRule, SqlFirewallRuleResource> {
 
     private String sqlServerId;
     private String name;

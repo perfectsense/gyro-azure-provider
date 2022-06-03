@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.sql.models.SqlServer;
 import com.azure.resourcemanager.sql.models.SqlVirtualNetworkRule;
-import gyro.azure.AzureResourceManagerFinder;
+import gyro.azure.AzureFinder;
 import gyro.core.Type;
 
 /**
@@ -40,7 +40,7 @@ import gyro.core.Type;
  */
 @Type("sql-virtual-network-rule")
 public class SqlVirtualNetworkRuleFinder
-    extends AzureResourceManagerFinder<SqlVirtualNetworkRule, SqlVirtualNetworkRuleResource> {
+    extends AzureFinder<SqlVirtualNetworkRule, SqlVirtualNetworkRuleResource> {
 
     private String sqlServerId;
     private String name;

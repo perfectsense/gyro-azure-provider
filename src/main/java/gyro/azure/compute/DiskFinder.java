@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.compute.models.Disk;
-import gyro.azure.AzureResourceManagerFinder;
+import gyro.azure.AzureFinder;
 import gyro.core.Type;
 
 /**
@@ -37,7 +37,7 @@ import gyro.core.Type;
  *    disk: $(external-query azure::disk {})
  */
 @Type("disk")
-public class DiskFinder extends AzureResourceManagerFinder<Disk, DiskResource> {
+public class DiskFinder extends AzureFinder<Disk, DiskResource> {
 
     private String id;
 

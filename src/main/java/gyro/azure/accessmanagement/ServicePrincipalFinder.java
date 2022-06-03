@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.authorization.models.ServicePrincipal;
-import gyro.azure.AzureResourceManagerFinder;
+import gyro.azure.AzureFinder;
 import gyro.core.Type;
 
 /**
@@ -37,7 +37,7 @@ import gyro.core.Type;
  *    service-principal: $(external-query azure::service-principal {})
  */
 @Type("service-principal")
-public class ServicePrincipalFinder extends AzureResourceManagerFinder<ServicePrincipal, ServicePrincipalResource> {
+public class ServicePrincipalFinder extends AzureFinder<ServicePrincipal, ServicePrincipalResource> {
 
     private String id;
 

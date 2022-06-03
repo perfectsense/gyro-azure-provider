@@ -20,7 +20,7 @@ import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.dns.models.DnsZone;
 import com.azure.resourcemanager.dns.models.CnameRecordSet;
 import com.psddev.dari.util.ObjectUtils;
-import gyro.azure.AzureResourceManagerFinder;
+import gyro.azure.AzureFinder;
 import gyro.core.GyroException;
 import gyro.core.Type;
 
@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  *    cname-record-set: $(external-query azure::cname-record-set {})
  */
 @Type("cname-record-set")
-public class CnameRecordSetFinder extends AzureResourceManagerFinder<CnameRecordSet, CnameRecordSetResource> {
+public class CnameRecordSetFinder extends AzureFinder<CnameRecordSet, CnameRecordSetResource> {
     private String dnsZoneId;
     private String name;
 

@@ -170,7 +170,7 @@ public class VirtualMachineImageResource extends AzureResource implements Copyab
 
     @Override
     public boolean refresh() {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         VirtualMachineCustomImage image = client.virtualMachineCustomImages().getById(getId());
 
@@ -185,7 +185,7 @@ public class VirtualMachineImageResource extends AzureResource implements Copyab
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         VirtualMachineCustomImage.DefinitionStages.WithCreate withCreate = client.virtualMachineCustomImages()
             .define(getName())
@@ -214,7 +214,7 @@ public class VirtualMachineImageResource extends AzureResource implements Copyab
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         client.virtualMachineCustomImages().deleteById(getId());
     }

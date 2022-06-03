@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.network.models.PublicIpAddress;
-import gyro.azure.AzureResourceManagerFinder;
+import gyro.azure.AzureFinder;
 import gyro.core.Type;
 
 /**
@@ -37,7 +37,7 @@ import gyro.core.Type;
  *    public-ip-address: $(external-query azure::public-ip-address {})
  */
 @Type("public-ip-address")
-public class PublicIpAddressFinder extends AzureResourceManagerFinder<PublicIpAddress, PublicIpAddressResource> {
+public class PublicIpAddressFinder extends AzureFinder<PublicIpAddress, PublicIpAddressResource> {
 
     private String id;
 

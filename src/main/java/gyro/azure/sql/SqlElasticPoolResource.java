@@ -244,7 +244,7 @@ public class SqlElasticPoolResource extends AzureResource implements Copyable<Sq
 
     @Override
     public boolean refresh() {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         SqlElasticPool elasticPool = getSqlElasticPool(client);
 
@@ -263,7 +263,7 @@ public class SqlElasticPoolResource extends AzureResource implements Copyable<Sq
             throw new GyroException("You must provide a sql server resource.");
         }
 
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         SqlElasticPoolOperations.DefinitionStages.WithEdition buildPool = client.sqlServers()
             .getById(getSqlServer().getId())
@@ -308,7 +308,7 @@ public class SqlElasticPoolResource extends AzureResource implements Copyable<Sq
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         SqlElasticPool.Update update = getSqlElasticPool(client).update();
 
@@ -337,7 +337,7 @@ public class SqlElasticPoolResource extends AzureResource implements Copyable<Sq
 
     @Override
     public void delete(GyroUI ui, State state) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         SqlElasticPool sqlElasticPool = getSqlElasticPool(client);
 

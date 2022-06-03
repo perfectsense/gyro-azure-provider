@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.compute.models.VirtualMachineScaleSet;
-import gyro.azure.AzureResourceManagerFinder;
+import gyro.azure.AzureFinder;
 import gyro.core.Type;
 
 /**
@@ -37,7 +37,7 @@ import gyro.core.Type;
  *    scale-set: $(external-query azure::scale-set {})
  */
 @Type("scale-set")
-public class VMScaleSetFinder extends AzureResourceManagerFinder<VirtualMachineScaleSet, VMScaleSetResource> {
+public class VMScaleSetFinder extends AzureFinder<VirtualMachineScaleSet, VMScaleSetResource> {
 
     private String id;
 

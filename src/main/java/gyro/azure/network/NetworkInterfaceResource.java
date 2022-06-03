@@ -223,7 +223,7 @@ public class NetworkInterfaceResource extends AzureResource implements Copyable<
 
     @Override
     public boolean refresh() {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         NetworkInterface networkInterface = getNetworkInterface(client);
 
@@ -238,7 +238,7 @@ public class NetworkInterfaceResource extends AzureResource implements Copyable<
 
     @Override
     public void create(GyroUI ui, State state) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         NetworkInterface.DefinitionStages.WithPrimaryPrivateIP withPrimaryPrivateIP = client.networkInterfaces()
             .define(getName())
@@ -286,7 +286,7 @@ public class NetworkInterfaceResource extends AzureResource implements Copyable<
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         NetworkInterface networkInterface = getNetworkInterface(client);
 
@@ -316,7 +316,7 @@ public class NetworkInterfaceResource extends AzureResource implements Copyable<
 
     @Override
     public void delete(GyroUI ui, State state) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         client.networkInterfaces().deleteByResourceGroup(getResourceGroup().getName(), getName());
     }

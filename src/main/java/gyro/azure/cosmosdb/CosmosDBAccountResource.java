@@ -287,7 +287,7 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
 
     @Override
     public boolean refresh() {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         CosmosDBAccount cosmosAccount = client.cosmosDBAccounts().getById(getId());
 
@@ -302,7 +302,7 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
 
     @Override
     public void create(GyroUI ui, State state) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         WithKind withKind = client.cosmosDBAccounts()
                 .define(getName())
@@ -357,7 +357,7 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         CosmosDBAccount.Update update = client.cosmosDBAccounts()
                 .getById(getId())
@@ -417,7 +417,7 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
 
     @Override
     public void delete(GyroUI ui, State state) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         client.cosmosDBAccounts().deleteById(getId());
     }

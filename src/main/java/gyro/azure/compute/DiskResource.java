@@ -221,7 +221,7 @@ public class DiskResource extends AzureResource implements Copyable<Disk> {
 
     @Override
     public boolean refresh() {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         Disk disk = client.disks().getById(getId());
 
@@ -236,7 +236,7 @@ public class DiskResource extends AzureResource implements Copyable<Disk> {
 
     @Override
     public void create(GyroUI ui, State state) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         Disk.DefinitionStages.WithDiskSource diskDefWithoutData = client.disks()
             .define(getName())
@@ -291,7 +291,7 @@ public class DiskResource extends AzureResource implements Copyable<Disk> {
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         Disk disk = client.disks().getById(getId());
 
@@ -318,7 +318,7 @@ public class DiskResource extends AzureResource implements Copyable<Disk> {
 
     @Override
     public void delete(GyroUI ui, State state) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         client.disks().deleteById(getId());
     }

@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.compute.models.VirtualMachine;
-import gyro.azure.AzureResourceManagerFinder;
+import gyro.azure.AzureFinder;
 import gyro.core.Type;
 
 /**
@@ -37,7 +37,7 @@ import gyro.core.Type;
  *    virtual-machine: $(external-query azure::virtual-machine {})
  */
 @Type("virtual-machine")
-public class VirtualMachineFinder extends AzureResourceManagerFinder<VirtualMachine, VirtualMachineResource> {
+public class VirtualMachineFinder extends AzureFinder<VirtualMachine, VirtualMachineResource> {
 
     private String id;
 

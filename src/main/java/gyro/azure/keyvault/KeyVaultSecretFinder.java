@@ -23,7 +23,7 @@ import java.util.Map;
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.keyvault.models.Secret;
 import com.azure.resourcemanager.keyvault.models.Vault;
-import gyro.azure.AzureResourceManagerFinder;
+import gyro.azure.AzureFinder;
 import gyro.core.Type;
 
 /**
@@ -37,7 +37,7 @@ import gyro.core.Type;
  *    certificate: $(external-query azure::key-vault-secret {resource-group: "resource-group-example", vault: "vault-example", name: "secret-example"})
  */
 @Type("key-vault-secret")
-public class KeyVaultSecretFinder extends AzureResourceManagerFinder<Secret, KeyVaultSecretResource> {
+public class KeyVaultSecretFinder extends AzureFinder<Secret, KeyVaultSecretResource> {
 
     private String resourceGroup;
     private String vault;

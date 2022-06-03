@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.network.models.ApplicationGateway;
-import gyro.azure.AzureResourceManagerFinder;
+import gyro.azure.AzureFinder;
 import gyro.core.Type;
 
 /**
@@ -38,7 +38,7 @@ import gyro.core.Type;
  */
 @Type("application-gateway")
 public class ApplicationGatewayFinder
-    extends AzureResourceManagerFinder<ApplicationGateway, ApplicationGatewayResource> {
+    extends AzureFinder<ApplicationGateway, ApplicationGatewayResource> {
 
     private String id;
 

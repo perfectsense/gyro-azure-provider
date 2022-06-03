@@ -23,12 +23,12 @@ import java.util.stream.Collectors;
 
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.storage.models.StorageAccount;
-import gyro.azure.AzureResourceManagerFinder;
+import gyro.azure.AzureFinder;
 import gyro.core.GyroException;
 import gyro.core.Type;
 
 @Type("storage-account")
-public class StorageAccountFinder extends AzureResourceManagerFinder<StorageAccount, StorageAccountResource> {
+public class StorageAccountFinder extends AzureFinder<StorageAccount, StorageAccountResource> {
 
     private String id;
     private String resourceGroup;

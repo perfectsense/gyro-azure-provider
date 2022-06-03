@@ -23,11 +23,11 @@ import java.util.stream.Collectors;
 
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.network.models.Network;
-import gyro.azure.AzureResourceManagerFinder;
+import gyro.azure.AzureFinder;
 import gyro.core.Type;
 
 @Type("network")
-public class NetworkFinder extends AzureResourceManagerFinder<Network, NetworkResource> {
+public class NetworkFinder extends AzureFinder<Network, NetworkResource> {
 
     private String id;
 

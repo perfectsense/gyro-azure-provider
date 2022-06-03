@@ -1,5 +1,5 @@
 /*
- * Copyright 2019, Perfect Sense, Inc.
+ * Copyright 2022, Brightspot, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,19 @@
 
 package gyro.azure;
 
-import com.microsoft.azure.management.Azure;
-import gyro.core.finder.Finder;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.azure.core.credential.TokenCredential;
+import com.azure.resourcemanager.AzureResourceManager;
+import gyro.core.finder.Finder;
+
 public abstract class AzureFinder<M, R extends AzureResource> extends Finder<R> {
+    protected abstract List<M> findAllAzure(AzureResourceManager client);
 
-    protected abstract List<M> findAllAzure(Azure client);
-
-    protected abstract List<M> findAzure(Azure client, Map<String, String> filters);
+    protected abstract List<M> findAzure(AzureResourceManager client, Map<String, String> filters);
 
     @Override
     public List<R> find(Map<String, Object> filters) {
@@ -44,8 +44,12 @@ public abstract class AzureFinder<M, R extends AzureResource> extends Finder<R> 
             .collect(Collectors.toList());
     }
 
-    private Azure newClient() {
+    private AzureResourceManager newClient() {
         return AzureResource.createClient(credentials(AzureCredentials.class));
+    }
+
+    protected TokenCredential getTokenCredential() {
+        return AzureResource.getTokenCredential(credentials(AzureCredentials.class));
     }
 
     @SuppressWarnings("unchecked")
@@ -69,5 +73,4 @@ public abstract class AzureFinder<M, R extends AzureResource> extends Finder<R> 
 
         return filters;
     }
-
 }

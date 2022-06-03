@@ -19,7 +19,7 @@ package gyro.azure.dns;
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.dns.models.DnsZone;
 import com.psddev.dari.util.ObjectUtils;
-import gyro.azure.AzureResourceManagerFinder;
+import gyro.azure.AzureFinder;
 import gyro.core.GyroException;
 import gyro.core.Type;
 
@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
  *    dns-zone: $(external-query azure::dns-zone {})
  */
 @Type("dns-zone")
-public class DnsZoneFinder extends AzureResourceManagerFinder<DnsZone, DnsZoneResource> {
+public class DnsZoneFinder extends AzureFinder<DnsZone, DnsZoneResource> {
     private String id;
 
     /**

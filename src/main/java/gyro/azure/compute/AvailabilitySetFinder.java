@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.compute.models.AvailabilitySet;
-import gyro.azure.AzureResourceManagerFinder;
+import gyro.azure.AzureFinder;
 import gyro.core.Type;
 
 /**
@@ -37,7 +37,7 @@ import gyro.core.Type;
  *    availability-set: $(external-query azure::availability-set {})
  */
 @Type("availability-set")
-public class AvailabilitySetFinder extends AzureResourceManagerFinder<AvailabilitySet, AvailabilitySetResource> {
+public class AvailabilitySetFinder extends AzureFinder<AvailabilitySet, AvailabilitySetResource> {
 
     private String id;
 

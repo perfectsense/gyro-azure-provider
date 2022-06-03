@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.authorization.models.ActiveDirectoryGroup;
-import gyro.azure.AzureResourceManagerFinder;
+import gyro.azure.AzureFinder;
 import gyro.core.GyroException;
 import gyro.core.Type;
 
@@ -39,7 +39,7 @@ import gyro.core.Type;
  */
 @Type("active-directory-group")
 public class ActiveDirectoryGroupFinder
-    extends AzureResourceManagerFinder<ActiveDirectoryGroup, ActiveDirectoryGroupResource> {
+    extends AzureFinder<ActiveDirectoryGroup, ActiveDirectoryGroupResource> {
 
     private String name;
     private String id;

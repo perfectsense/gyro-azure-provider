@@ -20,7 +20,7 @@ import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.dns.models.ARecordSet;
 import com.azure.resourcemanager.dns.models.DnsZone;
 import com.psddev.dari.util.ObjectUtils;
-import gyro.azure.AzureResourceManagerFinder;
+import gyro.azure.AzureFinder;
 import gyro.core.GyroException;
 import gyro.core.Type;
 
@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  *    a-record-set: $(external-query azure::a-record-set {})
  */
 @Type("a-record-set")
-public class ARecordSetFinder extends AzureResourceManagerFinder<ARecordSet, ARecordSetResource> {
+public class ARecordSetFinder extends AzureFinder<ARecordSet, ARecordSetResource> {
     private String dnsZoneId;
     private String name;
 

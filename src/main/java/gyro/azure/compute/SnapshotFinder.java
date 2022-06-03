@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.compute.models.Snapshot;
-import gyro.azure.AzureResourceManagerFinder;
+import gyro.azure.AzureFinder;
 import gyro.core.Type;
 
 /**
@@ -37,7 +37,7 @@ import gyro.core.Type;
  *    snapshot: $(external-query azure::snapshot {})
  */
 @Type("snapshot")
-public class SnapshotFinder extends AzureResourceManagerFinder<Snapshot, SnapshotResource> {
+public class SnapshotFinder extends AzureFinder<Snapshot, SnapshotResource> {
 
     private String id;
 

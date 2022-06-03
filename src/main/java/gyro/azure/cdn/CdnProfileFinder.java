@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.cdn.models.CdnProfile;
-import gyro.azure.AzureResourceManagerFinder;
+import gyro.azure.AzureFinder;
 import gyro.core.Type;
 
 /**
@@ -37,7 +37,7 @@ import gyro.core.Type;
  *    cdn-profile: $(external-query azure::cdn-profile {})
  */
 @Type("cdn-profile")
-public class CdnProfileFinder extends AzureResourceManagerFinder<CdnProfile, CdnProfileResource> {
+public class CdnProfileFinder extends AzureFinder<CdnProfile, CdnProfileResource> {
 
     private String id;
 

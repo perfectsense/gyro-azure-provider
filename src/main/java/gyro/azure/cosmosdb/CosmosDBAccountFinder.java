@@ -18,7 +18,7 @@ package gyro.azure.cosmosdb;
 
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.cosmos.models.CosmosDBAccount;
-import gyro.azure.AzureResourceManagerFinder;
+import gyro.azure.AzureFinder;
 import gyro.core.Type;
 
 import java.util.Collections;
@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
  *    cosmos-db: $(external-query azure::cosmos-db {})
  */
 @Type("cosmos-db")
-public class CosmosDBAccountFinder extends AzureResourceManagerFinder<CosmosDBAccount, CosmosDBAccountResource> {
+public class CosmosDBAccountFinder extends AzureFinder<CosmosDBAccount, CosmosDBAccountResource> {
     private String id;
 
     /**

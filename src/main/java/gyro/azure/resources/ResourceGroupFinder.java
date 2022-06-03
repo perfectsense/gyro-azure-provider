@@ -18,7 +18,7 @@ package gyro.azure.resources;
 
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.resources.models.ResourceGroup;
-import gyro.azure.AzureResourceManagerFinder;
+import gyro.azure.AzureFinder;
 import gyro.core.Type;
 
 import java.util.Collections;
@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
  *    resource-group: $(external-query azure::resource-group {})
  */
 @Type("resource-group")
-public class ResourceGroupFinder extends AzureResourceManagerFinder<ResourceGroup, ResourceGroupResource> {
+public class ResourceGroupFinder extends AzureFinder<ResourceGroup, ResourceGroupResource> {
     private String name;
 
     /**

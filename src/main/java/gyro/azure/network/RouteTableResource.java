@@ -176,7 +176,7 @@ public class RouteTableResource extends AzureResource implements Copyable<RouteT
 
     @Override
     public boolean refresh() {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         RouteTable routeTable = client.routeTables().getById(getId());
 
@@ -191,7 +191,7 @@ public class RouteTableResource extends AzureResource implements Copyable<RouteT
 
     @Override
     public void create(GyroUI ui, State state) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         RouteTable.DefinitionStages.WithCreate withCreate;
         withCreate = client.routeTables().define(getName())
@@ -220,7 +220,7 @@ public class RouteTableResource extends AzureResource implements Copyable<RouteT
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         RouteTableResource currentResource = (RouteTableResource) current;
 
@@ -255,7 +255,7 @@ public class RouteTableResource extends AzureResource implements Copyable<RouteT
 
     @Override
     public void delete(GyroUI ui, State state) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         client.routeTables().deleteById(getId());
     }

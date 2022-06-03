@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.sql.models.SqlElasticPool;
 import com.azure.resourcemanager.sql.models.SqlServer;
-import gyro.azure.AzureResourceManagerFinder;
+import gyro.azure.AzureFinder;
 import gyro.core.Type;
 
 /**
@@ -39,7 +39,7 @@ import gyro.core.Type;
  *    sql-elastic-pool: $(external-query azure::sql-elastic-pool {})
  */
 @Type("sql-elastic-pool")
-public class SqlElasticPoolFinder extends AzureResourceManagerFinder<SqlElasticPool, SqlElasticPoolResource> {
+public class SqlElasticPoolFinder extends AzureFinder<SqlElasticPool, SqlElasticPoolResource> {
 
     private String sqlServerId;
     private String name;

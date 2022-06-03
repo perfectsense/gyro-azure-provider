@@ -164,7 +164,7 @@ public class IdentityResource extends AzureResource implements Copyable<Identity
 
     @Override
     public boolean refresh() {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         Identity identity = client.identities().getById(getId());
 
@@ -179,7 +179,7 @@ public class IdentityResource extends AzureResource implements Copyable<Identity
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         Identity identity = client.identities().define(getName())
             .withRegion(Region.fromName(getRegion()))
@@ -192,7 +192,7 @@ public class IdentityResource extends AzureResource implements Copyable<Identity
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         Identity.Update update = client.identities().getById(getId()).update();
         IdentityResource oldResource = (IdentityResource) current;
@@ -212,7 +212,7 @@ public class IdentityResource extends AzureResource implements Copyable<Identity
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         client.identities().deleteById(getId());
     }

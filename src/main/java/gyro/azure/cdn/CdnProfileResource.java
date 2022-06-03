@@ -165,7 +165,7 @@ public class CdnProfileResource extends AzureResource implements Copyable<CdnPro
 
     @Override
     public boolean refresh() {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         CdnProfile cdnProfile = client.cdnProfiles().getById(getId());
 
@@ -180,7 +180,7 @@ public class CdnProfileResource extends AzureResource implements Copyable<CdnPro
 
     @Override
     public void create(GyroUI ui, State state) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         CdnProfile.DefinitionStages.WithSku withSku = client.cdnProfiles().define(getName())
             .withRegion(Region.fromName(getRegion()))
@@ -200,7 +200,7 @@ public class CdnProfileResource extends AzureResource implements Copyable<CdnPro
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         CdnProfile.Update update = client.cdnProfiles().getById(getId()).update().withTags(getTags());
         update.apply();
@@ -208,7 +208,7 @@ public class CdnProfileResource extends AzureResource implements Copyable<CdnPro
 
     @Override
     public void delete(GyroUI ui, State state) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         client.cdnProfiles().deleteById(getId());
     }

@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.containerservice.models.KubernetesCluster;
-import gyro.azure.AzureResourceManagerFinder;
+import gyro.azure.AzureFinder;
 import gyro.core.Type;
 
 /**
@@ -37,7 +37,7 @@ import gyro.core.Type;
  *    kubernetes-cluster: $(external-query azure::kubernetes-cluster {})
  */
 @Type("kubernetes-cluster")
-public class KubernetesClusterFinder extends AzureResourceManagerFinder<KubernetesCluster, KubernetesClusterResource> {
+public class KubernetesClusterFinder extends AzureFinder<KubernetesCluster, KubernetesClusterResource> {
 
     private String id;
 

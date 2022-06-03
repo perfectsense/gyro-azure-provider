@@ -149,7 +149,7 @@ public class RoleAssignmentResource extends AzureResource implements Copyable<Ro
         setScope(roleAssignment.scope());
         setId(roleAssignment.id());
 
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
         setRole(client.accessManagement().roleDefinitions().getById(roleAssignment.roleDefinitionId()).roleName());
 
         ActiveDirectoryUser user = client.accessManagement().activeDirectoryUsers().getById(getPrincipalId());
@@ -166,7 +166,7 @@ public class RoleAssignmentResource extends AzureResource implements Copyable<Ro
 
     @Override
     public boolean refresh() {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         RoleAssignment roleAssignment = client.accessManagement().roleAssignments().getByScope(getScope(), getName());
 
@@ -181,7 +181,7 @@ public class RoleAssignmentResource extends AzureResource implements Copyable<Ro
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         if (Stream.of(getPrincipalId(), getUser(), getGroup()).filter(Objects::nonNull).count() > 1) {
             throw new GyroException("Only one of 'principal-id' or 'user' or 'group' is allowed.");
@@ -221,7 +221,7 @@ public class RoleAssignmentResource extends AzureResource implements Copyable<Ro
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         client.accessManagement().roleAssignments().deleteById(getId());
     }

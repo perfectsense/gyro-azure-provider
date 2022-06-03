@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.monitor.models.AutoscaleSetting;
-import gyro.azure.AzureResourceManagerFinder;
+import gyro.azure.AzureFinder;
 import gyro.core.Type;
 
 /**
@@ -37,7 +37,7 @@ import gyro.core.Type;
  *    scale-set-scaling: $(external-query azure::scale-set-scaling {})
  */
 @Type("scale-set-scaling")
-public class VMScaleSetScalingFinder extends AzureResourceManagerFinder<AutoscaleSetting, VMScaleSetScalingResource> {
+public class VMScaleSetScalingFinder extends AzureFinder<AutoscaleSetting, VMScaleSetScalingResource> {
 
     private String id;
 

@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.authorization.models.ActiveDirectoryUser;
-import gyro.azure.AzureResourceManagerFinder;
+import gyro.azure.AzureFinder;
 import gyro.core.GyroException;
 import gyro.core.Type;
 
@@ -39,7 +39,7 @@ import gyro.core.Type;
  */
 @Type("active-directory-user")
 public class ActiveDirectoryUserFinder
-    extends AzureResourceManagerFinder<ActiveDirectoryUser, ActiveDirectoryUserResource> {
+    extends AzureFinder<ActiveDirectoryUser, ActiveDirectoryUserResource> {
 
     private String id;
     private String name;

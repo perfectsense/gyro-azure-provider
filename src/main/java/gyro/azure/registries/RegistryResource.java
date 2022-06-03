@@ -244,7 +244,7 @@ public class RegistryResource extends AzureResource implements Copyable<Registry
 
     @Override
     public boolean refresh() {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         Registry registry = client.containerRegistries()
             .getByResourceGroup(getResourceGroup().getName(), getName());
@@ -260,7 +260,7 @@ public class RegistryResource extends AzureResource implements Copyable<Registry
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         Registry.DefinitionStages.WithSku withSku = client.containerRegistries()
             .define(getName())
@@ -315,7 +315,7 @@ public class RegistryResource extends AzureResource implements Copyable<Registry
     @Override
     public void update(
         GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         Registry registry = client.containerRegistries()
             .getByResourceGroup(getResourceGroup().getName(), getName());
@@ -366,7 +366,7 @@ public class RegistryResource extends AzureResource implements Copyable<Registry
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         client.containerRegistries().deleteByResourceGroup(getResourceGroup().getName(), getName());
     }

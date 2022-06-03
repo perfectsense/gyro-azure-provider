@@ -20,7 +20,7 @@ import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.dns.models.DnsZone;
 import com.azure.resourcemanager.dns.models.PtrRecordSet;
 import com.psddev.dari.util.ObjectUtils;
-import gyro.azure.AzureResourceManagerFinder;
+import gyro.azure.AzureFinder;
 import gyro.core.GyroException;
 import gyro.core.Type;
 
@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  *    ptr-record-set: $(external-query azure::ptr-record-set {})
  */
 @Type("ptr-record-set")
-public class PtrRecordSetFinder extends AzureResourceManagerFinder<PtrRecordSet, PtrRecordSetResource> {
+public class PtrRecordSetFinder extends AzureFinder<PtrRecordSet, PtrRecordSetResource> {
     private String dnsZoneId;
     private String name;
 

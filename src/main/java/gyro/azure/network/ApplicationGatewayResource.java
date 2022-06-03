@@ -547,7 +547,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
         Map<String, Integer> healthMap = new HashMap<>();
         int total = 0;
 
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
         ApplicationGateway applicationGateway = client.applicationGateways().getById(getId());
 
         if (applicationGateway != null) {
@@ -655,7 +655,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
 
     @Override
     public boolean refresh() {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         ApplicationGateway applicationGateway = client.applicationGateways().getById(getId());
 
@@ -670,7 +670,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
 
     @Override
     public void create(GyroUI ui, State state) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         ApplicationGateway.DefinitionStages.WithRequestRoutingRule withRequestRoutingRule = client.applicationGateways()
             .define(getName()).withRegion(Region.fromName(getRegion()))
@@ -735,7 +735,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
 
     @Override
     public void update(GyroUI ui, State state, Resource resource, Set<String> changedFieldNames) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         ApplicationGateway applicationGateway = client.applicationGateways().getById(getId());
 
@@ -774,7 +774,7 @@ public class ApplicationGatewayResource extends AzureResource implements Copyabl
 
     @Override
     public void delete(GyroUI ui, State state) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         client.applicationGateways().deleteById(getId());
     }

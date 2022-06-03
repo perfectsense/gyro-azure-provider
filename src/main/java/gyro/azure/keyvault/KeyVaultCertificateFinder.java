@@ -26,7 +26,7 @@ import com.azure.resourcemanager.keyvault.models.Vault;
 import com.azure.security.keyvault.certificates.CertificateClient;
 import com.azure.security.keyvault.certificates.CertificateClientBuilder;
 import com.azure.security.keyvault.certificates.models.KeyVaultCertificateWithPolicy;
-import gyro.azure.AzureResourceManagerFinder;
+import gyro.azure.AzureFinder;
 import gyro.core.Type;
 
 /**
@@ -40,7 +40,7 @@ import gyro.core.Type;
  *    certificate: $(external-query azure::key-vault-certificate {resource-group: "resource-group-example", vault: "vault-example", name: "certificate-example"})
  */
 @Type("key-vault-certificate")
-public class KeyVaultCertificateFinder extends AzureResourceManagerFinder<KeyVaultCertificateWithPolicy, KeyVaultCertificateResource> {
+public class KeyVaultCertificateFinder extends AzureFinder<KeyVaultCertificateWithPolicy, KeyVaultCertificateResource> {
 
     private String resourceGroup;
     private String vault;

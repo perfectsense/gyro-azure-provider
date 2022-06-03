@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.keyvault.models.Vault;
 import com.azure.resourcemanager.resources.fluentcore.arm.models.HasName;
-import gyro.azure.AzureResourceManagerFinder;
+import gyro.azure.AzureFinder;
 import gyro.core.Type;
 
 /**
@@ -38,7 +38,7 @@ import gyro.core.Type;
  *    identity: $(external-query azure::key-vault {resource-group: "resource-group-example", name: "vault-example"})
  */
 @Type("key-vault")
-public class KeyVaultFinder extends AzureResourceManagerFinder<Vault, KeyVaultResource> {
+public class KeyVaultFinder extends AzureFinder<Vault, KeyVaultResource> {
 
     private String resourceGroup;
     private String name;

@@ -314,7 +314,7 @@ public class VMScaleSetScalingResource extends AzureResource implements Copyable
 
     @Override
     public boolean refresh() {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         AutoscaleSetting autoscaleSetting = client.autoscaleSettings().getById(getId());
 
@@ -329,7 +329,7 @@ public class VMScaleSetScalingResource extends AzureResource implements Copyable
 
     @Override
     public void create(GyroUI ui, State state) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         AutoscaleSetting.DefinitionStages.DefineAutoscaleSettingResourceProfiles basicStage = client.autoscaleSettings()
             .define(getName())
@@ -420,7 +420,7 @@ public class VMScaleSetScalingResource extends AzureResource implements Copyable
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         AutoscaleSetting autoscaleSetting = client.autoscaleSettings().getById(getId());
 
@@ -515,7 +515,7 @@ public class VMScaleSetScalingResource extends AzureResource implements Copyable
 
     @Override
     public void delete(GyroUI ui, State state) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         client.autoscaleSettings().deleteById(getId());
     }

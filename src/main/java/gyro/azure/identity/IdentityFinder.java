@@ -18,7 +18,7 @@ package gyro.azure.identity;
 
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.msi.models.Identity;
-import gyro.azure.AzureResourceManagerFinder;
+import gyro.azure.AzureFinder;
 import gyro.core.Type;
 
 import java.util.Collections;
@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
  *    identity: $(external-query azure::identity {})
  */
 @Type("identity")
-public class IdentityFinder extends AzureResourceManagerFinder<Identity, IdentityResource> {
+public class IdentityFinder extends AzureFinder<Identity, IdentityResource> {
     private String id;
 
     /**

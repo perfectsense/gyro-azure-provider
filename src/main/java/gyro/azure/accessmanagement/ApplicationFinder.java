@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.authorization.models.ActiveDirectoryApplication;
-import gyro.azure.AzureResourceManagerFinder;
+import gyro.azure.AzureFinder;
 import gyro.core.Type;
 
 /**
@@ -37,7 +37,7 @@ import gyro.core.Type;
  *    application: $(external-query azure::application {})
  */
 @Type("application")
-public class ApplicationFinder extends AzureResourceManagerFinder<ActiveDirectoryApplication, ApplicationResource> {
+public class ApplicationFinder extends AzureFinder<ActiveDirectoryApplication, ApplicationResource> {
 
     private String id;
 

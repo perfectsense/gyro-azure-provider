@@ -20,7 +20,7 @@ import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.dns.models.DnsZone;
 import com.azure.resourcemanager.dns.models.MxRecordSet;
 import com.psddev.dari.util.ObjectUtils;
-import gyro.azure.AzureResourceManagerFinder;
+import gyro.azure.AzureFinder;
 import gyro.core.GyroException;
 import gyro.core.Type;
 
@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  *    mx-record-set: $(external-query azure::mx-record-set {})
  */
 @Type("mx-record-set")
-public class MxRecordSetFinder extends AzureResourceManagerFinder<MxRecordSet, MxRecordSetResource> {
+public class MxRecordSetFinder extends AzureFinder<MxRecordSet, MxRecordSetResource> {
     private String dnsZoneId;
     private String name;
 

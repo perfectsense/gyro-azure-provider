@@ -210,7 +210,7 @@ public class SqlFailoverGroupResource extends AzureResource implements Copyable<
 
     @Override
     public boolean refresh() {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         SqlFailoverGroup failoverGroup = getSqlFailoverGroup(client);
 
@@ -225,7 +225,7 @@ public class SqlFailoverGroupResource extends AzureResource implements Copyable<
 
     @Override
     public void create(GyroUI ui, State state) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         SqlFailoverGroupOperations.DefinitionStages.WithReadWriteEndpointPolicy buildFailoverGroup = client.sqlServers()
             .getById(getSqlServer().getId())
@@ -267,7 +267,7 @@ public class SqlFailoverGroupResource extends AzureResource implements Copyable<
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         SqlFailoverGroup.Update update = getSqlFailoverGroup(client).update();
 
@@ -309,7 +309,7 @@ public class SqlFailoverGroupResource extends AzureResource implements Copyable<
 
     @Override
     public void delete(GyroUI ui, State state) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         SqlFailoverGroup sqlFailoverGroup = getSqlFailoverGroup(client);
 

@@ -129,7 +129,7 @@ public class SqlFirewallRuleResource extends AzureResource implements Copyable<S
 
     @Override
     public boolean refresh() {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         SqlFirewallRule firewallRule = getSqlFirewallRule(client);
 
@@ -154,7 +154,7 @@ public class SqlFirewallRuleResource extends AzureResource implements Copyable<S
             throw new GyroException("You must provide a sql server resource.");
         }
 
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         SqlFirewallRuleOperations.DefinitionStages.WithIpAddressRange rule = client.sqlServers()
             .getById(getSqlServer().getId())
@@ -175,7 +175,7 @@ public class SqlFirewallRuleResource extends AzureResource implements Copyable<S
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         SqlFirewallRule.Update update = getSqlFirewallRule(client).update();
 
@@ -190,7 +190,7 @@ public class SqlFirewallRuleResource extends AzureResource implements Copyable<S
 
     @Override
     public void delete(GyroUI ui, State state) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         SqlFirewallRule sqlFirewallRule = getSqlFirewallRule(client);
 

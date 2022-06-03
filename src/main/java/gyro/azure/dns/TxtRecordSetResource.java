@@ -162,7 +162,7 @@ public class TxtRecordSetResource extends AzureResource implements Copyable<TxtR
 
     @Override
     public boolean refresh() {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         TxtRecordSet txtRecordSet = client.dnsZones().getById(getDnsZone().getId()).txtRecordSets().getByName(getName());
 
@@ -177,7 +177,7 @@ public class TxtRecordSetResource extends AzureResource implements Copyable<TxtR
 
     @Override
     public void create(GyroUI ui, State state) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         DnsRecordSet.UpdateDefinitionStages.TxtRecordSetBlank<DnsZone.Update> defineTxtRecordSet = client.dnsZones()
             .getById(getDnsZone().getId())
@@ -204,7 +204,7 @@ public class TxtRecordSetResource extends AzureResource implements Copyable<TxtR
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         DnsRecordSet.UpdateTxtRecordSet updateTxtRecordSet =
                 client.dnsZones().getById(getDnsZone().getId()).update().updateTxtRecordSet(getName());
@@ -253,7 +253,7 @@ public class TxtRecordSetResource extends AzureResource implements Copyable<TxtR
 
     @Override
     public void delete(GyroUI ui, State state) {
-        AzureResourceManager client = createResourceManagerClient();
+        AzureResourceManager client = createClient();
 
         client.dnsZones().getById(getDnsZone().getId()).update().withoutTxtRecordSet(getName()).apply();
     }

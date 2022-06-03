@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.sql.models.SqlFailoverGroup;
 import com.azure.resourcemanager.sql.models.SqlServer;
-import gyro.azure.AzureResourceManagerFinder;
+import gyro.azure.AzureFinder;
 import gyro.core.Type;
 
 /**
@@ -39,7 +39,7 @@ import gyro.core.Type;
  *    sql-failover-group: $(external-query azure::sql-failover-group {})
  */
 @Type("sql-failover-group")
-public class SqlFailoverGroupFinder extends AzureResourceManagerFinder<SqlFailoverGroup, SqlFailoverGroupResource> {
+public class SqlFailoverGroupFinder extends AzureFinder<SqlFailoverGroup, SqlFailoverGroupResource> {
 
     private String sqlServerId;
     private String name;
