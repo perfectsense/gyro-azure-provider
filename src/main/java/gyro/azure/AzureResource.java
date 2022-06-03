@@ -27,7 +27,7 @@ public abstract class AzureResource extends Resource {
     }
 
     public static AzureResourceManager createClient(AzureCredentials credentials) {
-        return credentials.crateClient();
+        return credentials.createClient();
     }
 
     protected AzureResourceManager createClient() {

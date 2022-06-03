@@ -60,7 +60,7 @@ public class AzureCredentials extends Credentials {
         this.logLevel = logLevel;
     }
 
-    public AzureResourceManager crateClient() {
+    public AzureResourceManager createClient() {
         Properties properties;
 
         try (InputStream input = openInput(getCredentialFilePath())) {
