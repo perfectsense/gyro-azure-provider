@@ -133,8 +133,8 @@ public class ActiveDirectoryUserResource extends AzureResource implements Copyab
     @Override
     public void copyFrom(ActiveDirectoryUser user) {
         setName(user.name());
-        setEmail(user.innerModel().mailNickname());
         setPrincipalName(user.userPrincipalName());
+        setEmail(getPrincipalName().split("@")[0]);
         setId(user.id());
         setAccountEnabled(user.innerModel().accountEnabled());
     }

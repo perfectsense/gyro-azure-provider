@@ -19,9 +19,11 @@ package gyro.azure.accessmanagement;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.authorization.fluent.models.OdataErrorMainException;
 import com.azure.resourcemanager.authorization.models.ActiveDirectoryGroup;
 import com.azure.resourcemanager.authorization.models.ActiveDirectoryUser;
 import com.azure.resourcemanager.authorization.models.BuiltInRole;
@@ -31,6 +33,7 @@ import gyro.azure.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Type;
+import gyro.core.Wait;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
@@ -152,15 +155,26 @@ public class RoleAssignmentResource extends AzureResource implements Copyable<Ro
         AzureResourceManager client = createClient();
         setRole(client.accessManagement().roleDefinitions().getById(roleAssignment.roleDefinitionId()).roleName());
 
-        ActiveDirectoryUser user = client.accessManagement().activeDirectoryUsers().getById(getPrincipalId());
-        ActiveDirectoryGroup group = client.accessManagement().activeDirectoryGroups().getById(getPrincipalId());
+        ActiveDirectoryUser user = null;
+
+        try {
+            user = client.accessManagement().activeDirectoryUsers().getById(getPrincipalId());
+        } catch (OdataErrorMainException ex) {
+            // ignore
+        }
+
+        ActiveDirectoryGroup group = null;
+
+        try {
+            group = client.accessManagement().activeDirectoryGroups().getById(getPrincipalId());
+        } catch (OdataErrorMainException ex) {
+            //ignore
+        }
 
         if (user != null) {
             setUser(findById(ActiveDirectoryUserResource.class, user.id()));
-            setPrincipalId(null);
         } else if (group != null) {
             setGroup(findById(ActiveDirectoryGroupResource.class, getPrincipalId()));
-            setPrincipalId(null);
         }
     }
 
@@ -188,27 +202,46 @@ public class RoleAssignmentResource extends AzureResource implements Copyable<Ro
         }
 
         RoleAssignment roleAssignment = null;
+        setName(UUID.randomUUID().toString());
 
-        if (getPrincipalId() != null) {
-            roleAssignment = client.accessManagement().roleAssignments().define(UUID.randomUUID().toString())
-                .forObjectId(getPrincipalId())
-                .withBuiltInRole(BuiltInRole.fromString(getRole()))
-                .withScope(getScope())
-                .create();
-        } else if (getGroup() != null) {
-            roleAssignment = client.accessManagement().roleAssignments().define(UUID.randomUUID().toString())
-                .forGroup(client.accessManagement().activeDirectoryGroups().getById(getGroup().getId()))
-                .withBuiltInRole(BuiltInRole.fromString(getRole()))
-                .withScope(getScope())
-                .create();
-        } else if (getUser() != null) {
-            roleAssignment = client.accessManagement().roleAssignments().define(UUID.randomUUID().toString())
-                .forUser(client.accessManagement().activeDirectoryUsers().getById(getUser().getId()))
-                .withBuiltInRole(BuiltInRole.fromString(getRole()))
-                .withScope(getScope())
-                .create();
-        } else {
-            throw new GyroException("One of 'principal-id' or 'user' or 'group' is required.");
+        try {
+            if (getPrincipalId() != null) {
+                roleAssignment = client.accessManagement().roleAssignments().define(getName())
+                    .forObjectId(getPrincipalId())
+                    .withBuiltInRole(BuiltInRole.fromString(getRole()))
+                    .withScope(getScope())
+                    .create();
+            } else if (getGroup() != null) {
+                roleAssignment = client.accessManagement().roleAssignments().define(getName())
+                    .forGroup(client.accessManagement().activeDirectoryGroups().getById(getGroup().getId()))
+                    .withBuiltInRole(BuiltInRole.fromString(getRole()))
+                    .withScope(getScope())
+                    .create();
+            } else if (getUser() != null) {
+                roleAssignment = client.accessManagement().roleAssignments().define(getName())
+                    .forUser(client.accessManagement().activeDirectoryUsers().getById(getUser().getId()))
+                    .withBuiltInRole(BuiltInRole.fromString(getRole()))
+                    .withScope(getScope())
+                    .create();
+            } else {
+                throw new GyroException("One of 'principal-id' or 'user' or 'group' is required.");
+            }
+        } catch (OdataErrorMainException ex) {
+
+            try {
+                Wait.atMost(2, TimeUnit.MINUTES)
+                    .prompt(false)
+                    .checkEvery(20, TimeUnit.SECONDS)
+                    .until(() -> client.accessManagement().roleAssignments().getByScope(getScope(), getName()) != null);
+
+                roleAssignment = client.accessManagement().roleAssignments().getByScope(getScope(), getName());
+
+                if (roleAssignment == null) {
+                    throw ex;
+                }
+            } catch (Exception exx) {
+                throw ex;
+            }
         }
 
         copyFrom(roleAssignment);
