@@ -64,7 +64,7 @@ public class DnsZoneResource extends AzureResource implements Copyable<DnsZone> 
     private Map<String, String> tags;
 
     private List<String> nsRecords;
-    private Map<String, List<String>> nameServers;
+    private List<String> nameServers;
 
     /**
      * The ID of the Dns Zone.
@@ -136,18 +136,18 @@ public class DnsZoneResource extends AzureResource implements Copyable<DnsZone> 
     }
 
     /**
-     * A map of ns record names and corresponding name servers present in the Dns Zone.
+     * A list of name servers present in the Dns Zone.
      */
     @Output
-    public Map<String, List<String>> getNameServers() {
+    public List<String> getNameServers() {
         if (nameServers == null) {
-            nameServers = new HashMap<>();
+            nameServers = new ArrayList<>();
         }
 
         return nameServers;
     }
 
-    public void setNameServers(Map<String, List<String>> nameServers) {
+    public void setNameServers(List<String> nameServers) {
         this.nameServers = nameServers;
     }
 
@@ -162,8 +162,7 @@ public class DnsZoneResource extends AzureResource implements Copyable<DnsZone> 
             .map(HasName::name)
             .collect(Collectors.toList()));
 
-        setNameServers(dnsZone.nsRecordSets().list().stream()
-            .collect(Collectors.toMap(HasName::name, NsRecordSet::nameServers)));
+        setNameServers(dnsZone.nameServers());
     }
 
     @Override
@@ -195,7 +194,9 @@ public class DnsZoneResource extends AzureResource implements Copyable<DnsZone> 
 
         DnsZone dnsZone = withCreate.create();
 
-        copyFrom(dnsZone);
+        setId(dnsZone.id());
+
+        copyFrom(client.dnsZones().getById(getId()));
     }
 
     @Override
