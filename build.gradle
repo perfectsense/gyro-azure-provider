@@ -67,7 +67,7 @@ dependencies {
     implementation 'com.psddev:dari-util:3.3.607-xe0f27a'
     implementation 'com.google.guava:guava:31.1-jre'
 
-    implementation 'com.azure.resourcemanager:azure-resourcemanager:2.14.0'
+    implementation 'com.azure.resourcemanager:azure-resourcemanager:2.15.0'
     implementation 'com.azure:azure-security-keyvault-certificates:4.3.2'
     implementation 'com.azure:azure-data-tables:12.3.0'
     implementation 'com.azure:azure-storage-queue:12.12.2'

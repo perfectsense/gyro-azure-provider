@@ -108,9 +108,9 @@ public class KeyVaultCertificatePolicy extends Diffable implements Copyable<Cert
     }
 
     /**
-     * The key type. Currently only supported value is ``RSA``.
+     * The key type.
      */
-    @ValidStrings("RSA")
+    @ValidStrings({"RSA", "RSA-HSM", "EC", "EC-HSM"})
     public String getKeyType() {
         return keyType;
     }
@@ -119,6 +119,10 @@ public class KeyVaultCertificatePolicy extends Diffable implements Copyable<Cert
         this.keyType = keyType;
     }
 
+    /**
+     * The key curve name.
+     */
+    @ValidStrings({"P-256", "P-384", "P-521", "P-256K"})
     public String getKeyCurveName() {
         return keyCurveName;
     }
@@ -138,6 +142,9 @@ public class KeyVaultCertificatePolicy extends Diffable implements Copyable<Cert
         this.enabled = enabled;
     }
 
+    /**
+     * Enable or Disable transparency of the certificate.
+     */
     public Boolean getTransparent() {
         return transparent;
     }
@@ -171,7 +178,7 @@ public class KeyVaultCertificatePolicy extends Diffable implements Copyable<Cert
     }
 
     /**
-     * Validation of the certificate in months. Value should be between 1 to 12.
+     * Validation of the certificate in months.
      */
     @Required
     @Range(min = 1, max = 12)
@@ -235,6 +242,9 @@ public class KeyVaultCertificatePolicy extends Diffable implements Copyable<Cert
     /**
      * A list of key usage flags.
      */
+    @ValidStrings({"digitalSignature", "nonRepudiation", "keyEncipherment",
+        "dataEncipherment", "keyAgreement", "keyCertSign",
+        "cRLSign", "encipherOnly", "decipherOnly"})
     public List<String> getKeyUsage() {
         if (keyUsage == null) {
             keyUsage = new ArrayList<>();
@@ -247,6 +257,9 @@ public class KeyVaultCertificatePolicy extends Diffable implements Copyable<Cert
         this.keyUsage = keyUsage;
     }
 
+    /**
+     * A list of enhanced key usage flags.
+     */
     public List<String> getEnhancedKeyUsage() {
         if (enhancedKeyUsage == null) {
             enhancedKeyUsage = new ArrayList<>();

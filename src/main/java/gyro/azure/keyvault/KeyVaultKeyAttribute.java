@@ -31,7 +31,7 @@ public class KeyVaultKeyAttribute extends Diffable implements Copyable<KeyProper
     }
 
     /**
-     * A date time value value in UTC specifying when the key expires. Format ``YYYY-MM-DDTHH:MM:SS.sssZ``. Example ``2020-04-03T15:54:12.000Z``.
+     * A date time value in UTC specifying when the key expires. Format ``YYYY-MM-DDTHH:MM:SS.sssZ``. Example ``2020-04-03T15:54:12.000Z``.
      */
     @Updatable
     public String getExpires() {
@@ -43,7 +43,7 @@ public class KeyVaultKeyAttribute extends Diffable implements Copyable<KeyProper
     }
 
     /**
-     * A date time value value in UTC specifying the not before time. Format ``YYYY-MM-DDTHH:MM:SS.sssZ``. Example ``2020-04-03T15:54:12.000Z``.
+     * A date time value in UTC specifying the not-before time. Format ``YYYY-MM-DDTHH:MM:SS.sssZ``. Example ``2020-04-03T15:54:12.000Z``.
      */
     @Updatable
     public String getNotBefore() {

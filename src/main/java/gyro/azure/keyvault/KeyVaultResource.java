@@ -245,7 +245,7 @@ public class KeyVaultResource extends AzureResource implements Copyable<Vault> {
     }
 
     /**
-     *  When ``true`` virtual machines are permitted to retrieve certificates stored as secrets from the key vault.
+     *  When set to``true`` virtual machines are permitted to retrieve certificates stored as secrets from the key vault.
      */
     @Updatable
     public Boolean getEnableDeployment() {
@@ -261,7 +261,7 @@ public class KeyVaultResource extends AzureResource implements Copyable<Vault> {
     }
 
     /**
-     * When ``true`` resource managers are permitted to retrieve certificates stored as secrets from the key vault.
+     * When set to ``true`` resource managers are permitted to retrieve certificates stored as secrets from the key vault.
      */
     @Updatable
     public Boolean getEnableTemplateDeployment() {
@@ -277,7 +277,7 @@ public class KeyVaultResource extends AzureResource implements Copyable<Vault> {
     }
 
     /**
-     * When ``true`` disk managers are permitted to retrieve certificates stored as secrets from the key vault and unwrap keys.
+     * When set to ``true`` disk managers are permitted to retrieve certificates stored as secrets from the key vault and unwrap keys.
      */
     @Updatable
     public Boolean getEnableDiskEncryption() {
@@ -309,7 +309,7 @@ public class KeyVaultResource extends AzureResource implements Copyable<Vault> {
     }
 
     /**
-     * Enables soft delete for the key vault.
+     * When set to ``true`` enables soft delete for the key vault.
      */
     @Updatable
     public Boolean getEnableSoftDelete() {

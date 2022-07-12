@@ -41,7 +41,6 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Creates a key vault certificate.
@@ -268,7 +267,8 @@ public class KeyVaultCertificateResource extends AzureResource implements Copyab
             if (getPolicy().getIssuerName().equals("Unknown")) {
                 GyroCore.ui()
                     .write(
-                        "\n@|blue Certificate created, but needs to be merged before use. Please use the Azure console to merge the certificate! |@\n\n");
+                        "\n@|blue Certificate created, but needs to be merged before use. "
+                            + "Please use the Azure console to merge the certificate! |@\n\n");
             }
         }
     }
@@ -289,6 +289,7 @@ public class KeyVaultCertificateResource extends AzureResource implements Copyab
             syncPoller.getFinalResult();
         } catch (IllegalArgumentException ex) {
             // Do something
+            // TODO verify certificate exception, also affect finders and command
         }
     }
 

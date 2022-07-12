@@ -91,7 +91,7 @@ public class KeyVaultKeyResource extends AzureResource implements Copyable<Key> 
      * The type of the key. Valid values are ``EC``, ``RSA``, ``RSA-HSM`` or ``oct``
      */
     @Required
-    @ValidStrings({"EC", "RSA", "RSA-HSM", "oct"})
+    @ValidStrings({"EC", "EC-HSM", "RSA", "RSA-HSM", "OCT", "OCT-HSM"})
     public String getType() {
         return type;
     }
@@ -130,7 +130,7 @@ public class KeyVaultKeyResource extends AzureResource implements Copyable<Key> 
      * A set of key operations that you want to enable.
      */
     @Updatable
-    @ValidStrings({"encrypt", "decrypt", "sign", "verify", "wrapKey", "unwrapKey"})
+    @ValidStrings({"encrypt", "decrypt", "sign", "verify", "wrapKey", "unwrapKey", "import"})
     public List<String> getOperations() {
         if (operations == null) {
             operations = new ArrayList<>();
