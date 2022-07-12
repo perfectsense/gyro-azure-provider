@@ -4,12 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.microsoft.azure.keyvault.models.KeyVaultErrorException;
-import com.microsoft.azure.keyvault.models.SecretBundle;
-import com.microsoft.azure.keyvault.requests.SetSecretRequest;
-import com.microsoft.azure.keyvault.requests.UpdateSecretRequest;
-import com.microsoft.azure.management.keyvault.Vault;
-import com.psddev.dari.util.ObjectUtils;
+import com.azure.resourcemanager.keyvault.models.Secret;
+import com.azure.resourcemanager.keyvault.models.Vault;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.core.GyroUI;
@@ -20,6 +16,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Creates a key vault secret.
@@ -46,7 +43,7 @@ import gyro.core.validation.Required;
  *     end
  */
 @Type("key-vault-secret")
-public class KeyVaultSecretResource extends AzureResource implements Copyable<SecretBundle> {
+public class KeyVaultSecretResource extends AzureResource implements Copyable<Secret> {
 
     private String name;
     private KeyVaultResource vault;
@@ -175,38 +172,27 @@ public class KeyVaultSecretResource extends AzureResource implements Copyable<Se
     }
 
     @Override
-    public void copyFrom(SecretBundle secret) {
-        setName(secret.secretIdentifier().name());
+    public void copyFrom(Secret secret) {
+        setName(secret.name());
         setId(secret.id());
         setKid(secret.kid());
-        setIdentifier(secret.secretIdentifier().identifier());
         setTags(secret.tags());
-        setValue(secret.value());
+        setValue(secret.getValue());
         setContentType(secret.contentType());
-        String vaultUri = secret.secretIdentifier().vault();
-        vaultUri = vaultUri.endsWith("/") ? vaultUri : vaultUri + "/";
-        setVault(findById(KeyVaultResource.class, vaultUri));
 
         KeyVaultSecretAttribute attribute = newSubresource(KeyVaultSecretAttribute.class);
         attribute.copyFrom(secret.attributes());
         setAttribute(attribute);
+
+        String vaultName = getId().split(".vault.azure.net")[0].split("://")[1];
+        setVault(findById(KeyVaultResource.class, vaultName));
     }
 
     @Override
     public boolean refresh() {
         Vault vault = getVault().getKeyVault();
-        SecretBundle secret;
 
-        try {
-            secret = vault.client().getSecret(vault.vaultUri(), getName());
-        } catch (KeyVaultErrorException ex) {
-            if (ex.body().error().message().equals("Operation get is not allowed on a disabled secret.")) {
-                // secret is present but in disabled state
-                return true;
-            }
-
-            throw ex;
-        }
+        Secret secret = vault.secrets().getById(getId());
 
         if (secret == null) {
             return false;
@@ -221,19 +207,23 @@ public class KeyVaultSecretResource extends AzureResource implements Copyable<Se
     public void create(GyroUI ui, State state) throws Exception {
         Vault vault = getVault().getKeyVault();
 
-        SetSecretRequest.Builder builder = new SetSecretRequest.Builder(vault.vaultUri(), getName(), getValue());
+        Secret.DefinitionStages.WithCreate withCreate = vault.secrets()
+            .define(getName())
+            .withValue(getValue());
 
-        builder.withAttributes(getAttribute().toSecretAttributes());
+        if (getAttribute() != null) {
+            withCreate = withCreate.withAttributes(getAttribute().toSecretProperties());
+        }
+
+        if (!StringUtils.isBlank(getContentType())) {
+            withCreate = withCreate.withContentType(getContentType());
+        }
 
         if (!getTags().isEmpty()) {
-            builder.withTags(getTags());
+            withCreate = withCreate.withTags(getTags());
         }
 
-        if (!ObjectUtils.isBlank(getContentType())) {
-            builder.withContentType(getContentType());
-        }
-
-        SecretBundle secret = vault.client().setSecret(builder.build());
+        Secret secret = withCreate.create();
 
         copyFrom(secret);
     }
@@ -243,19 +233,29 @@ public class KeyVaultSecretResource extends AzureResource implements Copyable<Se
         GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
         Vault vault = getVault().getKeyVault();
 
-        UpdateSecretRequest.Builder builder = new UpdateSecretRequest.Builder(getId());
+        Secret secret = vault.secrets().getById(getId());
 
-        builder.withAttributes(getAttribute().toSecretAttributes());
-        builder.withContentType(getContentType());
-        builder.withTags(getTags());
+        Secret.Update update = secret.update();
 
-        vault.client().updateSecret(builder.build());
+        if (changedFieldNames.contains("attribute")) {
+            update = update.withAttributes(getAttribute().toSecretProperties());
+        }
+
+        if (changedFieldNames.contains("content-type")) {
+            update = update.withContentType(getContentType());
+        }
+
+        if (changedFieldNames.contains("tags")) {
+            update = update.withTags(getTags());
+        }
+
+        update.apply();
     }
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
         Vault vault = getVault().getKeyVault();
 
-        vault.client().deleteSecret(vault.vaultUri(), getName());
+        vault.secrets().deleteById(getId());
     }
 }

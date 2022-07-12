@@ -16,6 +16,10 @@
 
 package gyro.azure.dns;
 
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.dns.models.CaaRecordSet;
+import com.azure.resourcemanager.dns.models.DnsRecordSet;
+import com.azure.resourcemanager.dns.models.DnsZone;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.core.GyroUI;
@@ -27,12 +31,6 @@ import gyro.core.resource.Updatable;
 
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.dns.CaaRecordSet;
-import com.microsoft.azure.management.dns.DnsRecordSet;
-import com.microsoft.azure.management.dns.DnsZone;
-import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.WithCaaRecordEntryOrAttachable;
-import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.CaaRecordSetBlank;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 
@@ -181,7 +179,7 @@ public class CaaRecordSetResource extends AzureResource implements Copyable<CaaR
 
     @Override
     public boolean refresh() {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         CaaRecordSet caaRecordSet = client.dnsZones().getById(getDnsZone().getId()).caaRecordSets().getByName(getName());
 
@@ -196,14 +194,20 @@ public class CaaRecordSetResource extends AzureResource implements Copyable<CaaR
 
     @Override
     public void create(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
-        CaaRecordSetBlank<DnsZone.Update> defineCaaRecordSet =
-                client.dnsZones().getById(getDnsZone().getId()).update().defineCaaRecordSet(getName());
+        DnsRecordSet.UpdateDefinitionStages.CaaRecordSetBlank<DnsZone.Update> defineCaaRecordSet =
+            client.dnsZones()
+            .getById(getDnsZone().getId())
+            .update()
+            .defineCaaRecordSet(getName());
 
-        WithCaaRecordEntryOrAttachable<DnsZone.Update> createCaaRecordSet = null;
+        DnsRecordSet.UpdateDefinitionStages.WithCaaRecordEntryOrAttachable<DnsZone.Update> createCaaRecordSet = null;
         for (CaaRecord caaRecord : getCaaRecord()) {
-            createCaaRecordSet = defineCaaRecordSet.withRecord(caaRecord.getFlags(), caaRecord.getTag(), caaRecord.getValue());
+            createCaaRecordSet = defineCaaRecordSet.withRecord(
+                caaRecord.getFlags(),
+                caaRecord.getTag(),
+                caaRecord.getValue());
         }
 
         if (getTtl() != null) {
@@ -221,7 +225,7 @@ public class CaaRecordSetResource extends AzureResource implements Copyable<CaaR
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         DnsRecordSet.UpdateCaaRecordSet updateCaaRecordSet =
                 client.dnsZones().getById(getDnsZone().getId()).update().updateCaaRecordSet(getName());
@@ -268,7 +272,7 @@ public class CaaRecordSetResource extends AzureResource implements Copyable<CaaR
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         client.dnsZones().getById(getDnsZone().getId()).update().withoutCaaRecordSet(getName()).apply();
     }

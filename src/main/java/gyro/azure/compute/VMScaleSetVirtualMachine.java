@@ -2,8 +2,8 @@ package gyro.azure.compute;
 
 import java.util.Collection;
 
-import com.microsoft.azure.management.compute.VirtualMachineScaleSetVM;
-import com.microsoft.azure.management.network.implementation.NetworkInterfaceIPConfigurationInner;
+import com.azure.resourcemanager.compute.models.VirtualMachineScaleSetVM;
+import com.azure.resourcemanager.network.fluent.models.NetworkInterfaceIpConfigurationInner;
 import gyro.azure.Copyable;
 import gyro.core.GyroInstance;
 import gyro.core.resource.Diffable;
@@ -70,20 +70,20 @@ public class VMScaleSetVirtualMachine extends Diffable implements GyroInstance, 
         setName(model.computerName());
         setInstanceId(model.instanceId());
         setState(model.powerState().toString());
-        setLocation(model.inner().location());
+        setLocation(model.innerModel().location());
         //model
-        NetworkInterfaceIPConfigurationInner ipConfig = model.listNetworkInterfaces()
+        NetworkInterfaceIpConfigurationInner ipConfig = model.listNetworkInterfaces()
             .stream()
             .filter(nic -> nic.name().equals("primary-nic-cfg"))
-            .map(nic -> nic.inner().ipConfigurations())
+            .map(nic -> nic.innerModel().ipConfigurations())
             .flatMap(Collection::stream)
-            .filter(NetworkInterfaceIPConfigurationInner::primary)
+            .filter(NetworkInterfaceIpConfigurationInner::primary)
             .findFirst()
             .orElse(null);
 
         if (ipConfig != null) {
-            setPrivateIp(ipConfig.privateIPAddress());
-            setPublicIp(ipConfig.publicIPAddress() != null ? ipConfig.publicIPAddress().ipAddress() : null);
+            setPrivateIp(ipConfig.privateIpAddress());
+            setPublicIp(ipConfig.publicIpAddress() != null ? ipConfig.publicIpAddress().ipAddress() : null);
         }
 
     }
@@ -110,7 +110,9 @@ public class VMScaleSetVirtualMachine extends Diffable implements GyroInstance, 
 
     @Override
     public String getGyroInstanceHostname() {
-        return getGyroInstancePublicIpAddress() != null ? getGyroInstancePublicIpAddress() : getGyroInstancePrivateIpAddress();
+        return getGyroInstancePublicIpAddress() != null
+            ? getGyroInstancePublicIpAddress()
+            : getGyroInstancePrivateIpAddress();
     }
 
     @Override

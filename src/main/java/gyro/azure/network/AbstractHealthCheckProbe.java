@@ -21,6 +21,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 
 public abstract class AbstractHealthCheckProbe extends Diffable {
+
     private String name;
     private Integer interval;
     private Integer port;

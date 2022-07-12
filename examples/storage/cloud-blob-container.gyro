@@ -8,24 +8,19 @@ end
 
 azure::storage-account blob-storage-account-example
     resource-group: $(azure::resource-group blob-resource-group)
-    name: "testblobexample"
-
-    cors-rule
-        allowed-headers: ["*"]
-        allowed-methods: ["POST"]
-        allowed-origins: ["*"]
-        exposed-headers: ["*"]
-        max-age: 6
-        type: "blob"
-    end
+    name: "testblobexampledj"
 
     tags: {
-        Name: "testblobexample"
+        Name: "testblobexampledj"
     }
 end
 
 azure::cloud-blob-container blob-container-example
     name: "blobcontainerexample"
-    public-access: "CONTAINER"
+    public-access: "container"
     storage-account: $(azure::storage-account blob-storage-account-example)
+
+    metadata: {
+        Name: blob-container-example
+    }
 end

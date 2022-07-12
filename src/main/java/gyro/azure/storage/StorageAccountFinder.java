@@ -16,18 +16,23 @@
 
 package gyro.azure.storage;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.storage.StorageAccount;
-import gyro.azure.AzureFinder;
-import gyro.core.Type;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.storage.models.StorageAccount;
+import gyro.azure.AzureFinder;
+import gyro.core.GyroException;
+import gyro.core.Type;
 
 @Type("storage-account")
 public class StorageAccountFinder extends AzureFinder<StorageAccount, StorageAccountResource> {
+
     private String id;
+    private String resourceGroup;
+    private String name;
 
     /**
      * The ID of the Storage Account.
@@ -40,14 +45,45 @@ public class StorageAccountFinder extends AzureFinder<StorageAccount, StorageAcc
         this.id = id;
     }
 
-    @Override
-    protected List<StorageAccount> findAllAzure(Azure client) {
-        return client.storageAccounts().list();
+    /**
+     * The name of the resource group the Storage Account belongs.
+     */
+    public String getResourceGroup() {
+        return resourceGroup;
+    }
+
+    public void setResourceGroup(String resourceGroup) {
+        this.resourceGroup = resourceGroup;
+    }
+
+    /**
+     * The name of the Storage Account.
+     */
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
-    protected List<StorageAccount> findAzure(Azure client, Map<String, String> filters) {
-        StorageAccount storageAccount = client.storageAccounts().getById(filters.get("id"));
+    protected List<StorageAccount> findAllAzure(AzureResourceManager client) {
+        return client.storageAccounts().list().stream().collect(Collectors.toList());
+    }
+
+    @Override
+    protected List<StorageAccount> findAzure(AzureResourceManager client, Map<String, String> filters) {
+        StorageAccount storageAccount;
+        if (filters.containsKey("id")) {
+            storageAccount = client.storageAccounts().getById(filters.get("id"));
+        } else if (filters.containsKey("resource-group") && filters.containsKey("name")) {
+            storageAccount = client.storageAccounts()
+                .getByResourceGroup(filters.get("resource-group"), filters.get("name"));
+        } else {
+            throw new GyroException("Either 'id' or both of 'resource-group' and 'name' is required");
+        }
+
         if (storageAccount == null) {
             return Collections.emptyList();
         } else {

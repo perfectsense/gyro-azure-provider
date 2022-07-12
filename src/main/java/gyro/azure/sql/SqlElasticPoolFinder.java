@@ -16,17 +16,17 @@
 
 package gyro.azure.sql;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.sql.SqlElasticPool;
-import com.microsoft.azure.management.sql.SqlServer;
-import gyro.azure.AzureFinder;
-import gyro.core.Type;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.sql.models.SqlElasticPool;
+import com.azure.resourcemanager.sql.models.SqlServer;
+import gyro.azure.AzureFinder;
+import gyro.core.Type;
 
 /**
  * Query sql elastic pool.
@@ -40,6 +40,7 @@ import java.util.stream.Collectors;
  */
 @Type("sql-elastic-pool")
 public class SqlElasticPoolFinder extends AzureFinder<SqlElasticPool, SqlElasticPoolResource> {
+
     private String sqlServerId;
     private String name;
 
@@ -66,12 +67,17 @@ public class SqlElasticPoolFinder extends AzureFinder<SqlElasticPool, SqlElastic
     }
 
     @Override
-    protected List<SqlElasticPool> findAllAzure(Azure client) {
-        return client.sqlServers().list().stream().map(o -> o.elasticPools().list()).flatMap(Collection::stream).collect(Collectors.toList());
+    protected List<SqlElasticPool> findAllAzure(AzureResourceManager client) {
+        return client.sqlServers()
+            .list()
+            .stream()
+            .map(o -> o.elasticPools().list())
+            .flatMap(Collection::stream)
+            .collect(Collectors.toList());
     }
 
     @Override
-    protected List<SqlElasticPool> findAzure(Azure client, Map<String, String> filters) {
+    protected List<SqlElasticPool> findAzure(AzureResourceManager client, Map<String, String> filters) {
         SqlServer sqlServer = client.sqlServers().getById(filters.get("sql-server-id"));
 
         if (sqlServer == null) {

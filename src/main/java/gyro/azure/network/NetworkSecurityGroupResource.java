@@ -16,25 +16,25 @@
 
 package gyro.azure.network;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.network.NetworkSecurityGroup;
-import com.microsoft.azure.management.resources.fluentcore.arm.Region;
-import gyro.azure.AzureResource;
-import gyro.azure.Copyable;
-import gyro.azure.resources.ResourceGroupResource;
-import gyro.core.GyroUI;
-import gyro.core.resource.Id;
-import gyro.core.resource.Updatable;
-import gyro.core.Type;
-import gyro.core.resource.Output;
-import gyro.core.resource.Resource;
-import gyro.core.scope.State;
-import gyro.core.validation.Required;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import com.azure.core.management.Region;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.network.models.NetworkSecurityGroup;
+import gyro.azure.AzureResource;
+import gyro.azure.Copyable;
+import gyro.azure.resources.ResourceGroupResource;
+import gyro.core.GyroUI;
+import gyro.core.Type;
+import gyro.core.resource.Id;
+import gyro.core.resource.Output;
+import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
+import gyro.core.validation.Required;
 
 /**
  * Creates a network security group.
@@ -76,6 +76,7 @@ import java.util.Set;
  */
 @Type("network-security-group")
 public class NetworkSecurityGroupResource extends AzureResource implements Copyable<NetworkSecurityGroup> {
+
     private String name;
     private ResourceGroupResource resourceGroup;
     private String id;
@@ -170,7 +171,7 @@ public class NetworkSecurityGroupResource extends AzureResource implements Copya
 
     @Override
     public boolean refresh() {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         NetworkSecurityGroup networkSecurityGroup = client.networkSecurityGroups().getById(getId());
 
@@ -185,7 +186,7 @@ public class NetworkSecurityGroupResource extends AzureResource implements Copya
 
     @Override
     public void create(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         NetworkSecurityGroup networkSecurityGroup = client.networkSecurityGroups()
             .define(getName())
@@ -199,7 +200,7 @@ public class NetworkSecurityGroupResource extends AzureResource implements Copya
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         NetworkSecurityGroup networkSecurityGroup = client.networkSecurityGroups().getById(getId());
 
@@ -208,7 +209,7 @@ public class NetworkSecurityGroupResource extends AzureResource implements Copya
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         client.networkSecurityGroups().deleteById(getId());
     }

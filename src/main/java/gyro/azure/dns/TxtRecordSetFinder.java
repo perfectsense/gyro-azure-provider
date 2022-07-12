@@ -16,9 +16,9 @@
 
 package gyro.azure.dns;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.dns.TxtRecordSet;
-import com.microsoft.azure.management.dns.DnsZone;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.dns.models.DnsZone;
+import com.azure.resourcemanager.dns.models.TxtRecordSet;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureFinder;
 import gyro.core.GyroException;
@@ -67,12 +67,15 @@ public class TxtRecordSetFinder extends AzureFinder<TxtRecordSet, TxtRecordSetRe
     }
 
     @Override
-    protected List<TxtRecordSet> findAllAzure(Azure client) {
-        return client.dnsZones().list().stream().map(o -> o.txtRecordSets().list()).flatMap(List::stream).collect(Collectors.toList());
+    protected List<TxtRecordSet> findAllAzure(AzureResourceManager client) {
+        return client.dnsZones().list().stream()
+            .map(o -> o.txtRecordSets().list().stream().collect(Collectors.toList()))
+            .flatMap(List::stream)
+            .collect(Collectors.toList());
     }
 
     @Override
-    protected List<TxtRecordSet> findAzure(Azure client, Map<String, String> filters) {
+    protected List<TxtRecordSet> findAzure(AzureResourceManager client, Map<String, String> filters) {
         if (ObjectUtils.isBlank(filters.get("dns-zone-id"))) {
             throw new GyroException("'dns-zone-id' is required.");
         }
@@ -84,7 +87,7 @@ public class TxtRecordSetFinder extends AzureFinder<TxtRecordSet, TxtRecordSetRe
             if (filters.containsKey("name")) {
                 return Collections.singletonList(dnsZone.txtRecordSets().getByName(filters.get("name")));
             } else {
-                return dnsZone.txtRecordSets().list();
+                return dnsZone.txtRecordSets().list().stream().collect(Collectors.toList());
             }
         }
     }

@@ -21,14 +21,14 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.network.LoadBalancer;
-import com.microsoft.azure.management.network.LoadBalancerBackend;
-import com.microsoft.azure.management.network.LoadBalancerInboundNatRule;
-import com.microsoft.azure.management.network.NetworkInterface;
-import com.microsoft.azure.management.network.NicIPConfiguration;
-import com.microsoft.azure.management.network.implementation.ApplicationSecurityGroupInner;
-import com.microsoft.azure.management.network.implementation.NetworkInterfaceIPConfigurationInner;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.network.fluent.models.ApplicationSecurityGroupInner;
+import com.azure.resourcemanager.network.fluent.models.NetworkInterfaceIpConfigurationInner;
+import com.azure.resourcemanager.network.models.LoadBalancer;
+import com.azure.resourcemanager.network.models.LoadBalancerBackend;
+import com.azure.resourcemanager.network.models.LoadBalancerInboundNatRule;
+import com.azure.resourcemanager.network.models.NetworkInterface;
+import com.azure.resourcemanager.network.models.NicIpConfiguration;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
@@ -38,7 +38,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 
-public class NicIpConfigurationResource extends AzureResource implements Copyable<NicIPConfiguration> {
+public class NicIpConfigurationResource extends AzureResource implements Copyable<NicIpConfiguration> {
 
     private String name;
     private PublicIpAddressResource publicIpAddress;
@@ -138,12 +138,12 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
     }
 
     @Override
-    public void copyFrom(NicIPConfiguration nicIpConfiguration) {
+    public void copyFrom(NicIpConfiguration nicIpConfiguration) {
         setName(nicIpConfiguration.name());
-        setPublicIpAddress(nicIpConfiguration.getPublicIPAddress() != null ? findById(
+        setPublicIpAddress(nicIpConfiguration.getPublicIpAddress() != null ? findById(
             PublicIpAddressResource.class,
-            nicIpConfiguration.getPublicIPAddress().id()) : null);
-        setPrivateIpAddress(nicIpConfiguration.privateIPAddress());
+            nicIpConfiguration.getPublicIpAddress().id()) : null);
+        setPrivateIpAddress(nicIpConfiguration.privateIpAddress());
 
         getNicBackend().clear();
         for (LoadBalancerBackend backend : nicIpConfiguration.listAssociatedLoadBalancerBackends()) {
@@ -160,8 +160,8 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
         }
 
         getApplicationSecurityGroups().clear();
-        if (nicIpConfiguration.inner().applicationSecurityGroups() != null) {
-            setApplicationSecurityGroups(nicIpConfiguration.inner()
+        if (nicIpConfiguration.innerModel().applicationSecurityGroups() != null) {
+            setApplicationSecurityGroups(nicIpConfiguration.innerModel()
                 .applicationSecurityGroups()
                 .stream()
                 .map(o -> findById(ApplicationSecurityGroupResource.class, o.id()))
@@ -185,28 +185,28 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
             return;
         }
 
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         NetworkInterfaceResource parent = (NetworkInterfaceResource) parent();
 
         NetworkInterface networkInterface = parent.getNetworkInterface(client);
 
-        NicIPConfiguration.UpdateDefinitionStages.WithPrivateIP<NetworkInterface.Update> updateWithPrivateIP = networkInterface
+        NicIpConfiguration.UpdateDefinitionStages.WithPrivateIP<NetworkInterface.Update> updateWithPrivateIP = networkInterface
             .update()
             .defineSecondaryIPConfiguration(getName())
             .withExistingNetwork(client.networks().getById(parent.getNetwork().getId()))
             .withSubnet(parent.getSubnet());
 
-        NicIPConfiguration.UpdateDefinitionStages.WithAttach<NetworkInterface.Update> updateWithAttach;
+        NicIpConfiguration.UpdateDefinitionStages.WithAttach<NetworkInterface.Update> updateWithAttach;
 
         if (!ObjectUtils.isBlank(getPrivateIpAddress())) {
-            updateWithAttach = updateWithPrivateIP.withPrivateIPAddressStatic(getPrivateIpAddress());
+            updateWithAttach = updateWithPrivateIP.withPrivateIpAddressStatic(getPrivateIpAddress());
         } else {
-            updateWithAttach = updateWithPrivateIP.withPrivateIPAddressDynamic();
+            updateWithAttach = updateWithPrivateIP.withPrivateIpAddressDynamic();
         }
 
         if (getPublicIpAddress() != null) {
-            updateWithAttach = updateWithAttach.withExistingPublicIPAddress(client.publicIPAddresses()
+            updateWithAttach = updateWithAttach.withExistingPublicIpAddress(client.publicIpAddresses()
                 .getById(getPublicIpAddress().getId()));
         }
 
@@ -229,28 +229,28 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         NetworkInterfaceResource parent = (NetworkInterfaceResource) parent();
 
         NetworkInterface networkInterface = parent.getNetworkInterface(client);
 
-        NicIPConfiguration.Update update = networkInterface.update().updateIPConfiguration(getName())
+        NicIpConfiguration.Update update = networkInterface.update().updateIPConfiguration(getName())
             .withSubnet(parent.getSubnet());
 
         if (changedFieldNames.contains("public-ip-address")) {
             if (getPublicIpAddress() == null) {
-                update = update.withoutPublicIPAddress();
+                update = update.withoutPublicIpAddress();
             } else {
-                update = update.withExistingPublicIPAddress(client.publicIPAddresses()
+                update = update.withExistingPublicIpAddress(client.publicIpAddresses()
                     .getById(getPublicIpAddress().getId()));
             }
         }
 
         if (!ObjectUtils.isBlank(getPrivateIpAddress())) {
-            update = update.withPrivateIPAddressStatic(getPrivateIpAddress());
+            update = update.withPrivateIpAddressStatic(getPrivateIpAddress());
         } else {
-            update = update.withPrivateIPAddressDynamic();
+            update = update.withPrivateIpAddressDynamic();
         }
 
         update.withoutLoadBalancerBackends();
@@ -270,8 +270,8 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
         addRemoveApplicationSecurityGroups(client, networkInterface);
     }
 
-    private void addRemoveApplicationSecurityGroups(Azure client, NetworkInterface networkInterface) {
-        NetworkInterfaceIPConfigurationInner nicIPConfigurationInner = networkInterface.inner()
+    private void addRemoveApplicationSecurityGroups(AzureResourceManager client, NetworkInterface networkInterface) {
+        NetworkInterfaceIpConfigurationInner nicIPConfigurationInner = networkInterface.innerModel()
             .ipConfigurations()
             .stream()
             .filter(o -> o.name().equals(getName()))
@@ -293,12 +293,7 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
         }
 
         if (doUpdate) {
-            client.networkInterfaces()
-                .inner()
-                .createOrUpdate(
-                    networkInterface.resourceGroupName(),
-                    networkInterface.name(),
-                    networkInterface.inner());
+            networkInterface.update().apply();
         }
     }
 
@@ -308,7 +303,7 @@ public class NicIpConfigurationResource extends AzureResource implements Copyabl
             return;
         }
 
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         NetworkInterfaceResource parent = (NetworkInterfaceResource) parent();
 

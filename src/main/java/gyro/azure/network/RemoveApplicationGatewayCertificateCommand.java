@@ -2,8 +2,8 @@ package gyro.azure.network;
 
 import java.util.List;
 
-import com.microsoft.azure.management.network.ApplicationGateway;
-import com.microsoft.azure.management.network.ApplicationGatewayListener;
+import com.azure.resourcemanager.network.models.ApplicationGateway;
+import com.azure.resourcemanager.network.models.ApplicationGatewayListener;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import picocli.CommandLine.Command;

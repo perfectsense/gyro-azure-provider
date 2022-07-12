@@ -2,7 +2,8 @@ package gyro.azure.keyvault;
 
 import java.util.List;
 
-import com.microsoft.azure.management.keyvault.Vault;
+import com.azure.resourcemanager.keyvault.models.Secret;
+import com.azure.resourcemanager.keyvault.models.Vault;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import picocli.CommandLine.Command;
@@ -27,7 +28,8 @@ public class RemoveVaultSecretCommand extends AbstractVaultCommand {
 
             Vault vault = getVault(vaultResourceName);
 
-            vault.client().deleteSecret(vault.vaultUri(), secretName);
+            Secret secret = vault.secrets().getByName(secretName);
+            vault.secrets().deleteById(secret.id());
             GyroCore.ui().write("\nSecret removed.");
 
         } else {

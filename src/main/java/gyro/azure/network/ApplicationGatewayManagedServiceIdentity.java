@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.microsoft.azure.management.network.ManagedServiceIdentity;
-import com.microsoft.azure.management.network.ManagedServiceIdentityUserAssignedIdentitiesValue;
-import com.microsoft.azure.management.network.ResourceIdentityType;
+import com.azure.resourcemanager.network.models.ManagedServiceIdentity;
+import com.azure.resourcemanager.network.models.ManagedServiceIdentityUserAssignedIdentities;
+import com.azure.resourcemanager.network.models.ResourceIdentityType;
 import gyro.azure.Copyable;
 import gyro.azure.identity.IdentityResource;
 import gyro.core.resource.Diffable;
@@ -97,8 +97,8 @@ public class ApplicationGatewayManagedServiceIdentity extends Diffable implement
     }
 
     ManagedServiceIdentity toManagedServiceIdentity() {
-        ManagedServiceIdentityUserAssignedIdentitiesValue value = new ManagedServiceIdentityUserAssignedIdentitiesValue();
-        Map<String, ManagedServiceIdentityUserAssignedIdentitiesValue> map = new HashMap<>();
+        ManagedServiceIdentityUserAssignedIdentities value = new ManagedServiceIdentityUserAssignedIdentities();
+        Map<String, ManagedServiceIdentityUserAssignedIdentities> map = new HashMap<>();
 
         getUserAssignedIdentity().forEach(o -> map.put(o.getId(), value));
         return new ManagedServiceIdentity().withType(ResourceIdentityType.USER_ASSIGNED)

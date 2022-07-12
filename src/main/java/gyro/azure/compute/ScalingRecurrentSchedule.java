@@ -16,18 +16,19 @@
 
 package gyro.azure.compute;
 
-import com.microsoft.azure.management.monitor.DayOfWeek;
-import com.microsoft.azure.management.monitor.Recurrence;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import com.azure.resourcemanager.monitor.models.DayOfWeek;
+import com.azure.resourcemanager.monitor.models.Recurrence;
 import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 
-import java.util.Set;
-import java.util.stream.Collectors;
-
 public class ScalingRecurrentSchedule extends Diffable implements Copyable<Recurrence> {
+
     private String timeZone;
     private String startTime;
     private Set<String> dayOfWeeks;
@@ -61,7 +62,7 @@ public class ScalingRecurrentSchedule extends Diffable implements Copyable<Recur
      */
     @Required
     @Updatable
-    @ValidStrings({"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"})
+    @ValidStrings({ "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY" })
     public Set<String> getDayOfWeeks() {
         return dayOfWeeks;
     }
@@ -76,7 +77,8 @@ public class ScalingRecurrentSchedule extends Diffable implements Copyable<Recur
         setDayOfWeeks(recurrence.schedule().days().stream().map(String::toUpperCase).collect(Collectors.toSet()));
         String hours = recurrence.schedule().hours().get(0).toString();
         String minutes = recurrence.schedule().minutes().get(0).toString();
-        setStartTime((hours.length() == 1 ? "0" + hours : hours) + ":" + (minutes.length() == 1 ? "0" + minutes : minutes));
+        setStartTime(
+            (hours.length() == 1 ? "0" + hours : hours) + ":" + (minutes.length() == 1 ? "0" + minutes : minutes));
     }
 
     DayOfWeek[] toDayOfWeeks() {

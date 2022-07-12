@@ -17,10 +17,14 @@
 package gyro.azure.keyvault;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.microsoft.azure.PagedList;
-import com.microsoft.azure.keyvault.models.CertificateItem;
-import com.microsoft.azure.management.keyvault.Vault;
+import com.azure.core.http.rest.PagedIterable;
+import com.azure.resourcemanager.keyvault.models.Vault;
+import com.azure.security.keyvault.certificates.CertificateClient;
+import com.azure.security.keyvault.certificates.CertificateClientBuilder;
+import com.azure.security.keyvault.certificates.models.CertificateProperties;
+import com.azure.security.keyvault.certificates.models.KeyVaultCertificateWithPolicy;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import picocli.CommandLine.Command;
@@ -48,25 +52,33 @@ public class ListVaultCertificateCommand extends AbstractVaultCommand {
 
             Vault vault = getVault(vaultResourceName);
 
-            PagedList<CertificateItem> certificateItemPagedList = vault.client().listCertificates(vault.vaultUri());
-            if (!certificateItemPagedList.isEmpty()) {
-                certificateItemPagedList.loadAll();
+            CertificateClient client = new CertificateClientBuilder()
+                .vaultUrl(vault.vaultUri())
+                .credential(getTokenCredential())
+                .buildClient();
 
-                for (CertificateItem certificate : certificateItemPagedList) {
-                    StringBuilder sb = new StringBuilder();
-                    sb.append("\n***********************");
-                    sb.append(String.format("\nName: %s", certificate.identifier().name()));
-                    sb.append(String.format("\nVersion: %s", certificate.identifier().version()));
+            PagedIterable<CertificateProperties> certificateProperties = client.listPropertiesOfCertificates();
 
-                    if (showThumbprint) {
-                        sb.append(String.format(
-                            "\nThumbprint: %s",
-                            certificate.x509Thumbprint() != null ? new String(certificate.x509Thumbprint()) : null));
-                    }
+            AtomicBoolean found = new AtomicBoolean(false);
+            certificateProperties.forEach(certProp -> {
+                found.set(true);
+                KeyVaultCertificateWithPolicy certificate = client.getCertificate(certProp.getName());
 
-                    GyroCore.ui().write(sb.toString());
+                StringBuilder sb = new StringBuilder();
+                sb.append("\n***********************");
+                sb.append(String.format("\nName: %s", certificate.getName()));
+                sb.append(String.format("\nVersion: %s", certificate.getProperties().getVersion()));
+
+                if (showThumbprint) {
+                    sb.append(String.format(
+                        "\nThumbprint: %s",
+                        certificate.getProperties().getX509Thumbprint() != null ? new String(certificate.getProperties().getX509Thumbprint()) : null));
                 }
-            } else {
+
+                GyroCore.ui().write(sb.toString());
+            });
+
+            if (!found.get()) {
                 GyroCore.ui().write("No certificates found!");
             }
 

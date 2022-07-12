@@ -7,13 +7,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.microsoft.azure.keyvault.KeyIdentifier;
-import com.microsoft.azure.keyvault.models.KeyBundle;
-import com.microsoft.azure.keyvault.requests.CreateKeyRequest;
-import com.microsoft.azure.keyvault.requests.UpdateKeyRequest;
-import com.microsoft.azure.keyvault.webkey.JsonWebKeyOperation;
-import com.microsoft.azure.keyvault.webkey.JsonWebKeyType;
-import com.microsoft.azure.management.keyvault.Vault;
+import com.azure.core.util.ExpandableStringEnum;
+import com.azure.resourcemanager.keyvault.models.Key;
+import com.azure.resourcemanager.keyvault.models.Vault;
+import com.azure.security.keyvault.keys.models.KeyOperation;
+import com.azure.security.keyvault.keys.models.KeyType;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.core.GyroUI;
@@ -53,7 +51,7 @@ import gyro.core.validation.ValidStrings;
  *     end
  */
 @Type("key-vault-key")
-public class KeyVaultKeyResource extends AzureResource implements Copyable<KeyBundle> {
+public class KeyVaultKeyResource extends AzureResource implements Copyable<Key> {
 
     private String name;
     private KeyVaultResource vault;
@@ -93,7 +91,7 @@ public class KeyVaultKeyResource extends AzureResource implements Copyable<KeyBu
      * The type of the key. Valid values are ``EC``, ``RSA``, ``RSA-HSM`` or ``oct``
      */
     @Required
-    @ValidStrings({"EC", "RSA", "RSA-HSM", "oct"})
+    @ValidStrings({"EC", "EC-HSM", "RSA", "RSA-HSM", "OCT", "OCT-HSM"})
     public String getType() {
         return type;
     }
@@ -132,7 +130,7 @@ public class KeyVaultKeyResource extends AzureResource implements Copyable<KeyBu
      * A set of key operations that you want to enable.
      */
     @Updatable
-    @ValidStrings({"encrypt", "decrypt", "sign", "verify", "wrapKey", "unwrapKey"})
+    @ValidStrings({"encrypt", "decrypt", "sign", "verify", "wrapKey", "unwrapKey", "import"})
     public List<String> getOperations() {
         if (operations == null) {
             operations = new ArrayList<>();
@@ -187,36 +185,33 @@ public class KeyVaultKeyResource extends AzureResource implements Copyable<KeyBu
     }
 
     @Override
-    public void copyFrom(KeyBundle key) {
+    public void copyFrom(Key key) {
         setTags(key.tags());
-        setType(key.key().kty().toString());
-        setOperations(key.key().keyOps().stream().map(JsonWebKeyOperation::toString).collect(Collectors.toList()));
 
+        setOperations(key.getJsonWebKey().getKeyOps().stream().map(ExpandableStringEnum::toString).collect(Collectors.toList()));
         KeyVaultKeyAttribute attribute = newSubresource(KeyVaultKeyAttribute.class);
         attribute.copyFrom(key.attributes());
         setAttribute(attribute);
 
-        KeyIdentifier keyIdentifier = key.keyIdentifier();
-        setId(keyIdentifier.identifier());
-        setName(keyIdentifier.name());
-        setVersion(keyIdentifier.version());
+        setId(key.id());
+        setName(key.name());
+        setVersion(key.innerModel().getVersion());
 
-        String vaultUri = keyIdentifier.vault();
-        vaultUri = vaultUri.endsWith("/") ? vaultUri : vaultUri + "/";
-        setVault(findById(KeyVaultResource.class, vaultUri));
-
+        String vaultName = getId().split(".vault.azure.net")[0].split("://")[1];
+        setVault(findById(KeyVaultResource.class, vaultName));
     }
 
     @Override
     public boolean refresh() {
         Vault vault = getVault().getKeyVault();
-        KeyBundle keyBundle = vault.client().getKey(vault.vaultUri(), getName());
 
-        if (keyBundle == null) {
+        Key key = vault.keys().getById(getId());
+
+        if (key == null) {
             return false;
         }
 
-        copyFrom(keyBundle);
+        copyFrom(key);
 
         return true;
     }
@@ -225,18 +220,29 @@ public class KeyVaultKeyResource extends AzureResource implements Copyable<KeyBu
     public void create(GyroUI ui, State state) throws Exception {
         Vault vault = getVault().getKeyVault();
 
-        CreateKeyRequest.Builder builder = new CreateKeyRequest.Builder(vault.vaultUri(), getName(), new JsonWebKeyType(getType()));
-        builder.withAttributes(getAttribute().toKeyAttributes());
-        builder.withKeyOperations(getOperations().stream().map(JsonWebKeyOperation::new).collect(Collectors.toList()));
-        builder.withKeySize(getSize());
+        Key.DefinitionStages.WithCreate withCreate = vault.keys().define(getName())
+            .withKeyTypeToCreate(KeyType.fromString(getType()));
 
-        if (getTags() != null) {
-            builder.withTags(getTags());
+        if (getSize() != null) {
+            withCreate = withCreate.withKeySize(getSize());
         }
 
-        KeyBundle keyBundle = vault.client().createKey(builder.build());
+        if (getAttribute() != null) {
+            withCreate = withCreate.withAttributes(getAttribute().toKeyProperties());
+        }
 
-        copyFrom(keyBundle);
+        if (getOperations() != null) {
+            withCreate = withCreate.withKeyOperations(getOperations().stream()
+                .map(KeyOperation::fromString).collect(Collectors.toList()));
+        }
+
+        if (getTags() != null) {
+            withCreate = withCreate.withTags(getTags());
+        }
+
+        Key key = withCreate.create();
+
+        copyFrom(key);
     }
 
     @Override
@@ -244,18 +250,30 @@ public class KeyVaultKeyResource extends AzureResource implements Copyable<KeyBu
         GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
         Vault vault = getVault().getKeyVault();
 
-        UpdateKeyRequest.Builder builder = new UpdateKeyRequest.Builder(vault.vaultUri(), getName());
-        builder.withAttributes(getAttribute().toKeyAttributes());
-        builder.withKeyOperations(getOperations().stream().map(JsonWebKeyOperation::new).collect(Collectors.toList()));
-        builder.withTags(getTags());
+        Key key = vault.keys().getById(getId());
 
-        vault.client().updateKey(builder.build());
+        Key.Update update = key.update();
+
+        if (changedFieldNames.contains("attribute")) {
+            update = update.withAttributes(getAttribute().toKeyProperties());
+        }
+
+        if (changedFieldNames.contains("operations")) {
+            update = update.withKeyOperations(getOperations().stream()
+                .map(KeyOperation::fromString).collect(Collectors.toList()));
+        }
+
+        if (changedFieldNames.contains("tags")) {
+            update = update.withTags(getTags());
+        }
+
+        update.apply();
     }
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
         Vault vault = getVault().getKeyVault();
 
-        vault.client().deleteKey(vault.vaultUri(), getName());
+        vault.keys().deleteById(getId());
     }
 }

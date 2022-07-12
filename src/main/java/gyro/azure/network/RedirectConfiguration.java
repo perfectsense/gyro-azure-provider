@@ -16,12 +16,12 @@
 
 package gyro.azure.network;
 
-import com.microsoft.azure.management.network.ApplicationGateway.Update;
-import com.microsoft.azure.management.network.ApplicationGatewayRedirectConfiguration;
-import com.microsoft.azure.management.network.ApplicationGatewayRedirectConfiguration.UpdateDefinitionStages.WithTarget;
-import com.microsoft.azure.management.network.ApplicationGatewayRedirectType;
-import com.microsoft.azure.management.network.ApplicationGateway.DefinitionStages.WithCreate;
-import com.microsoft.azure.management.network.ApplicationGatewayRedirectConfiguration.DefinitionStages;
+import com.azure.resourcemanager.network.models.ApplicationGateway.DefinitionStages.WithCreate;
+import com.azure.resourcemanager.network.models.ApplicationGateway.Update;
+import com.azure.resourcemanager.network.models.ApplicationGatewayRedirectConfiguration;
+import com.azure.resourcemanager.network.models.ApplicationGatewayRedirectConfiguration.DefinitionStages;
+import com.azure.resourcemanager.network.models.ApplicationGatewayRedirectConfiguration.UpdateDefinitionStages.WithTarget;
+import com.azure.resourcemanager.network.models.ApplicationGatewayRedirectType;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
@@ -46,6 +46,7 @@ import gyro.core.validation.ValidStrings;
  *     end
  */
 public class RedirectConfiguration extends Diffable implements Copyable<ApplicationGatewayRedirectConfiguration> {
+
     private String name;
     private String type;
     private String targetListener;
@@ -66,9 +67,9 @@ public class RedirectConfiguration extends Diffable implements Copyable<Applicat
     }
 
     /**
-     * Type of the redirect configuration. Valid values are ``Permanent`` or ``Found`` or ``SeeOther`` or ``Temporary`` 
+     * Type of the redirect configuration. Valid values are ``Permanent`` or ``Found`` or ``SeeOther`` or ``Temporary``
      */
-    @ValidStrings({"Permanent", "Found", "SeeOther", "Temporary"})
+    @ValidStrings({ "Permanent", "Found", "SeeOther", "Temporary" })
     @Required
     @Updatable
     public String getType() {
@@ -145,7 +146,8 @@ public class RedirectConfiguration extends Diffable implements Copyable<Applicat
     public void copyFrom(ApplicationGatewayRedirectConfiguration redirectConfiguration) {
         setName(redirectConfiguration.name());
         setType(redirectConfiguration.type().toString());
-        setTargetListener(redirectConfiguration.targetListener() != null ? redirectConfiguration.targetListener().name() : null);
+        setTargetListener(
+            redirectConfiguration.targetListener() != null ? redirectConfiguration.targetListener().name() : null);
         setTargetUrl(redirectConfiguration.targetUrl());
         setIncludePath(redirectConfiguration.isPathIncluded());
         setIncludeQueryString(redirectConfiguration.isQueryStringIncluded());

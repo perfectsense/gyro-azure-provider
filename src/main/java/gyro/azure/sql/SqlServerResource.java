@@ -16,25 +16,24 @@
 
 package gyro.azure.sql;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import com.azure.core.management.Region;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.sql.models.SqlServer;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.azure.resources.ResourceGroupResource;
 import gyro.core.GyroUI;
-import gyro.core.resource.Id;
-import gyro.core.resource.Resource;
-import gyro.core.resource.Output;
 import gyro.core.Type;
+import gyro.core.resource.Id;
+import gyro.core.resource.Output;
+import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
-
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.resources.fluentcore.arm.Region;
-import com.microsoft.azure.management.sql.SqlServer;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Creates a sql server.
@@ -203,7 +202,7 @@ public class SqlServerResource extends AzureResource implements Copyable<SqlServ
 
     @Override
     public boolean refresh() {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         SqlServer sqlServer = client.sqlServers().getById(getId());
 
@@ -218,14 +217,14 @@ public class SqlServerResource extends AzureResource implements Copyable<SqlServ
 
     @Override
     public void create(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         SqlServer.DefinitionStages.WithCreate withCreate = client.sqlServers().define(getName())
-                .withRegion(Region.fromName(getRegion()))
-                .withExistingResourceGroup(getResourceGroup().getName())
-                .withAdministratorLogin(getAdministratorLogin())
-                .withAdministratorPassword(getAdministratorPassword())
-                .withTags(getTags());
+            .withRegion(Region.fromName(getRegion()))
+            .withExistingResourceGroup(getResourceGroup().getName())
+            .withAdministratorLogin(getAdministratorLogin())
+            .withAdministratorPassword(getAdministratorPassword())
+            .withTags(getTags());
 
         if (getSystemAssignedMsi()) {
             withCreate.withSystemAssignedManagedServiceIdentity();
@@ -243,7 +242,7 @@ public class SqlServerResource extends AzureResource implements Copyable<SqlServ
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         SqlServer.Update update = client.sqlServers().getById(getId()).update();
 
@@ -258,7 +257,7 @@ public class SqlServerResource extends AzureResource implements Copyable<SqlServ
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         client.sqlServers().deleteById(getId());
     }

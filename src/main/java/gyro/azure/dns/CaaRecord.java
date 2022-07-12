@@ -35,7 +35,7 @@ import gyro.core.validation.Required;
  *         value: "val1"
  *     end
  */
-public class CaaRecord extends Diffable implements Copyable<com.microsoft.azure.management.dns.CaaRecord> {
+public class CaaRecord extends Diffable implements Copyable<com.azure.resourcemanager.dns.models.CaaRecord> {
 
     private Integer flags;
     private String tag;
@@ -79,7 +79,7 @@ public class CaaRecord extends Diffable implements Copyable<com.microsoft.azure.
     }
 
     @Override
-    public void copyFrom(com.microsoft.azure.management.dns.CaaRecord caaRecord) {
+    public void copyFrom(com.azure.resourcemanager.dns.models.CaaRecord caaRecord) {
         setFlags(caaRecord.flags());
         setTag(caaRecord.tag());
         setValue(caaRecord.value());

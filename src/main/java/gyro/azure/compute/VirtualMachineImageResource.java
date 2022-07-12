@@ -16,10 +16,14 @@
 
 package gyro.azure.compute;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.compute.HyperVGenerationTypes;
-import com.microsoft.azure.management.compute.VirtualMachineCustomImage;
-import com.microsoft.azure.management.resources.fluentcore.arm.Region;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import com.azure.core.management.Region;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.compute.models.HyperVGenerationTypes;
+import com.azure.resourcemanager.compute.models.VirtualMachineCustomImage;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.azure.resources.ResourceGroupResource;
@@ -31,10 +35,6 @@ import gyro.core.resource.Resource;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Creates a virtual machine image
@@ -52,6 +52,7 @@ import java.util.Set;
  */
 @Type("virtual-machine-image")
 public class VirtualMachineImageResource extends AzureResource implements Copyable<VirtualMachineCustomImage> {
+
     private String name;
     private ResourceGroupResource resourceGroup;
     private VirtualMachineResource virtualMachine;
@@ -99,7 +100,7 @@ public class VirtualMachineImageResource extends AzureResource implements Copyab
     /**
      * The Hyper V Generation for the virtual machine image. Defaults to ``V1``.
      */
-    @ValidStrings({"V1", "V2"})
+    @ValidStrings({ "V1", "V2" })
     public String getHyperVGeneration() {
         if (hyperVGeneration == null) {
             hyperVGeneration = "V1";
@@ -124,7 +125,7 @@ public class VirtualMachineImageResource extends AzureResource implements Copyab
     }
 
     public void setTags(Map<String, String> tags) {
-       this.tags = tags;
+        this.tags = tags;
     }
 
     /**
@@ -158,7 +159,9 @@ public class VirtualMachineImageResource extends AzureResource implements Copyab
     @Override
     public void copyFrom(VirtualMachineCustomImage image) {
         setHyperVGeneration(image.hyperVGeneration().toString());
-        setVirtualMachine(image.isCreatedFromVirtualMachine() ? findById(VirtualMachineResource.class, image.sourceVirtualMachineId()) : null);
+        setVirtualMachine(image.isCreatedFromVirtualMachine() ? findById(
+            VirtualMachineResource.class,
+            image.sourceVirtualMachineId()) : null);
         setId(image.id());
         setName(image.name());
         setResourceGroup(findById(ResourceGroupResource.class, image.resourceGroupName()));
@@ -167,7 +170,7 @@ public class VirtualMachineImageResource extends AzureResource implements Copyab
 
     @Override
     public boolean refresh() {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         VirtualMachineCustomImage image = client.virtualMachineCustomImages().getById(getId());
 
@@ -182,7 +185,7 @@ public class VirtualMachineImageResource extends AzureResource implements Copyab
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         VirtualMachineCustomImage.DefinitionStages.WithCreate withCreate = client.virtualMachineCustomImages()
             .define(getName())
@@ -211,7 +214,7 @@ public class VirtualMachineImageResource extends AzureResource implements Copyab
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         client.virtualMachineCustomImages().deleteById(getId());
     }

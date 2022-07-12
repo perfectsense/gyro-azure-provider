@@ -16,26 +16,22 @@
 
 package gyro.azure.storage;
 
+import java.util.Set;
+
+import com.azure.storage.file.share.ShareClient;
+import com.azure.storage.file.share.ShareServiceClient;
+import com.azure.storage.file.share.ShareServiceClientBuilder;
+import com.azure.storage.file.share.models.ShareStorageException;
+import com.azure.storage.file.share.options.ShareSetPropertiesOptions;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
-import gyro.core.GyroException;
 import gyro.core.GyroUI;
-import gyro.core.resource.Id;
-import gyro.core.resource.Updatable;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
-
-import com.microsoft.azure.storage.file.CloudFileClient;
-import com.microsoft.azure.storage.file.CloudFileShare;
-import com.microsoft.azure.storage.file.FileShareProperties;
-import com.microsoft.azure.storage.CloudStorageAccount;
-import com.microsoft.azure.storage.StorageException;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
-
-import java.net.URISyntaxException;
-import java.security.InvalidKeyException;
-import java.util.Set;
 
 /**
  * Creates a cloud file share
@@ -52,7 +48,7 @@ import java.util.Set;
  *     end
  */
 @Type("cloud-file-share")
-public class CloudFileShareResource extends AzureResource implements Copyable<CloudFileShare> {
+public class CloudFileShareResource extends AzureResource implements Copyable<ShareClient> {
 
     private String name;
     private Integer shareQuota;
@@ -96,54 +92,66 @@ public class CloudFileShareResource extends AzureResource implements Copyable<Cl
     }
 
     @Override
-    public void copyFrom(CloudFileShare share) {
-        setName(share.getName());
-        setShareQuota(share.getProperties().getShareQuota());
-        setStorageAccount(findById(StorageAccountResource.class, share.getStorageUri().getPrimaryUri().getAuthority().split(".file.core")[0]));
+    public void copyFrom(ShareClient share) {
+        setName(share.getShareName());
+        setShareQuota(share.getProperties().getQuota());
+        setStorageAccount(findById(StorageAccountResource.class, share.getAccountName()));
     }
 
     @Override
     public boolean refresh() {
-        try {
-            CloudFileShare share = cloudFileShare();
-            if (!share.exists()) {
-                return false;
-            }
-
-            copyFrom(share);
-
-            return true;
-        } catch (StorageException | URISyntaxException | InvalidKeyException ex) {
-            throw new GyroException(ex.getMessage());
+        ShareClient share = verifiedCloudFileShare();
+        if (share == null) {
+            return false;
         }
+
+        copyFrom(share);
+
+        return true;
     }
 
     @Override
-    public void create(GyroUI ui, State state) throws StorageException, URISyntaxException, InvalidKeyException {
-        CloudFileShare share = cloudFileShare();
+    public void create(GyroUI ui, State state) {
+        ShareClient share = cloudFileShare();
         share.create();
-        FileShareProperties fileShareProperties = new FileShareProperties();
-        fileShareProperties.setShareQuota(getShareQuota());
-        share.setProperties(fileShareProperties);
+
+        ShareSetPropertiesOptions options = new ShareSetPropertiesOptions();
+        options.setQuotaInGb(getShareQuota());
+        share.setProperties(options);
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws StorageException, URISyntaxException, InvalidKeyException {
-        CloudFileShare share = cloudFileShare();
-        FileShareProperties fileShareProperties = new FileShareProperties();
-        fileShareProperties.setShareQuota(getShareQuota());
-        share.setProperties(fileShareProperties);
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
+        ShareClient share = cloudFileShare();
+
+        ShareSetPropertiesOptions options = new ShareSetPropertiesOptions();
+        options.setQuotaInGb(getShareQuota());
+        share.setProperties(options);
     }
 
     @Override
-    public void delete(GyroUI ui, State state) throws StorageException, URISyntaxException, InvalidKeyException {
-        CloudFileShare share = cloudFileShare();
+    public void delete(GyroUI ui, State state) {
+        ShareClient share = cloudFileShare();
         share.delete();
     }
 
-    private CloudFileShare cloudFileShare() throws StorageException, URISyntaxException, InvalidKeyException {
-        CloudStorageAccount storageAccount = CloudStorageAccount.parse(getStorageAccount().getConnection());
-        CloudFileClient fileClient = storageAccount.createCloudFileClient();
-        return fileClient.getShareReference(getName());
+    private ShareClient cloudFileShare() {
+        ShareServiceClient client = new ShareServiceClientBuilder()
+            .connectionString(getStorageAccount().getConnection())
+            .buildClient();
+
+        return client.getShareClient(getName());
+    }
+
+    private ShareClient verifiedCloudFileShare() {
+        ShareClient shareClient = cloudFileShare();
+
+        try {
+            shareClient.getProperties();
+        } catch (ShareStorageException ex) {
+            shareClient = null;
+        }
+
+        return shareClient;
     }
 }

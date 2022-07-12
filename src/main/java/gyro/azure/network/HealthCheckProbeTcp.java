@@ -16,9 +16,8 @@
 
 package gyro.azure.network;
 
+import com.azure.resourcemanager.network.models.LoadBalancerTcpProbe;
 import gyro.azure.Copyable;
-
-import com.microsoft.azure.management.network.LoadBalancerTcpProbe;
 
 /**
  * Creates a tcp health check probe.

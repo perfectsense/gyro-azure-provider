@@ -3,7 +3,7 @@ package gyro.azure.network;
 import java.io.File;
 import java.util.List;
 
-import com.microsoft.azure.management.network.ApplicationGateway;
+import com.azure.resourcemanager.network.models.ApplicationGateway;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;

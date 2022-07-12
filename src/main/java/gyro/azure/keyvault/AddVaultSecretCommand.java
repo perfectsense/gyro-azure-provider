@@ -1,10 +1,11 @@
 package gyro.azure.keyvault;
 
+import java.time.ZoneOffset;
 import java.util.List;
 
-import com.microsoft.azure.keyvault.models.SecretAttributes;
-import com.microsoft.azure.keyvault.requests.SetSecretRequest;
-import com.microsoft.azure.management.keyvault.Vault;
+import com.azure.resourcemanager.keyvault.models.Secret;
+import com.azure.resourcemanager.keyvault.models.Vault;
+import com.azure.security.keyvault.secrets.models.SecretProperties;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
@@ -45,19 +46,22 @@ public class AddVaultSecretCommand extends AbstractVaultCommand {
 
             Vault vault = getVault(vaultResourceName);
 
-            SetSecretRequest.Builder builder = new SetSecretRequest.Builder(vault.vaultUri(), secretName, secretValue);
+            Secret.DefinitionStages.WithCreate withCreate = vault.secrets().define(secretName).withValue(secretValue);
 
-            SecretAttributes attributes = new SecretAttributes();
+            SecretProperties properties = new SecretProperties();
 
             if (!ObjectUtils.isBlank(contentType)) {
-                builder = builder.withContentType(contentType);
+                properties.setContentType(contentType);
+                withCreate = withCreate.withContentType(contentType);
             }
 
-            builder = builder.withAttributes(attributes.withEnabled(enabled)
-                .withExpires(expires != null ? DateTime.parse(expires) : null)
-                .withNotBefore(notBefore != null ? DateTime.parse(notBefore) : null));
+            properties.setEnabled(enabled);
+            properties.setExpiresOn(DateTime.parse(expires).toDate().toInstant().atOffset(ZoneOffset.UTC));
+            properties.setNotBefore(DateTime.parse(notBefore).toDate().toInstant().atOffset(ZoneOffset.UTC));
 
-            vault.client().setSecret(builder.build());
+            withCreate = withCreate.withAttributes(properties);
+            withCreate.create();
+
             GyroCore.ui().write("\nSecret added.");
 
         } else {

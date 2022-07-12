@@ -16,10 +16,9 @@
 
 package gyro.azure.network;
 
+import com.azure.resourcemanager.network.models.LoadBalancerHttpProbe;
 import gyro.azure.Copyable;
 import gyro.core.resource.Updatable;
-
-import com.microsoft.azure.management.network.LoadBalancerHttpProbe;
 import gyro.core.validation.Required;
 
 /**
@@ -39,6 +38,7 @@ import gyro.core.validation.Required;
  *    end
  */
 public class HealthCheckProbeHttp extends AbstractHealthCheckProbe implements Copyable<LoadBalancerHttpProbe> {
+
     private String requestPath;
 
     /**

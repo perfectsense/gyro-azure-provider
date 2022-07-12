@@ -16,68 +16,76 @@
 
 package gyro.azure.keyvault;
 
-import java.util.Optional;
-
-import com.microsoft.azure.keyvault.models.LifetimeAction;
+import com.azure.security.keyvault.certificates.models.CertificatePolicyAction;
+import com.azure.security.keyvault.certificates.models.LifetimeAction;
 import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.validation.Min;
+import gyro.core.validation.Range;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 
 public class KeyVaultCertificateLifetime extends Diffable implements Copyable<LifetimeAction> {
 
-    private KeyVaultCertificateLifetimeAction action;
-    private KeyVaultCertificateLifetimeTrigger trigger;
+    private String action;
+    private Integer daysBeforeExpiry;
+    private Integer lifetimePercentage;
 
     /**
-     * Lifetime action config for the certificate policy.
-     *
-     * @subresource gyro.azure.keyvault.KeyVaultCertificateLifetimeAction
+     * The lifetime action type.
      */
+    @ValidStrings({"EmailContacts", "AutoRenew"})
     @Required
-    public KeyVaultCertificateLifetimeAction getAction() {
+    public String getAction() {
         return action;
     }
 
-    public void setAction(KeyVaultCertificateLifetimeAction action) {
+    public void setAction(String action) {
         this.action = action;
     }
 
     /**
-     * Lifetime trigger config for the certificate policy.
-     *
-     * @subresource gyro.azure.keyvault.KeyVaultCertificateLifetimeTrigger
+     * Days before certificate expires of lifetime at which to trigger.
      */
-    public KeyVaultCertificateLifetimeTrigger getTrigger() {
-        return trigger;
+    @Min(0)
+    public Integer getDaysBeforeExpiry() {
+        return daysBeforeExpiry;
     }
 
-    public void setTrigger(KeyVaultCertificateLifetimeTrigger trigger) {
-        this.trigger = trigger;
+    public void setDaysBeforeExpiry(Integer daysBeforeExpiry) {
+        this.daysBeforeExpiry = daysBeforeExpiry;
+    }
+
+    /**
+     * Percentage of lifetime at which to trigger. Value should be between ``1`` and ``99``.
+     */
+    @Required
+    @Range(min = 1, max = 99)
+    public Integer getLifetimePercentage() {
+        return lifetimePercentage;
+    }
+
+    public void setLifetimePercentage(Integer lifetimePercentage) {
+        this.lifetimePercentage = lifetimePercentage;
     }
 
     @Override
     public String primaryKey() {
-        return String.format("with action - %s", getAction().getType());
+        return String.format("with action - %s", getAction());
     }
 
     LifetimeAction toLifetimeAction() {
-        return new LifetimeAction()
-            .withAction(getAction() != null ? getAction().toAction() : null)
-            .withTrigger(getTrigger() != null ? getTrigger().totTrigger() : null);
+        LifetimeAction lifetimeAction = new LifetimeAction(CertificatePolicyAction.fromString(getAction()));
+        lifetimeAction.setLifetimePercentage(getLifetimePercentage());
+        lifetimeAction.setDaysBeforeExpiry(getDaysBeforeExpiry());
+
+        return lifetimeAction;
     }
 
     @Override
-    public void copyFrom(LifetimeAction lifetimeAction) {
-        setAction(Optional.ofNullable(lifetimeAction.action()).map(o -> {
-            KeyVaultCertificateLifetimeAction action = newSubresource(KeyVaultCertificateLifetimeAction.class);
-            action.copyFrom(o);
-            return action;
-        }).orElse(null));
-
-        setTrigger(Optional.ofNullable(lifetimeAction.trigger()).map(o -> {
-            KeyVaultCertificateLifetimeTrigger trigger = newSubresource(KeyVaultCertificateLifetimeTrigger.class);
-            trigger.copyFrom(o);
-            return trigger;
-        }).orElse(null));
+    public void copyFrom(LifetimeAction action) {
+        setAction(action.getAction().toString());
+        setLifetimePercentage(action.getLifetimePercentage());
+        setDaysBeforeExpiry(action.getDaysBeforeExpiry());
     }
 }

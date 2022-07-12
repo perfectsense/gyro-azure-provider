@@ -16,6 +16,10 @@
 
 package gyro.azure.dns;
 
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.dns.models.AaaaRecordSet;
+import com.azure.resourcemanager.dns.models.DnsRecordSet;
+import com.azure.resourcemanager.dns.models.DnsZone;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.core.GyroUI;
@@ -27,12 +31,6 @@ import gyro.core.resource.Updatable;
 
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
-import com.microsoft.azure.management.dns.AaaaRecordSet;
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.dns.DnsRecordSet;
-import com.microsoft.azure.management.dns.DnsZone;
-import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.AaaaRecordSetBlank;
-import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.WithAaaaRecordIPv6AddressOrAttachable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 
@@ -165,7 +163,7 @@ public class AaaaRecordSetResource extends AzureResource implements Copyable<Aaa
 
     @Override
     public boolean refresh() {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         AaaaRecordSet aaaaRecordSet = client.dnsZones().getById(getDnsZone().getId()).aaaaRecordSets().getByName(getName());
 
@@ -180,12 +178,12 @@ public class AaaaRecordSetResource extends AzureResource implements Copyable<Aaa
 
     @Override
     public void create(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
-        AaaaRecordSetBlank<DnsZone.Update> defineAaaaRecordSet =
+        DnsRecordSet.UpdateDefinitionStages.AaaaRecordSetBlank<DnsZone.Update> defineAaaaRecordSet =
                 client.dnsZones().getById(getDnsZone().getId()).update().defineAaaaRecordSet(getName());
 
-        WithAaaaRecordIPv6AddressOrAttachable<DnsZone.Update> createAaaaRecordSet = null;
+        DnsRecordSet.UpdateDefinitionStages.WithAaaaRecordIPv6AddressOrAttachable<DnsZone.Update> createAaaaRecordSet = null;
         for (String ip : getIpv6Addresses()) {
             createAaaaRecordSet = defineAaaaRecordSet.withIPv6Address(ip);
         }
@@ -205,7 +203,7 @@ public class AaaaRecordSetResource extends AzureResource implements Copyable<Aaa
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         DnsRecordSet.UpdateAaaaRecordSet updateAaaaRecordSet =
                 client.dnsZones().getById(getDnsZone().getId()).update().updateAaaaRecordSet(getName());
@@ -254,7 +252,7 @@ public class AaaaRecordSetResource extends AzureResource implements Copyable<Aaa
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         client.dnsZones().getById(getDnsZone().getId()).update().withoutAaaaRecordSet(getName()).apply();
     }

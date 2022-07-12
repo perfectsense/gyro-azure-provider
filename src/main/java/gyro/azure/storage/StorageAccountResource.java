@@ -16,40 +16,29 @@
 
 package gyro.azure.storage;
 
-import com.microsoft.azure.management.storage.Kind;
-import com.microsoft.azure.storage.CloudStorageAccount;
-import com.microsoft.azure.storage.ServiceProperties;
-import com.microsoft.azure.storage.StorageException;
-import com.microsoft.azure.storage.blob.CloudBlobClient;
-import com.microsoft.azure.storage.file.CloudFileClient;
-import com.microsoft.azure.storage.file.FileServiceProperties;
-import com.microsoft.azure.storage.queue.CloudQueueClient;
-import com.microsoft.azure.storage.table.CloudTableClient;
+import java.net.URISyntaxException;
+import java.security.InvalidKeyException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import com.azure.core.management.Region;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.storage.models.Kind;
+import com.azure.resourcemanager.storage.models.StorageAccount;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.azure.resources.ResourceGroupResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
-import gyro.core.resource.Id;
-import gyro.core.resource.Updatable;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
-
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.resources.fluentcore.arm.Region;
-import com.microsoft.azure.management.storage.StorageAccount;
-import com.microsoft.azure.management.storage.StorageAccountKey;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
-
-import java.net.URISyntaxException;
-import java.security.InvalidKeyException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Creates a storage account
@@ -216,52 +205,8 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
 
     @Override
     public void copyFrom(StorageAccount storageAccount) {
-        try {
-            setId(storageAccount.id());
-            setName(storageAccount.name());
-
-            CloudStorageAccount cloudStorageAccount = CloudStorageAccount.parse(getConnection());
-
-            getCorsRule().clear();
-            CloudBlobClient blobClient = cloudStorageAccount.createCloudBlobClient();
-            blobClient.downloadServiceProperties().getCors()
-                .getCorsRules().forEach(cors -> {
-                    Cors rule = newSubresource(Cors.class);
-                    rule.copyFrom(cors);
-                    rule.setType("blob");
-                    getCorsRule().add(rule);
-            });
-
-            CloudFileClient fileClient = cloudStorageAccount.createCloudFileClient();
-            fileClient.downloadServiceProperties().getCors()
-                .getCorsRules().forEach(cors -> {
-                Cors rule = newSubresource(Cors.class);
-                rule.copyFrom(cors);
-                rule.setType("file");
-                getCorsRule().add(rule);
-            });
-
-            CloudQueueClient queueClient = cloudStorageAccount.createCloudQueueClient();
-            queueClient.downloadServiceProperties().getCors()
-                .getCorsRules().forEach(cors -> {
-                Cors rule = newSubresource(Cors.class);
-                rule.copyFrom(cors);
-                rule.setType("queue");
-                getCorsRule().add(rule);
-            });
-
-            CloudTableClient tableClient = cloudStorageAccount.createCloudTableClient();
-            tableClient.downloadServiceProperties().getCors()
-                .getCorsRules().forEach(cors -> {
-                Cors rule = newSubresource(Cors.class);
-                rule.copyFrom(cors);
-                rule.setType("table");
-                getCorsRule().add(rule);
-            });
-
-        } catch (StorageException | URISyntaxException | InvalidKeyException ex) {
-            throw new GyroException(ex.getMessage());
-        }
+        setId(storageAccount.id());
+        setName(storageAccount.name());
 
         setResourceGroup(findById(ResourceGroupResource.class, storageAccount.resourceGroupName()));
         setId(storageAccount.id());
@@ -269,26 +214,14 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
 
         getTags().clear();
         storageAccount.tags().forEach((key, value) -> getTags().put(key, value));
-
-        StorageLifeCycle lifeCycleManager = null;
-        if (storageAccount.manager().managementPolicies().inner().get(getResourceGroup().getName(), getName()) != null) {
-            lifeCycleManager = newSubresource(StorageLifeCycle.class);
-            lifeCycleManager.copyFrom(
-                storageAccount.manager()
-                    .managementPolicies()
-                    .getAsync(getResourceGroup().getName(), getName())
-                    .toBlocking()
-                    .single()
-            );
-        }
-        setLifecycle(lifeCycleManager);
     }
 
     @Override
     public boolean refresh() {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
-        StorageAccount storageAccount = client.storageAccounts().getById(getId());
+        StorageAccount storageAccount = client.storageAccounts()
+            .getByResourceGroup(getResourceGroup().getName(), getName());
 
         if (storageAccount == null) {
             return false;
@@ -300,8 +233,8 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
     }
 
     @Override
-    public void create(GyroUI ui, State state) throws StorageException, URISyntaxException, InvalidKeyException {
-        Azure client = createClient();
+    public void create(GyroUI ui, State state) throws URISyntaxException, InvalidKeyException {
+        AzureResourceManager client = createClient();
 
         StorageAccount.DefinitionStages.WithCreate withCreate = client.storageAccounts()
             .define(getName())
@@ -317,12 +250,13 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
 
         setId(storageAccount.id());
 
-        updateCorsRules();
+        // TODO lifecycle and cors
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws StorageException, URISyntaxException, InvalidKeyException {
-        Azure client = createClient();
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames)
+        throws URISyntaxException, InvalidKeyException {
+        AzureResourceManager client = createClient();
 
         StorageAccount storageAccount = client.storageAccounts().getById(getId());
         StorageAccount.Update update = storageAccount.update();
@@ -338,66 +272,38 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
         }
 
         update.apply();
-
-        updateCorsRules();
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         client.storageAccounts().deleteById(getId());
     }
 
-    private void updateCorsRules() throws StorageException, URISyntaxException, InvalidKeyException {
-        CloudStorageAccount cloudStorageAccount = CloudStorageAccount.parse(getConnection());
-
-        CloudBlobClient blobClient = cloudStorageAccount.createCloudBlobClient();
-        ServiceProperties blobProperties = new ServiceProperties();
-
-        CloudFileClient fileClient = cloudStorageAccount.createCloudFileClient();
-        FileServiceProperties fileProperties = new FileServiceProperties();
-
-        CloudQueueClient queueClient = cloudStorageAccount.createCloudQueueClient();
-        ServiceProperties queueProperties = new ServiceProperties();
-
-        CloudTableClient tableClient = cloudStorageAccount.createCloudTableClient();
-        ServiceProperties tableProperties = new ServiceProperties();
-
-        for (Cors rule : getCorsRule()) {
-            if (rule.getType().equalsIgnoreCase("blob")) {
-                blobProperties.getCors().getCorsRules().add(rule.toCors());
-            } else if (rule.getType().equalsIgnoreCase("file")) {
-                fileProperties.getCors().getCorsRules().add(rule.toCors());
-            } else if (rule.getType().equalsIgnoreCase("queue")) {
-                queueProperties.getCors().getCorsRules().add(rule.toCors());
-            } else if (rule.getType().equalsIgnoreCase("table")) {
-                tableProperties.getCors().getCorsRules().add(rule.toCors());
-            }
-        }
-
-        blobClient.uploadServiceProperties(blobProperties);
-        fileClient.uploadServiceProperties(fileProperties);
-        queueClient.uploadServiceProperties(queueProperties);
-        tableClient.uploadServiceProperties(tableProperties);
-    }
-
     public String getConnection() {
-        return "DefaultEndpointsProtocol=https;"
-                + "AccountName=" + getName() + ";"
-                + "AccountKey=" + keys().get("key1");
+        return String.format("DefaultEndpointsProtocol=https;"
+            + "AccountName=%s;"
+            + "AccountKey=%s;"
+            + "EndpointSuffix=core.windows.net", getName(), keys().get("key1"));
     }
 
     public Map<String, String> keys() {
         Map<String, String> keys = new HashMap<>();
 
         if (getId() != null) {
-            Azure client = createClient();
+            AzureResourceManager client = createClient();
 
             StorageAccount storageAccount = client.storageAccounts().getById(getId());
             storageAccount.getKeys().forEach(e -> keys.put(e.keyName(), e.value()));
         }
 
         return keys;
+    }
+
+    protected StorageAccount getStorageAccount() {
+        AzureResourceManager client = createClient();
+
+        return client.storageAccounts().getById(getId());
     }
 }

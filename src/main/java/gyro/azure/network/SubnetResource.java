@@ -16,23 +16,6 @@
 
 package gyro.azure.network;
 
-import com.psddev.dari.util.ObjectUtils;
-import gyro.azure.AzureResource;
-import gyro.azure.Copyable;
-import gyro.core.GyroException;
-import gyro.core.GyroUI;
-import gyro.core.resource.Output;
-import gyro.core.resource.Updatable;
-import gyro.core.resource.Resource;
-
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.network.Network;
-import com.microsoft.azure.management.network.ServiceEndpointType;
-import com.microsoft.azure.management.network.Subnet;
-import com.microsoft.azure.management.resources.fluentcore.arm.Region;
-import gyro.core.scope.State;
-import gyro.core.validation.Required;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -41,6 +24,22 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import com.azure.core.management.Region;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.network.models.Network;
+import com.azure.resourcemanager.network.models.ServiceEndpointType;
+import com.azure.resourcemanager.network.models.Subnet;
+import com.psddev.dari.util.ObjectUtils;
+import gyro.azure.AzureResource;
+import gyro.azure.Copyable;
+import gyro.core.GyroException;
+import gyro.core.GyroUI;
+import gyro.core.resource.Output;
+import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
+import gyro.core.validation.Required;
 
 /**
  * Creates a subnet.
@@ -63,7 +62,7 @@ public class SubnetResource extends AzureResource implements Copyable<Subnet> {
     private RouteTableResource routeTable;
     private Map<String, List<String>> serviceEndpoints;
     private String id;
-    
+
     /**
      * The address prefix in CIDR notation.
      */
@@ -145,8 +144,12 @@ public class SubnetResource extends AzureResource implements Copyable<Subnet> {
     public void copyFrom(Subnet subnet) {
         setAddressPrefix(subnet.addressPrefix());
         setName(subnet.name());
-        setNetworkSecurityGroup(!ObjectUtils.isBlank(subnet.networkSecurityGroupId()) ? findById(NetworkSecurityGroupResource.class, subnet.networkSecurityGroupId()) : null);
-        setRouteTable(!ObjectUtils.isBlank(subnet.routeTableId()) ? findById(RouteTableResource.class, subnet.routeTableId()) : null);
+        setNetworkSecurityGroup(!ObjectUtils.isBlank(subnet.networkSecurityGroupId()) ? findById(
+            NetworkSecurityGroupResource.class,
+            subnet.networkSecurityGroupId()) : null);
+        setRouteTable(!ObjectUtils.isBlank(subnet.routeTableId()) ? findById(
+            RouteTableResource.class,
+            subnet.routeTableId()) : null);
         setServiceEndpoints(toServiceEndpoints(subnet.servicesWithAccess()));
     }
 
@@ -157,7 +160,7 @@ public class SubnetResource extends AzureResource implements Copyable<Subnet> {
 
     @Override
     public void create(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         NetworkResource parent = (NetworkResource) parent();
 
@@ -182,12 +185,12 @@ public class SubnetResource extends AzureResource implements Copyable<Subnet> {
         }
 
         Network response = updateWithAttach.attach().apply();
-        setId(response.subnets().get(getName()).inner().id());
+        setId(response.subnets().get(getName()).id());
     }
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         NetworkResource parent = (NetworkResource) parent();
 
@@ -212,7 +215,8 @@ public class SubnetResource extends AzureResource implements Copyable<Subnet> {
             SubnetResource oldResource = (SubnetResource) current;
 
             List<String> addServiceEndpoints = getServiceEndpoints().keySet().stream()
-                .filter(((Predicate<String>) new HashSet<>(oldResource.getServiceEndpoints().keySet())::contains).negate())
+                .filter(((Predicate<String>) new HashSet<>(oldResource.getServiceEndpoints()
+                    .keySet())::contains).negate())
                 .collect(Collectors.toList());
 
             for (String endpoint : addServiceEndpoints) {
@@ -233,7 +237,7 @@ public class SubnetResource extends AzureResource implements Copyable<Subnet> {
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         NetworkResource parent = (NetworkResource) parent();
 
@@ -251,7 +255,7 @@ public class SubnetResource extends AzureResource implements Copyable<Subnet> {
         Map<String, List<String>> endpoints = new HashMap<>();
 
         for (Map.Entry<ServiceEndpointType, List<Region>> entry : serviceEndpointMap.entrySet()) {
-            List<String> regions  = new ArrayList<>();
+            List<String> regions = new ArrayList<>();
             for (Region region : entry.getValue()) {
                 regions.add(region.toString());
             }

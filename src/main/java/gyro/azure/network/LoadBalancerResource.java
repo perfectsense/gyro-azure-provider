@@ -16,35 +16,6 @@
 
 package gyro.azure.network;
 
-import gyro.azure.AzureResource;
-import gyro.azure.Copyable;
-import gyro.azure.resources.ResourceGroupResource;
-import gyro.core.GyroUI;
-import gyro.core.resource.Id;
-import gyro.core.resource.Updatable;
-import gyro.core.Type;
-import gyro.core.resource.Output;
-import gyro.core.resource.Resource;
-
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.network.LoadBalancer;
-import com.microsoft.azure.management.network.LoadBalancerHttpProbe;
-import com.microsoft.azure.management.network.LoadBalancerInboundNatPool;
-import com.microsoft.azure.management.network.LoadBalancerPrivateFrontend;
-import com.microsoft.azure.management.network.LoadBalancerPublicFrontend;
-import com.microsoft.azure.management.network.LoadBalancingRule;
-import com.microsoft.azure.management.network.LoadBalancerSkuType;
-import com.microsoft.azure.management.network.LoadBalancerTcpProbe;
-import com.microsoft.azure.management.network.Network;
-import com.microsoft.azure.management.network.PublicIPAddress;
-import com.microsoft.azure.management.network.TransportProtocol;
-import com.microsoft.azure.management.network.LoadBalancer.DefinitionStages.WithCreate;
-import com.microsoft.azure.management.resources.fluentcore.arm.Region;
-import gyro.core.scope.State;
-import gyro.core.validation.Required;
-import gyro.core.validation.ValidStrings;
-import gyro.core.validation.ValidationError;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -52,6 +23,35 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import com.azure.core.management.Region;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.network.models.LoadBalancer;
+import com.azure.resourcemanager.network.models.LoadBalancer.DefinitionStages.WithCreate;
+import com.azure.resourcemanager.network.models.LoadBalancerHttpProbe;
+import com.azure.resourcemanager.network.models.LoadBalancerPrivateFrontend;
+import com.azure.resourcemanager.network.models.LoadBalancerPublicFrontend;
+import com.azure.resourcemanager.network.models.LoadBalancerSkuType;
+import com.azure.resourcemanager.network.models.LoadBalancerTcpProbe;
+import com.azure.resourcemanager.network.models.LoadBalancingRule;
+import com.azure.resourcemanager.network.models.Network;
+import com.azure.resourcemanager.network.models.PublicIpAddress;
+import com.azure.resourcemanager.network.models.TransportProtocol;
+import gyro.azure.AzureResource;
+import gyro.azure.Copyable;
+import gyro.azure.resources.ResourceGroupResource;
+import gyro.core.GyroUI;
+import gyro.core.Type;
+import gyro.core.resource.Id;
+import gyro.core.resource.Output;
+import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
+import gyro.core.validation.ValidationError;
+
+import static com.azure.resourcemanager.network.models.LoadBalancerInboundNatPool.UpdateDefinitionStages.*;
 
 /**
  * Creates a load balancer.
@@ -110,8 +110,6 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
     private Map<String, String> tags;
     private Set<InboundNatPool> inboundNatPool;
     private Set<InboundNatRule> inboundNatRule;
-
-    public enum SKU_TYPE { STANDARD, BASIC }
 
     /**
      * The Health Check Http Probes associated with the Load Balancer.
@@ -244,7 +242,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
     /**
      * Specifies the sku type for the Load Balancer. Defaults to ``BASIC``.
      */
-    @ValidStrings({"BASIC", "STANDARD"})
+    @ValidStrings({ "BASIC", "STANDARD" })
     public SKU_TYPE getSkuType() {
         if (skuType == null) {
             skuType = SKU_TYPE.BASIC;
@@ -351,7 +349,8 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
 
         //private getAllFrontend
         getPrivateFrontend().clear();
-        for (Map.Entry<String, LoadBalancerPrivateFrontend> privateFrontend : loadBalancer.privateFrontends().entrySet()) {
+        for (Map.Entry<String, LoadBalancerPrivateFrontend> privateFrontend : loadBalancer.privateFrontends()
+            .entrySet()) {
             PrivateFrontend frontendPrivate = newSubresource(PrivateFrontend.class);
             frontendPrivate.copyFrom(privateFrontend.getValue());
             getPrivateFrontend().add(frontendPrivate);
@@ -371,7 +370,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
 
         //load balancing rules
         getLoadBalancerRule().clear();
-        for (Map.Entry<String, LoadBalancingRule> rule  : loadBalancer.loadBalancingRules().entrySet()) {
+        for (Map.Entry<String, LoadBalancingRule> rule : loadBalancer.loadBalancingRules().entrySet()) {
             LoadBalancerRule loadBalancerRule = newSubresource(LoadBalancerRule.class);
             loadBalancerRule.copyFrom(rule.getValue());
             getLoadBalancerRule().add(loadBalancerRule);
@@ -387,7 +386,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
 
     @Override
     public boolean refresh() {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         LoadBalancer loadBalancer = client.loadBalancers().getById(getId());
 
@@ -402,7 +401,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
 
     @Override
     public void create(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         LoadBalancer.DefinitionStages.WithLBRuleOrNat lb = client.loadBalancers()
             .define(getName())
@@ -413,7 +412,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
 
         // define the nat pools and rules
         if (!getInboundNatPool().isEmpty()) {
-            for (InboundNatPool natPool: getInboundNatPool()) {
+            for (InboundNatPool natPool : getInboundNatPool()) {
 
                 buildLoadBalancer = lb.defineInboundNatPool(natPool.getName())
                     .withProtocol(TransportProtocol.fromString(natPool.getProtocol()))
@@ -474,10 +473,10 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
         // define the public getAllFrontend
         for (PublicFrontend publicFrontend : getPublicFrontend()) {
 
-            PublicIPAddress ip = client.publicIPAddresses().getById(publicFrontend.getPublicIpAddress().getId());
+            PublicIpAddress ip = client.publicIpAddresses().getById(publicFrontend.getPublicIpAddress().getId());
 
             buildLoadBalancer.definePublicFrontend(publicFrontend.getName())
-                .withExistingPublicIPAddress(ip)
+                .withExistingPublicIpAddress(ip)
                 .attach();
         }
 
@@ -491,9 +490,9 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
                 .withExistingSubnet(network, privateFrontend.getSubnetName());
 
             if (privateFrontend.getPrivateIpAddress() != null) {
-                withAttachPrivate.withPrivateIPAddressStatic(privateFrontend.getPrivateIpAddress());
+                withAttachPrivate.withPrivateIpAddressStatic(privateFrontend.getPrivateIpAddress());
             } else {
-                withAttachPrivate.withPrivateIPAddressDynamic();
+                withAttachPrivate.withPrivateIpAddressDynamic();
             }
             withAttachPrivate.attach();
         }
@@ -507,14 +506,13 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         LoadBalancer loadBalancer = client.loadBalancers().getById(getId());
 
         LoadBalancerResource currentResource = (LoadBalancerResource) current;
 
         LoadBalancer.Update updateLoadBalancer = loadBalancer.update();
-
 
         // Update health check probe Http
         if (changedFieldNames.contains("health-check-probe-http")) {
@@ -564,9 +562,9 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
                     .withExistingSubnet(network, privateFrontend.getSubnetName());
 
                 if (privateFrontend.getPrivateIpAddress() != null) {
-                    withAttachPrivate.withPrivateIPAddressStatic(privateFrontend.getPrivateIpAddress());
+                    withAttachPrivate.withPrivateIpAddressStatic(privateFrontend.getPrivateIpAddress());
                 } else {
-                    withAttachPrivate.withPrivateIPAddressDynamic();
+                    withAttachPrivate.withPrivateIpAddressDynamic();
                 }
 
                 withAttachPrivate.attach();
@@ -580,11 +578,11 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
             }
 
             for (PublicFrontend publicFrontend : getPublicFrontend()) {
-                PublicIPAddress ip = client.publicIPAddresses().getById(publicFrontend.getPublicIpAddress().getId());
+                PublicIpAddress ip = client.publicIpAddresses().getById(publicFrontend.getPublicIpAddress().getId());
 
                 updateLoadBalancer = updateLoadBalancer
                     .definePublicFrontend(publicFrontend.getName())
-                    .withExistingPublicIPAddress(ip)
+                    .withExistingPublicIpAddress(ip)
                     .attach();
             }
         }
@@ -635,30 +633,32 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         client.loadBalancers().deleteByResourceGroup(getResourceGroup().getName(), getName());
     }
 
     private void addNatPools(Set<InboundNatPool> pools, LoadBalancer.Update updateLoadBalancer) {
-        LoadBalancerInboundNatPool.UpdateDefinitionStages.WithProtocol withName;
-        LoadBalancerInboundNatPool.UpdateDefinitionStages.WithFrontend withProtocol;
-        LoadBalancerInboundNatPool.UpdateDefinitionStages.WithFrontendPortRange withFrontend;
-        LoadBalancerInboundNatPool.UpdateDefinitionStages.WithBackendPort withPortRange;
-        LoadBalancerInboundNatPool.UpdateDefinitionStages.WithAttach withBackendPort;
+        WithProtocol withName;
+        WithFrontend withProtocol;
+        WithFrontendPortRange withFrontend;
+        WithBackendPort withPortRange;
+        WithAttach withBackendPort;
 
         for (InboundNatPool pool : pools) {
 
             withName = updateLoadBalancer.defineInboundNatPool(pool.getName());
 
             withProtocol =
-                (LoadBalancerInboundNatPool.UpdateDefinitionStages.WithFrontend) withName.withProtocol(TransportProtocol.fromString(pool.getProtocol()));
+                (WithFrontend) withName.withProtocol(TransportProtocol.fromString(pool.getProtocol()));
 
-            withFrontend = (LoadBalancerInboundNatPool.UpdateDefinitionStages.WithFrontendPortRange) withProtocol.fromFrontend(pool.getFrontendName());
+            withFrontend = (WithFrontendPortRange) withProtocol.fromFrontend(pool.getFrontendName());
 
-            withPortRange = (LoadBalancerInboundNatPool.UpdateDefinitionStages.WithBackendPort) withFrontend.fromFrontendPortRange(pool.getFrontendPortStart(), pool.getFrontendPortEnd());
+            withPortRange = (WithBackendPort) withFrontend.fromFrontendPortRange(
+                pool.getFrontendPortStart(),
+                pool.getFrontendPortEnd());
 
-            withBackendPort = (LoadBalancerInboundNatPool.UpdateDefinitionStages.WithAttach) withPortRange.toBackendPort(pool.getBackendPort());
+            withBackendPort = (WithAttach) withPortRange.toBackendPort(pool.getBackendPort());
 
             withBackendPort.attach();
         }
@@ -682,9 +682,17 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
         List<ValidationError> errors = new ArrayList<>();
 
         if (!getInboundNatRule().isEmpty() && !getInboundNatPool().isEmpty()) {
-            errors.add(new ValidationError(this, "inbound-nat-rule", "'inbound-nat-rule' cannot be set when 'inbound-nat-pool' is set."));
+            errors.add(new ValidationError(
+                this,
+                "inbound-nat-rule",
+                "'inbound-nat-rule' cannot be set when 'inbound-nat-pool' is set."));
         }
 
         return errors;
+    }
+
+    public enum SKU_TYPE {
+        STANDARD,
+        BASIC
     }
 }

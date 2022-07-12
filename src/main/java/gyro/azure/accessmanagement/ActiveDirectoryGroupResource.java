@@ -16,8 +16,10 @@
 
 package gyro.azure.accessmanagement;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.graphrbac.ActiveDirectoryGroup;
+import java.util.Set;
+
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.authorization.models.ActiveDirectoryGroup;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.core.GyroUI;
@@ -27,8 +29,6 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
-
-import java.util.Set;
 
 /**
  * Creates a active directory group.
@@ -45,6 +45,7 @@ import java.util.Set;
  */
 @Type("active-directory-group")
 public class ActiveDirectoryGroupResource extends AzureResource implements Copyable<ActiveDirectoryGroup> {
+
     private String name;
     private String emailNick;
     private String id;
@@ -94,7 +95,7 @@ public class ActiveDirectoryGroupResource extends AzureResource implements Copya
 
     @Override
     public boolean refresh() {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         ActiveDirectoryGroup group = client.accessManagement().activeDirectoryGroups().getById(getId());
 
@@ -109,7 +110,7 @@ public class ActiveDirectoryGroupResource extends AzureResource implements Copya
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         ActiveDirectoryGroup group = client.accessManagement().activeDirectoryGroups()
             .define(getName())
@@ -126,7 +127,7 @@ public class ActiveDirectoryGroupResource extends AzureResource implements Copya
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         client.accessManagement().activeDirectoryGroups().deleteById(getId());
     }

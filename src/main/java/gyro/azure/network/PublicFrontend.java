@@ -16,11 +16,10 @@
 
 package gyro.azure.network;
 
+import com.azure.resourcemanager.network.models.LoadBalancerPublicFrontend;
 import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
-
-import com.microsoft.azure.management.network.LoadBalancerPublicFrontend;
 import gyro.core.validation.Required;
 
 /**
@@ -69,7 +68,7 @@ public class PublicFrontend extends Diffable implements Copyable<LoadBalancerPub
     @Override
     public void copyFrom(LoadBalancerPublicFrontend publicFrontend) {
         setName(publicFrontend.name());
-        setPublicIpAddress(findById(PublicIpAddressResource.class, publicFrontend.getPublicIPAddress().id()));
+        setPublicIpAddress(findById(PublicIpAddressResource.class, publicFrontend.getPublicIpAddress().id()));
     }
 
     public String primaryKey() {

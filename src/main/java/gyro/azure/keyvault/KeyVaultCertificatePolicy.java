@@ -17,51 +17,259 @@
 package gyro.azure.keyvault;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.microsoft.azure.keyvault.models.CertificatePolicy;
+import com.azure.core.util.ExpandableStringEnum;
+import com.azure.security.keyvault.certificates.models.CertificateContentType;
+import com.azure.security.keyvault.certificates.models.CertificateKeyCurveName;
+import com.azure.security.keyvault.certificates.models.CertificateKeyType;
+import com.azure.security.keyvault.certificates.models.CertificateKeyUsage;
+import com.azure.security.keyvault.certificates.models.CertificatePolicy;
+import com.azure.security.keyvault.certificates.models.LifetimeAction;
 import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Output;
 import gyro.core.validation.CollectionMax;
+import gyro.core.validation.Range;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidNumbers;
+import gyro.core.validation.ValidStrings;
 
 public class KeyVaultCertificatePolicy extends Diffable implements Copyable<CertificatePolicy> {
 
-    private KeyVaultCertificateIssuerParameter issuerParameter;
-    private KeyVaultCertificateKeyProperties keyProperties;
+    private String certificateType;
+    private String contentType;
+    private String issuerName;
+    private String subject;
+    private String keyType;
+    private String keyCurveName;
+    private Boolean enabled;
+    private Boolean transparent;
+    private Boolean exportable;
+    private Boolean keyReusable;
+
+    private Integer validityInMonths;
+    private Integer keySize;
+    private Date createdOn;
+    private Date updatedOn;
+    private KeyVaultCertificateSubjectAlternativeName subjectAlternativeName;
+    private List<String> keyUsage;
+    private List<String> enhancedKeyUsage;
     private List<KeyVaultCertificateLifetime> lifetimeAction;
-    private KeyVaultCertificateSecretProperties secretProperties;
-    private KeyVaultCertificateX509Properties x509Properties;
-    private KeyVaultCertificateAttribute attribute;
 
-    /**
-     * Issuer parameter config for the certificate policy.
-     *
-     * @subresource gyro.azure.keyvault.KeyVaultCertificateIssuerParameter
-     */
-    @Required
-    public KeyVaultCertificateIssuerParameter getIssuerParameter() {
-        return issuerParameter;
+    public String getCertificateType() {
+        return certificateType;
     }
 
-    public void setIssuerParameter(KeyVaultCertificateIssuerParameter issuerParameter) {
-        this.issuerParameter = issuerParameter;
+    public void setCertificateType(String certificateType) {
+        this.certificateType = certificateType;
     }
 
     /**
-     * The key properties for the certificate policy.
-     *
-     * @subresource gyro.azure.keyvault.KeyVaultCertificateKeyProperties
+     * The type of certificate to generate.
      */
     @Required
-    public KeyVaultCertificateKeyProperties getKeyProperties() {
-        return keyProperties;
+    @ValidStrings({"application/x-pem-file", "application/x-pkcs12"})
+    public String getContentType() {
+        return contentType;
     }
 
-    public void setKeyProperties(KeyVaultCertificateKeyProperties keyProperties) {
-        this.keyProperties = keyProperties;
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
+    }
+
+    /**
+     * The name of the issuer of the certificate. Valid values are ``Self``, ``Unknown`` or any issuer already present in your azure account as a valid CA.
+     *
+     * @no-doc ValidStrings
+     */
+    @Output
+    public String getIssuerName() {
+        return issuerName;
+    }
+
+    public void setIssuerName(String issuerName) {
+        this.issuerName = issuerName;
+    }
+
+    /**
+     * The x.500 distinguished name.
+     */
+    @Required
+    public String getSubject() {
+        return subject;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+
+    /**
+     * The key type.
+     */
+    @ValidStrings({"RSA", "RSA-HSM", "EC", "EC-HSM"})
+    public String getKeyType() {
+        return keyType;
+    }
+
+    public void setKeyType(String keyType) {
+        this.keyType = keyType;
+    }
+
+    /**
+     * The key curve name.
+     */
+    @ValidStrings({"P-256", "P-384", "P-521", "P-256K"})
+    public String getKeyCurveName() {
+        return keyCurveName;
+    }
+
+    public void setKeyCurveName(String keyCurveName) {
+        this.keyCurveName = keyCurveName;
+    }
+
+    /**
+     * Enable or Disable the certificate for use.
+     */
+    public Boolean getEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    /**
+     * Enable or Disable transparency of the certificate.
+     */
+    public Boolean getTransparent() {
+        return transparent;
+    }
+
+    public void setTransparent(Boolean transparent) {
+        this.transparent = transparent;
+    }
+
+    /**
+     * When set to ``true`` allows the certificates private key to be exportable.
+     */
+    @Required
+    public Boolean getExportable() {
+        return exportable;
+    }
+
+    public void setExportable(Boolean exportable) {
+        this.exportable = exportable;
+    }
+
+    /**
+     * When set to ``true`` allows the certificate key to be reused or renewed.
+     */
+    @Required
+    public Boolean getKeyReusable() {
+        return keyReusable;
+    }
+
+    public void setKeyReusable(Boolean keyReusable) {
+        this.keyReusable = keyReusable;
+    }
+
+    /**
+     * Validation of the certificate in months.
+     */
+    @Required
+    @Range(min = 1, max = 12)
+    public Integer getValidityInMonths() {
+        return validityInMonths;
+    }
+
+    public void setValidityInMonths(Integer validityInMonths) {
+        this.validityInMonths = validityInMonths;
+    }
+
+    /**
+     * The key size.
+     */
+    @ValidNumbers({2048, 3072, 4096})
+    public Integer getKeySize() {
+        return keySize;
+    }
+
+    public void setKeySize(Integer keySize) {
+        this.keySize = keySize;
+    }
+
+    /**
+     * The date time value in UTC of when the certificate was created.
+     */
+    @Output
+    public Date getCreatedOn() {
+        return createdOn;
+    }
+
+    public void setCreatedOn(Date createdOn) {
+        this.createdOn = createdOn;
+    }
+
+    /**
+     * The date time value in UTC of when the certificate was last updated.
+     */
+    @Output
+    public Date getUpdatedOn() {
+        return updatedOn;
+    }
+
+    public void setUpdatedOn(Date updatedOn) {
+        this.updatedOn = updatedOn;
+    }
+
+    /**
+     * Alternate name config for the certificate.
+     *
+     * @subresource gyro.azure.keyvault.KeyVaultCertificateSubjectAlternativeName
+     */
+    public KeyVaultCertificateSubjectAlternativeName getSubjectAlternativeName() {
+        return subjectAlternativeName;
+    }
+
+    public void setSubjectAlternativeName(KeyVaultCertificateSubjectAlternativeName subjectAlternativeName) {
+        this.subjectAlternativeName = subjectAlternativeName;
+    }
+
+    /**
+     * A list of key usage flags.
+     */
+    @ValidStrings({"digitalSignature", "nonRepudiation", "keyEncipherment",
+        "dataEncipherment", "keyAgreement", "keyCertSign",
+        "cRLSign", "encipherOnly", "decipherOnly"})
+    public List<String> getKeyUsage() {
+        if (keyUsage == null) {
+            keyUsage = new ArrayList<>();
+        }
+
+        return keyUsage;
+    }
+
+    public void setKeyUsage(List<String> keyUsage) {
+        this.keyUsage = keyUsage;
+    }
+
+    /**
+     * A list of enhanced key usage flags.
+     */
+    public List<String> getEnhancedKeyUsage() {
+        if (enhancedKeyUsage == null) {
+            enhancedKeyUsage = new ArrayList<>();
+        }
+
+        return enhancedKeyUsage;
+    }
+
+    public void setEnhancedKeyUsage(List<String> enhancedKeyUsage) {
+        this.enhancedKeyUsage = enhancedKeyUsage;
     }
 
     /**
@@ -83,85 +291,43 @@ public class KeyVaultCertificatePolicy extends Diffable implements Copyable<Cert
         this.lifetimeAction = lifetimeAction;
     }
 
-    /**
-     * Secrets config for the certificate policy.
-     *
-     * @subresource gyro.azure.keyvault.KeyVaultCertificateSecretProperties
-     */
-    @Required
-    public KeyVaultCertificateSecretProperties getSecretProperties() {
-        return secretProperties;
-    }
-
-    public void setSecretProperties(KeyVaultCertificateSecretProperties secretProperties) {
-        this.secretProperties = secretProperties;
-    }
-
-    /**
-     * X509 properties for the certificate policy.
-     *
-     * @subresource gyro.azure.keyvault.KeyVaultCertificateX509Properties
-     */
-    @Required
-    public KeyVaultCertificateX509Properties getX509Properties() {
-        return x509Properties;
-    }
-
-    public void setX509Properties(KeyVaultCertificateX509Properties x509Properties) {
-        this.x509Properties = x509Properties;
-    }
-
-    /**
-     * Additional attributes for the certificate policy.
-     *
-     * @subresource gyro.azure.keyvault.KeyVaultCertificateAttribute
-     */
-    public KeyVaultCertificateAttribute getAttribute() {
-        return attribute;
-    }
-
-    public void setAttribute(KeyVaultCertificateAttribute attribute) {
-        this.attribute = attribute;
-    }
-
     @Override
     public void copyFrom(CertificatePolicy certificatePolicy) {
-        setIssuerParameter(Optional.ofNullable(certificatePolicy.issuerParameters())
+        setCertificateType(certificatePolicy.getCertificateType());
+        setContentType(certificatePolicy.getContentType().toString());
+        setIssuerName(certificatePolicy.getIssuerName());
+        setSubject(certificatePolicy.getSubject());
+        setKeyType(certificatePolicy.getKeyType().toString());
+        setKeyCurveName(certificatePolicy.getKeyCurveName().toString());
+        setValidityInMonths(certificatePolicy.getValidityInMonths());
+        setKeySize(certificatePolicy.getKeySize());
+        setCreatedOn(Date.from(certificatePolicy.getCreatedOn().toInstant()));
+        setUpdatedOn(Date.from(certificatePolicy.getUpdatedOn().toInstant()));
+        setEnhancedKeyUsage(certificatePolicy.getEnhancedKeyUsage());
+
+        setTransparent(certificatePolicy.isCertificateTransparent());
+        setEnabled(certificatePolicy.isEnabled());
+        setExportable(certificatePolicy.isExportable());
+        setKeyReusable(certificatePolicy.isKeyReusable());
+
+        setKeyUsage(Optional.ofNullable(certificatePolicy.getKeyUsage())
+            .map(o -> o.stream().map(ExpandableStringEnum::toString).collect(Collectors.toList()))
+            .orElse(null));
+
+        setSubjectAlternativeName(Optional.ofNullable(certificatePolicy.getSubjectAlternativeNames())
             .map(o -> {
-                KeyVaultCertificateIssuerParameter issuerParameter = newSubresource(KeyVaultCertificateIssuerParameter.class);
-                issuerParameter.copyFrom(o);
-                return issuerParameter;
+                KeyVaultCertificateSubjectAlternativeName subjectAlternativeName
+                    = newSubresource(KeyVaultCertificateSubjectAlternativeName.class);
+                subjectAlternativeName.copyFrom(o);
+                return subjectAlternativeName;
             }).orElse(null));
-        setKeyProperties(Optional.ofNullable(certificatePolicy.keyProperties())
-            .map(o -> {
-                KeyVaultCertificateKeyProperties keyProperties = newSubresource(KeyVaultCertificateKeyProperties.class);
-                keyProperties.copyFrom(o);
-                return keyProperties;
-            }).orElse(null));
-        setLifetimeAction(Optional.ofNullable(certificatePolicy.lifetimeActions())
+
+        setLifetimeAction(Optional.ofNullable(certificatePolicy.getLifetimeActions())
             .map(o -> o.stream().map(oo -> {
                 KeyVaultCertificateLifetime lifetime = newSubresource(KeyVaultCertificateLifetime.class);
                 lifetime.copyFrom(oo);
                 return lifetime;
-            }).collect(Collectors.toList())).orElse(null));certificatePolicy.lifetimeActions();
-        setX509Properties(Optional.ofNullable(certificatePolicy.x509CertificateProperties())
-            .map(o -> {
-                KeyVaultCertificateX509Properties x509Properties = newSubresource(KeyVaultCertificateX509Properties.class);
-                x509Properties.copyFrom(o);
-                return x509Properties;
-            }).orElse(null));
-        setSecretProperties(Optional.ofNullable(certificatePolicy.secretProperties())
-            .map( o -> {
-                KeyVaultCertificateSecretProperties secretProperties = newSubresource(
-                    KeyVaultCertificateSecretProperties.class);
-                secretProperties.copyFrom(o);
-                return secretProperties;
-            }).orElse(null));
-        setAttribute(Optional.ofNullable(certificatePolicy.attributes()).map( o -> {
-            KeyVaultCertificateAttribute certificateAttribute = newSubresource(KeyVaultCertificateAttribute.class);
-            certificateAttribute.copyFrom(o);
-            return certificateAttribute;
-        }).orElse(null));
+            }).collect(Collectors.toList())).orElse(null));
     }
 
     @Override
@@ -170,15 +336,28 @@ public class KeyVaultCertificatePolicy extends Diffable implements Copyable<Cert
     }
 
     CertificatePolicy toCertificatePolicy() {
-        CertificatePolicy policy = new CertificatePolicy();
-        policy = policy.withIssuerParameters(getIssuerParameter().toIssuerParameters());
-        policy = policy.withKeyProperties(getKeyProperties().toKeyProperties());
-        policy = policy.withLifetimeActions(getLifetimeAction()
+        CertificatePolicy policy = CertificatePolicy.getDefault();
+        policy.setLifetimeActions(getLifetimeAction()
             .stream().map(KeyVaultCertificateLifetime::toLifetimeAction)
-            .collect(Collectors.toList()));
-        policy = policy.withSecretProperties(getSecretProperties().toSecretProperties());
-        policy = policy.withX509CertificateProperties(getX509Properties().toX509CertificateProperties());
-        policy = policy.withAttributes(getAttribute() != null ? getAttribute().toAttributes() : null);
+            .toArray(LifetimeAction[]::new));
+
+        policy.setCertificateType(getCertificateType());
+        policy.setCertificateTransparent(getTransparent());
+        policy.setContentType(CertificateContentType.fromString(getContentType()));
+        policy.setKeyCurveName(CertificateKeyCurveName.fromString(getKeyCurveName()));
+        policy.setKeySize(getKeySize());
+        policy.setValidityInMonths(getValidityInMonths());
+        policy.setEnabled(getEnabled());
+        policy.setEnhancedKeyUsage(getEnhancedKeyUsage());
+        policy.setExportable(getExportable());
+        policy.setKeyReusable(getKeyReusable());
+        policy.setSubjectAlternativeNames(getSubjectAlternativeName().toSubjectAlternativeNames());
+        policy.setKeyUsage(getKeyUsage().stream()
+            .map(CertificateKeyUsage::fromString)
+            .toArray(CertificateKeyUsage[]::new));
+        policy.setKeyType(CertificateKeyType.fromString(getKeyType()));
+        policy.setSubject(getSubject());
+
         return policy;
     }
 }

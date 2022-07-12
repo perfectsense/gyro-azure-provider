@@ -16,22 +16,6 @@
 
 package gyro.azure.network;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.network.Network;
-import com.microsoft.azure.management.network.Subnet;
-import com.microsoft.azure.management.resources.fluentcore.arm.Region;
-import gyro.azure.AzureResource;
-import gyro.azure.Copyable;
-import gyro.azure.resources.ResourceGroupResource;
-import gyro.core.GyroUI;
-import gyro.core.resource.Id;
-import gyro.core.resource.Updatable;
-import gyro.core.Type;
-import gyro.core.resource.Output;
-import gyro.core.resource.Resource;
-import gyro.core.scope.State;
-import gyro.core.validation.Required;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -39,6 +23,22 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import com.azure.core.management.Region;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.network.models.Network;
+import com.azure.resourcemanager.network.models.Subnet;
+import gyro.azure.AzureResource;
+import gyro.azure.Copyable;
+import gyro.azure.resources.ResourceGroupResource;
+import gyro.core.GyroUI;
+import gyro.core.Type;
+import gyro.core.resource.Id;
+import gyro.core.resource.Output;
+import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
+import gyro.core.validation.Required;
 
 /**
  * Creates a virtual network.
@@ -73,6 +73,7 @@ import java.util.stream.Collectors;
  */
 @Type("network")
 public class NetworkResource extends AzureResource implements Copyable<Network> {
+
     private String name;
     private ResourceGroupResource resourceGroup;
     private Set<String> addressSpaces;
@@ -244,7 +245,7 @@ public class NetworkResource extends AzureResource implements Copyable<Network> 
 
     @Override
     public boolean refresh() {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         Network network = client.networks().getById(getId());
 
@@ -259,7 +260,7 @@ public class NetworkResource extends AzureResource implements Copyable<Network> 
 
     @Override
     public void create(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         Network.DefinitionStages.WithCreate networkDefWithoutAddress = client.networks()
             .define(getName())
@@ -283,7 +284,7 @@ public class NetworkResource extends AzureResource implements Copyable<Network> 
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         Network network = client.networks().getById(getId());
 
@@ -321,12 +322,12 @@ public class NetworkResource extends AzureResource implements Copyable<Network> 
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         client.networks().deleteById(getId());
     }
 
-    Network getNetwork(Azure client) {
+    Network getNetwork(AzureResourceManager client) {
         return client.networks().getById(getId());
     }
 }

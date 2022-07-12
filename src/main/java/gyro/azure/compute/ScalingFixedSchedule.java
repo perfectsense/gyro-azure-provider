@@ -16,12 +16,13 @@
 
 package gyro.azure.compute;
 
-import com.microsoft.azure.management.monitor.TimeWindow;
+import com.azure.resourcemanager.monitor.models.TimeWindow;
 import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.validation.Required;
 
 public class ScalingFixedSchedule extends Diffable implements Copyable<TimeWindow> {
+
     private String startTime;
     private String endTime;
     private String timeZone;

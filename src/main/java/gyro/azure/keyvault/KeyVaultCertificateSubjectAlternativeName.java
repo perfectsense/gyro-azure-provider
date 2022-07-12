@@ -18,7 +18,7 @@ package gyro.azure.keyvault;
 
 import java.util.List;
 
-import com.microsoft.azure.keyvault.models.SubjectAlternativeNames;
+import com.azure.security.keyvault.certificates.models.SubjectAlternativeNames;
 import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.validation.Required;
@@ -53,7 +53,7 @@ public class KeyVaultCertificateSubjectAlternativeName extends Diffable implemen
     }
 
     /**
-     * A list of UPNS values.
+     * A list of user principal name values.
      */
     public List<String> getUpns() {
         return upns;
@@ -70,15 +70,15 @@ public class KeyVaultCertificateSubjectAlternativeName extends Diffable implemen
 
     SubjectAlternativeNames toSubjectAlternativeNames() {
         return new SubjectAlternativeNames()
-            .withDnsNames(getDnsNames())
-            .withEmails(getEmails())
-            .withUpns(getUpns());
+            .setDnsNames(getDnsNames())
+            .setEmails(getEmails())
+            .setUserPrincipalNames(getUpns());
     }
 
     @Override
     public void copyFrom(SubjectAlternativeNames subjectAlternativeNames) {
-        setDnsNames(subjectAlternativeNames.dnsNames());
-        setEmails(subjectAlternativeNames.emails());
-        setUpns(subjectAlternativeNames.upns());
+        setDnsNames(subjectAlternativeNames.getDnsNames());
+        setEmails(subjectAlternativeNames.getEmails());
+        setUpns(subjectAlternativeNames.getUserPrincipalNames());
     }
 }

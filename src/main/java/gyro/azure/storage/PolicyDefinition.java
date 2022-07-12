@@ -16,13 +16,14 @@
 
 package gyro.azure.storage;
 
-import com.microsoft.azure.management.storage.ManagementPolicyDefinition;
+import com.azure.resourcemanager.storage.models.ManagementPolicyDefinition;
 import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 
 public class PolicyDefinition extends Diffable implements Copyable<ManagementPolicyDefinition> {
+
     private PolicyAction action;
     private PolicyFilter filter;
 

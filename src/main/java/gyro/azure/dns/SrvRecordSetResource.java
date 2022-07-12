@@ -16,6 +16,11 @@
 
 package gyro.azure.dns;
 
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.dns.models.DnsRecordSet;
+import com.azure.resourcemanager.dns.models.DnsZone;
+import com.azure.resourcemanager.dns.models.SrvRecordSet;
+import com.google.common.collect.Maps;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.core.GyroUI;
@@ -26,13 +31,6 @@ import gyro.core.Type;
 import gyro.core.resource.Updatable;
 
 import com.google.common.collect.MapDifference;
-import com.google.common.collect.Maps;
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.dns.DnsRecordSet;
-import com.microsoft.azure.management.dns.DnsZone;
-import com.microsoft.azure.management.dns.SrvRecordSet;
-import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.WithSrvRecordEntryOrAttachable;
-import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.SrvRecordSetBlank;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 
@@ -176,7 +174,7 @@ public class SrvRecordSetResource extends AzureResource implements Copyable<SrvR
 
     @Override
     public boolean refresh() {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         SrvRecordSet srvRecordSet = client.dnsZones().getById(getDnsZone().getId()).srvRecordSets().getByName(getName());
 
@@ -191,15 +189,17 @@ public class SrvRecordSetResource extends AzureResource implements Copyable<SrvR
 
     @Override
     public void create(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
-        SrvRecordSetBlank<DnsZone.Update> defineSrvRecordSet =
-                client.dnsZones().getById(getDnsZone().getId()).update().defineSrvRecordSet(getName());
+        DnsRecordSet.UpdateDefinitionStages.SrvRecordSetBlank<DnsZone.Update> defineSrvRecordSet = client.dnsZones()
+            .getById(getDnsZone().getId())
+            .update()
+            .defineSrvRecordSet(getName());
 
-        WithSrvRecordEntryOrAttachable<DnsZone.Update> createSrvRecordSet = null;
+        DnsRecordSet.UpdateDefinitionStages.WithSrvRecordEntryOrAttachable<DnsZone.Update> createSrvRecordSet = null;
         for (SrvRecord srvRecord : getSrvRecord()) {
             createSrvRecordSet = defineSrvRecordSet
-                    .withRecord(srvRecord.getTarget(), srvRecord.getPort(), srvRecord.getPriority(), srvRecord.getWeight());
+                .withRecord(srvRecord.getTarget(), srvRecord.getPort(), srvRecord.getPriority(), srvRecord.getWeight());
         }
 
         if (getTtl() != null) {
@@ -216,7 +216,7 @@ public class SrvRecordSetResource extends AzureResource implements Copyable<SrvR
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         DnsRecordSet.UpdateSrvRecordSet updateSrvRecordSet =
                 client.dnsZones().getById(getDnsZone().getId()).update().updateSrvRecordSet(getName());
@@ -262,7 +262,7 @@ public class SrvRecordSetResource extends AzureResource implements Copyable<SrvR
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         client.dnsZones().getById(getDnsZone().getId()).update().withoutSrvRecordSet(getName()).apply();
     }

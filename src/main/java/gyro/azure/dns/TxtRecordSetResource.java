@@ -16,6 +16,10 @@
 
 package gyro.azure.dns;
 
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.dns.models.DnsRecordSet;
+import com.azure.resourcemanager.dns.models.DnsZone;
+import com.azure.resourcemanager.dns.models.TxtRecordSet;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.core.GyroUI;
@@ -27,11 +31,6 @@ import gyro.core.resource.Updatable;
 
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.dns.DnsRecordSet;
-import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.WithTxtRecordTextValueOrAttachable;
-import com.microsoft.azure.management.dns.DnsZone;
-import com.microsoft.azure.management.dns.TxtRecordSet;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 
@@ -163,7 +162,7 @@ public class TxtRecordSetResource extends AzureResource implements Copyable<TxtR
 
     @Override
     public boolean refresh() {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         TxtRecordSet txtRecordSet = client.dnsZones().getById(getDnsZone().getId()).txtRecordSets().getByName(getName());
 
@@ -178,12 +177,14 @@ public class TxtRecordSetResource extends AzureResource implements Copyable<TxtR
 
     @Override
     public void create(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
-        DnsRecordSet.UpdateDefinitionStages.TxtRecordSetBlank<DnsZone.Update> defineTxtRecordSet =
-                client.dnsZones().getById(getDnsZone().getId()).update().defineTxtRecordSet(getName());
+        DnsRecordSet.UpdateDefinitionStages.TxtRecordSetBlank<DnsZone.Update> defineTxtRecordSet = client.dnsZones()
+            .getById(getDnsZone().getId())
+            .update()
+            .defineTxtRecordSet(getName());
 
-        WithTxtRecordTextValueOrAttachable<DnsZone.Update> createTxtRecordSet = null;
+        DnsRecordSet.UpdateDefinitionStages.WithTxtRecordTextValueOrAttachable<DnsZone.Update> createTxtRecordSet = null;
         for (String txtRecord : getTxtRecords()) {
             createTxtRecordSet = defineTxtRecordSet.withText(txtRecord);
         }
@@ -203,7 +204,7 @@ public class TxtRecordSetResource extends AzureResource implements Copyable<TxtR
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         DnsRecordSet.UpdateTxtRecordSet updateTxtRecordSet =
                 client.dnsZones().getById(getDnsZone().getId()).update().updateTxtRecordSet(getName());
@@ -252,7 +253,7 @@ public class TxtRecordSetResource extends AzureResource implements Copyable<TxtR
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         client.dnsZones().getById(getDnsZone().getId()).update().withoutTxtRecordSet(getName()).apply();
     }

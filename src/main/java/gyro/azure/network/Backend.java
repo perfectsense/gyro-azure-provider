@@ -16,21 +16,20 @@
 
 package gyro.azure.network;
 
-import com.microsoft.azure.management.network.ApplicationGateway;
-import com.microsoft.azure.management.network.ApplicationGateway.Update;
-import com.microsoft.azure.management.network.ApplicationGatewayBackend;
-import com.microsoft.azure.management.network.ApplicationGatewayBackend.UpdateDefinitionStages.WithAttach;
-import com.microsoft.azure.management.network.ApplicationGateway.DefinitionStages.WithCreate;
-import com.microsoft.azure.management.network.ApplicationGatewayBackendAddress;
-import gyro.azure.Copyable;
-import gyro.core.resource.Diffable;
-import gyro.core.resource.Updatable;
-import gyro.core.validation.Required;
-
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import com.azure.resourcemanager.network.models.ApplicationGateway.DefinitionStages.WithCreate;
+import com.azure.resourcemanager.network.models.ApplicationGateway.Update;
+import com.azure.resourcemanager.network.models.ApplicationGatewayBackend;
+import com.azure.resourcemanager.network.models.ApplicationGatewayBackend.UpdateDefinitionStages.WithAttach;
+import com.azure.resourcemanager.network.models.ApplicationGatewayBackendAddress;
+import gyro.azure.Copyable;
+import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
 
 /**
  * Creates a Backend.
@@ -49,6 +48,7 @@ import java.util.stream.Collectors;
  *     end
  */
 public class Backend extends Diffable implements Copyable<ApplicationGatewayBackend> {
+
     private String name;
     private Set<String> ipAddresses;
     private Set<String> fqdns;
@@ -100,8 +100,15 @@ public class Backend extends Diffable implements Copyable<ApplicationGatewayBack
     @Override
     public void copyFrom(ApplicationGatewayBackend backend) {
         setName(backend.name());
-        setIpAddresses(backend.addresses().stream().map(ApplicationGatewayBackendAddress::ipAddress).collect(Collectors.toSet()));
-        setFqdns(backend.addresses().stream().map(ApplicationGatewayBackendAddress::fqdn).filter(Objects::nonNull).collect(Collectors.toSet()));
+        setIpAddresses(backend.addresses()
+            .stream()
+            .map(ApplicationGatewayBackendAddress::ipAddress)
+            .collect(Collectors.toSet()));
+        setFqdns(backend.addresses()
+            .stream()
+            .map(ApplicationGatewayBackendAddress::fqdn)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet()));
     }
 
     @Override
@@ -124,7 +131,7 @@ public class Backend extends Diffable implements Copyable<ApplicationGatewayBack
     }
 
     Update createBackend(Update update) {
-        WithAttach<ApplicationGateway.Update> updateWithAttach = update.defineBackend(getName());
+        WithAttach<Update> updateWithAttach = update.defineBackend(getName());
 
         for (String ipAddress : getIpAddresses()) {
             updateWithAttach = updateWithAttach.withIPAddress(ipAddress);

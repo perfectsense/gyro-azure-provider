@@ -16,14 +16,15 @@
 
 package gyro.azure.compute;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.compute.Disk;
-import gyro.azure.AzureFinder;
-import gyro.core.Type;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.compute.models.Disk;
+import gyro.azure.AzureFinder;
+import gyro.core.Type;
 
 /**
  * Query disk.
@@ -37,6 +38,7 @@ import java.util.Map;
  */
 @Type("disk")
 public class DiskFinder extends AzureFinder<Disk, DiskResource> {
+
     private String id;
 
     /**
@@ -51,12 +53,12 @@ public class DiskFinder extends AzureFinder<Disk, DiskResource> {
     }
 
     @Override
-    protected List<Disk> findAllAzure(Azure client) {
-        return client.disks().list();
+    protected List<Disk> findAllAzure(AzureResourceManager client) {
+        return client.disks().list().stream().collect(Collectors.toList());
     }
 
     @Override
-    protected List<Disk> findAzure(Azure client, Map<String, String> filters) {
+    protected List<Disk> findAzure(AzureResourceManager client, Map<String, String> filters) {
         Disk disk = client.disks().getById(filters.get("id"));
         if (disk == null) {
             return Collections.emptyList();

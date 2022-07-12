@@ -16,11 +16,18 @@
 
 package gyro.azure.compute;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.monitor.AutoscaleProfile;
-import com.microsoft.azure.management.monitor.AutoscaleSetting;
-import com.microsoft.azure.management.monitor.ScaleRule;
-import com.microsoft.azure.management.resources.fluentcore.arm.Region;
+import java.time.ZoneOffset;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import com.azure.core.management.Region;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.monitor.models.AutoscaleProfile;
+import com.azure.resourcemanager.monitor.models.AutoscaleSetting;
+import com.azure.resourcemanager.monitor.models.ScaleRule;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
@@ -34,12 +41,6 @@ import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import org.joda.time.DateTime;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Creates a scale set.
@@ -313,7 +314,7 @@ public class VMScaleSetScalingResource extends AzureResource implements Copyable
 
     @Override
     public boolean refresh() {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         AutoscaleSetting autoscaleSetting = client.autoscaleSettings().getById(getId());
 
@@ -328,7 +329,7 @@ public class VMScaleSetScalingResource extends AzureResource implements Copyable
 
     @Override
     public void create(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         AutoscaleSetting.DefinitionStages.DefineAutoscaleSettingResourceProfiles basicStage = client.autoscaleSettings()
             .define(getName())
@@ -341,7 +342,7 @@ public class VMScaleSetScalingResource extends AzureResource implements Copyable
         for (ScalingProfile profile : getProfile()) {
             AutoscaleProfile.DefinitionStages.Blank blankProfileStage = null;
             if (finalStage == null) {
-                blankProfileStage  = basicStage.defineAutoscaleProfile(profile.getName());
+                blankProfileStage = basicStage.defineAutoscaleProfile(profile.getName());
             } else {
                 blankProfileStage = finalStage.defineAutoscaleProfile(profile.getName());
             }
@@ -350,14 +351,27 @@ public class VMScaleSetScalingResource extends AzureResource implements Copyable
                 finalStage = blankProfileStage.withFixedInstanceCount(profile.getDefaultInstanceCount()).attach();
             } else if (profile.getType().equals(ScalingProfile.ProfileType.FIXED_SCHEDULE)) {
                 finalStage = blankProfileStage.withScheduleBasedScale(profile.getDefaultInstanceCount())
-                    .withFixedDateSchedule(profile.getFixedSchedule().getTimeZone(), new DateTime(profile.getFixedSchedule().getStartTime()), new DateTime(profile.getFixedSchedule().getEndTime()))
+                    .withFixedDateSchedule(
+                        profile.getFixedSchedule().getTimeZone(),
+                        new DateTime(profile.getFixedSchedule().getStartTime()).toDate()
+                            .toInstant()
+                            .atOffset(ZoneOffset.UTC),
+                        new DateTime(profile.getFixedSchedule().getEndTime()).toDate()
+                            .toInstant()
+                            .atOffset(ZoneOffset.UTC))
                     .attach();
             } else if (profile.getType().equals(ScalingProfile.ProfileType.RECURRENT_SCHEDULE)) {
                 finalStage = blankProfileStage.withScheduleBasedScale(profile.getDefaultInstanceCount())
-                    .withRecurrentSchedule(profile.getRecurrentSchedule().getTimeZone(), profile.getRecurrentSchedule().getStartTime(), profile.getRecurrentSchedule().toDayOfWeeks())
+                    .withRecurrentSchedule(
+                        profile.getRecurrentSchedule().getTimeZone(),
+                        profile.getRecurrentSchedule().getStartTime(),
+                        profile.getRecurrentSchedule().toDayOfWeeks())
                     .attach();
             } else {
-                AutoscaleProfile.DefinitionStages.WithScaleRule withScaleRule = blankProfileStage.withMetricBasedScale(profile.getMinInstanceCount(), profile.getMaxInstanceCount(), profile.getDefaultInstanceCount());
+                AutoscaleProfile.DefinitionStages.WithScaleRule withScaleRule = blankProfileStage.withMetricBasedScale(
+                    profile.getMinInstanceCount(),
+                    profile.getMaxInstanceCount(),
+                    profile.getDefaultInstanceCount());
                 AutoscaleProfile.DefinitionStages.WithScaleRuleOptional scaleRuleStage = null;
                 for (ScalingRule rule : profile.getRule()) {
                     ScaleRule.DefinitionStages.Blank blank;
@@ -406,7 +420,7 @@ public class VMScaleSetScalingResource extends AzureResource implements Copyable
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         AutoscaleSetting autoscaleSetting = client.autoscaleSettings().getById(getId());
 
@@ -444,7 +458,9 @@ public class VMScaleSetScalingResource extends AzureResource implements Copyable
 
         if (changedFieldNames.contains("profile")) {
             for (ScalingProfile profile : ((VMScaleSetScalingResource) current).getProfile()) {
-                if (getProfile().stream().noneMatch(o -> o.getName().equals(profile.getName()) && o.getType().equals(profile.getType()) && o.getType().equals(ScalingProfile.ProfileType.FIXED))) {
+                if (getProfile().stream()
+                    .noneMatch(o -> o.getName().equals(profile.getName()) && o.getType().equals(profile.getType())
+                        && o.getType().equals(ScalingProfile.ProfileType.FIXED))) {
                     update = update.withoutAutoscaleProfile(profile.getName());
                 }
             }
@@ -458,15 +474,28 @@ public class VMScaleSetScalingResource extends AzureResource implements Copyable
                 if (profile.getType().equals(ScalingProfile.ProfileType.FIXED_SCHEDULE)) {
                     update = profileStage
                         .withScheduleBasedScale(profile.getDefaultInstanceCount())
-                        .withFixedDateSchedule(profile.getFixedSchedule().getTimeZone(), new DateTime(profile.getFixedSchedule().getStartTime()), new DateTime(profile.getFixedSchedule().getEndTime()))
+                        .withFixedDateSchedule(
+                            profile.getFixedSchedule().getTimeZone(),
+                            new DateTime(profile.getFixedSchedule().getStartTime()).toDate()
+                                .toInstant()
+                                .atOffset(ZoneOffset.UTC),
+                            new DateTime(profile.getFixedSchedule().getEndTime()).toDate()
+                                .toInstant()
+                                .atOffset(ZoneOffset.UTC))
                         .attach();
                 } else if (profile.getType().equals(ScalingProfile.ProfileType.RECURRENT_SCHEDULE)) {
                     update = profileStage
                         .withScheduleBasedScale(profile.getDefaultInstanceCount())
-                        .withRecurrentSchedule(profile.getRecurrentSchedule().getTimeZone(), profile.getRecurrentSchedule().getStartTime(), profile.getRecurrentSchedule().toDayOfWeeks())
+                        .withRecurrentSchedule(
+                            profile.getRecurrentSchedule().getTimeZone(),
+                            profile.getRecurrentSchedule().getStartTime(),
+                            profile.getRecurrentSchedule().toDayOfWeeks())
                         .attach();
                 } else {
-                    AutoscaleProfile.UpdateDefinitionStages.WithScaleRule withScaleRule = profileStage.withMetricBasedScale(profile.getMinInstanceCount(), profile.getMaxInstanceCount(), profile.getDefaultInstanceCount());
+                    AutoscaleProfile.UpdateDefinitionStages.WithScaleRule withScaleRule = profileStage.withMetricBasedScale(
+                        profile.getMinInstanceCount(),
+                        profile.getMaxInstanceCount(),
+                        profile.getDefaultInstanceCount());
                     AutoscaleProfile.UpdateDefinitionStages.WithScaleRuleOptional scaleRuleStage = null;
                     for (ScalingRule rule : profile.getRule()) {
                         if (scaleRuleStage == null) {
@@ -486,7 +515,7 @@ public class VMScaleSetScalingResource extends AzureResource implements Copyable
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         client.autoscaleSettings().deleteById(getId());
     }

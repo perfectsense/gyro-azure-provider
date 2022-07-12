@@ -16,9 +16,9 @@
 
 package gyro.azure.dns;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.dns.CNameRecordSet;
-import com.microsoft.azure.management.dns.DnsZone;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.dns.models.DnsZone;
+import com.azure.resourcemanager.dns.models.CnameRecordSet;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureFinder;
 import gyro.core.GyroException;
@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  *    cname-record-set: $(external-query azure::cname-record-set {})
  */
 @Type("cname-record-set")
-public class CnameRecordSetFinder extends AzureFinder<CNameRecordSet, CnameRecordSetResource> {
+public class CnameRecordSetFinder extends AzureFinder<CnameRecordSet, CnameRecordSetResource> {
     private String dnsZoneId;
     private String name;
 
@@ -67,12 +67,15 @@ public class CnameRecordSetFinder extends AzureFinder<CNameRecordSet, CnameRecor
     }
 
     @Override
-    protected List<CNameRecordSet> findAllAzure(Azure client) {
-        return client.dnsZones().list().stream().map(o -> o.cNameRecordSets().list()).flatMap(List::stream).collect(Collectors.toList());
+    protected List<CnameRecordSet> findAllAzure(AzureResourceManager client) {
+        return client.dnsZones().list().stream()
+            .map(o -> o.cNameRecordSets().list().stream().collect(Collectors.toList()))
+            .flatMap(List::stream)
+            .collect(Collectors.toList());
     }
 
     @Override
-    protected List<CNameRecordSet> findAzure(Azure client, Map<String, String> filters) {
+    protected List<CnameRecordSet> findAzure(AzureResourceManager client, Map<String, String> filters) {
         if (ObjectUtils.isBlank(filters.get("dns-zone-id"))) {
             throw new GyroException("'dns-zone-id' is required.");
         }
@@ -84,7 +87,7 @@ public class CnameRecordSetFinder extends AzureFinder<CNameRecordSet, CnameRecor
             if (filters.containsKey("name")) {
                 return Collections.singletonList(dnsZone.cNameRecordSets().getByName(filters.get("name")));
             } else {
-                return dnsZone.cNameRecordSets().list();
+                return dnsZone.cNameRecordSets().list().stream().collect(Collectors.toList());
             }
         }
     }

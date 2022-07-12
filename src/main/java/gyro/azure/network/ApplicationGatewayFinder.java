@@ -16,14 +16,15 @@
 
 package gyro.azure.network;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.network.ApplicationGateway;
-import gyro.azure.AzureFinder;
-import gyro.core.Type;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.network.models.ApplicationGateway;
+import gyro.azure.AzureFinder;
+import gyro.core.Type;
 
 /**
  * Query application gateway.
@@ -36,7 +37,9 @@ import java.util.Map;
  *    application-gateway: $(external-query azure::application-gateway {})
  */
 @Type("application-gateway")
-public class ApplicationGatewayFinder extends AzureFinder<ApplicationGateway, ApplicationGatewayResource> {
+public class ApplicationGatewayFinder
+    extends AzureFinder<ApplicationGateway, ApplicationGatewayResource> {
+
     private String id;
 
     /**
@@ -51,12 +54,12 @@ public class ApplicationGatewayFinder extends AzureFinder<ApplicationGateway, Ap
     }
 
     @Override
-    protected List<ApplicationGateway> findAllAzure(Azure client) {
-        return client.applicationGateways().list();
+    protected List<ApplicationGateway> findAllAzure(AzureResourceManager client) {
+        return client.applicationGateways().list().stream().collect(Collectors.toList());
     }
 
     @Override
-    protected List<ApplicationGateway> findAzure(Azure client, Map<String, String> filters) {
+    protected List<ApplicationGateway> findAzure(AzureResourceManager client, Map<String, String> filters) {
         ApplicationGateway applicationGateway = client.applicationGateways().getById(filters.get("id"));
         if (applicationGateway == null) {
             return Collections.emptyList();

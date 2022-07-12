@@ -1,0 +1,27 @@
+azure::resource-group resource-group-registry-example
+    name: "resource-group-registry-example"
+
+    tags: {
+        Name: "resource-group-registry-example"
+    }
+end
+
+azure::registry registry-example
+    name: "registryExample"
+    sku: "Premium"
+    resource-group: $(azure::resource-group resource-group-registry-example)
+    public-network-access: false
+    admin-user-enabled: false
+
+    tags: {
+        Name: "registry-example"
+    }
+
+    webhook
+        name: "testWebhook"
+        actions: ["push"]
+        enabled: true
+        service-uri: "https://www.google.com"
+        repository-scope: "foo:*"
+    end
+end

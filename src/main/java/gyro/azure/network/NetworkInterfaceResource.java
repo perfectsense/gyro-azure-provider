@@ -16,31 +16,30 @@
 
 package gyro.azure.network;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.network.NetworkInterface;
-import com.microsoft.azure.management.network.NicIPConfiguration;
-import com.microsoft.azure.management.resources.fluentcore.arm.Region;
-import com.psddev.dari.util.ObjectUtils;
-import gyro.azure.AzureResource;
-
-import gyro.azure.Copyable;
-import gyro.azure.resources.ResourceGroupResource;
-import gyro.core.GyroUI;
-import gyro.core.resource.Id;
-import gyro.core.resource.Updatable;
-import gyro.core.Type;
-import gyro.core.resource.Output;
-import gyro.core.resource.Resource;
-import gyro.core.scope.State;
-import gyro.core.validation.Required;
-import gyro.core.validation.ValidationError;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import com.azure.core.management.Region;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.network.models.NetworkInterface;
+import com.azure.resourcemanager.network.models.NicIpConfiguration;
+import com.psddev.dari.util.ObjectUtils;
+import gyro.azure.AzureResource;
+import gyro.azure.Copyable;
+import gyro.azure.resources.ResourceGroupResource;
+import gyro.core.GyroUI;
+import gyro.core.Type;
+import gyro.core.resource.Id;
+import gyro.core.resource.Output;
+import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidationError;
 
 /**
  * Creates a network interface.
@@ -73,6 +72,7 @@ import java.util.Set;
  */
 @Type("network-interface")
 public class NetworkInterfaceResource extends AzureResource implements Copyable<NetworkInterface> {
+
     private String name;
     private ResourceGroupResource resourceGroup;
     private NetworkResource network;
@@ -206,12 +206,14 @@ public class NetworkInterfaceResource extends AzureResource implements Copyable<
         setId(networkInterface.id());
         setName(networkInterface.name());
         setResourceGroup(findById(ResourceGroupResource.class, networkInterface.resourceGroupName()));
-        setSecurityGroup(networkInterface.getNetworkSecurityGroup() != null ? findById(NetworkSecurityGroupResource.class, networkInterface.getNetworkSecurityGroup().id()) : null);
+        setSecurityGroup(networkInterface.getNetworkSecurityGroup() != null ? findById(
+            NetworkSecurityGroupResource.class,
+            networkInterface.getNetworkSecurityGroup().id()) : null);
         setTags(networkInterface.tags());
         setIpForwarding(networkInterface.isIPForwardingEnabled());
 
         getNicIpConfiguration().clear();
-        for (NicIPConfiguration nicIpConfiguration : networkInterface.ipConfigurations().values()) {
+        for (NicIpConfiguration nicIpConfiguration : networkInterface.ipConfigurations().values()) {
             NicIpConfigurationResource nicIpConfigurationResource = newSubresource(NicIpConfigurationResource.class);
             nicIpConfigurationResource.copyFrom(nicIpConfiguration);
 
@@ -221,7 +223,7 @@ public class NetworkInterfaceResource extends AzureResource implements Copyable<
 
     @Override
     public boolean refresh() {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         NetworkInterface networkInterface = getNetworkInterface(client);
 
@@ -236,7 +238,7 @@ public class NetworkInterfaceResource extends AzureResource implements Copyable<
 
     @Override
     public void create(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         NetworkInterface.DefinitionStages.WithPrimaryPrivateIP withPrimaryPrivateIP = client.networkInterfaces()
             .define(getName())
@@ -247,7 +249,10 @@ public class NetworkInterfaceResource extends AzureResource implements Copyable<
 
         NetworkInterface.DefinitionStages.WithCreate withCreate;
 
-        NicIpConfigurationResource primary = getNicIpConfiguration().stream().filter(NicIpConfigurationResource::isPrimary).findFirst().get();
+        NicIpConfigurationResource primary = getNicIpConfiguration().stream()
+            .filter(NicIpConfigurationResource::isPrimary)
+            .findFirst()
+            .get();
 
         if (!ObjectUtils.isBlank(primary.getPrivateIpAddress())) {
             withCreate = withPrimaryPrivateIP.withPrimaryPrivateIPAddressStatic(primary.getPrivateIpAddress());
@@ -256,15 +261,18 @@ public class NetworkInterfaceResource extends AzureResource implements Copyable<
         }
 
         if (getSecurityGroup() != null) {
-            withCreate = withCreate.withExistingNetworkSecurityGroup(client.networkSecurityGroups().getById(getSecurityGroup().getId()));
+            withCreate = withCreate.withExistingNetworkSecurityGroup(client.networkSecurityGroups()
+                .getById(getSecurityGroup().getId()));
         }
 
         for (NicBackend backend : primary.getNicBackend()) {
-            withCreate.withExistingLoadBalancerBackend(client.loadBalancers().getById(backend.getLoadBalancer().getId()), backend.getBackendName());
+            withCreate.withExistingLoadBalancerBackend(client.loadBalancers()
+                .getById(backend.getLoadBalancer().getId()), backend.getBackendName());
         }
 
         for (NicNatRule rule : primary.getNicNatRule()) {
-            withCreate.withExistingLoadBalancerInboundNatRule(client.loadBalancers().getById(rule.getLoadBalancer().getId()), rule.getInboundNatRuleName());
+            withCreate.withExistingLoadBalancerInboundNatRule(client.loadBalancers()
+                .getById(rule.getLoadBalancer().getId()), rule.getInboundNatRuleName());
         }
 
         if (getIpForwarding()) {
@@ -278,7 +286,7 @@ public class NetworkInterfaceResource extends AzureResource implements Copyable<
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         NetworkInterface networkInterface = getNetworkInterface(client);
 
@@ -288,7 +296,8 @@ public class NetworkInterfaceResource extends AzureResource implements Copyable<
             if (getSecurityGroup() == null) {
                 update = update.withoutNetworkSecurityGroup();
             } else {
-                update = update.withExistingNetworkSecurityGroup(client.networkSecurityGroups().getById(getSecurityGroup().getId()));
+                update = update.withExistingNetworkSecurityGroup(client.networkSecurityGroups()
+                    .getById(getSecurityGroup().getId()));
             }
         }
 
@@ -307,12 +316,12 @@ public class NetworkInterfaceResource extends AzureResource implements Copyable<
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         client.networkInterfaces().deleteByResourceGroup(getResourceGroup().getName(), getName());
     }
 
-    NetworkInterface getNetworkInterface(Azure client) {
+    NetworkInterface getNetworkInterface(AzureResourceManager client) {
         return client.networkInterfaces().getById(getId());
     }
 
@@ -321,7 +330,10 @@ public class NetworkInterfaceResource extends AzureResource implements Copyable<
         List<ValidationError> errors = new ArrayList<>();
 
         if (getNicIpConfiguration().stream().filter(NicIpConfigurationResource::isPrimary).count() != 1) {
-            errors.add(new ValidationError(this, "nic-ip-configuration", "One and only one Ip configuration named as primary is required."));
+            errors.add(new ValidationError(
+                this,
+                "nic-ip-configuration",
+                "One and only one Ip configuration named as primary is required."));
         }
 
         return errors;

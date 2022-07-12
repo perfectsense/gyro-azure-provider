@@ -16,8 +16,10 @@
 
 package gyro.azure.accessmanagement;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.graphrbac.ActiveDirectoryUser;
+import java.util.Set;
+
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.authorization.models.ActiveDirectoryUser;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.core.GyroUI;
@@ -27,8 +29,6 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
-
-import java.util.Set;
 
 /**
  * Creates a active directory user.
@@ -46,6 +46,7 @@ import java.util.Set;
  */
 @Type("active-directory-user")
 public class ActiveDirectoryUserResource extends AzureResource implements Copyable<ActiveDirectoryUser> {
+
     private String name;
     private String email;
     private String password;
@@ -132,15 +133,15 @@ public class ActiveDirectoryUserResource extends AzureResource implements Copyab
     @Override
     public void copyFrom(ActiveDirectoryUser user) {
         setName(user.name());
-        setEmail(user.inner().mailNickname());
         setPrincipalName(user.userPrincipalName());
+        setEmail(getPrincipalName().split("@")[0]);
         setId(user.id());
-        setAccountEnabled(user.inner().accountEnabled());
+        setAccountEnabled(user.innerModel().accountEnabled());
     }
 
     @Override
     public boolean refresh() {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         ActiveDirectoryUser user = client.accessManagement().activeDirectoryUsers().getById(getId());
 
@@ -155,7 +156,7 @@ public class ActiveDirectoryUserResource extends AzureResource implements Copyab
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         ActiveDirectoryUser activeDirectoryUser = client.accessManagement().activeDirectoryUsers()
             .define(getName())
@@ -174,7 +175,7 @@ public class ActiveDirectoryUserResource extends AzureResource implements Copyab
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         client.accessManagement().activeDirectoryUsers().deleteById(getId());
     }

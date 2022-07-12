@@ -16,7 +16,10 @@
 
 package gyro.azure.compute;
 
-import com.microsoft.azure.management.compute.ProximityPlacementGroup;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import com.azure.resourcemanager.compute.models.ProximityPlacementGroup;
 import gyro.azure.Copyable;
 import gyro.azure.resources.ResourceGroupResource;
 import gyro.core.resource.Diffable;
@@ -24,10 +27,8 @@ import gyro.core.resource.Output;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 
-import java.util.Set;
-import java.util.stream.Collectors;
-
 public class ProximityPlacementGroupResource extends Diffable implements Copyable<ProximityPlacementGroup> {
+
     private String name;
     private String type;
     private String id;
@@ -50,7 +51,7 @@ public class ProximityPlacementGroupResource extends Diffable implements Copyabl
     /**
      * The type of the Proximity Placement Group. Defaults to ``STANDARD``.
      */
-    @ValidStrings({"STANDARD", "ULTRA"})
+    @ValidStrings({ "STANDARD", "ULTRA" })
     public String getType() {
         if (type != null) {
             type = type.toUpperCase();
@@ -113,12 +114,16 @@ public class ProximityPlacementGroupResource extends Diffable implements Copyabl
 
     @Override
     public void copyFrom(ProximityPlacementGroup proximityPlacementGroup) {
-        setAvailabilitySets(proximityPlacementGroup.availabilitySetIds() != null ? proximityPlacementGroup.availabilitySetIds().stream().map(o -> findById(AvailabilitySetResource.class, o)).collect(Collectors.toSet()) : null);
+        setAvailabilitySets(
+            proximityPlacementGroup.availabilitySetIds() != null ? proximityPlacementGroup.availabilitySetIds()
+                .stream()
+                .map(o -> findById(AvailabilitySetResource.class, o))
+                .collect(Collectors.toSet()) : null);
         setId(proximityPlacementGroup.id());
         setLocation(proximityPlacementGroup.location());
         setResourceGroup(findById(ResourceGroupResource.class, proximityPlacementGroup.resourceGroupName()));
         setType(proximityPlacementGroup.proximityPlacementGroupType().toString());
-        setName(proximityPlacementGroup.inner().name());
+        setName(proximityPlacementGroup.innerModel().name());
     }
 
     @Override

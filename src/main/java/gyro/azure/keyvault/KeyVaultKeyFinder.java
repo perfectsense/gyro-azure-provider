@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.microsoft.azure.keyvault.models.KeyBundle;
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.keyvault.Vault;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.keyvault.models.Key;
+import com.azure.resourcemanager.keyvault.models.Vault;
 import gyro.azure.AzureFinder;
 import gyro.core.Type;
 
@@ -21,7 +21,7 @@ import gyro.core.Type;
  *    certificate: $(external-query azure::key-vault-key {resource-group: "resource-group-example", vault: "vault-example", name: "key-example"})
  */
 @Type("key-vault-key")
-public class KeyVaultKeyFinder extends AzureFinder<KeyBundle, KeyVaultKeyResource> {
+public class KeyVaultKeyFinder extends AzureFinder<Key, KeyVaultKeyResource> {
 
     private String resourceGroup;
     private String vault;
@@ -60,17 +60,18 @@ public class KeyVaultKeyFinder extends AzureFinder<KeyBundle, KeyVaultKeyResourc
         this.name = name;
     }
     @Override
-    protected List<KeyBundle> findAllAzure(Azure client) {
+    protected List<Key> findAllAzure(AzureResourceManager client) {
         throw new UnsupportedOperationException("Finding all keys without any filter is not supported!!");
     }
 
     @Override
-    protected List<KeyBundle> findAzure(Azure client, Map<String, String> filters) {
-        List<KeyBundle> keyBundles = new ArrayList<>();
+    protected List<Key> findAzure(AzureResourceManager client, Map<String, String> filters) {
+        List<Key> keys = new ArrayList<>();
         Vault vault = client.vaults().getByResourceGroup(filters.get("resource-group"), filters.get("vault"));
         if (vault != null) {
-            keyBundles.add(vault.client().getKey(vault.vaultUri(), filters.get("name")));
+            keys.add(vault.keys().getByName(filters.get("name")));
         }
-        return keyBundles;
+
+        return keys;
     }
 }

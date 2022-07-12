@@ -16,14 +16,15 @@
 
 package gyro.azure.network;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.network.NetworkSecurityGroup;
-import gyro.azure.AzureFinder;
-import gyro.core.Type;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.network.models.NetworkSecurityGroup;
+import gyro.azure.AzureFinder;
+import gyro.core.Type;
 
 /**
  * Query network security group.
@@ -36,7 +37,9 @@ import java.util.Map;
  *    network-security-group: $(external-query azure::network-security-group {})
  */
 @Type("network-security-group")
-public class NetworkSecurityGroupFinder extends AzureFinder<NetworkSecurityGroup, NetworkSecurityGroupResource> {
+public class NetworkSecurityGroupFinder
+    extends AzureFinder<NetworkSecurityGroup, NetworkSecurityGroupResource> {
+
     private String id;
 
     /**
@@ -49,13 +52,14 @@ public class NetworkSecurityGroupFinder extends AzureFinder<NetworkSecurityGroup
     public void setId(String id) {
         this.id = id;
     }
+
     @Override
-    protected List<NetworkSecurityGroup> findAllAzure(Azure client) {
-        return client.networkSecurityGroups().list();
+    protected List<NetworkSecurityGroup> findAllAzure(AzureResourceManager client) {
+        return client.networkSecurityGroups().list().stream().collect(Collectors.toList());
     }
 
     @Override
-    protected List<NetworkSecurityGroup> findAzure(Azure client, Map<String, String> filters) {
+    protected List<NetworkSecurityGroup> findAzure(AzureResourceManager client, Map<String, String> filters) {
         NetworkSecurityGroup networkSecurityGroup = client.networkSecurityGroups().getById(filters.get("id"));
         if (networkSecurityGroup == null) {
             return Collections.emptyList();

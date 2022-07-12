@@ -20,9 +20,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.microsoft.azure.keyvault.models.CertificateBundle;
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.keyvault.Vault;
+import com.azure.core.exception.ResourceNotFoundException;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.keyvault.models.Vault;
+import com.azure.security.keyvault.certificates.CertificateClient;
+import com.azure.security.keyvault.certificates.CertificateClientBuilder;
+import com.azure.security.keyvault.certificates.models.KeyVaultCertificateWithPolicy;
 import gyro.azure.AzureFinder;
 import gyro.core.Type;
 
@@ -37,7 +40,7 @@ import gyro.core.Type;
  *    certificate: $(external-query azure::key-vault-certificate {resource-group: "resource-group-example", vault: "vault-example", name: "certificate-example"})
  */
 @Type("key-vault-certificate")
-public class KeyVaultCertificateFinder extends AzureFinder<CertificateBundle, KeyVaultCertificateResource> {
+public class KeyVaultCertificateFinder extends AzureFinder<KeyVaultCertificateWithPolicy, KeyVaultCertificateResource> {
 
     private String resourceGroup;
     private String vault;
@@ -77,17 +80,28 @@ public class KeyVaultCertificateFinder extends AzureFinder<CertificateBundle, Ke
     }
 
     @Override
-    protected List<CertificateBundle> findAllAzure(Azure client) {
+    protected List<KeyVaultCertificateWithPolicy> findAllAzure(AzureResourceManager client) {
         throw new UnsupportedOperationException("Finding all certificates without any filter is not supported!!");
     }
 
     @Override
-    protected List<CertificateBundle> findAzure(Azure client, Map<String, String> filters) {
-        List<CertificateBundle> certificateBundles = new ArrayList<>();
+    protected List<KeyVaultCertificateWithPolicy> findAzure(AzureResourceManager client, Map<String, String> filters) {
+        List<KeyVaultCertificateWithPolicy> certificates = new ArrayList<>();
         Vault vault = client.vaults().getByResourceGroup(filters.get("resource-group"), filters.get("vault"));
         if (vault != null) {
-            certificateBundles.add(vault.client().getCertificate(vault.vaultUri(), filters.get("name")));
+            CertificateClient certificateClient = new CertificateClientBuilder()
+                .vaultUrl(vault.vaultUri())
+                .credential(getTokenCredential())
+                .buildClient();
+
+            try {
+                KeyVaultCertificateWithPolicy certificate = certificateClient.getCertificate(filters.get("name"));
+                certificates.add(certificate);
+            } catch (ResourceNotFoundException ex) {
+                // ignore
+            }
         }
-        return certificateBundles;
+
+        return certificates;
     }
 }

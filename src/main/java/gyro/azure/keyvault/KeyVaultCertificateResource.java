@@ -16,23 +16,25 @@
 
 package gyro.azure.keyvault;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
-import com.microsoft.azure.keyvault.models.CertificateBundle;
-import com.microsoft.azure.keyvault.models.CertificateOperation;
-import com.microsoft.azure.keyvault.requests.CreateCertificateRequest;
-import com.microsoft.azure.management.keyvault.Vault;
+import com.azure.core.exception.ResourceNotFoundException;
+import com.azure.core.util.polling.LongRunningOperationStatus;
+import com.azure.core.util.polling.SyncPoller;
+import com.azure.security.keyvault.certificates.CertificateClient;
+import com.azure.security.keyvault.certificates.CertificateClientBuilder;
+import com.azure.security.keyvault.certificates.models.CertificateOperation;
+import com.azure.security.keyvault.certificates.models.DeletedCertificate;
+import com.azure.security.keyvault.certificates.models.KeyVaultCertificateWithPolicy;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.core.GyroCore;
-import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Type;
-import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
@@ -93,18 +95,16 @@ import gyro.core.validation.Required;
  *     end
  */
 @Type("key-vault-certificate")
-public class KeyVaultCertificateResource extends AzureResource implements Copyable<CertificateBundle> {
+public class KeyVaultCertificateResource extends AzureResource implements Copyable<KeyVaultCertificateWithPolicy> {
 
     private String name;
     private KeyVaultResource vault;
     private KeyVaultCertificatePolicy policy;
     private String version;
     private String id;
-    private String sid;
     private String secretId;
-    private String kid;
-    private String keyId;
     private Map<String, String> tags;
+    private Boolean enabled;
 
     /**
      * The name of the certificate.
@@ -170,18 +170,6 @@ public class KeyVaultCertificateResource extends AzureResource implements Copyab
     }
 
     /**
-     * The SID of the certificate.
-     */
-    @Output
-    public String getSid() {
-        return sid;
-    }
-
-    public void setSid(String sid) {
-        this.sid = sid;
-    }
-
-    /**
      * The secret ID of the certificate.
      */
     @Output
@@ -191,30 +179,6 @@ public class KeyVaultCertificateResource extends AzureResource implements Copyab
 
     public void setSecretId(String secretId) {
         this.secretId = secretId;
-    }
-
-    /**
-     * The KID of the certificate.
-     */
-    @Output
-    public String getKid() {
-        return kid;
-    }
-
-    public void setKid(String kid) {
-        this.kid = kid;
-    }
-
-    /**
-     * The key ID of the certificate.
-     */
-    @Output
-    public String getKeyId() {
-        return keyId;
-    }
-
-    public void setKeyId(String keyId) {
-        this.keyId = keyId;
     }
 
     /**
@@ -233,19 +197,27 @@ public class KeyVaultCertificateResource extends AzureResource implements Copyab
         this.tags = tags;
     }
 
-    @Override
-    public void copyFrom(CertificateBundle certificateBundle) {
-        setName(certificateBundle.certificateIdentifier().name());
-        setVersion(certificateBundle.certificateIdentifier().version());
-        setId(certificateBundle.id());
-        setVault(findById(KeyVaultResource.class, certificateBundle.certificateIdentifier().vault()));
-        setSecretId(certificateBundle.secretIdentifier().identifier());
-        setSid(certificateBundle.sid());
-        setKeyId(certificateBundle.keyIdentifier().identifier());
-        setKid(certificateBundle.kid());
-        setTags(certificateBundle.tags());
+    /**
+     * Enable or Disable the certificate for use.
+     */
+    public Boolean getEnabled() {
+        return enabled;
+    }
 
-        setPolicy(Optional.ofNullable(certificateBundle.policy())
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    @Override
+    public void copyFrom(KeyVaultCertificateWithPolicy certificate) {
+        setName(certificate.getName());
+        setVersion(certificate.getProperties().getVersion());
+        setId(certificate.getId());
+        setVault(findById(KeyVaultResource.class, certificate.getProperties().getVaultUrl()));
+        setSecretId(certificate.getSecretId());
+        setTags(certificate.getProperties().getTags());
+
+        setPolicy(Optional.ofNullable(certificate.getPolicy())
             .map(o -> {
                 KeyVaultCertificatePolicy certificatePolicy = newSubresource(KeyVaultCertificatePolicy.class);
                 certificatePolicy.copyFrom(o);
@@ -255,50 +227,50 @@ public class KeyVaultCertificateResource extends AzureResource implements Copyab
 
     @Override
     public boolean refresh() {
-        Vault vault = getVault().getKeyVault();
-        CertificateBundle certificateBundle = vault.client().getCertificate(vault.vaultUri(), getName());
+        CertificateClient client = getClient();
 
-        return certificateBundle != null;
+        try {
+            KeyVaultCertificateWithPolicy certificate = client.getCertificate(getName());
+            copyFrom(certificate);
+            return true;
+        } catch (ResourceNotFoundException ex) {
+            // ignore
+        }
+
+        return false;
     }
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        Vault vault = getVault().getKeyVault();
-        CreateCertificateRequest.Builder builder = new CreateCertificateRequest.Builder(vault.vaultUri(), getName());
+        CertificateClient client = getClient();
 
-        builder = builder.withPolicy(getPolicy().toCertificatePolicy());
+        SyncPoller<CertificateOperation, KeyVaultCertificateWithPolicy> policySyncPoller = client.beginCreateCertificate(
+            getName(),
+            getPolicy().toCertificatePolicy(),
+            getEnabled(),
+            getTags());
 
-        if (!getTags().isEmpty()) {
-            builder = builder.withTags(getTags());
+        KeyVaultCertificateWithPolicy certificate = null;
+
+        try {
+            policySyncPoller.waitUntil(Duration.ofMinutes(5), LongRunningOperationStatus.SUCCESSFULLY_COMPLETED);
+            certificate = policySyncPoller.getFinalResult();
+        } catch (IllegalArgumentException ex) {
+            // Do something
         }
 
-        vault.client().createCertificate(builder.build());
+        if (certificate != null) {
+            copyFrom(certificate);
 
-        if (getPolicy().getIssuerParameter().getName().equals("Unknown")) {
-            GyroCore.ui().write("\n@|blue Certificate created, but needs to be merged before use. Please use the Azure console to merge the certificate! |@\n\n");
-        } else {
-            Wait.atMost(1, TimeUnit.MINUTES)
-                .checkEvery(10, TimeUnit.SECONDS)
-                .until(() -> certificateCreationSuccess(vault));
+            state.save();
+
+            if (getPolicy().getIssuerName().equals("Unknown")) {
+                GyroCore.ui()
+                    .write(
+                        "\n@|blue Certificate created, but needs to be merged before use. "
+                            + "Please use the Azure console to merge the certificate! |@\n\n");
+            }
         }
-
-        CertificateBundle certificateBundle = vault.client().getCertificate(vault.vaultUri(), getName());
-        setVersion(certificateBundle.certificateIdentifier().version());
-        setId(certificateBundle.id());
-        setSecretId(certificateBundle.secretIdentifier().identifier());
-        setSid(certificateBundle.sid());
-        setKeyId(certificateBundle.keyIdentifier().identifier());
-        setKid(certificateBundle.kid());
-    }
-
-    private boolean certificateCreationSuccess(Vault vault) {
-        CertificateOperation operation = vault.client().getCertificateOperation(vault.vaultUri(), getName());
-
-        if (operation.error() != null) {
-            throw new GyroException(operation.error().message());
-        }
-
-        return operation.status().equals("completed");
     }
 
     @Override
@@ -309,7 +281,22 @@ public class KeyVaultCertificateResource extends AzureResource implements Copyab
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
-        Vault vault = getVault().getKeyVault();
-        vault.client().deleteCertificate(vault.id(), getName());
+        CertificateClient client = getClient();
+
+        SyncPoller<DeletedCertificate, Void> syncPoller = client.beginDeleteCertificate(getName());
+        try {
+            syncPoller.waitUntil(Duration.ofMinutes(5), LongRunningOperationStatus.SUCCESSFULLY_COMPLETED);
+            syncPoller.getFinalResult();
+        } catch (IllegalArgumentException ex) {
+            // Do something
+            // TODO verify certificate exception, also affect finders and command
+        }
+    }
+
+    private CertificateClient getClient() {
+        return new CertificateClientBuilder()
+            .vaultUrl(getVault().getUrl())
+            .credential(getTokenCredential())
+            .buildClient();
     }
 }

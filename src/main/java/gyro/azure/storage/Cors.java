@@ -16,19 +16,18 @@
 
 package gyro.azure.storage;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import com.azure.resourcemanager.storage.models.CorsRule;
+import com.azure.resourcemanager.storage.models.CorsRuleAllowedMethodsItem;
 import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
-
-import com.microsoft.azure.storage.CorsHttpMethods;
-import com.microsoft.azure.storage.CorsRule;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.EnumSet;
-import java.util.Set;
 
 /**
  * Creates a cors rule
@@ -140,7 +139,7 @@ public class Cors extends Diffable implements Copyable<CorsRule> {
      * Specifies which service the rule belongs to.
      */
     @Required
-    @ValidStrings({"blob", "file", "queue", "table"})
+    @ValidStrings({ "blob", "file", "queue", "table" })
     public String getType() {
         return type;
     }
@@ -151,11 +150,11 @@ public class Cors extends Diffable implements Copyable<CorsRule> {
 
     @Override
     public void copyFrom(CorsRule rule) {
-        setAllowedHeaders(new HashSet<>(rule.getAllowedHeaders()));
-        setAllowedOrigins(new HashSet<>(rule.getAllowedOrigins()));
-        rule.getAllowedMethods().forEach(r -> getAllowedMethods().add(r.name()));
-        setExposedHeaders(new HashSet<>(rule.getExposedHeaders()));
-        setMaxAge(rule.getMaxAgeInSeconds());
+        setAllowedHeaders(new HashSet<>(rule.allowedHeaders()));
+        setAllowedOrigins(new HashSet<>(rule.allowedOrigins()));
+        rule.allowedMethods().forEach(r -> getAllowedMethods().add(r.toString()));
+        setExposedHeaders(new HashSet<>(rule.exposedHeaders()));
+        setMaxAge(rule.maxAgeInSeconds());
     }
 
     public String primaryKey() {
@@ -166,22 +165,13 @@ public class Cors extends Diffable implements Copyable<CorsRule> {
     public CorsRule toCors() {
         CorsRule rule = new CorsRule();
 
-        rule.setAllowedHeaders(new ArrayList<>(getAllowedHeaders()));
-        rule.setAllowedMethods(toAllowedMethods());
-        rule.setAllowedOrigins(new ArrayList<>(getAllowedOrigins()));
-        rule.setExposedHeaders(new ArrayList<>(getExposedHeaders()));
-        rule.setMaxAgeInSeconds(getMaxAge());
+        rule.withAllowedHeaders(new ArrayList<>(getAllowedHeaders()));
+        rule.withAllowedMethods(getAllowedMethods().stream()
+            .map(CorsRuleAllowedMethodsItem::fromString).collect(Collectors.toList()));
+        rule.withAllowedOrigins(new ArrayList<>(getAllowedOrigins()));
+        rule.withExposedHeaders(new ArrayList<>(getExposedHeaders()));
+        rule.withMaxAgeInSeconds(getMaxAge());
 
         return rule;
-    }
-
-    private EnumSet<CorsHttpMethods> toAllowedMethods() {
-        EnumSet<CorsHttpMethods> httpMethods = null;
-
-        for (String method : getAllowedMethods()) {
-            httpMethods = EnumSet.of(CorsHttpMethods.valueOf(method));
-        }
-
-        return httpMethods;
     }
 }

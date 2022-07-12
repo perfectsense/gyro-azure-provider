@@ -16,12 +16,13 @@
 
 package gyro.azure.compute;
 
-import com.microsoft.azure.management.compute.AdditionalCapabilities;
+import com.azure.resourcemanager.compute.models.AdditionalCapabilities;
 import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 
 public class AdditionalCapability extends Diffable implements Copyable<AdditionalCapabilities> {
+
     private Boolean ultraSSDEnabled;
 
     /**
@@ -42,12 +43,12 @@ public class AdditionalCapability extends Diffable implements Copyable<Additiona
 
     @Override
     public void copyFrom(AdditionalCapabilities additionalCapabilities) {
-        setUltraSSDEnabled(additionalCapabilities.ultraSSDEnabled());
+        setUltraSSDEnabled(additionalCapabilities.ultraSsdEnabled());
     }
 
     AdditionalCapabilities toAdditionalCapabilities() {
         AdditionalCapabilities capabilities = new AdditionalCapabilities();
-        capabilities.withUltraSSDEnabled(getUltraSSDEnabled());
+        capabilities.withUltraSsdEnabled(getUltraSSDEnabled());
         return capabilities;
     }
 

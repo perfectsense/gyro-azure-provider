@@ -18,11 +18,13 @@ package gyro.azure.keyvault;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Base64;
 import java.util.List;
 
-import com.microsoft.azure.keyvault.requests.ImportCertificateRequest;
-import com.microsoft.azure.management.keyvault.Vault;
+import com.azure.resourcemanager.keyvault.models.Vault;
+import com.azure.security.keyvault.certificates.CertificateClient;
+import com.azure.security.keyvault.certificates.CertificateClientBuilder;
+import com.azure.security.keyvault.certificates.models.ImportCertificateOptions;
+import com.azure.security.keyvault.certificates.models.KeyVaultCertificateWithPolicy;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
@@ -53,16 +55,20 @@ public class AddVaultCertificateCommand extends AbstractVaultCommand {
 
             Vault vault = getVault(vaultResourceName);
 
-            ImportCertificateRequest.Builder builder = new ImportCertificateRequest.Builder(
-                vault.vaultUri(),
+            CertificateClient client = new CertificateClientBuilder()
+                .vaultUrl(vault.vaultUri())
+                .credential(getTokenCredential())
+                .buildClient();
+
+            ImportCertificateOptions certificateOptions = new ImportCertificateOptions(
                 certificateName,
-                Base64.getEncoder().encodeToString(Files.readAllBytes(Paths.get(certificatePath))));
+                Files.readAllBytes(Paths.get(certificatePath)));
 
             if (!ObjectUtils.isBlank(password)) {
-                builder = builder.withPassword(password);
+                certificateOptions.setPassword(password);
             }
 
-            vault.client().importCertificate(builder.build());
+            KeyVaultCertificateWithPolicy policy = client.importCertificate(certificateOptions);
             GyroCore.ui().write("\nCertificate added.");
 
         } else {

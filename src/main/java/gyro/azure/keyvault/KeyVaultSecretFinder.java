@@ -20,10 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.microsoft.azure.keyvault.models.CertificateBundle;
-import com.microsoft.azure.keyvault.models.SecretBundle;
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.keyvault.Vault;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.keyvault.models.Secret;
+import com.azure.resourcemanager.keyvault.models.Vault;
 import gyro.azure.AzureFinder;
 import gyro.core.Type;
 
@@ -38,7 +37,7 @@ import gyro.core.Type;
  *    certificate: $(external-query azure::key-vault-secret {resource-group: "resource-group-example", vault: "vault-example", name: "secret-example"})
  */
 @Type("key-vault-secret")
-public class KeyVaultSecretFinder extends AzureFinder<SecretBundle, KeyVaultSecretResource> {
+public class KeyVaultSecretFinder extends AzureFinder<Secret, KeyVaultSecretResource> {
 
     private String resourceGroup;
     private String vault;
@@ -78,17 +77,18 @@ public class KeyVaultSecretFinder extends AzureFinder<SecretBundle, KeyVaultSecr
     }
 
     @Override
-    protected List<SecretBundle> findAllAzure(Azure client) {
+    protected List<Secret> findAllAzure(AzureResourceManager client) {
         throw new UnsupportedOperationException("Finding all secret without any filter is not supported!!");
     }
 
     @Override
-    protected List<SecretBundle> findAzure(Azure client, Map<String, String> filters) {
-        List<SecretBundle> secretBundles = new ArrayList<>();
+    protected List<Secret> findAzure(AzureResourceManager client, Map<String, String> filters) {
+        List<Secret> secrets = new ArrayList<>();
         Vault vault = client.vaults().getByResourceGroup(filters.get("resource-group"), filters.get("vault"));
         if (vault != null) {
-            secretBundles.add(vault.client().getSecret(vault.vaultUri(), filters.get("name")));
+            secrets.add(vault.secrets().getByName(filters.get("name")));
         }
-        return secretBundles;
+
+        return secrets;
     }
 }

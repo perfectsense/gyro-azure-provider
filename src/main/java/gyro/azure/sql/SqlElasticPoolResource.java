@@ -16,39 +16,6 @@
 
 package gyro.azure.sql;
 
-import com.microsoft.azure.management.sql.SqlDatabaseStandardStorage;
-import com.microsoft.azure.management.sql.SqlElasticPoolOperations;
-import com.microsoft.azure.management.sql.SqlServer;
-import com.psddev.dari.util.ObjectUtils;
-import gyro.azure.AzureResource;
-import gyro.azure.Copyable;
-import gyro.core.GyroException;
-import gyro.core.GyroUI;
-import gyro.core.resource.Id;
-import gyro.core.resource.Resource;
-import gyro.core.resource.Output;
-import gyro.core.Type;
-import gyro.core.resource.Updatable;
-
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.sql.SqlElasticPool;
-import com.microsoft.azure.management.sql.SqlElasticPoolBasicEDTUs;
-import com.microsoft.azure.management.sql.SqlElasticPoolBasicMaxEDTUs;
-import com.microsoft.azure.management.sql.SqlElasticPoolBasicMinEDTUs;
-import com.microsoft.azure.management.sql.SqlElasticPoolPremiumEDTUs;
-import com.microsoft.azure.management.sql.SqlElasticPoolPremiumMaxEDTUs;
-import com.microsoft.azure.management.sql.SqlElasticPoolPremiumMinEDTUs;
-import com.microsoft.azure.management.sql.SqlElasticPoolPremiumSorage;
-import com.microsoft.azure.management.sql.SqlElasticPoolStandardEDTUs;
-import com.microsoft.azure.management.sql.SqlElasticPoolStandardMaxEDTUs;
-import com.microsoft.azure.management.sql.SqlElasticPoolStandardMinEDTUs;
-import com.microsoft.azure.management.sql.SqlElasticPoolStandardStorage;
-import com.microsoft.azure.management.sql.SqlElasticPoolOperations.DefinitionStages.WithEdition;
-import gyro.core.scope.State;
-import gyro.core.validation.Required;
-import gyro.core.validation.ValidStrings;
-import gyro.core.validation.ValidationError;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -57,6 +24,37 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.sql.models.SqlDatabaseStandardStorage;
+import com.azure.resourcemanager.sql.models.SqlElasticPool;
+import com.azure.resourcemanager.sql.models.SqlElasticPoolBasicEDTUs;
+import com.azure.resourcemanager.sql.models.SqlElasticPoolBasicMaxEDTUs;
+import com.azure.resourcemanager.sql.models.SqlElasticPoolBasicMinEDTUs;
+import com.azure.resourcemanager.sql.models.SqlElasticPoolOperations;
+import com.azure.resourcemanager.sql.models.SqlElasticPoolPremiumEDTUs;
+import com.azure.resourcemanager.sql.models.SqlElasticPoolPremiumMaxEDTUs;
+import com.azure.resourcemanager.sql.models.SqlElasticPoolPremiumMinEDTUs;
+import com.azure.resourcemanager.sql.models.SqlElasticPoolPremiumSorage;
+import com.azure.resourcemanager.sql.models.SqlElasticPoolStandardEDTUs;
+import com.azure.resourcemanager.sql.models.SqlElasticPoolStandardMaxEDTUs;
+import com.azure.resourcemanager.sql.models.SqlElasticPoolStandardMinEDTUs;
+import com.azure.resourcemanager.sql.models.SqlElasticPoolStandardStorage;
+import com.azure.resourcemanager.sql.models.SqlServer;
+import com.psddev.dari.util.ObjectUtils;
+import gyro.azure.AzureResource;
+import gyro.azure.Copyable;
+import gyro.core.GyroException;
+import gyro.core.GyroUI;
+import gyro.core.Type;
+import gyro.core.resource.Id;
+import gyro.core.resource.Output;
+import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
+import gyro.core.validation.ValidationError;
 
 /**
  * Creates a sql elastic pool.
@@ -155,7 +153,7 @@ public class SqlElasticPoolResource extends AzureResource implements Copyable<Sq
      * The edition of the elastic pool. Valid values are ``Basic``, ``Premium``, or  ``Standard``
      */
     @Required
-    @ValidStrings({"Basic", "Premium", "Standard"})
+    @ValidStrings({ "Basic", "Premium", "Standard" })
     @Updatable
     public String getEdition() {
         return edition;
@@ -240,13 +238,13 @@ public class SqlElasticPoolResource extends AzureResource implements Copyable<Sq
         setEdition(elasticPool.edition().toString());
         setId(elasticPool.id());
         setName(elasticPool.name());
-        setStorageCapacity(!getEdition().equals(EDITION_BASIC) ? Integer.toString(elasticPool.storageCapacityInMB()) : null);
-        setTags(elasticPool.inner().getTags());
+        setStorageCapacity(!getEdition().equals(EDITION_BASIC) ? Long.toString(elasticPool.storageCapacity()) : null);
+        setTags(elasticPool.innerModel().tags());
     }
 
     @Override
     public boolean refresh() {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         SqlElasticPool elasticPool = getSqlElasticPool(client);
 
@@ -265,29 +263,32 @@ public class SqlElasticPoolResource extends AzureResource implements Copyable<Sq
             throw new GyroException("You must provide a sql server resource.");
         }
 
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
-        WithEdition buildPool = client.sqlServers().getById(getSqlServer().getId()).elasticPools().define(getName());
+        SqlElasticPoolOperations.DefinitionStages.WithEdition buildPool = client.sqlServers()
+            .getById(getSqlServer().getId())
+            .elasticPools()
+            .define(getName());
 
         SqlElasticPoolOperations.DefinitionStages.WithCreate elasticPool;
 
         if (EDITION_BASIC.equalsIgnoreCase(getEdition())) {
             elasticPool = buildPool.withBasicPool()
-                    .withDatabaseDtuMax(SqlElasticPoolBasicMaxEDTUs.valueOf(getDtuMax()))
-                    .withDatabaseDtuMin(SqlElasticPoolBasicMinEDTUs.valueOf(getDtuMin()))
-                    .withReservedDtu(SqlElasticPoolBasicEDTUs.valueOf(getDtuReserved()));
+                .withDatabaseDtuMax(SqlElasticPoolBasicMaxEDTUs.valueOf(getDtuMax()))
+                .withDatabaseDtuMin(SqlElasticPoolBasicMinEDTUs.valueOf(getDtuMin()))
+                .withReservedDtu(SqlElasticPoolBasicEDTUs.valueOf(getDtuReserved()));
         } else if (EDITION_PREMIUM.equalsIgnoreCase(getEdition())) {
             elasticPool = buildPool.withPremiumPool()
-                    .withDatabaseDtuMax(SqlElasticPoolPremiumMaxEDTUs.valueOf(getDtuMax()))
-                    .withDatabaseDtuMin(SqlElasticPoolPremiumMinEDTUs.valueOf(getDtuMin()))
-                    .withReservedDtu(SqlElasticPoolPremiumEDTUs.valueOf(getDtuReserved()))
-                    .withStorageCapacity(SqlElasticPoolPremiumSorage.valueOf(getStorageCapacity()));
+                .withDatabaseDtuMax(SqlElasticPoolPremiumMaxEDTUs.valueOf(getDtuMax()))
+                .withDatabaseDtuMin(SqlElasticPoolPremiumMinEDTUs.valueOf(getDtuMin()))
+                .withReservedDtu(SqlElasticPoolPremiumEDTUs.valueOf(getDtuReserved()))
+                .withStorageCapacity(SqlElasticPoolPremiumSorage.valueOf(getStorageCapacity()));
         } else if (EDITION_STANDARD.equalsIgnoreCase(getEdition())) {
             elasticPool = buildPool.withStandardPool()
-                    .withDatabaseDtuMax(SqlElasticPoolStandardMaxEDTUs.valueOf(getDtuMax()))
-                    .withDatabaseDtuMin(SqlElasticPoolStandardMinEDTUs.valueOf(getDtuMin()))
-                    .withReservedDtu(SqlElasticPoolStandardEDTUs.valueOf(getDtuReserved()))
-                    .withStorageCapacity(SqlElasticPoolStandardStorage.valueOf(getStorageCapacity()));
+                .withDatabaseDtuMax(SqlElasticPoolStandardMaxEDTUs.valueOf(getDtuMax()))
+                .withDatabaseDtuMin(SqlElasticPoolStandardMinEDTUs.valueOf(getDtuMin()))
+                .withReservedDtu(SqlElasticPoolStandardEDTUs.valueOf(getDtuReserved()))
+                .withStorageCapacity(SqlElasticPoolStandardStorage.valueOf(getStorageCapacity()));
         } else {
             throw new GyroException("Invalid edition. Valid values are Basic, Standard, and Premium");
         }
@@ -307,24 +308,24 @@ public class SqlElasticPoolResource extends AzureResource implements Copyable<Sq
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         SqlElasticPool.Update update = getSqlElasticPool(client).update();
 
         if (EDITION_BASIC.equalsIgnoreCase(getEdition())) {
             update.withDatabaseDtuMax(SqlElasticPoolBasicMaxEDTUs.valueOf(getDtuMax()))
-                    .withDatabaseDtuMin(SqlElasticPoolBasicMinEDTUs.valueOf(getDtuMin()))
-                    .withReservedDtu(SqlElasticPoolBasicEDTUs.valueOf(getDtuReserved()));
+                .withDatabaseDtuMin(SqlElasticPoolBasicMinEDTUs.valueOf(getDtuMin()))
+                .withReservedDtu(SqlElasticPoolBasicEDTUs.valueOf(getDtuReserved()));
         } else if (EDITION_PREMIUM.equalsIgnoreCase(getEdition())) {
             update.withDatabaseDtuMax(SqlElasticPoolPremiumMaxEDTUs.valueOf(getDtuMax()))
-                    .withDatabaseDtuMin(SqlElasticPoolPremiumMinEDTUs.valueOf(getDtuMin()))
-                    .withReservedDtu(SqlElasticPoolPremiumEDTUs.valueOf(getDtuReserved()))
-                    .withStorageCapacity(SqlElasticPoolPremiumSorage.valueOf(getStorageCapacity()));
+                .withDatabaseDtuMin(SqlElasticPoolPremiumMinEDTUs.valueOf(getDtuMin()))
+                .withReservedDtu(SqlElasticPoolPremiumEDTUs.valueOf(getDtuReserved()))
+                .withStorageCapacity(SqlElasticPoolPremiumSorage.valueOf(getStorageCapacity()));
         } else if (EDITION_STANDARD.equalsIgnoreCase(getEdition())) {
             update.withDatabaseDtuMax(SqlElasticPoolStandardMaxEDTUs.valueOf(getDtuMax()))
-                    .withDatabaseDtuMin(SqlElasticPoolStandardMinEDTUs.valueOf(getDtuMin()))
-                    .withReservedDtu(SqlElasticPoolStandardEDTUs.valueOf(getDtuReserved()))
-                    .withStorageCapacity(SqlElasticPoolStandardStorage.valueOf(getStorageCapacity()));
+                .withDatabaseDtuMin(SqlElasticPoolStandardMinEDTUs.valueOf(getDtuMin()))
+                .withReservedDtu(SqlElasticPoolStandardEDTUs.valueOf(getDtuReserved()))
+                .withStorageCapacity(SqlElasticPoolStandardStorage.valueOf(getStorageCapacity()));
         }
 
         for (String database : getDatabaseNames()) {
@@ -336,7 +337,7 @@ public class SqlElasticPoolResource extends AzureResource implements Copyable<Sq
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         SqlElasticPool sqlElasticPool = getSqlElasticPool(client);
 
@@ -345,7 +346,7 @@ public class SqlElasticPoolResource extends AzureResource implements Copyable<Sq
         }
     }
 
-    private SqlElasticPool getSqlElasticPool(Azure client) {
+    private SqlElasticPool getSqlElasticPool(AzureResourceManager client) {
         SqlElasticPool sqlElasticPool = null;
         SqlServer sqlServer = client.sqlServers().getById(getSqlServer().getId());
         if (sqlServer != null) {
@@ -360,52 +361,121 @@ public class SqlElasticPoolResource extends AzureResource implements Copyable<Sq
         List<ValidationError> errors = new ArrayList<>();
 
         if (EDITION_PREMIUM.equalsIgnoreCase(getEdition())) {
-            if (!Arrays.stream(SqlElasticPoolPremiumMaxEDTUs.values()).map(Enum::toString).collect(Collectors.toSet()).contains(getDtuMax())) {
-                errors.add(new ValidationError(this, "dtu-max", "Invalid value for 'dtu-max' when 'edition' set to 'Premium'."));
+            if (!Arrays.stream(SqlElasticPoolPremiumMaxEDTUs.values())
+                .map(Enum::toString)
+                .collect(Collectors.toSet())
+                .contains(getDtuMax())) {
+                errors.add(new ValidationError(
+                    this,
+                    "dtu-max",
+                    "Invalid value for 'dtu-max' when 'edition' set to 'Premium'."));
             }
 
-            if (!Arrays.stream(SqlElasticPoolPremiumMinEDTUs.values()).map(Enum::toString).collect(Collectors.toSet()).contains(getDtuMin())) {
-                errors.add(new ValidationError(this, "dtu-min", "Invalid value for 'dtu-min' when 'edition' set to 'Premium'."));
+            if (!Arrays.stream(SqlElasticPoolPremiumMinEDTUs.values())
+                .map(Enum::toString)
+                .collect(Collectors.toSet())
+                .contains(getDtuMin())) {
+                errors.add(new ValidationError(
+                    this,
+                    "dtu-min",
+                    "Invalid value for 'dtu-min' when 'edition' set to 'Premium'."));
             }
 
-            if (!Arrays.stream(SqlElasticPoolPremiumEDTUs.values()).map(Enum::toString).collect(Collectors.toSet()).contains(getDtuReserved())) {
-                errors.add(new ValidationError(this, "dtu-reserved", "Invalid value for 'dtu-reserved' when 'edition' set to 'Premium'."));
+            if (!Arrays.stream(SqlElasticPoolPremiumEDTUs.values())
+                .map(Enum::toString)
+                .collect(Collectors.toSet())
+                .contains(getDtuReserved())) {
+                errors.add(new ValidationError(
+                    this,
+                    "dtu-reserved",
+                    "Invalid value for 'dtu-reserved' when 'edition' set to 'Premium'."));
             }
 
-            if (!Arrays.stream(SqlElasticPoolPremiumSorage.values()).map(Enum::toString).collect(Collectors.toSet()).contains(getStorageCapacity())) {
-                errors.add(new ValidationError(this, "storage-capacity", "Invalid value for 'storage-capacity' when 'edition' set to 'Premium'."));
+            if (!Arrays.stream(SqlElasticPoolPremiumSorage.values())
+                .map(Enum::toString)
+                .collect(Collectors.toSet())
+                .contains(getStorageCapacity())) {
+                errors.add(new ValidationError(
+                    this,
+                    "storage-capacity",
+                    "Invalid value for 'storage-capacity' when 'edition' set to 'Premium'."));
             }
         } else if (EDITION_STANDARD.equalsIgnoreCase(getEdition())) {
-            if (!Arrays.stream(SqlElasticPoolStandardMaxEDTUs.values()).map(Enum::toString).collect(Collectors.toSet()).contains(getDtuMax())) {
-                errors.add(new ValidationError(this, "dtu-max", "Invalid value for 'dtu-max' when 'edition' set to 'Standard'."));
+            if (!Arrays.stream(SqlElasticPoolStandardMaxEDTUs.values())
+                .map(Enum::toString)
+                .collect(Collectors.toSet())
+                .contains(getDtuMax())) {
+                errors.add(new ValidationError(
+                    this,
+                    "dtu-max",
+                    "Invalid value for 'dtu-max' when 'edition' set to 'Standard'."));
             }
 
-            if (!Arrays.stream(SqlElasticPoolStandardMinEDTUs.values()).map(Enum::toString).collect(Collectors.toSet()).contains(getDtuMin())) {
-                errors.add(new ValidationError(this, "dtu-min", "Invalid value for 'dtu-min' when 'edition' set to 'Standard'."));
+            if (!Arrays.stream(SqlElasticPoolStandardMinEDTUs.values())
+                .map(Enum::toString)
+                .collect(Collectors.toSet())
+                .contains(getDtuMin())) {
+                errors.add(new ValidationError(
+                    this,
+                    "dtu-min",
+                    "Invalid value for 'dtu-min' when 'edition' set to 'Standard'."));
             }
 
-            if (!Arrays.stream(SqlElasticPoolStandardEDTUs.values()).map(Enum::toString).collect(Collectors.toSet()).contains(getDtuReserved())) {
-                errors.add(new ValidationError(this, "dtu-reserved", "Invalid value for 'dtu-reserved' when 'edition' set to 'Standard'."));
+            if (!Arrays.stream(SqlElasticPoolStandardEDTUs.values())
+                .map(Enum::toString)
+                .collect(Collectors.toSet())
+                .contains(getDtuReserved())) {
+                errors.add(new ValidationError(
+                    this,
+                    "dtu-reserved",
+                    "Invalid value for 'dtu-reserved' when 'edition' set to 'Standard'."));
             }
 
-            if (!Arrays.stream(SqlDatabaseStandardStorage.values()).map(Enum::toString).collect(Collectors.toSet()).contains(getStorageCapacity())) {
-                errors.add(new ValidationError(this, "storage-capacity", "Invalid value for 'storage-capacity' when 'edition' set to 'Standard'."));
+            if (!Arrays.stream(SqlDatabaseStandardStorage.values())
+                .map(Enum::toString)
+                .collect(Collectors.toSet())
+                .contains(getStorageCapacity())) {
+                errors.add(new ValidationError(
+                    this,
+                    "storage-capacity",
+                    "Invalid value for 'storage-capacity' when 'edition' set to 'Standard'."));
             }
         } else if (EDITION_BASIC.equalsIgnoreCase(getEdition())) {
-            if (!Arrays.stream(SqlElasticPoolBasicMaxEDTUs.values()).map(Enum::toString).collect(Collectors.toSet()).contains(getDtuMax())) {
-                errors.add(new ValidationError(this, "dtu-max", "Invalid value for 'dtu-max' when 'edition' set to 'Basic'."));
+            if (!Arrays.stream(SqlElasticPoolBasicMaxEDTUs.values())
+                .map(Enum::toString)
+                .collect(Collectors.toSet())
+                .contains(getDtuMax())) {
+                errors.add(new ValidationError(
+                    this,
+                    "dtu-max",
+                    "Invalid value for 'dtu-max' when 'edition' set to 'Basic'."));
             }
 
-            if (!Arrays.stream(SqlElasticPoolBasicMinEDTUs.values()).map(Enum::toString).collect(Collectors.toSet()).contains(getDtuMin())) {
-                errors.add(new ValidationError(this, "dtu-min", "Invalid value for 'dtu-min' when 'edition' set to 'Basic'."));
+            if (!Arrays.stream(SqlElasticPoolBasicMinEDTUs.values())
+                .map(Enum::toString)
+                .collect(Collectors.toSet())
+                .contains(getDtuMin())) {
+                errors.add(new ValidationError(
+                    this,
+                    "dtu-min",
+                    "Invalid value for 'dtu-min' when 'edition' set to 'Basic'."));
             }
 
-            if (!Arrays.stream(SqlElasticPoolBasicEDTUs.values()).map(Enum::toString).collect(Collectors.toSet()).contains(getDtuReserved())) {
-                errors.add(new ValidationError(this, "dtu-reserved", "Invalid value for 'dtu-reserved' when 'edition' set to 'Basic'."));
+            if (!Arrays.stream(SqlElasticPoolBasicEDTUs.values())
+                .map(Enum::toString)
+                .collect(Collectors.toSet())
+                .contains(getDtuReserved())) {
+                errors.add(new ValidationError(
+                    this,
+                    "dtu-reserved",
+                    "Invalid value for 'dtu-reserved' when 'edition' set to 'Basic'."));
             }
 
             if (!ObjectUtils.isBlank(getStorageCapacity())) {
-                errors.add(new ValidationError(this, "storage-capacity", "Cannot set 'storage-capacity' when 'edition' set to 'Basic'."));
+                errors.add(new ValidationError(
+                    this,
+                    "storage-capacity",
+                    "Cannot set 'storage-capacity' when 'edition' set to 'Basic'."));
             }
         }
 

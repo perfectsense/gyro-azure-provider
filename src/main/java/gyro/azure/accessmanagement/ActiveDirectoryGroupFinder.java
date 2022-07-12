@@ -16,15 +16,16 @@
 
 package gyro.azure.accessmanagement;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.graphrbac.ActiveDirectoryGroup;
-import gyro.azure.AzureFinder;
-import gyro.core.GyroException;
-import gyro.core.Type;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.authorization.models.ActiveDirectoryGroup;
+import gyro.azure.AzureFinder;
+import gyro.core.GyroException;
+import gyro.core.Type;
 
 /**
  * Query active directory group.
@@ -37,7 +38,9 @@ import java.util.Map;
  *    active-directory-group: $(external-query azure::active-directory-group {name: "gyro"})
  */
 @Type("active-directory-group")
-public class ActiveDirectoryGroupFinder extends AzureFinder<ActiveDirectoryGroup, ActiveDirectoryGroupResource> {
+public class ActiveDirectoryGroupFinder
+    extends AzureFinder<ActiveDirectoryGroup, ActiveDirectoryGroupResource> {
+
     private String name;
     private String id;
 
@@ -64,12 +67,12 @@ public class ActiveDirectoryGroupFinder extends AzureFinder<ActiveDirectoryGroup
     }
 
     @Override
-    protected List<ActiveDirectoryGroup> findAllAzure(Azure client) {
-        return client.accessManagement().activeDirectoryGroups().list();
+    protected List<ActiveDirectoryGroup> findAllAzure(AzureResourceManager client) {
+        return client.accessManagement().activeDirectoryGroups().list().stream().collect(Collectors.toList());
     }
 
     @Override
-    protected List<ActiveDirectoryGroup> findAzure(Azure client, Map<String, String> filters) {
+    protected List<ActiveDirectoryGroup> findAzure(AzureResourceManager client, Map<String, String> filters) {
         ActiveDirectoryGroup group = null;
         if (filters.containsKey("id")) {
             group = client.accessManagement().activeDirectoryGroups().getById(filters.get("id"));

@@ -16,25 +16,20 @@
 
 package gyro.azure.storage;
 
-import gyro.azure.AzureResource;
+import java.util.Set;
 
+import com.azure.storage.queue.QueueClient;
+import com.azure.storage.queue.QueueServiceClient;
+import com.azure.storage.queue.QueueServiceClientBuilder;
+import com.azure.storage.queue.models.QueueStorageException;
+import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
-import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
-
-import com.microsoft.azure.storage.CloudStorageAccount;
-import com.microsoft.azure.storage.StorageException;
-import com.microsoft.azure.storage.queue.CloudQueueClient;
-import com.microsoft.azure.storage.queue.CloudQueue;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
-
-import java.net.URISyntaxException;
-import java.security.InvalidKeyException;
-import java.util.Set;
 
 /**
  * Creates a cloud queue
@@ -50,7 +45,7 @@ import java.util.Set;
  *     end
  */
 @Type("cloud-queue")
-public class CloudQueueResource extends AzureResource implements Copyable<CloudQueue> {
+public class CloudQueueResource extends AzureResource implements Copyable<QueueClient> {
 
     private String name;
     private StorageAccountResource storageAccount;
@@ -93,33 +88,29 @@ public class CloudQueueResource extends AzureResource implements Copyable<CloudQ
     }
 
     @Override
-    public void copyFrom(CloudQueue queue) {
-        setName(queue.getName());
-        setStorageAccount(findById(StorageAccountResource.class, queue.getStorageUri().getPrimaryUri().getAuthority().split(".queue.core")[0]));
-        setId(String.format("%s/queueServices/default/queues/%s",getStorageAccount().getId(),getName()));
+    public void copyFrom(QueueClient queue) {
+        setName(queue.getQueueName());
+        setStorageAccount(findById(StorageAccountResource.class, queue.getAccountName()));
+        setId(String.format("%s/queueServices/default/queues/%s", getStorageAccount().getId(), getName()));
     }
 
     @Override
     public boolean refresh() {
-        try {
-            CloudQueue queue = cloudQueue();
-            if (!queue.exists()) {
-                return false;
-            }
-
-            copyFrom(queue);
-
-            return true;
-        } catch (StorageException | URISyntaxException | InvalidKeyException ex) {
-            throw new GyroException(ex.getMessage());
+        QueueClient queue = verifiedCloudQueue();
+        if (queue == null) {
+            return false;
         }
+
+        copyFrom(queue);
+
+        return true;
     }
 
     @Override
-    public void create(GyroUI ui, State state) throws StorageException, URISyntaxException, InvalidKeyException {
-        CloudQueue queue = cloudQueue();
-        queue.create();
-        setId(String.format("%s/queueServices/default/queues/%s",getStorageAccount().getId(),getName()));
+    public void create(GyroUI ui, State state) {
+        QueueClient queueClient = cloudQueue();
+        queueClient.create();
+        setId(String.format("%s/queueServices/default/queues/%s", getStorageAccount().getId(), getName()));
     }
 
     @Override
@@ -128,14 +119,36 @@ public class CloudQueueResource extends AzureResource implements Copyable<CloudQ
     }
 
     @Override
-    public void delete(GyroUI ui, State state) throws StorageException, URISyntaxException, InvalidKeyException {
-        CloudQueue queue = cloudQueue();
-        queue.delete();
+    public void delete(GyroUI ui, State state) {
+        QueueClient queueClient = cloudQueue();
+        queueClient.delete();
     }
 
-    private CloudQueue cloudQueue() throws StorageException, URISyntaxException, InvalidKeyException {
-        CloudStorageAccount storageAccount = CloudStorageAccount.parse(getStorageAccount().getConnection());
-        CloudQueueClient queueClient = storageAccount.createCloudQueueClient();
-        return queueClient.getQueueReference(getName());
+    private QueueClient cloudQueue() {
+        QueueServiceClient client = new QueueServiceClientBuilder()
+            .connectionString(getStorageAccount().getConnection())
+            .buildClient();
+
+        QueueClient queueClient = client.getQueueClient(getName());
+
+        try {
+            queueClient.getProperties();
+        } catch (QueueStorageException ex) {
+            queueClient = null;
+        }
+
+        return queueClient;
+    }
+
+    private QueueClient verifiedCloudQueue() {
+        QueueClient queueClient = cloudQueue();
+
+        try {
+            queueClient.getProperties();
+        } catch (QueueStorageException ex) {
+            queueClient = null;
+        }
+
+        return queueClient;
     }
 }

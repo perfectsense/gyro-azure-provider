@@ -16,29 +16,27 @@
 
 package gyro.azure.cdn;
 
-import gyro.azure.AzureResource;
-import gyro.azure.Copyable;
-import gyro.azure.resources.ResourceGroupResource;
-import gyro.core.GyroUI;
-import gyro.core.resource.Id;
-import gyro.core.resource.Resource;
-import gyro.core.resource.Output;
-import gyro.core.Type;
-import gyro.core.resource.Updatable;
-
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.cdn.CdnProfile;
-import com.microsoft.azure.management.cdn.CdnProfile.DefinitionStages.WithSku;
-import com.microsoft.azure.management.resources.fluentcore.arm.Region;
-import gyro.core.scope.State;
-import gyro.core.validation.Required;
-import gyro.core.validation.ValidStrings;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import com.azure.core.management.Region;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.cdn.models.CdnProfile;
+import gyro.azure.AzureResource;
+import gyro.azure.Copyable;
+import gyro.azure.resources.ResourceGroupResource;
+import gyro.core.GyroUI;
+import gyro.core.Type;
+import gyro.core.resource.Id;
+import gyro.core.resource.Output;
+import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 
 /**
  * Creates a cdn profile.
@@ -108,7 +106,7 @@ public class CdnProfileResource extends AzureResource implements Copyable<CdnPro
      * The sku of the CDN Profile.
      */
     @Required
-    @ValidStrings({"Premium_Verizon", "Standard_Verizon", "Standard_Akamai"})
+    @ValidStrings({ "Premium_Verizon", "Standard_Verizon", "Standard_Akamai" })
     public String getSku() {
         return sku;
     }
@@ -167,7 +165,7 @@ public class CdnProfileResource extends AzureResource implements Copyable<CdnPro
 
     @Override
     public boolean refresh() {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         CdnProfile cdnProfile = client.cdnProfiles().getById(getId());
 
@@ -182,11 +180,11 @@ public class CdnProfileResource extends AzureResource implements Copyable<CdnPro
 
     @Override
     public void create(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
-        WithSku withSku = client.cdnProfiles().define(getName())
-                .withRegion(Region.fromName(getRegion()))
-                .withExistingResourceGroup(getResourceGroup().getName());
+        CdnProfile.DefinitionStages.WithSku withSku = client.cdnProfiles().define(getName())
+            .withRegion(Region.fromName(getRegion()))
+            .withExistingResourceGroup(getResourceGroup().getName());
 
         CdnProfile cdnProfile = null;
         if ("Premium_Verizon".equalsIgnoreCase(getSku())) {
@@ -202,7 +200,7 @@ public class CdnProfileResource extends AzureResource implements Copyable<CdnPro
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         CdnProfile.Update update = client.cdnProfiles().getById(getId()).update().withTags(getTags());
         update.apply();
@@ -210,7 +208,7 @@ public class CdnProfileResource extends AzureResource implements Copyable<CdnPro
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         client.cdnProfiles().deleteById(getId());
     }

@@ -16,10 +16,9 @@
 
 package gyro.azure.network;
 
+import com.azure.resourcemanager.network.models.LoadBalancerInboundNatRule;
 import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
-
-import com.microsoft.azure.management.network.LoadBalancerInboundNatRule;
 import gyro.core.validation.Required;
 
 /**
@@ -36,6 +35,7 @@ import gyro.core.validation.Required;
  *    end
  */
 public class NicNatRule extends Diffable implements Copyable<LoadBalancerInboundNatRule> {
+
     private LoadBalancerResource loadBalancer;
     private String inboundNatRuleName;
 

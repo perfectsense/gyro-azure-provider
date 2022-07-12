@@ -25,7 +25,8 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.microsoft.azure.management.Azure;
+import com.azure.core.credential.TokenCredential;
+import com.azure.resourcemanager.AzureResourceManager;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import gyro.core.GyroInputStream;
@@ -85,7 +86,7 @@ public abstract class AbstractAzureCommand {
         this.scope = current;
     }
 
-    public Azure getClient() {
+    public AzureResourceManager getResourceManagerClient() {
         Credentials credentials = getScope().getSettings(CredentialsSettings.class)
             .getCredentialsByName()
             .get("azure::" + getCredential());
@@ -97,6 +98,20 @@ public abstract class AbstractAzureCommand {
         }
 
         return AzureResource.createClient((AzureCredentials) credentials);
+    }
+
+    public TokenCredential getTokenCredential() {
+        Credentials credentials = getScope().getSettings(CredentialsSettings.class)
+            .getCredentialsByName()
+            .get("azure::" + getCredential());
+
+        if (credentials == null) {
+            throw new GyroException(String.format(
+                "No credentials with name - '%s' found. Check the your project init file.",
+                getCredential()));
+        }
+
+        return AzureResource.getTokenCredential((AzureCredentials) credentials);
     }
 
     private void evaluateFile(String file, Consumer<FileNode> consumer, RootScope current) {

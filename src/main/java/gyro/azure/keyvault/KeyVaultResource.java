@@ -22,10 +22,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.microsoft.azure.CloudException;
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.keyvault.Vault;
-import com.microsoft.azure.management.resources.fluentcore.arm.Region;
+import com.azure.core.management.Region;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.keyvault.models.Vault;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.azure.resources.ResourceGroupResource;
@@ -190,6 +189,7 @@ public class KeyVaultResource extends AzureResource implements Copyable<Vault> {
      * The name of the key vault.
      */
     @Required
+    @Id
     public String getName() {
         return name;
     }
@@ -245,7 +245,7 @@ public class KeyVaultResource extends AzureResource implements Copyable<Vault> {
     }
 
     /**
-     *  When ``true`` virtual machines are permitted to retrieve certificates stored as secrets from the key vault.
+     *  When set to``true`` virtual machines are permitted to retrieve certificates stored as secrets from the key vault.
      */
     @Updatable
     public Boolean getEnableDeployment() {
@@ -261,7 +261,7 @@ public class KeyVaultResource extends AzureResource implements Copyable<Vault> {
     }
 
     /**
-     * When ``true`` resource managers are permitted to retrieve certificates stored as secrets from the key vault.
+     * When set to ``true`` resource managers are permitted to retrieve certificates stored as secrets from the key vault.
      */
     @Updatable
     public Boolean getEnableTemplateDeployment() {
@@ -277,7 +277,7 @@ public class KeyVaultResource extends AzureResource implements Copyable<Vault> {
     }
 
     /**
-     * When ``true`` disk managers are permitted to retrieve certificates stored as secrets from the key vault and unwrap keys.
+     * When set to ``true`` disk managers are permitted to retrieve certificates stored as secrets from the key vault and unwrap keys.
      */
     @Updatable
     public Boolean getEnableDiskEncryption() {
@@ -309,7 +309,7 @@ public class KeyVaultResource extends AzureResource implements Copyable<Vault> {
     }
 
     /**
-     * Enables soft delete for the key vault.
+     * When set to ``true`` enables soft delete for the key vault.
      */
     @Updatable
     public Boolean getEnableSoftDelete() {
@@ -339,7 +339,6 @@ public class KeyVaultResource extends AzureResource implements Copyable<Vault> {
     /**
      * The URI of the key vault.
      */
-    @Id
     @Output
     public String getUrl() {
         return url;
@@ -381,15 +380,15 @@ public class KeyVaultResource extends AzureResource implements Copyable<Vault> {
         setEnableDeployment(vault.enabledForDeployment());
         setEnableDiskEncryption(vault.enabledForDiskEncryption());
         setEnableTemplateDeployment(vault.enabledForTemplateDeployment());
-        setLocation(vault.inner().location());
+        setLocation(vault.innerModel().location());
         setEnableSoftDelete(vault.softDeleteEnabled());
     }
 
     @Override
     public boolean refresh() {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
-        Vault vault = client.vaults().getById(getId());
+        Vault vault = client.vaults().getByResourceGroup(getResourceGroup().getName(), getName());
 
         if (vault == null) {
             return false;
@@ -402,7 +401,7 @@ public class KeyVaultResource extends AzureResource implements Copyable<Vault> {
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         Vault.DefinitionStages.WithCreate withCreate = client.vaults().define(getName())
             .withRegion(Region.fromName(getRegion()))
@@ -438,13 +437,13 @@ public class KeyVaultResource extends AzureResource implements Copyable<Vault> {
 
         setId(vault.id());
         setUrl(vault.vaultUri());
-        setLocation(vault.inner().location());
+        setLocation(vault.innerModel().location());
     }
 
     @Override
     public void update(
         GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         Vault vault = client.vaults().getById(getId());
 
@@ -507,24 +506,18 @@ public class KeyVaultResource extends AzureResource implements Copyable<Vault> {
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         client.vaults().deleteById(getId());
 
-        try {
-            if (getEnablePurgeVault()) {
-                client.vaults().purgeDeleted(getName(), getLocation());
-            }
-        } catch (CloudException ex) {
-            if (ex.body() == null || ex.body().code() == null || !ex.body().code().equals("ResourceNotFound")) {
-                throw ex;
-            }
+        if (getEnablePurgeVault()) {
+            client.vaults().purgeDeleted(getName(), getLocation());
         }
     }
 
     Vault getKeyVault() {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
-        return client.vaults().getById(getId());
+        return client.vaults().getByResourceGroup(getResourceGroup().getName(), getName());
     }
 }

@@ -16,9 +16,12 @@
 
 package gyro.azure.dns;
 
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.dns.models.DnsZone;
+import com.azure.resourcemanager.dns.models.NsRecordSet;
+import com.azure.resourcemanager.resources.fluentcore.arm.models.HasName;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
-import gyro.azure.network.NetworkResource;
 import gyro.azure.resources.ResourceGroupResource;
 import gyro.core.GyroUI;
 import gyro.core.resource.Id;
@@ -26,14 +29,12 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.dns.DnsZone;
-import com.microsoft.azure.management.dns.ZoneType;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -48,7 +49,6 @@ import java.util.stream.Collectors;
  *
  *     azure::dns-zone dns-zone-example-zones
  *         name: "zones.example.com"
- *         public-access: false
  *         resource-group: $(azure::resource-group resource-group-dns-zone-example)
  *         tags: {
  *            Name: "resource-group-dns-zone-example"
@@ -59,12 +59,12 @@ import java.util.stream.Collectors;
 public class DnsZoneResource extends AzureResource implements Copyable<DnsZone> {
 
     private String id;
-    private Boolean publicAccess;
     private String name;
-    private Set<NetworkResource> registrationNetwork;
-    private Set<NetworkResource> resolutionNetwork;
     private ResourceGroupResource resourceGroup;
     private Map<String, String> tags;
+
+    private List<String> nsRecords;
+    private List<String> nameServers;
 
     /**
      * The ID of the Dns Zone.
@@ -80,21 +80,6 @@ public class DnsZoneResource extends AzureResource implements Copyable<DnsZone> 
     }
 
     /**
-     * Determines if the Dns Zone is public or private. Defaults to public ``true``.
-     */
-    public Boolean getPublicAccess() {
-        if (publicAccess == null) {
-            publicAccess = true;
-        }
-
-        return publicAccess;
-    }
-
-    public void setPublicAccess(Boolean publicAccess) {
-        this.publicAccess = publicAccess;
-    }
-
-    /**
      * The name of the Dns Zone.
      */
     @Required
@@ -104,38 +89,6 @@ public class DnsZoneResource extends AzureResource implements Copyable<DnsZone> 
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    /**
-     * A list of virtual network id's that register hostnames in a private Dns Zone. Can be used when the access is private.
-     */
-    @Updatable
-    public Set<NetworkResource> getRegistrationNetwork() {
-        if (registrationNetwork == null) {
-            registrationNetwork = new HashSet<>();
-        }
-
-        return registrationNetwork;
-    }
-
-    public void setRegistrationNetwork(Set<NetworkResource> registrationNetwork) {
-        this.registrationNetwork = registrationNetwork;
-    }
-
-    /**
-     * A list of virtual network id's that resolve records in a private Dns Zone. Can be used when the access is private.
-     */
-    @Updatable
-    public Set<NetworkResource> getResolutionNetwork() {
-        if (resolutionNetwork == null) {
-            resolutionNetwork = new HashSet<>();
-        }
-
-        return resolutionNetwork;
-    }
-
-    public void setResolutionNetwork(Set<NetworkResource> resolutionNetwork) {
-        this.resolutionNetwork = resolutionNetwork;
     }
 
     /**
@@ -166,20 +119,55 @@ public class DnsZoneResource extends AzureResource implements Copyable<DnsZone> 
         this.tags = tags;
     }
 
+    /**
+     * List of ns record names present in the Dns Zone.
+     */
+    @Output
+    public List<String> getNsRecords() {
+        if (nsRecords == null) {
+            nsRecords = new ArrayList<>();
+        }
+
+        return nsRecords;
+    }
+
+    public void setNsRecords(List<String> nsRecords) {
+        this.nsRecords = nsRecords;
+    }
+
+    /**
+     * A list of name servers present in the Dns Zone.
+     */
+    @Output
+    public List<String> getNameServers() {
+        if (nameServers == null) {
+            nameServers = new ArrayList<>();
+        }
+
+        return nameServers;
+    }
+
+    public void setNameServers(List<String> nameServers) {
+        this.nameServers = nameServers;
+    }
+
     @Override
     public void copyFrom(DnsZone dnsZone) {
         setId(dnsZone.id());
-        setPublicAccess(dnsZone.accessType() == ZoneType.PUBLIC);
         setName(dnsZone.name());
-        setRegistrationNetwork(dnsZone.registrationVirtualNetworkIds().stream().map(o -> findById(NetworkResource.class, o)).collect(Collectors.toSet()));
-        setResolutionNetwork(dnsZone.resolutionVirtualNetworkIds().stream().map(o -> findById(NetworkResource.class, o)).collect(Collectors.toSet()));
         setResourceGroup(findById(ResourceGroupResource.class, dnsZone.resourceGroupName()));
         setTags(dnsZone.tags());
+
+        setNsRecords(dnsZone.nsRecordSets().list().stream()
+            .map(HasName::name)
+            .collect(Collectors.toList()));
+
+        setNameServers(dnsZone.nameServers());
     }
 
     @Override
     public boolean refresh() {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         DnsZone dnsZone = client.dnsZones().getById(getId());
 
@@ -194,33 +182,26 @@ public class DnsZoneResource extends AzureResource implements Copyable<DnsZone> 
 
     @Override
     public void create(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         DnsZone.DefinitionStages.WithCreate withCreate;
 
-        withCreate = client.dnsZones().define(getName()).withExistingResourceGroup(getResourceGroup().getName());
-
-        if (getPublicAccess() != null && !getPublicAccess()) {
-            if (getRegistrationNetwork().isEmpty() && getResolutionNetwork().isEmpty()) {
-                withCreate.withPrivateAccess();
-            } else {
-                withCreate.withPrivateAccess(getRegistrationNetwork().stream().map(NetworkResource::getId).collect(Collectors.toList()),
-                    getResolutionNetwork().stream().map(NetworkResource::getId).collect(Collectors.toList()));
-            }
-        } else {
-            withCreate.withPublicAccess();
-        }
+        withCreate = client.dnsZones()
+            .define(getName())
+            .withExistingResourceGroup(getResourceGroup().getName());
 
         withCreate.withTags(getTags());
 
         DnsZone dnsZone = withCreate.create();
 
-        copyFrom(dnsZone);
+        setId(dnsZone.id());
+
+        copyFrom(client.dnsZones().getById(getId()));
     }
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         DnsZone.Update update = client.dnsZones().getById(getId()).update();
 
@@ -233,7 +214,7 @@ public class DnsZoneResource extends AzureResource implements Copyable<DnsZone> 
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         client.dnsZones().deleteById(getId());
     }

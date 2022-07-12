@@ -2,15 +2,16 @@ package gyro.azure.network;
 
 import java.util.concurrent.Callable;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.network.ApplicationGateway;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.network.models.ApplicationGateway;
 import gyro.azure.AbstractAzureCommand;
 import gyro.core.GyroException;
 import gyro.core.command.GyroCommand;
 import gyro.core.resource.Resource;
 import gyro.core.scope.RootScope;
 
-public abstract class AbstractApplicationGatewayCommand extends AbstractAzureCommand implements GyroCommand, Callable<Integer> {
+public abstract class AbstractApplicationGatewayCommand extends AbstractAzureCommand
+    implements GyroCommand, Callable<Integer> {
 
     ApplicationGateway getApplicationGateway(String applicationGatewayResourceName) {
         RootScope scope = getScope();
@@ -18,7 +19,7 @@ public abstract class AbstractApplicationGatewayCommand extends AbstractAzureCom
         Resource resource = scope.findResource("azure::application-gateway::" + applicationGatewayResourceName);
 
         if (resource instanceof ApplicationGatewayResource) {
-            Azure client = getClient();
+            AzureResourceManager client = getResourceManagerClient();
 
             ApplicationGateway applicationGateway = client.applicationGateways()
                 .getById(((ApplicationGatewayResource) resource).getId());

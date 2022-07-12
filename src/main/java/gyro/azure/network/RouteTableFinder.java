@@ -16,14 +16,15 @@
 
 package gyro.azure.network;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.network.RouteTable;
-import gyro.azure.AzureFinder;
-import gyro.core.Type;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.network.models.RouteTable;
+import gyro.azure.AzureFinder;
+import gyro.core.Type;
 
 /**
  * Query route table.
@@ -37,6 +38,7 @@ import java.util.Map;
  */
 @Type("route-table")
 public class RouteTableFinder extends AzureFinder<RouteTable, RouteTableResource> {
+
     private String id;
 
     /**
@@ -49,13 +51,14 @@ public class RouteTableFinder extends AzureFinder<RouteTable, RouteTableResource
     public void setId(String id) {
         this.id = id;
     }
+
     @Override
-    protected List<RouteTable> findAllAzure(Azure client) {
-        return client.routeTables().list();
+    protected List<RouteTable> findAllAzure(AzureResourceManager client) {
+        return client.routeTables().list().stream().collect(Collectors.toList());
     }
 
     @Override
-    protected List<RouteTable> findAzure(Azure client, Map<String, String> filters) {
+    protected List<RouteTable> findAzure(AzureResourceManager client, Map<String, String> filters) {
         RouteTable routeTable = client.routeTables().getById(filters.get("id"));
         if (routeTable == null) {
             return Collections.emptyList();

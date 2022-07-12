@@ -16,29 +16,27 @@
 
 package gyro.azure.sql;
 
-import com.microsoft.azure.management.sql.SqlServer;
-import gyro.azure.AzureResource;
-import gyro.azure.Copyable;
-import gyro.core.GyroUI;
-import gyro.core.resource.Id;
-import gyro.core.resource.Resource;
-import gyro.core.resource.Output;
-import gyro.core.Type;
-import gyro.core.resource.Updatable;
-
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.sql.SqlFailoverGroup;
-import com.microsoft.azure.management.sql.SqlFailoverGroupOperations.DefinitionStages.WithReadWriteEndpointPolicy;
-import com.microsoft.azure.management.sql.ReadOnlyEndpointFailoverPolicy;
-import com.microsoft.azure.management.sql.ReadWriteEndpointFailoverPolicy;
-import com.microsoft.azure.management.sql.SqlFailoverGroupOperations.DefinitionStages.WithPartnerServer;
-import gyro.core.scope.State;
-import gyro.core.validation.Required;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.sql.models.ReadOnlyEndpointFailoverPolicy;
+import com.azure.resourcemanager.sql.models.ReadWriteEndpointFailoverPolicy;
+import com.azure.resourcemanager.sql.models.SqlFailoverGroup;
+import com.azure.resourcemanager.sql.models.SqlFailoverGroupOperations;
+import com.azure.resourcemanager.sql.models.SqlServer;
+import gyro.azure.AzureResource;
+import gyro.azure.Copyable;
+import gyro.core.GyroUI;
+import gyro.core.Type;
+import gyro.core.resource.Id;
+import gyro.core.resource.Output;
+import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
+import gyro.core.validation.Required;
 
 /**
  * Creates a sql failover group.
@@ -212,7 +210,7 @@ public class SqlFailoverGroupResource extends AzureResource implements Copyable<
 
     @Override
     public boolean refresh() {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         SqlFailoverGroup failoverGroup = getSqlFailoverGroup(client);
 
@@ -227,16 +225,20 @@ public class SqlFailoverGroupResource extends AzureResource implements Copyable<
 
     @Override
     public void create(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
-        WithReadWriteEndpointPolicy buildFailoverGroup = client.sqlServers().getById(getSqlServer().getId()).failoverGroups().define(getName());
+        SqlFailoverGroupOperations.DefinitionStages.WithReadWriteEndpointPolicy buildFailoverGroup = client.sqlServers()
+            .getById(getSqlServer().getId())
+            .failoverGroups()
+            .define(getName());
 
-        WithPartnerServer withPartnerServer;
+        SqlFailoverGroupOperations.DefinitionStages.WithPartnerServer withPartnerServer;
         if (getManualReadAndWritePolicy() != null) {
             if (getManualReadAndWritePolicy()) {
                 withPartnerServer = buildFailoverGroup.withManualReadWriteEndpointPolicy();
             } else {
-                withPartnerServer = buildFailoverGroup.withAutomaticReadWriteEndpointPolicyAndDataLossGracePeriod(getReadWriteGracePeriod());
+                withPartnerServer = buildFailoverGroup.withAutomaticReadWriteEndpointPolicyAndDataLossGracePeriod(
+                    getReadWriteGracePeriod());
             }
 
             for (String id : getPartnerServerIds()) {
@@ -265,7 +267,7 @@ public class SqlFailoverGroupResource extends AzureResource implements Copyable<
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         SqlFailoverGroup.Update update = getSqlFailoverGroup(client).update();
 
@@ -307,7 +309,7 @@ public class SqlFailoverGroupResource extends AzureResource implements Copyable<
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         SqlFailoverGroup sqlFailoverGroup = getSqlFailoverGroup(client);
 
@@ -316,7 +318,7 @@ public class SqlFailoverGroupResource extends AzureResource implements Copyable<
         }
     }
 
-    private SqlFailoverGroup getSqlFailoverGroup(Azure client) {
+    private SqlFailoverGroup getSqlFailoverGroup(AzureResourceManager client) {
         SqlFailoverGroup sqlFailoverGroup = null;
         SqlServer sqlServer = client.sqlServers().getById(getSqlServer().getId());
         if (sqlServer != null) {

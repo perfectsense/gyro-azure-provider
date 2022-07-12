@@ -16,6 +16,10 @@
 
 package gyro.azure.dns;
 
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.dns.models.DnsRecordSet;
+import com.azure.resourcemanager.dns.models.DnsZone;
+import com.azure.resourcemanager.dns.models.MxRecordSet;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.core.GyroUI;
@@ -27,12 +31,6 @@ import gyro.core.resource.Updatable;
 
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.dns.DnsRecordSet;
-import com.microsoft.azure.management.dns.DnsZone;
-import com.microsoft.azure.management.dns.MXRecordSet;
-import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.MXRecordSetBlank;
-import com.microsoft.azure.management.dns.DnsRecordSet.UpdateDefinitionStages.WithMXRecordMailExchangeOrAttachable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 
@@ -69,7 +67,7 @@ import java.util.stream.Collectors;
  *     end
  */
 @Type("mx-record-set")
-public class MxRecordSetResource extends AzureResource implements Copyable<MXRecordSet> {
+public class MxRecordSetResource extends AzureResource implements Copyable<MxRecordSet> {
 
     private DnsZoneResource dnsZone;
     private Set<MxRecord> mxRecord;
@@ -164,7 +162,7 @@ public class MxRecordSetResource extends AzureResource implements Copyable<MXRec
     }
 
     @Override
-    public void copyFrom(MXRecordSet mxRecordSet) {
+    public void copyFrom(MxRecordSet mxRecordSet) {
         setMxRecord(mxRecordSet.records().stream().map(o -> {
             MxRecord mxRecord = newSubresource(MxRecord.class);
             mxRecord.copyFrom(o);
@@ -179,9 +177,9 @@ public class MxRecordSetResource extends AzureResource implements Copyable<MXRec
 
     @Override
     public boolean refresh() {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
-        MXRecordSet mxRecordSet = client.dnsZones().getById(getDnsZone().getId()).mxRecordSets().getByName(getName());
+        MxRecordSet mxRecordSet = client.dnsZones().getById(getDnsZone().getId()).mxRecordSets().getByName(getName());
 
         if (mxRecordSet == null) {
             return false;
@@ -194,14 +192,18 @@ public class MxRecordSetResource extends AzureResource implements Copyable<MXRec
 
     @Override
     public void create(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
-        MXRecordSetBlank<DnsZone.Update> defineMXRecordSet =
-                client.dnsZones().getById(getDnsZone().getId()).update().defineMXRecordSet(getName());
+        DnsRecordSet.UpdateDefinitionStages.MXRecordSetBlank<DnsZone.Update> defineMXRecordSet = client.dnsZones()
+            .getById(getDnsZone().getId())
+            .update()
+            .defineMXRecordSet(getName());
 
-        WithMXRecordMailExchangeOrAttachable<DnsZone.Update> createMXRecordSet = null;
+        DnsRecordSet.UpdateDefinitionStages.WithMXRecordMailExchangeOrAttachable<DnsZone.Update> createMXRecordSet = null;
         for (MxRecord mxRecord : getMxRecord()) {
-            createMXRecordSet = defineMXRecordSet.withMailExchange(mxRecord.getExchange(), mxRecord.getPreference());
+            createMXRecordSet = defineMXRecordSet.withMailExchange(
+                mxRecord.getExchange(),
+                mxRecord.getPreference());
         }
 
         if (getTtl() != null) {
@@ -219,7 +221,7 @@ public class MxRecordSetResource extends AzureResource implements Copyable<MXRec
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         DnsRecordSet.UpdateMXRecordSet updateMXRecordSet =
                 client.dnsZones().getById(getDnsZone().getId()).update().updateMXRecordSet(getName());
@@ -279,7 +281,7 @@ public class MxRecordSetResource extends AzureResource implements Copyable<MXRec
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         client.dnsZones().getById(getDnsZone().getId()).update().withoutMXRecordSet(getName()).apply();
     }

@@ -16,14 +16,15 @@
 
 package gyro.azure.compute;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.monitor.AutoscaleSetting;
-import gyro.azure.AzureFinder;
-import gyro.core.Type;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.monitor.models.AutoscaleSetting;
+import gyro.azure.AzureFinder;
+import gyro.core.Type;
 
 /**
  * Query scale set scaling.
@@ -37,6 +38,7 @@ import java.util.Map;
  */
 @Type("scale-set-scaling")
 public class VMScaleSetScalingFinder extends AzureFinder<AutoscaleSetting, VMScaleSetScalingResource> {
+
     private String id;
 
     /**
@@ -51,12 +53,12 @@ public class VMScaleSetScalingFinder extends AzureFinder<AutoscaleSetting, VMSca
     }
 
     @Override
-    protected List<AutoscaleSetting> findAllAzure(Azure client) {
-        return client.autoscaleSettings().list();
+    protected List<AutoscaleSetting> findAllAzure(AzureResourceManager client) {
+        return client.autoscaleSettings().list().stream().collect(Collectors.toList());
     }
 
     @Override
-    protected List<AutoscaleSetting> findAzure(Azure client, Map<String, String> filters) {
+    protected List<AutoscaleSetting> findAzure(AzureResourceManager client, Map<String, String> filters) {
         AutoscaleSetting setting = client.autoscaleSettings().getById(filters.get("id"));
         if (setting == null) {
             return Collections.emptyList();

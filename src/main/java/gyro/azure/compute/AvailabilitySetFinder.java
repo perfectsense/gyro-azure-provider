@@ -16,14 +16,15 @@
 
 package gyro.azure.compute;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.compute.AvailabilitySet;
-import gyro.azure.AzureFinder;
-import gyro.core.Type;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.compute.models.AvailabilitySet;
+import gyro.azure.AzureFinder;
+import gyro.core.Type;
 
 /**
  * Query availability set.
@@ -37,6 +38,7 @@ import java.util.Map;
  */
 @Type("availability-set")
 public class AvailabilitySetFinder extends AzureFinder<AvailabilitySet, AvailabilitySetResource> {
+
     private String id;
 
     /**
@@ -49,13 +51,14 @@ public class AvailabilitySetFinder extends AzureFinder<AvailabilitySet, Availabi
     public void setId(String id) {
         this.id = id;
     }
+
     @Override
-    protected List<AvailabilitySet> findAllAzure(Azure client) {
-        return client.availabilitySets().list();
+    protected List<AvailabilitySet> findAllAzure(AzureResourceManager client) {
+        return client.availabilitySets().list().stream().collect(Collectors.toList());
     }
 
     @Override
-    protected List<AvailabilitySet> findAzure(Azure client, Map<String, String> filters) {
+    protected List<AvailabilitySet> findAzure(AzureResourceManager client, Map<String, String> filters) {
         AvailabilitySet availabilitySet = client.availabilitySets().getById(filters.get("id"));
         if (availabilitySet == null) {
             return Collections.emptyList();

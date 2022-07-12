@@ -16,24 +16,23 @@
 
 package gyro.azure.sql;
 
-import com.microsoft.azure.management.sql.SqlServer;
+import java.util.Set;
+
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.sql.models.SqlServer;
+import com.azure.resourcemanager.sql.models.SqlVirtualNetworkRule;
+import com.azure.resourcemanager.sql.models.SqlVirtualNetworkRuleOperations;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.azure.network.NetworkResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
-import gyro.core.resource.Resource;
-import gyro.core.resource.Output;
 import gyro.core.Type;
+import gyro.core.resource.Output;
+import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
-
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.sql.SqlVirtualNetworkRule;
-import com.microsoft.azure.management.sql.SqlVirtualNetworkRuleOperations.DefinitionStages.WithServiceEndpoint;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
-
-import java.util.Set;
 
 /**
  * Creates a sql virtual network rule.
@@ -132,7 +131,7 @@ public class SqlVirtualNetworkRuleResource extends AzureResource implements Copy
 
     @Override
     public boolean refresh() {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         SqlVirtualNetworkRule virtualNetworkRule = getVirtualNetworkRule(client);
 
@@ -150,11 +149,14 @@ public class SqlVirtualNetworkRuleResource extends AzureResource implements Copy
         if (getSqlServer() == null) {
             throw new GyroException("You must provide a sql server resource.");
         }
-        
-        Azure client = createClient();
 
-        WithServiceEndpoint withServiceEndpoint = client.sqlServers().getById(getSqlServer().getId()).virtualNetworkRules().define(getName())
-                .withSubnet(getNetwork().getId(), getSubnetName());
+        AzureResourceManager client = createClient();
+
+        SqlVirtualNetworkRuleOperations.DefinitionStages.WithServiceEndpoint withServiceEndpoint = client.sqlServers()
+            .getById(getSqlServer().getId())
+            .virtualNetworkRules()
+            .define(getName())
+            .withSubnet(getNetwork().getId(), getSubnetName());
 
         SqlVirtualNetworkRule virtualNetworkRule = withServiceEndpoint.create();
 
@@ -163,18 +165,18 @@ public class SqlVirtualNetworkRuleResource extends AzureResource implements Copy
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         SqlVirtualNetworkRule.Update update = getVirtualNetworkRule(client)
-                .update()
-                .withSubnet(getNetwork().getId(), getSubnetName());
+            .update()
+            .withSubnet(getNetwork().getId(), getSubnetName());
 
         update.apply();
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         SqlVirtualNetworkRule virtualNetworkRule = getVirtualNetworkRule(client);
         if (virtualNetworkRule != null) {
@@ -182,7 +184,7 @@ public class SqlVirtualNetworkRuleResource extends AzureResource implements Copy
         }
     }
 
-    private SqlVirtualNetworkRule getVirtualNetworkRule(Azure client) {
+    private SqlVirtualNetworkRule getVirtualNetworkRule(AzureResourceManager client) {
         SqlVirtualNetworkRule sqlVirtualNetworkRule = null;
         SqlServer sqlServer = client.sqlServers().getById(getSqlServer().getId());
 

@@ -16,29 +16,25 @@
 
 package gyro.azure.storage;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.BlobServiceClientBuilder;
+import com.azure.storage.blob.models.PublicAccessType;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
-import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
-import gyro.core.resource.Updatable;
-import gyro.core.Type;
 import gyro.core.resource.Resource;
-
-import com.microsoft.azure.storage.blob.BlobContainerPermissions;
-import com.microsoft.azure.storage.CloudStorageAccount;
-import com.microsoft.azure.storage.StorageException;
-import com.microsoft.azure.storage.blob.BlobContainerPublicAccessType;
-import com.microsoft.azure.storage.blob.CloudBlobClient;
-import com.microsoft.azure.storage.blob.CloudBlobContainer;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
-
-import java.net.URISyntaxException;
-import java.security.InvalidKeyException;
-import java.util.Set;
 
 /**
  * Creates a blob container
@@ -50,17 +46,18 @@ import java.util.Set;
  *
  *     azure::cloud-blob-container blob-container-example
  *         name: "blobcontainer"
- *         public-access: "CONTAINER"
+ *         public-access: "container"
  *         storage-account: $(azure::storage-account blob-storage-account-example)
  *     end
  */
 @Type("cloud-blob-container")
-public class CloudBlobContainerResource extends AzureResource implements Copyable<CloudBlobContainer> {
+public class CloudBlobContainerResource extends AzureResource implements Copyable<BlobContainerClient> {
 
     private String name;
     private String publicAccess;
     private StorageAccountResource storageAccount;
     private String id;
+    private Map<String, String> metadata;
 
     /**
      * The name of the container.
@@ -76,10 +73,10 @@ public class CloudBlobContainerResource extends AzureResource implements Copyabl
     }
 
     /**
-     * The public access of the container. Valid values are ``BLOB`` or ``CONTAINER`` or ``OFF``
+     * The public access of the container.
      */
     @Required
-    @ValidStrings({"BLOB", "CONTAINER", "OFF"})
+    @ValidStrings({ "blob", "container" })
     @Updatable
     public String getPublicAccess() {
         return publicAccess;
@@ -101,6 +98,19 @@ public class CloudBlobContainerResource extends AzureResource implements Copyabl
         this.storageAccount = storageAccount;
     }
 
+    @Updatable
+    public Map<String, String> getMetadata() {
+        if (metadata == null) {
+            metadata = new HashMap<>();
+        }
+
+        return metadata;
+    }
+
+    public void setMetadata(Map<String, String> metadata) {
+        this.metadata = metadata;
+    }
+
     /**
      * The ID of the blob container.
      */
@@ -114,72 +124,68 @@ public class CloudBlobContainerResource extends AzureResource implements Copyabl
     }
 
     @Override
-    public void copyFrom(CloudBlobContainer container) {
-        setStorageAccount(findById(StorageAccountResource.class, container.getStorageUri().getPrimaryUri().getAuthority().split(".blob.core")[0]));
-        setPublicAccess(container.getProperties().getPublicAccess().toString());
-        setName(container.getName());
-        setId(String.format("%s/blobServices/default/containers/%s",getStorageAccount().getId(),getName()));
+    public void copyFrom(BlobContainerClient container) {
+        setPublicAccess(container.getAccessPolicy().getBlobAccessType().toString());
+        setName(container.getBlobContainerName());
+        setMetadata(container.getProperties().getMetadata());
+        setStorageAccount(findById(StorageAccountResource.class, container.getAccountName()));
     }
 
     @Override
     public boolean refresh() {
-        try {
-            CloudBlobContainer container = cloudBlobContainer();
-            if (!container.exists()) {
-                return false;
-            }
+        BlobContainerClient blobContainer = blobContainer();
 
-            copyFrom(container);
-
-            return true;
-        } catch (StorageException ex) {
+        if (!blobContainer.exists()) {
             return false;
         }
+
+        copyFrom(blobContainer);
+
+        return true;
     }
 
     @Override
     public void create(GyroUI ui, State state) {
-        try {
-            CloudBlobContainer container = cloudBlobContainer();
-            container.create();
-            BlobContainerPermissions permissions = new BlobContainerPermissions();
-            permissions.setPublicAccess(BlobContainerPublicAccessType.valueOf(getPublicAccess()));
-            container.uploadPermissions(permissions);
-            setId(String.format("%s/blobServices/default/containers/%s",getStorageAccount().getId(),getName()));
-        } catch (StorageException ex) {
-            throw new GyroException(ex.getMessage());
+        BlobContainerClient blobContainer = blobContainer();
+
+        blobContainer.create();
+
+        blobContainer = blobContainer();
+
+        blobContainer.setAccessPolicy(PublicAccessType.fromString(getPublicAccess()), null);
+
+        if (!getMetadata().isEmpty()) {
+            blobContainer.setMetadata(getMetadata());
         }
+
+        copyFrom(blobContainer);
     }
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        try {
-            CloudBlobContainer container = cloudBlobContainer();
-            BlobContainerPermissions permissions = new BlobContainerPermissions();
-            permissions.setPublicAccess(BlobContainerPublicAccessType.valueOf(getPublicAccess()));
-            container.uploadPermissions(permissions);
-        } catch (StorageException ex) {
-            throw new GyroException(ex.getMessage());
+        BlobContainerClient blobContainer = blobContainer();
+
+        if (changedFieldNames.contains("metadata")) {
+            blobContainer.setMetadata(getMetadata());
+        }
+
+        if (changedFieldNames.contains("public-access")) {
+            blobContainer.setAccessPolicy(PublicAccessType.fromString(getPublicAccess()), null);
         }
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        try {
-            CloudBlobContainer container = cloudBlobContainer();
-            container.delete();
-        } catch (StorageException ex) {
-            throw new GyroException(ex.getMessage());
-        }
+        BlobContainerClient blobContainer = blobContainer();
+
+        blobContainer.delete();
     }
 
-    private CloudBlobContainer cloudBlobContainer() {
-        try {
-            CloudStorageAccount account = CloudStorageAccount.parse(getStorageAccount().getConnection());
-            CloudBlobClient blobClient = account.createCloudBlobClient();
-            return blobClient.getContainerReference(getName());
-        } catch (StorageException | URISyntaxException | InvalidKeyException ex) {
-            throw new GyroException(ex.getMessage());
-        }
+    protected BlobContainerClient blobContainer() {
+        BlobServiceClient client = new BlobServiceClientBuilder()
+            .connectionString(getStorageAccount().getConnection())
+            .buildClient();
+
+        return client.getBlobContainerClient(getName());
     }
 }

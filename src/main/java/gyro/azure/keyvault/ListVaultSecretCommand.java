@@ -1,10 +1,9 @@
 package gyro.azure.keyvault;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.microsoft.azure.PagedList;
-import com.microsoft.azure.keyvault.models.SecretItem;
-import com.microsoft.azure.management.keyvault.Vault;
+import com.azure.resourcemanager.keyvault.models.Vault;
 import gyro.core.GyroCore;
 import gyro.core.GyroException;
 import picocli.CommandLine.Command;
@@ -28,20 +27,18 @@ public class ListVaultSecretCommand extends AbstractVaultCommand {
 
             Vault vault = getVault(vaultResourceName);
 
-            PagedList<SecretItem> secretItemPagedList = vault.client().listSecrets(vault.vaultUri());
-            if (!secretItemPagedList.isEmpty()) {
-                secretItemPagedList.loadAll();
+            AtomicBoolean found = new AtomicBoolean(false);
+            vault.secrets().list().forEach(secret -> {
+                StringBuilder sb = new StringBuilder();
+                sb.append("\n***********************");
+                sb.append(String.format("\nName: %s", secret.name()));
+                sb.append(String.format("\nContent Type: %s", secret.contentType()));
 
-                for (SecretItem secret : secretItemPagedList) {
-                    StringBuilder sb = new StringBuilder();
-                    sb.append("\n***********************");
-                    sb.append(String.format("\nName: %s", secret.identifier().name()));
-                    sb.append(String.format("\nVersion: %s", secret.identifier().version()));
-                    sb.append(String.format("\nContent Type: %s", secret.contentType()));
+                GyroCore.ui().write(sb.toString());
+                found.set(true);
+            });
 
-                    GyroCore.ui().write(sb.toString());
-                }
-            } else {
+            if (!found.get()) {
                 GyroCore.ui().write("No secrets found!");
             }
 

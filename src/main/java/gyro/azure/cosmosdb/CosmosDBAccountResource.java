@@ -16,6 +16,11 @@
 
 package gyro.azure.cosmosdb;
 
+import com.azure.core.management.Region;
+import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.cosmos.models.CosmosDBAccount;
+import com.azure.resourcemanager.cosmos.models.Location;
+import com.azure.resourcemanager.cosmos.models.VirtualNetworkRule;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.azure.resources.ResourceGroupResource;
@@ -26,15 +31,10 @@ import gyro.core.resource.Output;
 import gyro.core.Type;
 import gyro.core.resource.Updatable;
 
-import com.microsoft.azure.management.Azure;
-import com.microsoft.azure.management.cosmosdb.CosmosDBAccount;
-import com.microsoft.azure.management.cosmosdb.Location;
-import com.microsoft.azure.management.cosmosdb.VirtualNetworkRule;
-import com.microsoft.azure.management.cosmosdb.CosmosDBAccount.DefinitionStages.WithCreate;
-import com.microsoft.azure.management.cosmosdb.CosmosDBAccount.DefinitionStages.WithConsistencyPolicy;
-import com.microsoft.azure.management.cosmosdb.CosmosDBAccount.DefinitionStages.WithKind;
-import com.microsoft.azure.management.cosmosdb.CosmosDBAccount.UpdateStages.WithOptionals;
-import com.microsoft.azure.management.resources.fluentcore.arm.Region;
+import com.azure.resourcemanager.cosmos.models.CosmosDBAccount.DefinitionStages.WithCreate;
+import com.azure.resourcemanager.cosmos.models.CosmosDBAccount.DefinitionStages.WithConsistencyPolicy;
+import com.azure.resourcemanager.cosmos.models.CosmosDBAccount.DefinitionStages.WithKind;
+import com.azure.resourcemanager.cosmos.models.CosmosDBAccount.UpdateStages.WithOptionals;
 import gyro.core.scope.State;
 import gyro.core.validation.Range;
 import gyro.core.validation.Required;
@@ -287,7 +287,7 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
 
     @Override
     public boolean refresh() {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         CosmosDBAccount cosmosAccount = client.cosmosDBAccounts().getById(getId());
 
@@ -302,7 +302,7 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
 
     @Override
     public void create(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         WithKind withKind = client.cosmosDBAccounts()
                 .define(getName())
@@ -357,7 +357,7 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         CosmosDBAccount.Update update = client.cosmosDBAccounts()
                 .getById(getId())
@@ -417,7 +417,7 @@ public class CosmosDBAccountResource extends AzureResource implements Copyable<C
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Azure client = createClient();
+        AzureResourceManager client = createClient();
 
         client.cosmosDBAccounts().deleteById(getId());
     }

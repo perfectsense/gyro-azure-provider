@@ -16,10 +16,10 @@
 
 package gyro.azure.network;
 
-import com.microsoft.azure.management.network.ApplicationGateway.Update;
-import com.microsoft.azure.management.network.ApplicationGatewayBackendHttpConfiguration;
-import com.microsoft.azure.management.network.ApplicationGateway.DefinitionStages.WithCreate;
-import com.microsoft.azure.management.network.ApplicationGatewayBackendHttpConfiguration.DefinitionStages.WithAttach;
+import com.azure.resourcemanager.network.models.ApplicationGateway.DefinitionStages.WithCreate;
+import com.azure.resourcemanager.network.models.ApplicationGateway.Update;
+import com.azure.resourcemanager.network.models.ApplicationGatewayBackendHttpConfiguration;
+import com.azure.resourcemanager.network.models.ApplicationGatewayBackendHttpConfiguration.DefinitionStages.WithAttach;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
@@ -47,6 +47,7 @@ import gyro.core.validation.Required;
  *     end
  */
 public class BackendHttpConfiguration extends Diffable implements Copyable<ApplicationGatewayBackendHttpConfiguration> {
+
     private String name;
     private Integer port;
     private String cookieName;
@@ -214,7 +215,8 @@ public class BackendHttpConfiguration extends Diffable implements Copyable<Appli
         }
 
         if (getConnectionDrainingTimeout() > 0) {
-            withCreateWithAttach = withCreateWithAttach.withConnectionDrainingTimeoutInSeconds(getConnectionDrainingTimeout());
+            withCreateWithAttach = withCreateWithAttach.withConnectionDrainingTimeoutInSeconds(
+                getConnectionDrainingTimeout());
         }
 
         if (!ObjectUtils.isBlank(getProbe())) {
