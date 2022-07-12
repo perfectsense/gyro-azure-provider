@@ -24,6 +24,7 @@ import com.azure.resourcemanager.storage.models.ManagementPolicyFilter;
 import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.ValidStrings;
 
 public class PolicyFilter extends Diffable implements Copyable<ManagementPolicyFilter> {
 
@@ -31,8 +32,9 @@ public class PolicyFilter extends Diffable implements Copyable<ManagementPolicyF
     private Set<String> prefixMatches;
 
     /**
-     * Allowed blob types for the filter. Currently only supported value is ``blockBlob``. Defaults to ``blockBlob``.
+     * Allowed blob types for the filter. Defaults to ``blockBlob``.
      */
+    @ValidStrings({"blockBlob", "appendBlob"})
     public Set<String> getBlobTypes() {
         if (blobTypes == null) {
             blobTypes = new HashSet<>();

@@ -27,6 +27,8 @@ import com.azure.resourcemanager.storage.models.BlobTypes;
 import com.azure.resourcemanager.storage.models.ManagementPolicy;
 import com.azure.resourcemanager.storage.models.ManagementPolicyRule;
 import com.azure.resourcemanager.storage.models.ManagementPolicySchema;
+import com.azure.resourcemanager.storage.models.PolicyRule.DefinitionStages.WithBlobTypesToFilterFor;
+import com.azure.resourcemanager.storage.models.PolicyRule.DefinitionStages.WithPolicyRuleAttachable;
 import com.azure.resourcemanager.storage.models.StorageAccount;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
@@ -47,7 +49,7 @@ public class StorageLifeCycle extends AzureResource implements Copyable<Manageme
     private Set<PolicyRule> rule;
 
     /**
-     *  The name of the lifecycle policy. Currently only supported value is ``DefaultManagementPolicy``. Defaults to ``DefaultManagementPolicy``.
+     *  The name of the lifecycle policy.
      */
     @ValidStrings("DefaultManagementPolicy")
     public String getName() {
@@ -150,12 +152,12 @@ public class StorageLifeCycle extends AzureResource implements Copyable<Manageme
         ManagementPolicy.DefinitionStages.WithCreate create = null;
 
         for (PolicyRule rule : getRule()) {
-            com.azure.resourcemanager.storage.models.PolicyRule.DefinitionStages.WithBlobTypesToFilterFor withBlobTypesToFilterFor =
+            WithBlobTypesToFilterFor withBlobTypesToFilterFor =
                 create == null
                     ? withRule.defineRule(rule.getName()).withLifecycleRuleType()
                     : create.defineRule(rule.getName()).withLifecycleRuleType();
 
-            com.azure.resourcemanager.storage.models.PolicyRule.DefinitionStages.WithPolicyRuleAttachable withPolicyRuleAttachable = withBlobTypesToFilterFor
+            WithPolicyRuleAttachable withPolicyRuleAttachable = withBlobTypesToFilterFor
                 .withBlobTypesToFilterFor(rule.getDefinition()
                     .getFilter()
                     .getBlobTypes()
@@ -180,7 +182,7 @@ public class StorageLifeCycle extends AzureResource implements Copyable<Manageme
         state.save();
 
         // Api does not allow creating one or more disabled rule when creating a policy.
-        // If one or more rules are are configured to be disabled then an update is required.
+        // If one or more rules are configured to be disabled then an update is required.
         if (getRule().stream().anyMatch(o -> !o.getEnabled())) {
             update(ui, state, this, new HashSet<>());
         } else {

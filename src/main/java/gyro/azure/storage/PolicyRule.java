@@ -22,11 +22,12 @@ import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 
 public class PolicyRule extends Diffable implements Copyable<ManagementPolicyRule> {
 
     private String name;
-    private RuleType type;
+    private String type;
     private Boolean enabled;
     private PolicyDefinition definition;
 
@@ -43,17 +44,18 @@ public class PolicyRule extends Diffable implements Copyable<ManagementPolicyRul
     }
 
     /**
-     * Type of rule. Currently only supported value is ``Lifecycle``. Defaults to ``Lifecycle``.
+     * Type of rule.
      */
-    public RuleType getType() {
+    @ValidStrings("Lifecycle")
+    public String getType() {
         if (type == null) {
-            type = RuleType.LIFECYCLE;
+            type = RuleType.LIFECYCLE.toString();
         }
 
         return type;
     }
 
-    public void setType(RuleType type) {
+    public void setType(String type) {
         this.type = type;
     }
 
@@ -76,7 +78,7 @@ public class PolicyRule extends Diffable implements Copyable<ManagementPolicyRul
     /**
      * The rule details.
      *
-     * @sunresource gyro.azure.storage.PolicyDefinition
+     * @subresource gyro.azure.storage.PolicyDefinition
      */
     @Required
     @Updatable
@@ -96,7 +98,7 @@ public class PolicyRule extends Diffable implements Copyable<ManagementPolicyRul
     @Override
     public void copyFrom(ManagementPolicyRule rule) {
         setName(rule.name());
-        setType(rule.type());
+        setType(rule.type().toString());
         setEnabled(rule.enabled());
         PolicyDefinition policyDefinition = newSubresource(PolicyDefinition.class);
         policyDefinition.copyFrom(rule.definition());
@@ -105,11 +107,10 @@ public class PolicyRule extends Diffable implements Copyable<ManagementPolicyRul
 
     ManagementPolicyRule toManagementPolicyRule() {
         ManagementPolicyRule rule = new ManagementPolicyRule();
-        rule = rule.withName(getName())
-            .withType(getType())
+
+        return rule.withName(getName())
+            .withType(RuleType.fromString(getType()))
             .withEnabled(getEnabled())
             .withDefinition(getDefinition().toManagementPolicyDefinition());
-
-        return rule;
     }
 }
