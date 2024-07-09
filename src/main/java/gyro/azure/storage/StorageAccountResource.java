@@ -266,7 +266,7 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
 
         if (Boolean.TRUE.equals(getBlobPublicAccess())) {
             update = update.enableBlobPublicAccess();
-        } else {
+        } else if (Boolean.FALSE.equals(getBlobPublicAccess())) {
             update = update.disableBlobPublicAccess();
         }
 
