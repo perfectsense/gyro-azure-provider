@@ -101,6 +101,7 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
     private Map<String, String> tags;
     private StorageLifeCycle lifecycle;
     private Boolean upgradeAccountV2;
+    private Boolean blobPublicAccess;
 
     /**
      * The cors rules associated with the Storage Account.
@@ -203,6 +204,16 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
         this.upgradeAccountV2 = upgradeAccountV2;
     }
 
+    @Updatable
+    @Required
+    public Boolean getBlobPublicAccess() {
+        return blobPublicAccess;
+    }
+
+    public void setBlobPublicAccess(Boolean blobPublicAccess) {
+        this.blobPublicAccess = blobPublicAccess;
+    }
+
     @Override
     public void copyFrom(StorageAccount storageAccount) {
         setId(storageAccount.id());
@@ -211,6 +222,7 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
         setResourceGroup(findById(ResourceGroupResource.class, storageAccount.resourceGroupName()));
         setId(storageAccount.id());
         setUpgradeAccountV2(storageAccount.kind().equals(Kind.STORAGE_V2));
+        setBlobPublicAccess(storageAccount.isBlobPublicAccessAllowed());
 
         getTags().clear();
         storageAccount.tags().forEach((key, value) -> getTags().put(key, value));
@@ -250,6 +262,16 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
 
         setId(storageAccount.id());
 
+        StorageAccount.Update update = storageAccount.update();
+
+        if (Boolean.TRUE.equals(getBlobPublicAccess())) {
+            update = update.enableBlobPublicAccess();
+        } else {
+            update = update.disableBlobPublicAccess();
+        }
+
+        update.apply();
+
         // TODO lifecycle and cors
     }
 
@@ -268,6 +290,14 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
                 throw new GyroException("Cannot downgrade from storage account V2");
             } else {
                 update.upgradeToGeneralPurposeAccountKindV2();
+            }
+        }
+
+        if (changedFieldNames.contains("blob-public-access")) {
+            if (Boolean.TRUE.equals(getBlobPublicAccess())) {
+                update = update.enableBlobPublicAccess();
+            } else {
+                update = update.disableBlobPublicAccess();
             }
         }
 
