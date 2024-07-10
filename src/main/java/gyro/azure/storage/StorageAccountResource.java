@@ -204,6 +204,9 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
         this.upgradeAccountV2 = upgradeAccountV2;
     }
 
+    /**
+     * When set to ``true``, allows blob public access, configured by individual containers.
+     */
     @Updatable
     @Required
     public Boolean getBlobPublicAccess() {
