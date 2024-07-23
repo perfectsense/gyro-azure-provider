@@ -1,0 +1,43 @@
+azure::resource-group resource-group-example-vault
+    name: "resource-group-example-vault"
+
+    tags: {
+        Name: "resource-group-example-vault"
+    }
+end
+
+azure::key-vault vault-example
+    resource-group: $(azure::resource-group resource-group-example-vault)
+
+    name: "key-vault-example"
+    enable-deployment: true
+    enable-template-deployment: true
+    enable-disk-encryption: true
+
+    access-policy
+        key-permissions: ["get", "import", "list", "delete"]
+        certificate-permissions: ['get', 'update', 'create', 'list', 'delete', 'import', 'backup', 'recover', 'restore', 'setissuers', 'deleteissuers', 'purge', 'listissuers', 'getissuers', 'managecontacts', 'manageissuers']
+        secret-permissions: ["get"]
+        object-id: "e0afa33f-9882-4cdc-abb8-c613a8949f9e"
+    end
+
+    access-policy
+        key-permissions: ["get", "import", "list", "delete"]
+        certificate-permissions: ['get', 'update', 'create', 'list', 'delete', 'import', 'backup', 'recover', 'restore', 'setissuers', 'deleteissuers', 'purge', 'listissuers', 'getissuers', 'managecontacts', 'manageissuers']
+        secret-permissions: ["get"]
+        object-id: "741f727b-9375-4117-8214-1fad55fc1e0b"
+    end
+
+    access-policy
+        key-permissions: ['backup', 'recover', 'import', 'restore', 'get', 'update', 'create', 'list', 'delete']
+        certificate-permissions: ['get', 'update', 'create', 'list', 'delete', 'import', 'backup', 'recover', 'restore', 'setissuers', 'deleteissuers', 'purge', 'listissuers', 'getissuers', 'managecontacts', 'manageissuers']
+        secret-permissions: ['backup', 'set', 'recover', 'restore', 'get', 'list', 'delete']
+        object-id: "eaf3deb8-50be-4320-901b-19935c2d5ebc"
+    end
+
+    enable-soft-delete: true
+
+    tags: {
+        Name: "key-vault-examples"
+    }
+end

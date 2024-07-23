@@ -1,0 +1,129 @@
+azure::resource-group resource-group-example-AG
+    name: "resource-group-example-AG"
+
+    tags: {
+        Name: "resource-group-example-AG"
+    }
+end
+
+azure::network network-example-AG
+    name: "network-example-AG"
+    resource-group: $(azure::resource-group resource-group-example-AG)
+    address-spaces:  [
+         "10.0.0.0/27",
+         "10.1.0.0/27"
+    ]
+
+    subnet
+        address-prefix: "10.0.0.0/28"
+        name: "subnet1"
+    end
+
+    subnet
+        address-prefix: "10.0.0.16/28"
+        name: "subnet2"
+    end
+
+    tags: {
+        Name: "network-example-AG"
+    }
+end
+
+azure::public-ip-address public-ip-address-example-AG
+    name: "public-ip-address-example-AG"
+    resource-group: $(azure::resource-group resource-group-example-AG)
+    idle-timeout-in-minute: 4
+    sku-type: "STANDARD"
+
+    tags: {
+        Name: "public-ip-address-example-AG"
+    }
+end
+
+azure::application-gateway application-gateway-example
+    name: "application-gateway-example"
+    resource-group: $(azure::resource-group resource-group-example-AG)
+    network: $(azure::network network-example-AG)
+    subnet: "subnet1"
+    public-ip-address: $(azure::public-ip-address public-ip-address-example-AG)
+    sku-tier: "STANDARD_V2"
+    sku-size: "STANDARD_V2"
+    instance-count: 2
+    enable-http2: false
+    tags: {
+        Name: "application-gateway-example",
+        "example": "test"
+    }
+
+    request-routing-rule
+        name: "request-routing-rule-example"
+        listener: "listener-example-updated"
+        backend: "backend-example-updated"
+        backend-http-configuration: "backend-http-configuration-example-updated"
+    end
+
+    request-routing-rule
+        name: "request-routing-rule-2-example"
+        listener: "listener-example-2"
+        redirect-configuration: "redirect-configuration-example"
+    end
+
+    redirect-configuration
+        name: "redirect-configuration-example"
+        type: "Permanent"
+        target-url: "google.com"
+        include-query-string: false
+        include-path: false
+    end
+
+    listener
+        name: "listener-example-updated"
+        port: 84
+        private-frontend: false
+    end
+
+    listener
+        name: "listener-example-2"
+        port: 82
+    end
+
+    listener
+        name: "listener-example-3"
+        port: 83
+    end
+
+    backend
+        name: "backend-example-updated"
+        ip-addresses: [
+            "10.0.0.2",
+            "10.0.0.4"
+        ]
+        fqdns: ["azure.brightspot.cloud"]
+    end
+
+    backend-http-configuration
+        name: "backend-http-configuration-example-updated"
+        port: 8000
+        cookie-name: "something-else"
+        enable-affinity-cookie: true
+        probe: "probe-example-new"
+        connection-draining-timeout: 40
+        host-header: "something-else"
+        host-header-from-backend: true
+        backend-path: "something/else"
+    end
+
+    probe
+        name: "probe-example-new"
+        host-name: "www.amazon.com"
+        path: "/path/new"
+        interval: 30
+        timeout: 30
+        unhealthy-threshold: 5
+        https-protocol: false
+        http-response-codes: [
+            "200-250"
+        ]
+        http-response-body-match: "body-new"
+    end
+end

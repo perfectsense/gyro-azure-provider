@@ -1,0 +1,80 @@
+azure::resource-group storage-account-example
+    name: "storage-account-example"
+
+    tags: {
+        Name: "storage-account-example"
+    }
+end
+
+azure::storage-account storage-account-example
+    resource-group: $(azure::resource-group storage-account-example)
+    name: "storageaccountharexample"
+    upgrade-account-v2: true
+    blob-public-access: true
+
+    cors-rule
+        allowed-headers: ["*"]
+        allowed-methods: ["GET"]
+        allowed-origins: ["*"]
+        exposed-headers: ["*"]
+        max-age: 6
+        type: "blob"
+    end
+
+    cors-rule
+        allowed-headers: ["*"]
+        allowed-methods: ["PUT"]
+        allowed-origins: ["*"]
+        exposed-headers: ["*"]
+        max-age: 6
+        type: "file"
+    end
+
+    cors-rule
+        allowed-headers: ["*"]
+        allowed-methods: ["PUT"]
+        allowed-origins: ["*"]
+        exposed-headers: ["*"]
+        max-age: 6
+        type: "queue"
+    end
+
+    cors-rule
+        allowed-headers: ["*"]
+        allowed-methods: ["PUT"]
+        allowed-origins: ["*"]
+        exposed-headers: ["*"]
+        max-age: 6
+        type: "table"
+    end
+
+    tags: {
+        Name: "storage-account-example"
+    }
+
+    lifecycle
+        rule
+            name: "rule1"
+            enabled: false
+            definition
+                action
+                    base-blob
+                        delete-days: 1
+                        tier-to-archive-days: 1
+                        tier-to-cool-days: 1
+                    end
+
+                    snapshot
+                        delete-days: 1
+                    end
+                end
+
+                filter
+                    prefix-matches: [
+                        container/box1
+                    ]
+                end
+            end
+        end
+    end
+end

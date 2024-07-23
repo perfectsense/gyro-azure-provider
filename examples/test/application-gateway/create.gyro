@@ -1,0 +1,126 @@
+azure::resource-group resource-group-example-AG
+    name: "resource-group-example-AG"
+
+    tags: {
+        Name: "resource-group-example-AG"
+    }
+end
+
+azure::network network-example-AG
+    name: "network-example-AG"
+    resource-group: $(azure::resource-group resource-group-example-AG)
+    address-spaces:  [
+         "10.0.0.0/27",
+         "10.1.0.0/27"
+    ]
+
+    subnet
+        address-prefix: "10.0.0.0/28"
+        name: "subnet1"
+    end
+
+    subnet
+        address-prefix: "10.0.0.16/28"
+        name: "subnet2"
+    end
+
+    tags: {
+        Name: "network-example-AG"
+    }
+end
+
+azure::public-ip-address public-ip-address-example-AG
+    name: "public-ip-address-example-AG"
+    resource-group: $(azure::resource-group resource-group-example-AG)
+    idle-timeout-in-minute: 4
+    sku-type: "STANDARD"
+
+    tags: {
+        Name: "public-ip-address-example-AG"
+    }
+end
+
+azure::application-gateway application-gateway-example
+    name: "application-gateway-example"
+    resource-group: $(azure::resource-group resource-group-example-AG)
+    network: $(azure::network network-example-AG)
+    subnet: "subnet1"
+    public-ip-address: $(azure::public-ip-address public-ip-address-example-AG)
+    sku-tier: "STANDARD_V2"
+    sku-size: "STANDARD_V2"
+    instance-count: 1
+    enable-http2: true
+    tags: {
+        Name: "application-gateway-example"
+    }
+
+    request-routing-rule
+        name: "request-routing-rule-example"
+        listener: "listener-example"
+        backend: "backend-example"
+        backend-http-configuration: "backend-http-configuration-example"
+    end
+
+    request-routing-rule
+        name: "request-routing-rule-2-example"
+        listener: "listener-example-2"
+        redirect-configuration: "redirect-configuration-example"
+    end
+
+    redirect-configuration
+        name: "redirect-configuration-example"
+        type: "Temporary"
+        target-listener: "listener-example-3"
+        include-query-string: true
+        include-path: true
+    end
+
+    listener
+        name: "listener-example"
+        port: 81
+    end
+
+    listener
+        name: "listener-example-2"
+        port: 82
+    end
+
+    listener
+        name: "listener-example-3"
+        port: 83
+    end
+
+    backend
+        name: "backend-example"
+        ip-addresses: [
+            "10.0.0.2",
+            "10.0.0.3"
+        ]
+    end
+
+    backend-http-configuration
+        name: "backend-http-configuration-example"
+        port: 8080
+        cookie-name: "something"
+        enable-affinity-cookie: false
+        probe: "probe-example"
+        connection-draining-timeout: 30
+        host-header: "something"
+        host-header-from-backend: false
+        backend-path: "something"
+    end
+
+    probe
+        name: "probe-example"
+        host-name: "www.google.com"
+        path: "/path"
+        interval: 40
+        timeout: 40
+        unhealthy-threshold: 4
+        https-protocol: false
+        http-response-codes: [
+            "200-210"
+        ]
+        http-response-body-match: "body"
+    end
+end
