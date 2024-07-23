@@ -1,0 +1,30 @@
+azure::resource-group resource-group-disk-example
+    name: "resource-group-disk-example"
+
+    tags: {
+        Name: "resource-group-disk-example"
+    }
+end
+
+azure::disk disk-example
+    name: "disk-example"
+    type: "Standard_LRS"
+    os-type: "LINUX"
+    size: 10
+    resource-group: $(azure::resource-group resource-group-disk-example)
+    tags: {
+        Name: "disk-example"
+    }
+end
+
+azure::disk disk-example-from-disk
+    name: "disk-example-from-disk"
+    type: "STANDARDSSD_LRS"
+    os-type: "WINDOWS"
+    data-load-source: $(azure::disk disk-example).id
+    size: 11
+    resource-group: $(azure::resource-group resource-group-disk-example)
+    tags: {
+        Name: "disk-example-from-disk"
+    }
+end

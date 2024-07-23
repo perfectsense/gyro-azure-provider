@@ -1,0 +1,31 @@
+azure::resource-group cloud-file-resource-group-example
+    name: "cloud-file-resource-group"
+
+    tags: {
+        Name: "cloud-file-resource-group"
+    }
+end
+
+azure::storage-account cloud-file-share-storage-account-example
+    resource-group: $(azure::resource-group cloud-file-resource-group-example)
+    name: "cloudfilesharestacct"
+
+    cors-rule
+        allowed-headers: ["*"]
+        allowed-methods: ["GET"]
+        allowed-origins: ["*"]
+        exposed-headers: ["*"]
+        max-age: 6
+        type: "file"
+    end
+
+    tags: {
+        Name: "cloudfilesharestacct"
+    }
+end
+
+azure::cloud-file-share cloud-file-share-example
+    name: "example-cloud-file-share"
+    storage-account: $(azure::storage-account cloud-file-share-storage-account-example)
+    share-quota: 3
+end

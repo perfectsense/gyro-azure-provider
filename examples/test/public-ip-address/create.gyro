@@ -1,0 +1,16 @@
+azure::resource-group resource-group-public-ip-address-example
+    name: "resource-group-public-ip-address-example"
+
+    tags: {
+        Name: "resource-group-public-ip-address-example"
+    }
+end
+
+azure::public-ip-address public-ip-address-example
+    name: "public-ip-address-example"
+    resource-group: $(azure::resource-group resource-group-public-ip-address-example)
+    idle-timeout-in-minute: 4
+    tags: {
+        Name: "public-ip-address-example"
+    }
+end

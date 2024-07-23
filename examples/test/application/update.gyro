@@ -1,0 +1,7 @@
+azure::application application-example
+    name: "application-example"
+    account-type: "AzureADMultipleOrgs"
+    identifier-uris: ["https://azure.brightspot.cloud"]
+    reply-urls: ["https://azure.brightspot.cloud"]
+    sign-on-url: "https://azure.brightspot.cloud"
+end

@@ -1,0 +1,18 @@
+azure::resource-group resource-group-availability-set-example
+    name: "resource-group-availability-set-example"
+
+    tags: {
+        Name: "resource-group-availability-set-example"
+    }
+end
+
+azure::availability-set availability-set-example
+    fault-domain-count: 2
+    name: "availability-set-example"
+    resource-group: $(azure::resource-group resource-group-availability-set-example)
+    sku: "Classic"
+    tags: {
+        Name: "availability-set-example"
+    }
+    update-domain-count: 20
+end

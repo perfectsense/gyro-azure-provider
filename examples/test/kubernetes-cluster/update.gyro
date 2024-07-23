@@ -1,0 +1,104 @@
+azure::resource-group resource-group-cluster-example
+    name: "resource-group-cluster-example"
+
+    tags: {
+        Name: "resource-group-cluster-example"
+    }
+end
+
+azure::network network-cluster-example
+    name: "network-cluster-example"
+    resource-group: $(azure::resource-group resource-group-cluster-example)
+    address-spaces:  [
+         "10.0.0.0/8"
+    ]
+
+    subnet
+        address-prefix: "10.240.0.0/16"
+        name: "subnet1"
+    end
+
+    tags: {
+        Name: "network-cluster-example"
+    }
+end
+
+azure::registry registry-example-cluster
+    name: "registryClusterExample"
+    sku: "Premium"
+    resource-group: $(azure::resource-group resource-group-cluster-example)
+    public-network-access: false
+    admin-user-enabled: false
+
+    tags: {
+        Name: "registry-example-cluster"
+    }
+end
+
+azure::public-ip-address public-ip-address-example-cluster
+    name: "public-ip-address-example-cluster"
+    resource-group: $(azure::resource-group resource-group-cluster-example)
+    idle-timeout-in-minute: 4
+    sku-type: "STANDARD"
+    tags: {
+        Name: "public-ip-address-example-cluster"
+    }
+end
+
+azure::kubernetes-cluster kubernetes-cluster-example
+    name: "kubernetes-cluster-example"
+    version: "1.22.4"
+    enable-private-cluster: false
+
+    resource-group: $(azure::resource-group resource-group-cluster-example)
+
+    linux-root-username: "adminuser"
+    ssh-key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDK/2jCF+4AF3aJ+d1f4yjVECuYaXYGj2z4Nu4nc6zFX1cgSm4ukI+CDlbbYjDGiHblkDbuGg067KsnjFAH6xrUpmOu4XO9NJz8GuCD0TEE+EG39PcpY1A+mfKyFNK7RvWpf2GB5nWXUvDzek1j9FqnRktE1Bj/Zyj2nBG/ymAZF+zHMgZ8PecDjdPeSSkUzkuMoOdNqjFXhRGd1p4upbVWtyq7rQHi1mPfEv7pllF8H48+nTFx5/crT7/AhOBtVpQJPM+bahy+4H2gF3Pek91v608DkbnjvszUmyhghHQOOnseIJ+bgJVumMNXwxATVAe/weqMAF/sGtJrkuBFJkl274TQzfmM+Z09YtuiIbBBCnwF1MeXC3Fbb3f8E7yFBJ3T8Mt9wxc9elDZA+ziFhHmQrMdfEyQiyq+h5Q+GMiXkAYk0Ikuc1MCprYkplb1aR5oOGVha6UFOu7NqRvrFjscVaetZ0UEHv0AZhb54N7/x6DPCwzTaw/3iYhhSu1we3k= generated-by-azure"
+
+    dns-prefix: "kubernetes-cluster-example-dns"
+    enable-rbac: true
+
+    agent-pool
+        name: "agentpool"
+        size: "Standard_DS2_v2"
+        count: 1
+        availability-zones: [1,2,3]
+        mode: "System"
+        auto-scaling-enabled: true
+        type: "VirtualMachineScaleSets"
+        os-type: "Linux"
+        os-disk-type: "Managed"
+        os-disk-size-in-gb: 128
+        node-size: 1
+        network: $(azure::network network-cluster-example)
+        subnet: "subnet1"
+        maximum-pods-per-node: 110
+        minimum-node-size: 1
+        maximum-node-size: 5
+        kubelet-disk-type: "OS"
+
+        tags: {
+            Name: "agentpool_primary"
+        }
+    end
+
+    network-profile
+        dns-service-ip: "10.0.0.10"
+        service-cidr: "10.0.0.0/16"
+        load-balancer-sku: "Standard"
+        outbound-type: "loadBalancer"
+        network-plugin: "azure"
+
+        load-balancer-profile
+            outbound-ips
+                public-ips: [ $(azure::public-ip-address public-ip-address-example-cluster) ]
+            end
+
+        end
+    end
+
+    tags: {
+        Name: "kubernetes-cluster-example"
+    }
+
+end
