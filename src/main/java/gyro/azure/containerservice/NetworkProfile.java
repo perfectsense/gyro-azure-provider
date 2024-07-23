@@ -32,7 +32,6 @@ import org.apache.commons.lang3.StringUtils;
 public class NetworkProfile extends Diffable implements Copyable<ContainerServiceNetworkProfile> {
 
     private String dnsServiceIp;
-    private String dockerBridgeCidr;
     private String networkPlugin;
     private String networkMode;
     private String networkPolicy;
@@ -53,18 +52,6 @@ public class NetworkProfile extends Diffable implements Copyable<ContainerServic
 
     public void setDnsServiceIp(String dnsServiceIp) {
         this.dnsServiceIp = dnsServiceIp;
-    }
-
-    /**
-     * The docker bridge cidr for the network profile.
-     */
-    @Updatable
-    public String getDockerBridgeCidr() {
-        return dockerBridgeCidr;
-    }
-
-    public void setDockerBridgeCidr(String dockerBridgeCidr) {
-        this.dockerBridgeCidr = dockerBridgeCidr;
     }
 
     /**
@@ -187,7 +174,6 @@ public class NetworkProfile extends Diffable implements Copyable<ContainerServic
     @Override
     public void copyFrom(ContainerServiceNetworkProfile model) {
         setDnsServiceIp(model.dnsServiceIp());
-        setDockerBridgeCidr(model.dockerBridgeCidr());
         setNetworkPlugin(model.networkPlugin().toString());
         setNetworkMode(model.networkMode() != null ? model.networkMode().toString() : null);
         setNetworkPolicy(model.networkPolicy() != null ? model.networkPolicy().toString() : null);
@@ -241,10 +227,6 @@ public class NetworkProfile extends Diffable implements Copyable<ContainerServic
 
         if (!StringUtils.isBlank(getOutboundType())) {
             networkProfile.withOutboundType(OutboundType.fromString(getOutboundType()));
-        }
-
-        if (!StringUtils.isBlank(getDockerBridgeCidr())) {
-            networkProfile.withDockerBridgeCidr(getDockerBridgeCidr());
         }
 
         if (!StringUtils.isBlank(getServiceCidr())) {

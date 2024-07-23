@@ -1,11 +1,16 @@
 package gyro.azure.keyvault;
 
+import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.azure.resourcemanager.keyvault.models.Secret;
-import com.azure.resourcemanager.keyvault.models.Vault;
+import com.azure.core.util.polling.SyncPoller;
+import com.azure.security.keyvault.secrets.SecretClient;
+import com.azure.security.keyvault.secrets.SecretClientBuilder;
+import com.azure.security.keyvault.secrets.models.DeletedSecret;
+import com.azure.security.keyvault.secrets.models.KeyVaultSecret;
+import com.azure.security.keyvault.secrets.models.SecretProperties;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.core.GyroUI;
@@ -43,7 +48,7 @@ import org.apache.commons.lang3.StringUtils;
  *     end
  */
 @Type("key-vault-secret")
-public class KeyVaultSecretResource extends AzureResource implements Copyable<Secret> {
+public class KeyVaultSecretResource extends AzureResource implements Copyable<KeyVaultSecret> {
 
     private String name;
     private KeyVaultResource vault;
@@ -59,6 +64,7 @@ public class KeyVaultSecretResource extends AzureResource implements Copyable<Se
      * The name of the secret.
      */
     @Required
+    @Id
     public String getName() {
         return name;
     }
@@ -121,7 +127,6 @@ public class KeyVaultSecretResource extends AzureResource implements Copyable<Se
     /**
      * The Id of the secret.
      */
-    @Id
     @Output
     public String getId() {
         return id;
@@ -172,16 +177,16 @@ public class KeyVaultSecretResource extends AzureResource implements Copyable<Se
     }
 
     @Override
-    public void copyFrom(Secret secret) {
-        setName(secret.name());
-        setId(secret.id());
-        setKid(secret.kid());
-        setTags(secret.tags());
+    public void copyFrom(KeyVaultSecret secret) {
+        setName(secret.getName());
+        setId(secret.getId());
+        setKid(secret.getProperties().getKeyId());
+        setTags(secret.getProperties().getTags());
         setValue(secret.getValue());
-        setContentType(secret.contentType());
+        setContentType(secret.getProperties().getContentType());
 
         KeyVaultSecretAttribute attribute = newSubresource(KeyVaultSecretAttribute.class);
-        attribute.copyFrom(secret.attributes());
+        attribute.copyFrom(secret.getProperties());
         setAttribute(attribute);
 
         String vaultName = getId().split(".vault.azure.net")[0].split("://")[1];
@@ -190,9 +195,9 @@ public class KeyVaultSecretResource extends AzureResource implements Copyable<Se
 
     @Override
     public boolean refresh() {
-        Vault vault = getVault().getKeyVault();
+        SecretClient client = getSecretClient();
 
-        Secret secret = vault.secrets().getById(getId());
+        KeyVaultSecret secret = client.getSecret(getName());
 
         if (secret == null) {
             return false;
@@ -205,57 +210,59 @@ public class KeyVaultSecretResource extends AzureResource implements Copyable<Se
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        Vault vault = getVault().getKeyVault();
+        SecretClient client = getSecretClient();
 
-        Secret.DefinitionStages.WithCreate withCreate = vault.secrets()
-            .define(getName())
-            .withValue(getValue());
+        KeyVaultSecret keyVaultSecret = new KeyVaultSecret(getName(), getValue());
 
-        if (getAttribute() != null) {
-            withCreate = withCreate.withAttributes(getAttribute().toSecretProperties());
-        }
+        SecretProperties secretProperties = getAttribute().toSecretProperties();
 
         if (!StringUtils.isBlank(getContentType())) {
-            withCreate = withCreate.withContentType(getContentType());
+            secretProperties = secretProperties.setContentType(getContentType());
         }
 
         if (!getTags().isEmpty()) {
-            withCreate = withCreate.withTags(getTags());
+            secretProperties = secretProperties.setTags(getTags());
         }
 
-        Secret secret = withCreate.create();
+        keyVaultSecret = keyVaultSecret.setProperties(secretProperties);
 
-        copyFrom(secret);
+        copyFrom(client.setSecret(keyVaultSecret));
     }
 
     @Override
-    public void update(
-        GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
-        Vault vault = getVault().getKeyVault();
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
+        SecretClient client = getSecretClient();
 
-        Secret secret = vault.secrets().getById(getId());
-
-        Secret.Update update = secret.update();
+        KeyVaultSecret secret = client.getSecret(getName());
 
         if (changedFieldNames.contains("attribute")) {
-            update = update.withAttributes(getAttribute().toSecretProperties());
+            secret.getProperties().setEnabled(getAttribute().getEnabled());
+            secret.getProperties().setExpiresOn(
+                getAttribute().getExpires() != null ? OffsetDateTime.parse(getAttribute().getExpires()) : null);
+            secret.getProperties().setNotBefore(
+                getAttribute().getNotBefore() != null ? OffsetDateTime.parse(getAttribute().getNotBefore()) : null);
         }
 
         if (changedFieldNames.contains("content-type")) {
-            update = update.withContentType(getContentType());
+            secret.getProperties().setContentType(getContentType());
         }
 
         if (changedFieldNames.contains("tags")) {
-            update = update.withTags(getTags());
+            secret.getProperties().setTags(getTags());
         }
 
-        update.apply();
+        client.updateSecretProperties(secret.getProperties());
     }
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
-        Vault vault = getVault().getKeyVault();
+        SecretClient client = getSecretClient();
+        SyncPoller<DeletedSecret, Void> deletedSecretPoller = client.beginDeleteSecret(getName());
+        deletedSecretPoller.poll();
+        deletedSecretPoller.waitForCompletion();
+    }
 
-        vault.secrets().deleteById(getId());
+    public SecretClient getSecretClient() {
+        return new SecretClientBuilder().credential(getTokenCredential()).vaultUrl(getVault().getUrl()).buildClient();
     }
 }

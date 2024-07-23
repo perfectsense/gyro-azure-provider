@@ -24,6 +24,8 @@ import java.util.stream.Collectors;
 
 import com.azure.core.management.Region;
 import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.keyvault.models.Sku;
+import com.azure.resourcemanager.keyvault.models.SkuName;
 import com.azure.resourcemanager.keyvault.models.Vault;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
@@ -181,6 +183,7 @@ public class KeyVaultResource extends AzureResource implements Copyable<Vault> {
     private Boolean enableDiskEncryption;
     private Boolean enablePurgeVault;
     private Boolean enableSoftDelete;
+    private SkuName skuTier;
     private String id;
     private String url;
     private String location;
@@ -325,6 +328,21 @@ public class KeyVaultResource extends AzureResource implements Copyable<Vault> {
     }
 
     /**
+     * The SKU tier for the key vault.
+     */
+    public SkuName getSkuTier() {
+        if (skuTier == null) {
+            skuTier = SkuName.STANDARD;
+        }
+
+        return skuTier;
+    }
+
+    public void setSkuTier(SkuName skuTier) {
+        this.skuTier = skuTier;
+    }
+
+    /**
      * The ID of the key vault.
      */
     @Output
@@ -367,6 +385,7 @@ public class KeyVaultResource extends AzureResource implements Copyable<Vault> {
         setUrl(vault.vaultUri());
         setResourceGroup(findById(ResourceGroupResource.class, vault.resourceGroupName()));
         setTags(vault.tags());
+        setSkuTier(vault.sku().name());
 
         getAccessPolicy().clear();
         if (vault.accessPolicies() != null) {
@@ -405,7 +424,8 @@ public class KeyVaultResource extends AzureResource implements Copyable<Vault> {
 
         Vault.DefinitionStages.WithCreate withCreate = client.vaults().define(getName())
             .withRegion(Region.fromName(getRegion()))
-            .withExistingResourceGroup(getResourceGroup().getName()).withEmptyAccessPolicy();
+            .withExistingResourceGroup(getResourceGroup().getName()).withEmptyAccessPolicy()
+            .withSku(getSkuTier());
 
         if (!getAccessPolicy().isEmpty()) {
             for (KeyVaultAccessPolicy accessPolicy : getAccessPolicy()) {

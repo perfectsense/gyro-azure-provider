@@ -1,5 +1,6 @@
 package gyro.azure.keyvault;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -7,11 +8,18 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.azure.core.util.ExpandableStringEnum;
-import com.azure.resourcemanager.keyvault.models.Key;
-import com.azure.resourcemanager.keyvault.models.Vault;
+import com.azure.core.util.polling.SyncPoller;
+import com.azure.security.keyvault.keys.KeyClient;
+import com.azure.security.keyvault.keys.KeyClientBuilder;
+import com.azure.security.keyvault.keys.models.CreateEcKeyOptions;
+import com.azure.security.keyvault.keys.models.CreateKeyOptions;
+import com.azure.security.keyvault.keys.models.CreateOctKeyOptions;
+import com.azure.security.keyvault.keys.models.CreateRsaKeyOptions;
+import com.azure.security.keyvault.keys.models.DeletedKey;
+import com.azure.security.keyvault.keys.models.KeyCurveName;
 import com.azure.security.keyvault.keys.models.KeyOperation;
 import com.azure.security.keyvault.keys.models.KeyType;
+import com.azure.security.keyvault.keys.models.KeyVaultKey;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.core.GyroUI;
@@ -51,7 +59,7 @@ import gyro.core.validation.ValidStrings;
  *     end
  */
 @Type("key-vault-key")
-public class KeyVaultKeyResource extends AzureResource implements Copyable<Key> {
+public class KeyVaultKeyResource extends AzureResource implements Copyable<KeyVaultKey> {
 
     private String name;
     private KeyVaultResource vault;
@@ -59,6 +67,7 @@ public class KeyVaultKeyResource extends AzureResource implements Copyable<Key> 
     private KeyVaultKeyAttribute attribute;
     private Integer size;
     private List<String> operations;
+    private KeyCurveName curveName;
     private String version;
     private String id;
     private Map<String, String> tags;
@@ -66,6 +75,7 @@ public class KeyVaultKeyResource extends AzureResource implements Copyable<Key> 
     /**
      * The name of the key.
      */
+    @Id
     @Required
     public String getName() {
         return name;
@@ -129,7 +139,6 @@ public class KeyVaultKeyResource extends AzureResource implements Copyable<Key> 
     /**
      * A set of key operations that you want to enable.
      */
-    @Updatable
     @ValidStrings({"encrypt", "decrypt", "sign", "verify", "wrapKey", "unwrapKey", "import"})
     public List<String> getOperations() {
         if (operations == null) {
@@ -141,6 +150,19 @@ public class KeyVaultKeyResource extends AzureResource implements Copyable<Key> 
 
     public void setOperations(List<String> operations) {
         this.operations = operations;
+    }
+
+    /**
+     * The elliptic curve name
+     */
+    @Updatable
+    @ValidStrings({"P-256", "P-384", "P-521", "P-256K"})
+    public KeyCurveName getCurveName() {
+        return curveName;
+    }
+
+    public void setCurveName(KeyCurveName curveName) {
+        this.curveName = curveName;
     }
 
     /**
@@ -158,7 +180,6 @@ public class KeyVaultKeyResource extends AzureResource implements Copyable<Key> 
     /**
      * The id of the key.
      */
-    @Id
     @Output
     public String getId() {
         return id;
@@ -185,17 +206,16 @@ public class KeyVaultKeyResource extends AzureResource implements Copyable<Key> 
     }
 
     @Override
-    public void copyFrom(Key key) {
-        setTags(key.tags());
-
-        setOperations(key.getJsonWebKey().getKeyOps().stream().map(ExpandableStringEnum::toString).collect(Collectors.toList()));
+    public void copyFrom(KeyVaultKey key) {
         KeyVaultKeyAttribute attribute = newSubresource(KeyVaultKeyAttribute.class);
-        attribute.copyFrom(key.attributes());
+        attribute.copyFrom(key.getProperties());
         setAttribute(attribute);
+        setTags(key.getProperties().getTags());
+        setVersion(key.getProperties().getVersion());
 
-        setId(key.id());
-        setName(key.name());
-        setVersion(key.innerModel().getVersion());
+        setOperations(key.getKeyOperations().stream().map(KeyOperation::toString).collect(Collectors.toList()));
+        setId(key.getId());
+        setName(key.getName());
 
         String vaultName = getId().split(".vault.azure.net")[0].split("://")[1];
         setVault(findById(KeyVaultResource.class, vaultName));
@@ -203,9 +223,9 @@ public class KeyVaultKeyResource extends AzureResource implements Copyable<Key> 
 
     @Override
     public boolean refresh() {
-        Vault vault = getVault().getKeyVault();
+        KeyClient keyClient = getKeyClient();
 
-        Key key = vault.keys().getById(getId());
+        KeyVaultKey key = keyClient.getKey(getName());
 
         if (key == null) {
             return false;
@@ -218,62 +238,130 @@ public class KeyVaultKeyResource extends AzureResource implements Copyable<Key> 
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        Vault vault = getVault().getKeyVault();
+        KeyClient keyClient = getKeyClient();
+        KeyVaultKey key = null;
 
-        Key.DefinitionStages.WithCreate withCreate = vault.keys().define(getName())
-            .withKeyTypeToCreate(KeyType.fromString(getType()));
+        if (getType().equals("EC") || getType().equals("EC-HSM")) {
+            CreateEcKeyOptions createKeyOptions = new CreateEcKeyOptions(getName());
 
-        if (getSize() != null) {
-            withCreate = withCreate.withKeySize(getSize());
+            if (getAttribute() != null) {
+                createKeyOptions = createKeyOptions.setEnabled(getAttribute().getEnabled());
+                createKeyOptions = createKeyOptions.setExpiresOn(
+                    getAttribute().getExpires() != null ? OffsetDateTime.parse(getAttribute().getExpires()) : null);
+                createKeyOptions = createKeyOptions.setNotBefore(
+                    getAttribute().getNotBefore() != null ? OffsetDateTime.parse(getAttribute().getNotBefore()) : null);
+            }
+
+            if (getOperations() != null) {
+                createKeyOptions = createKeyOptions.setKeyOperations(
+                    getOperations().stream().map(KeyOperation::fromString).toArray(KeyOperation[]::new));
+            }
+
+            if (getTags() != null) {
+                createKeyOptions = createKeyOptions.setTags(getTags());
+            }
+
+            if (getType().equals("EC-HSM")) {
+                createKeyOptions = createKeyOptions.setHardwareProtected(true);
+            }
+
+            if (getCurveName() != null) {
+                createKeyOptions = createKeyOptions.setCurveName(getCurveName());
+            }
+
+            key = keyClient.createEcKey(createKeyOptions);
+
+        } else if (getType().equals("RSA") || getType().equals("RSA-HSM")) {
+            CreateRsaKeyOptions createKeyOptions = new CreateRsaKeyOptions(getName());
+
+            if (getAttribute() != null) {
+                createKeyOptions = createKeyOptions.setEnabled(getAttribute().getEnabled());
+                createKeyOptions = createKeyOptions.setExpiresOn(
+                    getAttribute().getExpires() != null ? OffsetDateTime.parse(getAttribute().getExpires()) : null);
+                createKeyOptions = createKeyOptions.setNotBefore(
+                    getAttribute().getNotBefore() != null ? OffsetDateTime.parse(getAttribute().getNotBefore()) : null);
+            }
+
+            if (getOperations() != null) {
+                createKeyOptions = createKeyOptions.setKeyOperations(
+                    getOperations().stream().map(KeyOperation::fromString).toArray(KeyOperation[]::new));
+            }
+
+            if (getTags() != null) {
+                createKeyOptions = createKeyOptions.setTags(getTags());
+            }
+
+            if (getType().equals("RSA-HSM")) {
+                createKeyOptions = createKeyOptions.setHardwareProtected(true);
+            }
+
+            if (getSize() != null) {
+                createKeyOptions = createKeyOptions.setKeySize(getSize());
+            }
+
+            key = keyClient.createRsaKey(createKeyOptions);
+
+        } else {
+            CreateOctKeyOptions createKeyOptions = new CreateOctKeyOptions(getName());
+
+            if (getAttribute() != null) {
+                createKeyOptions = createKeyOptions.setEnabled(getAttribute().getEnabled());
+                createKeyOptions = createKeyOptions.setExpiresOn(
+                    getAttribute().getExpires() != null ? OffsetDateTime.parse(getAttribute().getExpires()) : null);
+                createKeyOptions = createKeyOptions.setNotBefore(
+                    getAttribute().getNotBefore() != null ? OffsetDateTime.parse(getAttribute().getNotBefore()) : null);
+            }
+
+            if (getOperations() != null) {
+                createKeyOptions = createKeyOptions.setKeyOperations(
+                    getOperations().stream().map(KeyOperation::fromString).toArray(KeyOperation[]::new));
+            }
+
+            if (getTags() != null) {
+                createKeyOptions = createKeyOptions.setTags(getTags());
+            }
+
+            if (getType().equals("OCT-HSM")) {
+                createKeyOptions = createKeyOptions.setHardwareProtected(true);
+            }
+
+            key = keyClient.createOctKey(createKeyOptions);
         }
-
-        if (getAttribute() != null) {
-            withCreate = withCreate.withAttributes(getAttribute().toKeyProperties());
-        }
-
-        if (getOperations() != null) {
-            withCreate = withCreate.withKeyOperations(getOperations().stream()
-                .map(KeyOperation::fromString).collect(Collectors.toList()));
-        }
-
-        if (getTags() != null) {
-            withCreate = withCreate.withTags(getTags());
-        }
-
-        Key key = withCreate.create();
 
         copyFrom(key);
     }
 
     @Override
-    public void update(
-        GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
-        Vault vault = getVault().getKeyVault();
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
+        KeyClient keyClient = getKeyClient();
 
-        Key key = vault.keys().getById(getId());
-
-        Key.Update update = key.update();
+        KeyVaultKey key = keyClient.getKey(getName());
 
         if (changedFieldNames.contains("attribute")) {
-            update = update.withAttributes(getAttribute().toKeyProperties());
-        }
-
-        if (changedFieldNames.contains("operations")) {
-            update = update.withKeyOperations(getOperations().stream()
-                .map(KeyOperation::fromString).collect(Collectors.toList()));
+            key.getProperties().setEnabled(getAttribute().getEnabled());
+            key.getProperties().setExpiresOn(
+                getAttribute().getExpires() != null ? OffsetDateTime.parse(getAttribute().getExpires()) : null);
+            key.getProperties().setNotBefore(
+                getAttribute().getNotBefore() != null ? OffsetDateTime.parse(getAttribute().getNotBefore()) : null);
         }
 
         if (changedFieldNames.contains("tags")) {
-            update = update.withTags(getTags());
+            key.getProperties().setTags(getTags());
         }
 
-        update.apply();
+        keyClient.updateKeyProperties(key.getProperties());
     }
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
-        Vault vault = getVault().getKeyVault();
+        KeyClient keyClient = getKeyClient();
 
-        vault.keys().deleteById(getId());
+        SyncPoller<DeletedKey, Void> deletedKeyPoller = keyClient.beginDeleteKey(getName());
+        deletedKeyPoller.poll();
+        deletedKeyPoller.waitForCompletion();
+    }
+
+    public KeyClient getKeyClient() {
+        return new KeyClientBuilder().credential(getTokenCredential()).vaultUrl(getVault().getUrl()).buildClient();
     }
 }

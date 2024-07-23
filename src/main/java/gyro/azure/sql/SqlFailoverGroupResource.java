@@ -36,6 +36,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Min;
 import gyro.core.validation.Required;
 
 /**
@@ -158,6 +159,7 @@ public class SqlFailoverGroupResource extends AzureResource implements Copyable<
      * Determines the grace period. Required when used with the automatic read and write policy.
      */
     @Updatable
+    @Min(60)
     public Integer getReadWriteGracePeriod() {
         return readWriteGracePeriod;
     }
