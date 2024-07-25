@@ -113,22 +113,14 @@ public class CloudTableResource extends AzureResource implements Copyable<TableC
             .connectionString(getStorageAccount().getConnection())
             .buildClient();
 
-        TableClient tableClient = client.getTableClient(getName());
-
-        try {
-            tableClient.getAccessPolicies();
-        } catch (TableServiceException ex) {
-            tableClient = null;
-        }
-
-        return tableClient;
+        return client.getTableClient(getName());
     }
 
     private TableClient verifiedCloudTable() {
         TableClient tableClient = cloudTable();
 
         try {
-            tableClient.getAccessPolicies();
+            tableClient.getTableEndpoint();
         } catch (TableServiceException ex) {
             tableClient = null;
         }

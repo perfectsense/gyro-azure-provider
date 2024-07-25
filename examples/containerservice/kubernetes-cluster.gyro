@@ -84,7 +84,6 @@ azure::kubernetes-cluster kubernetes-cluster-example
 
     network-profile
         dns-service-ip: "10.0.0.10"
-        docker-bridge-cidr: "172.17.0.1/16"
         service-cidr: "10.0.0.0/16"
         load-balancer-sku: "Standard"
         outbound-type: "loadBalancer"

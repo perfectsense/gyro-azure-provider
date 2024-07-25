@@ -110,7 +110,7 @@ public class KeyVaultCertificatePolicy extends Diffable implements Copyable<Cert
     /**
      * The key type.
      */
-    @ValidStrings({"RSA", "RSA-HSM", "EC", "EC-HSM"})
+    //    @ValidStrings({"RSA", "RSA-HSM", "EC", "EC-HSM"})
     public String getKeyType() {
         return keyType;
     }
@@ -193,7 +193,7 @@ public class KeyVaultCertificatePolicy extends Diffable implements Copyable<Cert
     /**
      * The key size.
      */
-    @ValidNumbers({2048, 3072, 4096})
+    @ValidNumbers({256, 384, 521})
     public Integer getKeySize() {
         return keySize;
     }
@@ -332,7 +332,7 @@ public class KeyVaultCertificatePolicy extends Diffable implements Copyable<Cert
 
     @Override
     public String primaryKey() {
-        return "";
+        return "policy";
     }
 
     CertificatePolicy toCertificatePolicy() {

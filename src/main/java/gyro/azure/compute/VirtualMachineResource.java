@@ -704,6 +704,7 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
             PublicIpAddressResource.class,
             virtualMachine.getPrimaryPublicIPAddressId()) : null);
         setOsType(virtualMachine.osType().name());
+        setStorageAccountTypeOsDisk(virtualMachine.osDiskStorageAccountType().toString());
 
         setNetworkInterface(
             findById(
@@ -737,7 +738,8 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
 
         setDataDisks(dataDisks);
 
-        setEnableSystemManagedServiceIdentity(!ObjectUtils.isBlank(virtualMachine.systemAssignedManagedServiceIdentityPrincipalId()));
+        setEnableSystemManagedServiceIdentity(
+            !ObjectUtils.isBlank(virtualMachine.systemAssignedManagedServiceIdentityPrincipalId()));
         setSystemManagedServiceIdentityPrincipalId(virtualMachine.systemAssignedManagedServiceIdentityPrincipalId());
 
         getIdentities().clear();
@@ -828,8 +830,9 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
         }
 
         for (IdentityResource identity : getIdentities()) {
-            osConfiguredVMBuilder = osConfiguredVMBuilder.withExistingUserAssignedManagedServiceIdentity(client.identities()
-                .getById(identity.getId()));
+            osConfiguredVMBuilder =
+                osConfiguredVMBuilder.withExistingUserAssignedManagedServiceIdentity(client.identities()
+                    .getById(identity.getId()));
         }
 
         return osConfiguredVMBuilder
@@ -1017,7 +1020,8 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
      * Fourth step in Virtual Machine Fluent workflow. Configures Admin User for ManagedOrUnmanaged Disk types
      * @return {@link WithFromImageCreateOptionsManagedOrUnmanaged} VM Definition object ready for data disk configurations
      */
-    private WithFromImageCreateOptionsManagedOrUnmanaged configureLinuxAdmin(WithLinuxRootUsernameManagedOrUnmanaged vmImageTypeConfigured) {
+    private WithFromImageCreateOptionsManagedOrUnmanaged configureLinuxAdmin(
+        WithLinuxRootUsernameManagedOrUnmanaged vmImageTypeConfigured) {
         WithLinuxCreateManagedOrUnmanaged adminConfigured = null;
         WithLinuxRootPasswordOrPublicKeyManagedOrUnmanaged rootUserConfigured = vmImageTypeConfigured.withRootUsername(
             getAdminUserName());
@@ -1040,7 +1044,8 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
      * Fourth step in Virtual Machine Fluent workflow. Configures Admin User for Unmanaged Disk types
      * @return {@link WithFromImageCreateOptionsUnmanaged} VM Definition object ready for data disk configurations
      */
-    private WithFromImageCreateOptionsUnmanaged configureLinuxAdmin(WithLinuxRootUsernameUnmanaged vmImageTypeConfigured) {
+    private WithFromImageCreateOptionsUnmanaged configureLinuxAdmin(
+        WithLinuxRootUsernameUnmanaged vmImageTypeConfigured) {
         WithLinuxCreateUnmanaged adminConfigured = null;
         WithLinuxRootPasswordOrPublicKeyUnmanaged rootUserConfigured = vmImageTypeConfigured.withRootUsername(
             getAdminUserName());
@@ -1168,7 +1173,8 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
      * Fourth step in Virtual Machine Fluent workflow. Configures Admin User for ManagedOrUnmanaged Disk types
      * @return {@link WithWindowsCreateManagedOrUnmanaged} VM Definition object ready for data disk configurations
      */
-    private WithWindowsCreateManagedOrUnmanaged configureWindowsAdmin(WithWindowsAdminUsernameManagedOrUnmanaged vmImageTypeConfigured) {
+    private WithWindowsCreateManagedOrUnmanaged configureWindowsAdmin(
+        WithWindowsAdminUsernameManagedOrUnmanaged vmImageTypeConfigured) {
         return vmImageTypeConfigured.withAdminUsername(getAdminUserName())
             .withAdminPassword(getAdminPassword());
     }

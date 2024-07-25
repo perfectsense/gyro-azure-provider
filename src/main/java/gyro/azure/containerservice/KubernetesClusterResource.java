@@ -105,7 +105,6 @@ import org.apache.commons.lang3.StringUtils;
  *
  *         network-profile
  *             dns-service-ip: "10.0.0.10"
- *             docker-bridge-cidr: "172.17.0.1/16"
  *             service-cidr: "10.0.0.0/16"
  *             load-balancer-sku: "Standard"
  *             outbound-type: "loadBalancer"
@@ -591,9 +590,6 @@ public class KubernetesClusterResource extends AzureResource implements Copyable
 
             if (!StringUtils.isBlank(network.getPodCidr())) {
                 withAttach = withAttach.withPodCidr(network.getPodCidr());
-            }
-            if (!StringUtils.isBlank(network.getDockerBridgeCidr())) {
-                withAttach = withAttach.withDockerBridgeCidr(network.getDockerBridgeCidr());
             }
 
             if (!StringUtils.isBlank(network.getServiceCidr())) {

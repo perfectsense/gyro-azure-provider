@@ -26,6 +26,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.sql.models.SqlDatabase;
 import com.azure.resourcemanager.sql.models.SqlDatabaseStandardStorage;
 import com.azure.resourcemanager.sql.models.SqlElasticPool;
 import com.azure.resourcemanager.sql.models.SqlElasticPoolBasicEDTUs;
@@ -153,7 +154,7 @@ public class SqlElasticPoolResource extends AzureResource implements Copyable<Sq
      * The edition of the elastic pool. Valid values are ``Basic``, ``Premium``, or  ``Standard``
      */
     @Required
-    @ValidStrings({ "Basic", "Premium", "Standard" })
+    @ValidStrings({"Basic", "Premium", "Standard"})
     @Updatable
     public String getEdition() {
         return edition;
@@ -340,6 +341,8 @@ public class SqlElasticPoolResource extends AzureResource implements Copyable<Sq
         AzureResourceManager client = createClient();
 
         SqlElasticPool sqlElasticPool = getSqlElasticPool(client);
+        sqlElasticPool.listDatabases().stream().map(SqlDatabase::name).forEach(sqlElasticPool::removeDatabase);
+        sqlElasticPool.update();
 
         if (sqlElasticPool != null) {
             sqlElasticPool.delete();

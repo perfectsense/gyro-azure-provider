@@ -129,15 +129,7 @@ public class CloudQueueResource extends AzureResource implements Copyable<QueueC
             .connectionString(getStorageAccount().getConnection())
             .buildClient();
 
-        QueueClient queueClient = client.getQueueClient(getName());
-
-        try {
-            queueClient.getProperties();
-        } catch (QueueStorageException ex) {
-            queueClient = null;
-        }
-
-        return queueClient;
+        return client.getQueueClient(getName());
     }
 
     private QueueClient verifiedCloudQueue() {

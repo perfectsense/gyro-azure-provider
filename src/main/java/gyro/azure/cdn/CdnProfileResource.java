@@ -106,7 +106,7 @@ public class CdnProfileResource extends AzureResource implements Copyable<CdnPro
      * The sku of the CDN Profile.
      */
     @Required
-    @ValidStrings({ "Premium_Verizon", "Standard_Verizon", "Standard_Akamai" })
+    @ValidStrings({"Premium_Verizon", "Standard_Verizon", "Standard_Akamai", "Standard_Microsoft"})
     public String getSku() {
         return sku;
     }
@@ -193,6 +193,8 @@ public class CdnProfileResource extends AzureResource implements Copyable<CdnPro
             cdnProfile = withSku.withStandardVerizonSku().withTags(getTags()).create();
         } else if ("Standard_Akamai".equalsIgnoreCase(getSku())) {
             cdnProfile = withSku.withStandardAkamaiSku().withTags(getTags()).create();
+        } else if ("Standard_Microsoft".equalsIgnoreCase(getSku())) {
+            cdnProfile = withSku.withStandardMicrosoftSku().withTags(getTags()).create();
         }
 
         copyFrom(cdnProfile);

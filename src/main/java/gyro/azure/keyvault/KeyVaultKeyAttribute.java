@@ -2,6 +2,8 @@ package gyro.azure.keyvault;
 
 import java.time.OffsetDateTime;
 
+import com.azure.security.keyvault.keys.models.CreateEcKeyOptions;
+import com.azure.security.keyvault.keys.models.CreateKeyOptions;
 import com.azure.security.keyvault.keys.models.KeyProperties;
 import gyro.azure.Copyable;
 import gyro.core.resource.Diffable;
@@ -90,12 +92,5 @@ public class KeyVaultKeyAttribute extends Diffable implements Copyable<KeyProper
         setNotBefore(properties.getNotBefore() != null ? properties.getNotBefore().toString() : null);
         setCreated(properties.getCreatedOn() != null ? properties.getCreatedOn().toString() : null);
         setUpdated(properties.getUpdatedOn() != null ? properties.getUpdatedOn().toString() : null);
-    }
-
-    KeyProperties toKeyProperties() {
-        return new KeyProperties()
-            .setEnabled(getEnabled())
-            .setExpiresOn(getExpires() != null ? OffsetDateTime.parse(getExpires()) : null)
-            .setNotBefore(getNotBefore() != null ? OffsetDateTime.parse(getNotBefore()) : null);
     }
 }
