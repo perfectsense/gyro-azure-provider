@@ -1,4 +1,0 @@
-azure::application application-example
-    name: "application-example"
-    account-type: "AzureADMyOrg"
-end
