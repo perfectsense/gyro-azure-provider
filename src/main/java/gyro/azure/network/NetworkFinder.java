@@ -26,6 +26,16 @@ import com.azure.resourcemanager.network.models.Network;
 import gyro.azure.AzureFinder;
 import gyro.core.Type;
 
+/**
+ * Query network.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    network: $(external-query azure::network {})
+ */
 @Type("network")
 public class NetworkFinder extends AzureFinder<Network, NetworkResource> {
 
