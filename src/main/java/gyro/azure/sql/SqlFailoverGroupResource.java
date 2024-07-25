@@ -52,7 +52,7 @@ import gyro.core.validation.Required;
  *         database-ids: [$(azure::sql-database sql-database-example).id]
  *         sql-server: $(azure::sql-server sql-server-example)
  *         manual-read-and-write-policy: false
- *         read-write-grace-period: 2
+ *         read-write-grace-period: 60
  *         partner-server-ids: [$(azure::sql-server sql-server-example-partner-server).id]
  *         read-only-policy-enabled: false
  *     end
