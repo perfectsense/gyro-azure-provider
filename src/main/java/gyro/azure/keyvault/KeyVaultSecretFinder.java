@@ -37,7 +37,7 @@ import gyro.core.Type;
  *    certificate: $(external-query azure::key-vault-secret {resource-group: "resource-group-example", vault: "vault-example", name: "secret-example"})
  */
 @Type("key-vault-secret")
-public class KeyVaultSecretFinder extends AzureFinder<Secret, KeyVaultSecretResource> {
+public class KeyVaultSecretFinder extends AzureFinder<AzureResourceManager, Secret, KeyVaultSecretResource> {
 
     private String resourceGroup;
     private String vault;

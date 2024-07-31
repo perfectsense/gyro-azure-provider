@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  *    srv-record-set: $(external-query azure::srv-record-set {})
  */
 @Type("srv-record-set")
-public class SrvRecordSetFinder extends AzureFinder<SrvRecordSet, SrvRecordSetResource> {
+public class SrvRecordSetFinder extends AzureFinder<AzureResourceManager, SrvRecordSet, SrvRecordSetResource> {
     private String dnsZoneId;
     private String name;
 

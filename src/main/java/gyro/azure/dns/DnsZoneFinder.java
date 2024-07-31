@@ -16,17 +16,17 @@
 
 package gyro.azure.dns;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.dns.models.DnsZone;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.azure.AzureFinder;
 import gyro.core.GyroException;
 import gyro.core.Type;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Query dns zone.
@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
  *    dns-zone: $(external-query azure::dns-zone {})
  */
 @Type("dns-zone")
-public class DnsZoneFinder extends AzureFinder<DnsZone, DnsZoneResource> {
+public class DnsZoneFinder extends AzureFinder<AzureResourceManager, DnsZone, DnsZoneResource> {
     private String id;
 
     /**

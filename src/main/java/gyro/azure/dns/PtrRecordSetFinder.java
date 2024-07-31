@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  *    ptr-record-set: $(external-query azure::ptr-record-set {})
  */
 @Type("ptr-record-set")
-public class PtrRecordSetFinder extends AzureFinder<PtrRecordSet, PtrRecordSetResource> {
+public class PtrRecordSetFinder extends AzureFinder<AzureResourceManager, PtrRecordSet, PtrRecordSetResource> {
     private String dnsZoneId;
     private String name;
 

@@ -37,7 +37,7 @@ import gyro.core.Type;
  *    disk: $(external-query azure::disk {})
  */
 @Type("disk")
-public class DiskFinder extends AzureFinder<Disk, DiskResource> {
+public class DiskFinder extends AzureFinder<AzureResourceManager, Disk, DiskResource> {
 
     private String id;
 

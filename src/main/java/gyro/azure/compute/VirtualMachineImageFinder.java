@@ -38,7 +38,7 @@ import gyro.core.Type;
  */
 @Type("virtual-machine-image")
 public class VirtualMachineImageFinder
-    extends AzureFinder<VirtualMachineCustomImage, VirtualMachineImageResource> {
+    extends AzureFinder<AzureResourceManager, VirtualMachineCustomImage, VirtualMachineImageResource> {
 
     private String id;
 

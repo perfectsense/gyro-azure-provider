@@ -39,7 +39,7 @@ import gyro.core.Type;
  *    sql-failover-group: $(external-query azure::sql-failover-group {})
  */
 @Type("sql-failover-group")
-public class SqlFailoverGroupFinder extends AzureFinder<SqlFailoverGroup, SqlFailoverGroupResource> {
+public class SqlFailoverGroupFinder extends AzureFinder<AzureResourceManager, SqlFailoverGroup, SqlFailoverGroupResource> {
 
     private String sqlServerId;
     private String name;

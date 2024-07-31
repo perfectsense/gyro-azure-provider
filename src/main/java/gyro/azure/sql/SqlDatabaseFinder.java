@@ -39,7 +39,7 @@ import gyro.core.Type;
  *    sql-database: $(external-query azure::sql-database {})
  */
 @Type("sql-database")
-public class SqlDatabaseFinder extends AzureFinder<SqlDatabase, SqlDatabaseResource> {
+public class SqlDatabaseFinder extends AzureFinder<AzureResourceManager, SqlDatabase, SqlDatabaseResource> {
 
     private String sqlServerId;
     private String name;

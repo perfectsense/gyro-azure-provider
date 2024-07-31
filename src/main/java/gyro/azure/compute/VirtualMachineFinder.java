@@ -37,7 +37,7 @@ import gyro.core.Type;
  *    virtual-machine: $(external-query azure::virtual-machine {})
  */
 @Type("virtual-machine")
-public class VirtualMachineFinder extends AzureFinder<VirtualMachine, VirtualMachineResource> {
+public class VirtualMachineFinder extends AzureFinder<AzureResourceManager, VirtualMachine, VirtualMachineResource> {
 
     private String id;
 

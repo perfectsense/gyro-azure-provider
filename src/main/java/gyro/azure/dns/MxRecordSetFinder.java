@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  *    mx-record-set: $(external-query azure::mx-record-set {})
  */
 @Type("mx-record-set")
-public class MxRecordSetFinder extends AzureFinder<MxRecordSet, MxRecordSetResource> {
+public class MxRecordSetFinder extends AzureFinder<AzureResourceManager, MxRecordSet, MxRecordSetResource> {
     private String dnsZoneId;
     private String name;
 

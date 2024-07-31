@@ -39,7 +39,7 @@ import gyro.core.Type;
  *    sql-firewall-rule: $(external-query azure::sql-firewall-rule {})
  */
 @Type("sql-firewall-rule")
-public class SqlFirewallRuleFinder extends AzureFinder<SqlFirewallRule, SqlFirewallRuleResource> {
+public class SqlFirewallRuleFinder extends AzureFinder<AzureResourceManager, SqlFirewallRule, SqlFirewallRuleResource> {
 
     private String sqlServerId;
     private String name;
