@@ -319,7 +319,7 @@ public class PublicIpAddressResource extends AzureResource implements Copyable<P
 
     @Override
     public boolean refresh() {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         PublicIpAddress publicIpAddress = client.publicIpAddresses().getById(getId());
 
@@ -334,7 +334,7 @@ public class PublicIpAddressResource extends AzureResource implements Copyable<P
 
     @Override
     public void create(GyroUI ui, State state) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         PublicIpAddress.DefinitionStages.WithCreate withCreate = client.publicIpAddresses()
             .define(getName())
@@ -382,7 +382,7 @@ public class PublicIpAddressResource extends AzureResource implements Copyable<P
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         PublicIpAddress publicIpAddress = client.publicIpAddresses().getById(getId());
 
@@ -425,7 +425,7 @@ public class PublicIpAddressResource extends AzureResource implements Copyable<P
 
     @Override
     public void delete(GyroUI ui, State state) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
         client.publicIpAddresses().deleteById(getId());
     }
 

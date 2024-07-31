@@ -339,7 +339,7 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
 
     @Override
     public void create(GyroUI ui, State state) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         CdnProfileResource parent = (CdnProfileResource) parent();
 
@@ -432,7 +432,7 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         CdnProfileResource parent = (CdnProfileResource) parent();
 
@@ -524,7 +524,7 @@ public class CdnEndpointResource extends AzureResource implements Copyable<CdnEn
 
     @Override
     public void delete(GyroUI ui, State state) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         CdnProfileResource parent = (CdnProfileResource) parent();
 

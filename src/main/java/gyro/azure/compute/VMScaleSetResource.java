@@ -858,7 +858,7 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
 
     @Override
     public boolean refresh() {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         VirtualMachineScaleSet scaleSet = client.virtualMachineScaleSets().getById(getId());
 
@@ -873,7 +873,7 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
 
     @Override
     public void create(GyroUI ui, State state) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         VirtualMachineScaleSet.DefinitionStages.WithProximityPlacementGroup withProximityPlacementGroup = client.virtualMachineScaleSets()
             .define(getName())
@@ -1114,7 +1114,7 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         VirtualMachineScaleSet scaleSet = client.virtualMachineScaleSets().getById(getId());
 
@@ -1243,7 +1243,7 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
 
     @Override
     public void delete(GyroUI ui, State state) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         client.virtualMachineScaleSets().deleteById(getId());
     }
@@ -1251,7 +1251,7 @@ public class VMScaleSetResource extends AzureResource implements GyroInstances, 
     @Override
     public List<GyroInstance> getInstances() {
         List<GyroInstance> instances = new ArrayList<>();
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         VirtualMachineScaleSet virtualMachineScaleSet = client.virtualMachineScaleSets().getById(getId());
 

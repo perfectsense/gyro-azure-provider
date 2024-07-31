@@ -180,7 +180,7 @@ public class ApplicationSecurityGroupResource extends AzureResource implements C
 
     @Override
     public boolean refresh() {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         ApplicationSecurityGroup applicationSecurityGroup = client.applicationSecurityGroups().getById(getId());
 
@@ -195,7 +195,7 @@ public class ApplicationSecurityGroupResource extends AzureResource implements C
 
     @Override
     public void create(GyroUI ui, State state) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         ApplicationSecurityGroup applicationSecurityGroup = client.applicationSecurityGroups().define(getName())
             .withRegion(Region.fromName(getRegion()))
@@ -208,14 +208,14 @@ public class ApplicationSecurityGroupResource extends AzureResource implements C
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         client.applicationSecurityGroups().getById(getId()).update().withTags(getTags()).apply();
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         client.applicationSecurityGroups().deleteById(getId());
     }

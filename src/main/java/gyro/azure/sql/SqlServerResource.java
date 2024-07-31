@@ -202,7 +202,7 @@ public class SqlServerResource extends AzureResource implements Copyable<SqlServ
 
     @Override
     public boolean refresh() {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         SqlServer sqlServer = client.sqlServers().getById(getId());
 
@@ -217,7 +217,7 @@ public class SqlServerResource extends AzureResource implements Copyable<SqlServ
 
     @Override
     public void create(GyroUI ui, State state) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         SqlServer.DefinitionStages.WithCreate withCreate = client.sqlServers().define(getName())
             .withRegion(Region.fromName(getRegion()))
@@ -242,7 +242,7 @@ public class SqlServerResource extends AzureResource implements Copyable<SqlServ
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         SqlServer.Update update = client.sqlServers().getById(getId()).update();
 
@@ -257,7 +257,7 @@ public class SqlServerResource extends AzureResource implements Copyable<SqlServ
 
     @Override
     public void delete(GyroUI ui, State state) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         client.sqlServers().deleteById(getId());
     }

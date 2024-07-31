@@ -171,7 +171,7 @@ public class NetworkSecurityGroupResource extends AzureResource implements Copya
 
     @Override
     public boolean refresh() {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         NetworkSecurityGroup networkSecurityGroup = client.networkSecurityGroups().getById(getId());
 
@@ -186,7 +186,7 @@ public class NetworkSecurityGroupResource extends AzureResource implements Copya
 
     @Override
     public void create(GyroUI ui, State state) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         NetworkSecurityGroup networkSecurityGroup = client.networkSecurityGroups()
             .define(getName())
@@ -200,7 +200,7 @@ public class NetworkSecurityGroupResource extends AzureResource implements Copya
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         NetworkSecurityGroup networkSecurityGroup = client.networkSecurityGroups().getById(getId());
 
@@ -209,7 +209,7 @@ public class NetworkSecurityGroupResource extends AzureResource implements Copya
 
     @Override
     public void delete(GyroUI ui, State state) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         client.networkSecurityGroups().deleteById(getId());
     }

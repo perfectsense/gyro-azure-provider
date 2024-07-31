@@ -35,14 +35,6 @@ public abstract class AzureResource extends Resource {
         return AzureResource.createClient(clientClass, credentials(AzureCredentials.class));
     }
 
-    protected AzureResourceManager createClient() {
-        return AzureResource.createClient(AzureResourceManager.class, credentials(AzureCredentials.class));
-    }
-
-    protected CommunicationManager createCommunicationClient() {
-        return AzureResource.createClient(CommunicationManager.class, credentials(AzureCredentials.class));
-    }
-
     public static TokenCredential getTokenCredential(AzureCredentials credentials) {
         return credentials.getTokenCredential();
     }

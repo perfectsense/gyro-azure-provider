@@ -107,7 +107,7 @@ public class ResourceGroupResource extends AzureResource implements Copyable<Res
 
     @Override
     public boolean refresh() {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         if (!client.resourceGroups().contain(getName())) {
             return false;
@@ -121,7 +121,7 @@ public class ResourceGroupResource extends AzureResource implements Copyable<Res
 
     @Override
     public void create(GyroUI ui, State state) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         ResourceGroup resourceGroup = client.resourceGroups()
             .define(getName())
@@ -134,7 +134,7 @@ public class ResourceGroupResource extends AzureResource implements Copyable<Res
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         ResourceGroup resourceGroup = client.resourceGroups().getByName(getName());
 
@@ -143,7 +143,7 @@ public class ResourceGroupResource extends AzureResource implements Copyable<Res
 
     @Override
     public void delete(GyroUI ui, State state) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         client.resourceGroups().deleteByName(getName());
     }
