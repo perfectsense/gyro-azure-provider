@@ -102,7 +102,7 @@ public class AzureCredentials extends Credentials {
                 throw new GyroException(error.getMessage(), error);
             }
 
-        } else {
+        } else if (clientClass.getSimpleName().equals("AzureResourceManager")) {
             try {
                 AzureResourceManager.Authenticated authenticated = AzureResourceManager
                     .configure()
@@ -124,6 +124,10 @@ public class AzureCredentials extends Credentials {
             } catch (Exception error) {
                 throw new GyroException(error.getMessage(), error);
             }
+
+        } else {
+            throw new UnsupportedOperationException(
+                String.format("The following client type is not available: %s", clientClass.getSimpleName()));
         }
     }
 
