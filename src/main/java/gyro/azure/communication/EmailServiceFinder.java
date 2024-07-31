@@ -25,6 +25,16 @@ import com.azure.resourcemanager.communication.CommunicationManager;
 import gyro.azure.AzureFinder;
 import gyro.core.Type;
 
+/**
+ * Query email service.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    service: $(external-query azure::email-service {})
+ */
 @Type("email-service")
 public class EmailServiceFinder
     extends

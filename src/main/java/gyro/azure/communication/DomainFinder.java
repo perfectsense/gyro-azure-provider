@@ -26,6 +26,16 @@ import gyro.azure.AzureFinder;
 import gyro.core.GyroException;
 import gyro.core.Type;
 
+/**
+ * Query domains.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    domain: $(external-query azure::domain {id: "/subscriptions/26c9ce65-e0ea-42e8-9e5e-22d5ccd58343/resourceGroups/resource-group-example-test/providers/Microsoft.Communication/emailServices/example-email-test/domains/cloud.brightspot.dev"})
+ */
 @Type("domain")
 public class DomainFinder extends
     AzureFinder<CommunicationManager, com.azure.resourcemanager.communication.models.DomainResource, DomainResource> {

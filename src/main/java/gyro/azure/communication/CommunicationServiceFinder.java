@@ -25,6 +25,16 @@ import com.azure.resourcemanager.communication.CommunicationManager;
 import gyro.azure.AzureFinder;
 import gyro.core.Type;
 
+/**
+ * Query communication service.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    service: $(external-query azure::communication-service {})
+ */
 @Type("communication-service")
 public class CommunicationServiceFinder extends
     AzureFinder<CommunicationManager, com.azure.resourcemanager.communication.models.CommunicationServiceResource, CommunicationServiceResource> {
