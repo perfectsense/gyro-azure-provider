@@ -34,6 +34,24 @@ import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 
+/**
+ * Creates an email service.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *         azure::email-service email-service-example
+ *             resource-group: $(azure::resource-group resource-group-example)
+ *             name: "example-email-test"
+ *             data-location: "United States"
+ *
+ *             tags: {
+ *                 Name: "example-email-test"
+ *             }
+ *         end
+ */
 @Type("email-service")
 public class EmailServiceResource extends AzureResource
     implements Copyable<com.azure.resourcemanager.communication.models.EmailServiceResource> {
@@ -128,7 +146,7 @@ public class EmailServiceResource extends AzureResource
         CommunicationManager client = createCommunicationClient();
 
         com.azure.resourcemanager.communication.models.EmailServiceResource service = client.emailServices()
-            .getByResourceGroup(getResourceGroup().getName(), getName());
+            .getById(getId());
 
         if (service == null) {
             return false;
@@ -154,7 +172,8 @@ public class EmailServiceResource extends AzureResource
             service.withTags(getTags());
         }
 
-        client.serviceClient().getEmailServices().createOrUpdate(getResourceGroup().getName(), getName(), service);
+        setId(client.serviceClient().getEmailServices().createOrUpdate(getResourceGroup().getName(), getName(), service)
+            .id());
     }
 
     @Override

@@ -37,7 +37,31 @@ import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 
-
+/**
+ * Creates a communication service.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *         azure::communication-service service-example
+ *             resource-group: $(azure::resource-group resource-group-example)
+ *             name: "service-example-test"
+ *             data-location: "United States"
+ *             domains: [
+ *                 $(azure::domain domain-example)
+ *             ]
+ *
+ *             identity
+ *                 user-assigned-identity: [$(azure::identity identity-example)]
+ *             end
+ *
+ *             tags: {
+ *                 Name: "service-example-test"
+ *             }
+ *         end
+ */
 @Type("communication-service")
 public class CommunicationServiceResource extends AzureResource
     implements Copyable<com.azure.resourcemanager.communication.models.CommunicationServiceResource> {
@@ -117,7 +141,7 @@ public class CommunicationServiceResource extends AzureResource
     }
 
     /**
-     * List of email Domain resources.
+     * List of email Domain resources. These domain have to be verified for them to be connected ot the service.
      */
     @Updatable
     public List<DomainResource> getDomains() {
@@ -179,7 +203,7 @@ public class CommunicationServiceResource extends AzureResource
         setIdentity(null);
         if (model.identity() != null) {
             CommunicationServiceManagedServiceIdentity serviceIdentity =
-                new CommunicationServiceManagedServiceIdentity();
+                newSubresource(CommunicationServiceManagedServiceIdentity.class);
             serviceIdentity.copyFrom(model.identity());
             setIdentity(serviceIdentity);
         }
@@ -215,15 +239,22 @@ public class CommunicationServiceResource extends AzureResource
             service.withTags(getTags());
         }
 
-        if (!getDomains().isEmpty()) {
-            service.withLinkedDomains(getDomains().stream().map(DomainResource::getId).collect(Collectors.toList()));
-        }
-
         if (getDataLocation() != null) {
             service.withDataLocation(getDataLocation());
         }
 
         service.withLocation("global");
+        setId(client.serviceClient().getCommunicationServices()
+            .createOrUpdate(getResourceGroup().getName(), getName(), service).id());
+
+        state.save();
+
+        // Add domains in the update call
+        // If domains are not verified but are added to the create call, the api errors out at the service is not saved to the state
+        if (!getDomains().isEmpty()) {
+            service.withLinkedDomains(getDomains().stream().map(DomainResource::getId).collect(Collectors.toList()));
+        }
+
         client.serviceClient().getCommunicationServices()
             .createOrUpdate(getResourceGroup().getName(), getName(), service);
     }

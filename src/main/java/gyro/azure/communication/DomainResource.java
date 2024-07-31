@@ -23,7 +23,6 @@ import java.util.Set;
 import com.azure.resourcemanager.communication.CommunicationManager;
 import com.azure.resourcemanager.communication.fluent.models.DomainResourceInner;
 import com.azure.resourcemanager.communication.models.DomainManagement;
-import com.azure.resourcemanager.communication.models.DomainPropertiesVerificationRecords;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.azure.resources.ResourceGroupResource;
@@ -37,6 +36,25 @@ import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 
+/**
+ * Creates a Domain
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *         azure::domain domain-example
+ *             resource-group: $(azure::resource-group resource-group-example)
+ *             email-service: $(azure::email-service email-service-example)
+ *             domain-management: "CustomerManaged"
+ *             name: "cloud.brightspot.dev"
+ *
+ *             tags: {
+ *                 "example": "example"
+ *             }
+ *         end
+ */
 @Type("domain")
 public class DomainResource extends AzureResource
     implements Copyable<com.azure.resourcemanager.communication.models.DomainResource> {
@@ -50,6 +68,7 @@ public class DomainResource extends AzureResource
     // Read-only
     private String dataLocation;
     private String id;
+    private VerificationRecords verificationRecords;
 
     /**
      * The resource group in which to build the service
@@ -141,6 +160,18 @@ public class DomainResource extends AzureResource
         this.id = id;
     }
 
+    /**
+     * The verification records for this domain
+     */
+    @Output
+    public VerificationRecords getVerificationRecords() {
+        return verificationRecords;
+    }
+
+    public void setVerificationRecords(VerificationRecords verificationRecords) {
+        this.verificationRecords = verificationRecords;
+    }
+
     @Override
     public void copyFrom(com.azure.resourcemanager.communication.models.DomainResource model) {
         setDomainManagement(model.domainManagement().toString());
@@ -151,6 +182,13 @@ public class DomainResource extends AzureResource
         getTags().clear();
         if (model.tags() != null) {
             getTags().putAll(model.tags());
+        }
+
+        setVerificationRecords(null);
+        if (model.verificationRecords() != null) {
+            VerificationRecords records = new VerificationRecords();
+            records.copyFrom(model.verificationRecords());
+            setVerificationRecords(records);
         }
     }
 
