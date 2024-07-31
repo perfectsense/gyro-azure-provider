@@ -167,7 +167,7 @@ public class DnsZoneResource extends AzureResource implements Copyable<DnsZone> 
 
     @Override
     public boolean refresh() {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         DnsZone dnsZone = client.dnsZones().getById(getId());
 
@@ -182,7 +182,7 @@ public class DnsZoneResource extends AzureResource implements Copyable<DnsZone> 
 
     @Override
     public void create(GyroUI ui, State state) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         DnsZone.DefinitionStages.WithCreate withCreate;
 
@@ -201,7 +201,7 @@ public class DnsZoneResource extends AzureResource implements Copyable<DnsZone> 
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         DnsZone.Update update = client.dnsZones().getById(getId()).update();
 
@@ -214,7 +214,7 @@ public class DnsZoneResource extends AzureResource implements Copyable<DnsZone> 
 
     @Override
     public void delete(GyroUI ui, State state) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         client.dnsZones().deleteById(getId());
     }

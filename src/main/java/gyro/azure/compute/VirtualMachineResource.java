@@ -766,13 +766,13 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
             .orElse(null);
         setLaunchDate(instanceViewStatus != null ? Date.from(instanceViewStatus.time().toInstant()) : null);
 
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
         setPrivateIpAddress(client.networkInterfaces().getById(getNetworkInterface().getId()).primaryPrivateIP());
     }
 
     @Override
     public boolean refresh() {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         VirtualMachine virtualMachine = client.virtualMachines().getById(getId());
 
@@ -787,7 +787,7 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
 
     @Override
     public void create(GyroUI ui, State state) {
-        VirtualMachine virtualMachine = doVMFluentWorkflow(createClient()).create();
+        VirtualMachine virtualMachine = doVMFluentWorkflow(createClient(AzureResourceManager.class)).create();
         setId(virtualMachine.id());
         setVmId(virtualMachine.vmId());
         copyFrom(virtualMachine);
@@ -1237,7 +1237,7 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         VirtualMachine virtualMachine = client.virtualMachines().getById(getId());
 
@@ -1302,7 +1302,7 @@ public class VirtualMachineResource extends AzureResource implements GyroInstanc
 
     @Override
     public void delete(GyroUI ui, State state) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         VirtualMachine virtualMachine = client.virtualMachines().getById(getId());
         client.virtualMachines().deleteById(getId());

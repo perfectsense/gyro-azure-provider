@@ -175,7 +175,7 @@ public class AvailabilitySetResource extends AzureResource implements Copyable<A
 
     @Override
     public boolean refresh() {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         AvailabilitySet availabilitySet = client.availabilitySets().getById(getId());
 
@@ -190,7 +190,7 @@ public class AvailabilitySetResource extends AzureResource implements Copyable<A
 
     @Override
     public void create(GyroUI ui, State state) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         AvailabilitySet availabilitySet = client.availabilitySets().define(getName())
             .withRegion(Region.fromName(getRegion()))
@@ -206,7 +206,7 @@ public class AvailabilitySetResource extends AzureResource implements Copyable<A
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         if (changedFieldNames.contains("sku") && AvailabilitySetSkuTypes.fromString(getSku())
             .equals(AvailabilitySetSkuTypes.CLASSIC)) {
@@ -223,7 +223,7 @@ public class AvailabilitySetResource extends AzureResource implements Copyable<A
 
     @Override
     public void delete(GyroUI ui, State state) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         client.availabilitySets().deleteById(getId());
     }

@@ -171,7 +171,7 @@ public class ApplicationResource extends AzureResource implements Copyable<Activ
 
     @Override
     public boolean refresh() {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         ActiveDirectoryApplication application = client.accessManagement()
             .activeDirectoryApplications()
@@ -188,7 +188,7 @@ public class ApplicationResource extends AzureResource implements Copyable<Activ
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         ActiveDirectoryApplication.DefinitionStages.WithCreate withCreate = client.accessManagement()
             .activeDirectoryApplications()
@@ -215,7 +215,7 @@ public class ApplicationResource extends AzureResource implements Copyable<Activ
     @Override
     public void update(
         GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         ActiveDirectoryApplication application = client.accessManagement()
             .activeDirectoryApplications()
@@ -258,7 +258,7 @@ public class ApplicationResource extends AzureResource implements Copyable<Activ
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         client.accessManagement().activeDirectoryApplications().deleteById(getId());
     }

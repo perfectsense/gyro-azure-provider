@@ -160,7 +160,7 @@ public class SubnetResource extends AzureResource implements Copyable<Subnet> {
 
     @Override
     public void create(GyroUI ui, State state) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         NetworkResource parent = (NetworkResource) parent();
 
@@ -190,7 +190,7 @@ public class SubnetResource extends AzureResource implements Copyable<Subnet> {
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         NetworkResource parent = (NetworkResource) parent();
 
@@ -237,7 +237,7 @@ public class SubnetResource extends AzureResource implements Copyable<Subnet> {
 
     @Override
     public void delete(GyroUI ui, State state) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         NetworkResource parent = (NetworkResource) parent();
 

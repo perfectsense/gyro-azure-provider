@@ -161,7 +161,7 @@ public class PtrRecordSetResource extends AzureResource implements Copyable<PtrR
 
     @Override
     public boolean refresh() {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         PtrRecordSet ptrRecordSet = client.dnsZones().getById(getDnsZone().getId()).ptrRecordSets().getByName(getName());
 
@@ -175,7 +175,7 @@ public class PtrRecordSetResource extends AzureResource implements Copyable<PtrR
     }
 
     public void create(GyroUI ui, State state) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         DnsRecordSet.UpdateDefinitionStages.PtrRecordSetBlank<DnsZone.Update> definePtrRecordSet = client.dnsZones()
             .getById(getDnsZone().getId())
@@ -203,7 +203,7 @@ public class PtrRecordSetResource extends AzureResource implements Copyable<PtrR
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         DnsRecordSet.UpdatePtrRecordSet updatePtrRecordSet =
                 client.dnsZones().getById(getDnsZone().getId()).update().updatePtrRecordSet(getName());
@@ -252,7 +252,7 @@ public class PtrRecordSetResource extends AzureResource implements Copyable<PtrR
 
     @Override
     public void delete(GyroUI ui, State state) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         client.dnsZones().getById(getDnsZone().getId()).update().withoutPtrRecordSet(getName()).apply();
     }

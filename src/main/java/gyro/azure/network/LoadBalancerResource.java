@@ -386,7 +386,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
 
     @Override
     public boolean refresh() {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         LoadBalancer loadBalancer = client.loadBalancers().getById(getId());
 
@@ -401,7 +401,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
 
     @Override
     public void create(GyroUI ui, State state) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         LoadBalancer.DefinitionStages.WithLBRuleOrNat lb = client.loadBalancers()
             .define(getName())
@@ -506,7 +506,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         LoadBalancer loadBalancer = client.loadBalancers().getById(getId());
 
@@ -633,7 +633,7 @@ public class LoadBalancerResource extends AzureResource implements Copyable<Load
 
     @Override
     public void delete(GyroUI ui, State state) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         client.loadBalancers().deleteByResourceGroup(getResourceGroup().getName(), getName());
     }

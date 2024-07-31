@@ -500,7 +500,7 @@ public class KubernetesClusterResource extends AzureResource implements Copyable
 
     @Override
     public boolean refresh() {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
         KubernetesClusters kubernetesClusters = client.kubernetesClusters();
         KubernetesCluster cluster = kubernetesClusters.list().stream()
             .filter(o -> o.name().equals(getName()))
@@ -518,7 +518,7 @@ public class KubernetesClusterResource extends AzureResource implements Copyable
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         WithServicePrincipalClientId withServicePrincipalClientId = client.kubernetesClusters()
             .define(getName())
@@ -661,7 +661,7 @@ public class KubernetesClusterResource extends AzureResource implements Copyable
     public void update(
         GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
 
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         KubernetesCluster cluster = client.kubernetesClusters()
             .getByResourceGroup(getResourceGroup().getName(), getName());
@@ -792,7 +792,7 @@ public class KubernetesClusterResource extends AzureResource implements Copyable
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         client.kubernetesClusters().deleteByResourceGroup(getResourceGroup().getName(), getName());
     }
