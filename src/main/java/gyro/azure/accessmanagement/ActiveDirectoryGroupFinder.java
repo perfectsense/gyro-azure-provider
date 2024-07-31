@@ -39,7 +39,7 @@ import gyro.core.Type;
  */
 @Type("active-directory-group")
 public class ActiveDirectoryGroupFinder
-    extends AzureFinder<ActiveDirectoryGroup, ActiveDirectoryGroupResource> {
+    extends AzureFinder<AzureResourceManager, ActiveDirectoryGroup, ActiveDirectoryGroupResource> {
 
     private String name;
     private String id;

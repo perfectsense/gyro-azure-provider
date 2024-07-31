@@ -37,7 +37,7 @@ import gyro.core.Type;
  *    registry: $(external-query azure::registry {})
  */
 @Type("registry")
-public class RegistryFinder extends AzureFinder<Registry, RegistryResource> {
+public class RegistryFinder extends AzureFinder<AzureResourceManager, Registry, RegistryResource> {
 
     private String id;
 

@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
  *    resource-group: $(external-query azure::resource-group {})
  */
 @Type("resource-group")
-public class ResourceGroupFinder extends AzureFinder<ResourceGroup, ResourceGroupResource> {
+public class ResourceGroupFinder extends AzureFinder<AzureResourceManager, ResourceGroup, ResourceGroupResource> {
     private String name;
 
     /**

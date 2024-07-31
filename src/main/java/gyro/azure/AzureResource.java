@@ -18,6 +18,7 @@ package gyro.azure;
 
 import com.azure.core.credential.TokenCredential;
 import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.communication.CommunicationManager;
 import gyro.core.resource.Resource;
 
 public abstract class AzureResource extends Resource {
@@ -26,12 +27,20 @@ public abstract class AzureResource extends Resource {
         return credentials(AzureCredentials.class).getRegion();
     }
 
-    public static AzureResourceManager createClient(AzureCredentials credentials) {
-        return credentials.createClient();
+    public static <T> T createClient(Class<T> clientClass, AzureCredentials credentials) {
+        return credentials.createClient(clientClass);
+    }
+
+    protected <T> T createClient(Class<T> clientClass) {
+        return AzureResource.createClient(clientClass, credentials(AzureCredentials.class));
     }
 
     protected AzureResourceManager createClient() {
-        return AzureResource.createClient(credentials(AzureCredentials.class));
+        return AzureResource.createClient(AzureResourceManager.class, credentials(AzureCredentials.class));
+    }
+
+    protected CommunicationManager createCommunicationClient() {
+        return AzureResource.createClient(CommunicationManager.class, credentials(AzureCredentials.class));
     }
 
     public static TokenCredential getTokenCredential(AzureCredentials credentials) {

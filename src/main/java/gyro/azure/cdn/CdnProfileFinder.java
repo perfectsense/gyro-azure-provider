@@ -37,7 +37,7 @@ import gyro.core.Type;
  *    cdn-profile: $(external-query azure::cdn-profile {})
  */
 @Type("cdn-profile")
-public class CdnProfileFinder extends AzureFinder<CdnProfile, CdnProfileResource> {
+public class CdnProfileFinder extends AzureFinder<AzureResourceManager, CdnProfile, CdnProfileResource> {
 
     private String id;
 

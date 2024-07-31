@@ -37,7 +37,7 @@ import gyro.core.Type;
  *    availability-set: $(external-query azure::availability-set {})
  */
 @Type("availability-set")
-public class AvailabilitySetFinder extends AzureFinder<AvailabilitySet, AvailabilitySetResource> {
+public class AvailabilitySetFinder extends AzureFinder<AzureResourceManager, AvailabilitySet, AvailabilitySetResource> {
 
     private String id;
 

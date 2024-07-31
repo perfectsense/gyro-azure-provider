@@ -37,7 +37,7 @@ import gyro.core.Type;
  *    snapshot: $(external-query azure::snapshot {})
  */
 @Type("snapshot")
-public class SnapshotFinder extends AzureFinder<Snapshot, SnapshotResource> {
+public class SnapshotFinder extends AzureFinder<AzureResourceManager, Snapshot, SnapshotResource> {
 
     private String id;
 

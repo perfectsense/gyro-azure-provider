@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
  *    cosmos-db: $(external-query azure::cosmos-db {})
  */
 @Type("cosmos-db")
-public class CosmosDBAccountFinder extends AzureFinder<CosmosDBAccount, CosmosDBAccountResource> {
+public class CosmosDBAccountFinder extends AzureFinder<AzureResourceManager, CosmosDBAccount, CosmosDBAccountResource> {
     private String id;
 
     /**

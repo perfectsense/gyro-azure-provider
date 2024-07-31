@@ -37,7 +37,7 @@ import gyro.core.Type;
  *    network: $(external-query azure::network {})
  */
 @Type("network")
-public class NetworkFinder extends AzureFinder<Network, NetworkResource> {
+public class NetworkFinder extends AzureFinder<AzureResourceManager, Network, NetworkResource> {
 
     private String id;
 

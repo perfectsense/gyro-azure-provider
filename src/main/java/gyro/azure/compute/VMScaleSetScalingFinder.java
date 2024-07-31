@@ -37,7 +37,7 @@ import gyro.core.Type;
  *    scale-set-scaling: $(external-query azure::scale-set-scaling {})
  */
 @Type("scale-set-scaling")
-public class VMScaleSetScalingFinder extends AzureFinder<AutoscaleSetting, VMScaleSetScalingResource> {
+public class VMScaleSetScalingFinder extends AzureFinder<AzureResourceManager, AutoscaleSetting, VMScaleSetScalingResource> {
 
     private String id;
 

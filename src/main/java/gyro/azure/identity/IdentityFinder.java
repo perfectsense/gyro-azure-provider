@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
  *    identity: $(external-query azure::identity {})
  */
 @Type("identity")
-public class IdentityFinder extends AzureFinder<Identity, IdentityResource> {
+public class IdentityFinder extends AzureFinder<AzureResourceManager, Identity, IdentityResource> {
     private String id;
 
     /**

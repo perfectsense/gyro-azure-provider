@@ -1,0 +1,54 @@
+azure::resource-group resource-group-example
+    name: "resource-group-example-test"
+
+    tags: {
+        Name: "resource-group-example-test"
+    }
+end
+
+azure::identity identity-example
+    name: "identity-example-test"
+    resource-group: $(azure::resource-group resource-group-example)
+
+    tags: {
+        Name: "identity-example-test"
+    }
+end
+
+azure::email-service email-service-example
+    resource-group: $(azure::resource-group resource-group-example)
+    name: "example-email-test"
+    data-location: "United States"
+
+    tags: {
+        Name: "example-email-test"
+    }
+end
+
+azure::domain domain-example
+    resource-group: $(azure::resource-group resource-group-example)
+    email-service: $(azure::email-service email-service-example)
+    domain-management: "CustomerManaged"
+    name: "cloud.brightspot.dev"
+
+    tags: {
+        "example": "example"
+    }
+end
+
+azure::communication-service service-example
+    resource-group: $(azure::resource-group resource-group-example)
+    name: "service-example-test"
+    data-location: "United States"
+    domains: [
+        $(azure::domain domain-example)
+    ]
+
+    identity
+        user-assigned-identity: [$(azure::identity identity-example)]
+    end
+
+    tags: {
+        Name: "service-example-test"
+    }
+end

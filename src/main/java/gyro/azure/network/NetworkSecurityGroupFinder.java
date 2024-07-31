@@ -38,7 +38,7 @@ import gyro.core.Type;
  */
 @Type("network-security-group")
 public class NetworkSecurityGroupFinder
-    extends AzureFinder<NetworkSecurityGroup, NetworkSecurityGroupResource> {
+    extends AzureFinder<AzureResourceManager, NetworkSecurityGroup, NetworkSecurityGroupResource> {
 
     private String id;
 

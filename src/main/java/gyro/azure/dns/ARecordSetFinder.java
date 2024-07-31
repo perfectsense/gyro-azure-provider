@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  *    a-record-set: $(external-query azure::a-record-set {})
  */
 @Type("a-record-set")
-public class ARecordSetFinder extends AzureFinder<ARecordSet, ARecordSetResource> {
+public class ARecordSetFinder extends AzureFinder<AzureResourceManager, ARecordSet, ARecordSetResource> {
     private String dnsZoneId;
     private String name;
 

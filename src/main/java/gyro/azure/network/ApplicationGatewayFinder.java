@@ -38,7 +38,7 @@ import gyro.core.Type;
  */
 @Type("application-gateway")
 public class ApplicationGatewayFinder
-    extends AzureFinder<ApplicationGateway, ApplicationGatewayResource> {
+    extends AzureFinder<AzureResourceManager, ApplicationGateway, ApplicationGatewayResource> {
 
     private String id;
 

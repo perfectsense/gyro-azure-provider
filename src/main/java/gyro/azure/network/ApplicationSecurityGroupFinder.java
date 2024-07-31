@@ -38,7 +38,7 @@ import gyro.core.Type;
  */
 @Type("application-security-group")
 public class ApplicationSecurityGroupFinder
-    extends AzureFinder<ApplicationSecurityGroup, ApplicationSecurityGroupResource> {
+    extends AzureFinder<AzureResourceManager, ApplicationSecurityGroup, ApplicationSecurityGroupResource> {
 
     private String id;
 

@@ -37,7 +37,7 @@ import gyro.core.Type;
  *    route-table: $(external-query azure::route-table {})
  */
 @Type("route-table")
-public class RouteTableFinder extends AzureFinder<RouteTable, RouteTableResource> {
+public class RouteTableFinder extends AzureFinder<AzureResourceManager, RouteTable, RouteTableResource> {
 
     private String id;
 

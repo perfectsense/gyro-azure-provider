@@ -28,7 +28,7 @@ import gyro.core.GyroException;
 import gyro.core.Type;
 
 @Type("storage-account")
-public class StorageAccountFinder extends AzureFinder<StorageAccount, StorageAccountResource> {
+public class StorageAccountFinder extends AzureFinder<AzureResourceManager, StorageAccount, StorageAccountResource> {
 
     private String id;
     private String resourceGroup;
