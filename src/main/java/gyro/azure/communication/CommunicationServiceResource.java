@@ -211,7 +211,7 @@ public class CommunicationServiceResource extends AzureResource
 
     @Override
     public boolean refresh() {
-        CommunicationManager client = createCommunicationClient();
+        CommunicationManager client = createClient(CommunicationManager.class);
 
         com.azure.resourcemanager.communication.models.CommunicationServiceResource service =
             client.communicationServices().getById(getId());
@@ -227,7 +227,7 @@ public class CommunicationServiceResource extends AzureResource
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        CommunicationManager client = createCommunicationClient();
+        CommunicationManager client = createClient(CommunicationManager.class);
 
         CommunicationServiceResourceInner service = new CommunicationServiceResourceInner();
 
@@ -261,7 +261,7 @@ public class CommunicationServiceResource extends AzureResource
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
-        CommunicationManager client = createCommunicationClient();
+        CommunicationManager client = createClient(CommunicationManager.class);
 
         CommunicationServiceResourceInner service = client.serviceClient().getCommunicationServices()
             .getByResourceGroup(getResourceGroup().getName(), getName());
@@ -275,7 +275,7 @@ public class CommunicationServiceResource extends AzureResource
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
-        CommunicationManager client = createCommunicationClient();
+        CommunicationManager client = createClient(CommunicationManager.class);
 
         client.communicationServices().deleteByResourceGroup(getResourceGroup().getName(), getName());
     }

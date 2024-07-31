@@ -194,7 +194,7 @@ public class DomainResource extends AzureResource
 
     @Override
     public boolean refresh() {
-        CommunicationManager client = createCommunicationClient();
+        CommunicationManager client = createClient(CommunicationManager.class);
 
         com.azure.resourcemanager.communication.models.DomainResource domain = client.domains().getById(getId());
 
@@ -209,7 +209,7 @@ public class DomainResource extends AzureResource
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        CommunicationManager client = createCommunicationClient();
+        CommunicationManager client = createClient(CommunicationManager.class);
 
         DomainResourceInner service = new DomainResourceInner();
         service.withLocation("global");
@@ -228,7 +228,7 @@ public class DomainResource extends AzureResource
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
-        CommunicationManager client = createCommunicationClient();
+        CommunicationManager client = createClient(CommunicationManager.class);
 
         DomainResourceInner service = client.serviceClient().getDomains()
             .get(getResourceGroup().getName(), getEmailService().getName(), getName());
@@ -241,7 +241,7 @@ public class DomainResource extends AzureResource
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
-        CommunicationManager client = createCommunicationClient();
+        CommunicationManager client = createClient(CommunicationManager.class);
 
         client.serviceClient().getDomains()
             .delete(getResourceGroup().getName(), getEmailService().getName(), getName());

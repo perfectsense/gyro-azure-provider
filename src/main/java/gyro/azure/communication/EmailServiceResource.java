@@ -143,7 +143,7 @@ public class EmailServiceResource extends AzureResource
 
     @Override
     public boolean refresh() {
-        CommunicationManager client = createCommunicationClient();
+        CommunicationManager client = createClient(CommunicationManager.class);
 
         com.azure.resourcemanager.communication.models.EmailServiceResource service = client.emailServices()
             .getById(getId());
@@ -159,7 +159,7 @@ public class EmailServiceResource extends AzureResource
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        CommunicationManager client = createCommunicationClient();
+        CommunicationManager client = createClient(CommunicationManager.class);
 
         EmailServiceResourceInner service = new EmailServiceResourceInner();
         service.withLocation("global");
@@ -178,7 +178,7 @@ public class EmailServiceResource extends AzureResource
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
-        CommunicationManager client = createCommunicationClient();
+        CommunicationManager client = createClient(CommunicationManager.class);
 
         EmailServiceResourceInner service = client.serviceClient().getEmailServices()
             .getByResourceGroup(getResourceGroup().getName(), getName());
@@ -190,7 +190,7 @@ public class EmailServiceResource extends AzureResource
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
-        CommunicationManager client = createCommunicationClient();
+        CommunicationManager client = createClient(CommunicationManager.class);
 
         client.serviceClient().getEmailServices().delete(getResourceGroup().getName(), getName());
     }
