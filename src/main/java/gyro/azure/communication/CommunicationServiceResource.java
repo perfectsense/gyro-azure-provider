@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.azure.core.management.exception.ManagementException;
 import com.azure.resourcemanager.communication.CommunicationManager;
 import com.azure.resourcemanager.communication.fluent.models.CommunicationServiceResourceInner;
 import gyro.azure.AzureResource;
@@ -250,13 +251,25 @@ public class CommunicationServiceResource extends AzureResource
         state.save();
 
         // Add domains in the update call
-        // If domains are not verified but are added to the create call, the api errors out at the service is not saved to the state
+        // If domains are not verified but are added to the create call, the api errors out and the service is not saved to the state
         if (!getDomains().isEmpty()) {
             service.withLinkedDomains(getDomains().stream().map(DomainResource::getId).collect(Collectors.toList()));
         }
 
-        client.serviceClient().getCommunicationServices()
-            .createOrUpdate(getResourceGroup().getName(), getName(), service);
+        try {
+            client.serviceClient().getCommunicationServices()
+                .createOrUpdate(getResourceGroup().getName(), getName(), service);
+
+        } catch (ManagementException ex) {
+            if (ex.getMessage() != null && ex.getMessage().contains("The specified domain is unable to be linked.")) {
+                // Domains should be added but the API will error out in case the domains were not verified.
+                // The refresh will only keep added domains in the state
+                refresh();
+
+            } else {
+                throw ex;
+            }
+        }
     }
 
     @Override

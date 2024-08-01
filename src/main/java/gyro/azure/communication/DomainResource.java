@@ -69,6 +69,7 @@ public class DomainResource extends AzureResource
     private String dataLocation;
     private String id;
     private VerificationRecords verificationRecords;
+    private VerificationStates verificationStates;
 
     /**
      * The resource group in which to build the service
@@ -172,6 +173,18 @@ public class DomainResource extends AzureResource
         this.verificationRecords = verificationRecords;
     }
 
+    /**
+     * The verification status records for this domain
+     */
+    @Output
+    public VerificationStates getVerificationStates() {
+        return verificationStates;
+    }
+
+    public void setVerificationStates(VerificationStates verificationStates) {
+        this.verificationStates = verificationStates;
+    }
+
     @Override
     public void copyFrom(com.azure.resourcemanager.communication.models.DomainResource model) {
         setDomainManagement(model.domainManagement().toString());
@@ -189,6 +202,13 @@ public class DomainResource extends AzureResource
             VerificationRecords records = new VerificationRecords();
             records.copyFrom(model.verificationRecords());
             setVerificationRecords(records);
+        }
+
+        setVerificationStates(null);
+        if (model.verificationStates() != null) {
+            VerificationStates states = newSubresource(VerificationStates.class);
+            states.copyFrom(model.verificationStates());
+            setVerificationStates(states);
         }
     }
 
@@ -222,8 +242,12 @@ public class DomainResource extends AzureResource
             service.withDomainManagement(DomainManagement.fromString(getDomainManagement()));
         }
 
-        setId(client.serviceClient().getDomains()
-            .createOrUpdate(getResourceGroup().getName(), getEmailService().getName(), getName(), service).id());
+        service = client.serviceClient().getDomains()
+            .createOrUpdate(getResourceGroup().getName(), getEmailService().getName(), getName(), service);
+
+        setId(service.id());
+
+        refresh();
     }
 
     @Override
