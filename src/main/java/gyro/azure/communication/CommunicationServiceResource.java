@@ -261,7 +261,7 @@ public class CommunicationServiceResource extends AzureResource
                 .createOrUpdate(getResourceGroup().getName(), getName(), service);
 
         } catch (ManagementException ex) {
-            if (ex.getMessage() != null && ex.getMessage().contains("The specified domain is unable to be linked.")) {
+            if (ex.getMessage() != null && ex.getMessage().contains("InvalidLinkedDomains")) {
                 // Domains should be added but the API will error out in case the domains were not verified.
                 // The refresh will only keep added domains in the state
                 refresh();
@@ -282,8 +282,20 @@ public class CommunicationServiceResource extends AzureResource
         service.withTags(getTags());
         service.withLinkedDomains(getDomains().stream().map(DomainResource::getId).collect(Collectors.toList()));
 
-        client.serviceClient().getCommunicationServices()
-            .createOrUpdate(getResourceGroup().getName(), getName(), service);
+        try {
+            client.serviceClient().getCommunicationServices()
+                .createOrUpdate(getResourceGroup().getName(), getName(), service);
+
+        } catch (ManagementException ex) {
+            if (ex.getMessage() != null && ex.getMessage().contains("InvalidLinkedDomains")) {
+                // Domains should be added but the API will error out in case the domains were not verified.
+                // The refresh will only keep added domains in the state
+                refresh();
+
+            } else {
+                throw ex;
+            }
+        }
     }
 
     @Override

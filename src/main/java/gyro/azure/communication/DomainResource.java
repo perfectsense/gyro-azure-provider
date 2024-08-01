@@ -199,7 +199,7 @@ public class DomainResource extends AzureResource
 
         setVerificationRecords(null);
         if (model.verificationRecords() != null) {
-            VerificationRecords records = new VerificationRecords();
+            VerificationRecords records = newSubresource(VerificationRecords.class);
             records.copyFrom(model.verificationRecords());
             setVerificationRecords(records);
         }
@@ -246,8 +246,6 @@ public class DomainResource extends AzureResource
             .createOrUpdate(getResourceGroup().getName(), getEmailService().getName(), getName(), service);
 
         setId(service.id());
-
-        refresh();
     }
 
     @Override
