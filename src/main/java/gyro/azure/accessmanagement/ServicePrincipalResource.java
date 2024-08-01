@@ -98,7 +98,7 @@ public class ServicePrincipalResource extends AzureResource implements Copyable<
 
     @Override
     public boolean refresh() {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         ServicePrincipal servicePrincipal = client.accessManagement().servicePrincipals().getByName(getName());
 
@@ -113,7 +113,7 @@ public class ServicePrincipalResource extends AzureResource implements Copyable<
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         ServicePrincipal servicePrincipal = client.accessManagement().servicePrincipals()
             .define(getName())
@@ -131,7 +131,7 @@ public class ServicePrincipalResource extends AzureResource implements Copyable<
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         client.accessManagement().servicePrincipals().deleteById(getId());
     }

@@ -95,7 +95,7 @@ public class ActiveDirectoryGroupResource extends AzureResource implements Copya
 
     @Override
     public boolean refresh() {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         ActiveDirectoryGroup group = client.accessManagement().activeDirectoryGroups().getById(getId());
 
@@ -110,7 +110,7 @@ public class ActiveDirectoryGroupResource extends AzureResource implements Copya
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         ActiveDirectoryGroup group = client.accessManagement().activeDirectoryGroups()
             .define(getName())
@@ -127,7 +127,7 @@ public class ActiveDirectoryGroupResource extends AzureResource implements Copya
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         client.accessManagement().activeDirectoryGroups().deleteById(getId());
     }

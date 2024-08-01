@@ -37,7 +37,7 @@ import gyro.core.Type;
  *    public-ip-address: $(external-query azure::public-ip-address {})
  */
 @Type("public-ip-address")
-public class PublicIpAddressFinder extends AzureFinder<PublicIpAddress, PublicIpAddressResource> {
+public class PublicIpAddressFinder extends AzureFinder<AzureResourceManager, PublicIpAddress, PublicIpAddressResource> {
 
     private String id;
 

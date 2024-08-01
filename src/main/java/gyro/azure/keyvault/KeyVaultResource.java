@@ -405,7 +405,7 @@ public class KeyVaultResource extends AzureResource implements Copyable<Vault> {
 
     @Override
     public boolean refresh() {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         Vault vault = client.vaults().getByResourceGroup(getResourceGroup().getName(), getName());
 
@@ -420,7 +420,7 @@ public class KeyVaultResource extends AzureResource implements Copyable<Vault> {
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         Vault.DefinitionStages.WithCreate withCreate = client.vaults().define(getName())
             .withRegion(Region.fromName(getRegion()))
@@ -463,7 +463,7 @@ public class KeyVaultResource extends AzureResource implements Copyable<Vault> {
     @Override
     public void update(
         GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         Vault vault = client.vaults().getById(getId());
 
@@ -526,7 +526,7 @@ public class KeyVaultResource extends AzureResource implements Copyable<Vault> {
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         client.vaults().deleteById(getId());
 
@@ -536,7 +536,7 @@ public class KeyVaultResource extends AzureResource implements Copyable<Vault> {
     }
 
     Vault getKeyVault() {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         return client.vaults().getByResourceGroup(getResourceGroup().getName(), getName());
     }

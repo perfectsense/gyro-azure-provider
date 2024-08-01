@@ -37,7 +37,7 @@ import gyro.core.Type;
  *    load-balancer: $(external-query azure::load-balancer {})
  */
 @Type("load-balancer")
-public class LoadBalancerFinder extends AzureFinder<LoadBalancer, LoadBalancerResource> {
+public class LoadBalancerFinder extends AzureFinder<AzureResourceManager, LoadBalancer, LoadBalancerResource> {
 
     private String id;
 

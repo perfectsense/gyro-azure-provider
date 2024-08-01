@@ -39,7 +39,7 @@ import gyro.core.Type;
  */
 @Type("active-directory-user")
 public class ActiveDirectoryUserFinder
-    extends AzureFinder<ActiveDirectoryUser, ActiveDirectoryUserResource> {
+    extends AzureFinder<AzureResourceManager, ActiveDirectoryUser, ActiveDirectoryUserResource> {
 
     private String id;
     private String name;

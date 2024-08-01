@@ -330,7 +330,7 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
 
     @Override
     public boolean refresh() {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         SqlDatabase database = getSqlDatabase(client);
 
@@ -345,7 +345,7 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
 
     @Override
     public void create(GyroUI ui, State state) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         SqlDatabaseOperations.DefinitionStages.WithAllDifferentOptions buildDatabase = client.sqlServers()
             .getById(getSqlServer().getId())
@@ -452,7 +452,7 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedProperties) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         SqlDatabase.Update update = getSqlDatabase(client).update();
 
@@ -492,7 +492,7 @@ public class SqlDatabaseResource extends AzureResource implements Copyable<SqlDa
 
     @Override
     public void delete(GyroUI ui, State state) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         SqlDatabase sqlDatabase = getSqlDatabase(client);
         if (sqlDatabase != null) {

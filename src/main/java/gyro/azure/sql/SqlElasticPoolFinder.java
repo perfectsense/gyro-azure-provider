@@ -39,7 +39,7 @@ import gyro.core.Type;
  *    sql-elastic-pool: $(external-query azure::sql-elastic-pool {})
  */
 @Type("sql-elastic-pool")
-public class SqlElasticPoolFinder extends AzureFinder<SqlElasticPool, SqlElasticPoolResource> {
+public class SqlElasticPoolFinder extends AzureFinder<AzureResourceManager, SqlElasticPool, SqlElasticPoolResource> {
 
     private String sqlServerId;
     private String name;

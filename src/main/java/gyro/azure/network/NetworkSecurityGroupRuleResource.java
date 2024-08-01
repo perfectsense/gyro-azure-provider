@@ -290,7 +290,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource implements C
 
     @Override
     public void create(GyroUI ui, State state) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         NetworkSecurityGroupResource parent = (NetworkSecurityGroupResource) parent();
 
@@ -356,7 +356,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource implements C
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         NetworkSecurityGroupResource parent = (NetworkSecurityGroupResource) parent();
 
@@ -411,7 +411,7 @@ public class NetworkSecurityGroupRuleResource extends AzureResource implements C
 
     @Override
     public void delete(GyroUI ui, State state) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         NetworkSecurityGroupResource parent = (NetworkSecurityGroupResource) parent();
 

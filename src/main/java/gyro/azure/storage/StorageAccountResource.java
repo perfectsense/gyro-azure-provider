@@ -232,7 +232,7 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
 
     @Override
     public boolean refresh() {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         StorageAccount storageAccount = client.storageAccounts()
             .getByResourceGroup(getResourceGroup().getName(), getName());
@@ -248,7 +248,7 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
 
     @Override
     public void create(GyroUI ui, State state) throws URISyntaxException, InvalidKeyException {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         StorageAccount.DefinitionStages.WithCreate withCreate = client.storageAccounts()
             .define(getName())
@@ -280,7 +280,7 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames)
         throws URISyntaxException, InvalidKeyException {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         StorageAccount storageAccount = client.storageAccounts().getById(getId());
         StorageAccount.Update update = storageAccount.update();
@@ -308,7 +308,7 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
 
     @Override
     public void delete(GyroUI ui, State state) {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         client.storageAccounts().deleteById(getId());
     }
@@ -324,7 +324,7 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
         Map<String, String> keys = new HashMap<>();
 
         if (getId() != null) {
-            AzureResourceManager client = createClient();
+            AzureResourceManager client = createClient(AzureResourceManager.class);
 
             StorageAccount storageAccount = client.storageAccounts().getById(getId());
             storageAccount.getKeys().forEach(e -> keys.put(e.keyName(), e.value()));
@@ -334,7 +334,7 @@ public class StorageAccountResource extends AzureResource implements Copyable<St
     }
 
     protected StorageAccount getStorageAccount() {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         return client.storageAccounts().getById(getId());
     }

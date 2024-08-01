@@ -22,9 +22,11 @@ import java.util.Properties;
 
 import com.azure.core.credential.TokenCredential;
 import com.azure.core.http.okhttp.OkHttpAsyncHttpClientBuilder;
+import com.azure.core.management.AzureEnvironment;
 import com.azure.core.management.profile.AzureProfile;
 import com.azure.identity.ClientSecretCredentialBuilder;
 import com.azure.resourcemanager.AzureResourceManager;
+import com.azure.resourcemanager.communication.CommunicationManager;
 import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.StringUtils;
 import gyro.core.GyroException;
@@ -60,7 +62,7 @@ public class AzureCredentials extends Credentials {
         this.logLevel = logLevel;
     }
 
-    public AzureResourceManager createClient() {
+    public <T> T createClient(Class<T> clientClass) {
         Properties properties;
 
         try (InputStream input = openInput(getCredentialFilePath())) {
@@ -80,21 +82,52 @@ public class AzureCredentials extends Credentials {
 
         String subscription = ObjectUtils.to(String.class, properties.get("subscription"));
 
-        AzureProfile azureProfile = new AzureProfile(tenant, subscription, com.azure.core.management.AzureEnvironment.AZURE);
+        AzureProfile azureProfile = new AzureProfile(tenant, subscription, AzureEnvironment.AZURE);
 
-        try {
-            AzureResourceManager.Authenticated authenticated = AzureResourceManager
-                .configure()
-                .withHttpClient(new OkHttpAsyncHttpClientBuilder().build())
-                .authenticate(credential, azureProfile);
+        if (clientClass.getSimpleName().equals("CommunicationManager")) {
+            try {
+                CommunicationManager client = CommunicationManager
+                    .configure()
+                    .withHttpClient(new OkHttpAsyncHttpClientBuilder().build())
+                    .authenticate(credential, azureProfile);
+
+                if (clientClass.isInstance(client)) {
+                    return clientClass.cast(client);
+                }
+
+                throw new GyroException(
+                    String.format("Unable to create %s client", clientClass.getSimpleName()));
+
+            } catch (Exception error) {
+                throw new GyroException(error.getMessage(), error);
+            }
+
+        } else if (clientClass.getSimpleName().equals("AzureResourceManager")) {
+            try {
+                AzureResourceManager.Authenticated authenticated = AzureResourceManager
+                    .configure()
+                    .withHttpClient(new OkHttpAsyncHttpClientBuilder().build())
+                    .authenticate(credential, azureProfile);
 
 
-            return StringUtils.isBlank(subscription)
-                ? authenticated.withDefaultSubscription()
-                : authenticated.withSubscription(subscription);
+                AzureResourceManager client = StringUtils.isBlank(subscription)
+                    ? authenticated.withDefaultSubscription()
+                    : authenticated.withSubscription(subscription);
 
-        } catch (Exception error) {
-            throw new GyroException(error.getMessage(), error);
+                if (clientClass.isInstance(client)) {
+                    return clientClass.cast(client);
+                }
+
+                throw new GyroException(
+                    String.format("Unable to create %s client", clientClass.getSimpleName()));
+
+            } catch (Exception error) {
+                throw new GyroException(error.getMessage(), error);
+            }
+
+        } else {
+            throw new UnsupportedOperationException(
+                String.format("The following client type is not available: %s", clientClass.getSimpleName()));
         }
     }
 

@@ -141,7 +141,7 @@ public class ActiveDirectoryUserResource extends AzureResource implements Copyab
 
     @Override
     public boolean refresh() {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         ActiveDirectoryUser user = client.accessManagement().activeDirectoryUsers().getById(getId());
 
@@ -156,7 +156,7 @@ public class ActiveDirectoryUserResource extends AzureResource implements Copyab
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         ActiveDirectoryUser activeDirectoryUser = client.accessManagement().activeDirectoryUsers()
             .define(getName())
@@ -175,7 +175,7 @@ public class ActiveDirectoryUserResource extends AzureResource implements Copyab
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
-        AzureResourceManager client = createClient();
+        AzureResourceManager client = createClient(AzureResourceManager.class);
 
         client.accessManagement().activeDirectoryUsers().deleteById(getId());
     }

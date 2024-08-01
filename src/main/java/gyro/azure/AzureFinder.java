@@ -22,13 +22,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.azure.core.credential.TokenCredential;
-import com.azure.resourcemanager.AzureResourceManager;
+import com.psddev.dari.util.TypeDefinition;
 import gyro.core.finder.Finder;
 
-public abstract class AzureFinder<M, R extends AzureResource> extends Finder<R> {
-    protected abstract List<M> findAllAzure(AzureResourceManager client);
+public abstract class AzureFinder<C, M, R extends AzureResource> extends Finder<R> {
+    protected abstract List<M> findAllAzure(C client);
 
-    protected abstract List<M> findAzure(AzureResourceManager client, Map<String, String> filters);
+    protected abstract List<M> findAzure(C client, Map<String, String> filters);
 
     @Override
     public List<R> find(Map<String, Object> filters) {
@@ -44,8 +44,12 @@ public abstract class AzureFinder<M, R extends AzureResource> extends Finder<R> 
             .collect(Collectors.toList());
     }
 
-    private AzureResourceManager newClient() {
-        return AzureResource.createClient(credentials(AzureCredentials.class));
+    private C newClient() {
+        @SuppressWarnings("unchecked")
+        Class<C> clientClass = (Class<C>) TypeDefinition.getInstance(getClass())
+            .getInferredGenericTypeArgumentClass(AzureFinder.class, 0);
+
+        return AzureResource.createClient(clientClass, credentials(AzureCredentials.class));
     }
 
     protected TokenCredential getTokenCredential() {

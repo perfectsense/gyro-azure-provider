@@ -37,7 +37,7 @@ import gyro.core.Type;
  *    service-principal: $(external-query azure::service-principal {})
  */
 @Type("service-principal")
-public class ServicePrincipalFinder extends AzureFinder<ServicePrincipal, ServicePrincipalResource> {
+public class ServicePrincipalFinder extends AzureFinder<AzureResourceManager, ServicePrincipal, ServicePrincipalResource> {
 
     private String id;
 

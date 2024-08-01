@@ -40,7 +40,7 @@ import gyro.core.Type;
  */
 @Type("sql-virtual-network-rule")
 public class SqlVirtualNetworkRuleFinder
-    extends AzureFinder<SqlVirtualNetworkRule, SqlVirtualNetworkRuleResource> {
+    extends AzureFinder<AzureResourceManager, SqlVirtualNetworkRule, SqlVirtualNetworkRuleResource> {
 
     private String sqlServerId;
     private String name;

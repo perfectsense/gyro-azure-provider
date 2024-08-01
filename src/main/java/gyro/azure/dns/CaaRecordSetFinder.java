@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  *    caa-record-set: $(external-query azure::caa-record-set {})
  */
 @Type("caa-record-set")
-public class CaaRecordSetFinder extends AzureFinder<CaaRecordSet, CaaRecordSetResource> {
+public class CaaRecordSetFinder extends AzureFinder<AzureResourceManager, CaaRecordSet, CaaRecordSetResource> {
     private String dnsZoneId;
     private String name;
 

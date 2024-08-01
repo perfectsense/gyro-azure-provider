@@ -37,7 +37,7 @@ import gyro.core.Type;
  *    application: $(external-query azure::application {})
  */
 @Type("application")
-public class ApplicationFinder extends AzureFinder<ActiveDirectoryApplication, ApplicationResource> {
+public class ApplicationFinder extends AzureFinder<AzureResourceManager, ActiveDirectoryApplication, ApplicationResource> {
 
     private String id;
 

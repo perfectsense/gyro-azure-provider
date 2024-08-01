@@ -37,7 +37,7 @@ import gyro.core.Type;
  *    kubernetes-cluster: $(external-query azure::kubernetes-cluster {})
  */
 @Type("kubernetes-cluster")
-public class KubernetesClusterFinder extends AzureFinder<KubernetesCluster, KubernetesClusterResource> {
+public class KubernetesClusterFinder extends AzureFinder<AzureResourceManager, KubernetesCluster, KubernetesClusterResource> {
 
     private String id;
 

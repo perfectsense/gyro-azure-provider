@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  *    cname-record-set: $(external-query azure::cname-record-set {})
  */
 @Type("cname-record-set")
-public class CnameRecordSetFinder extends AzureFinder<CnameRecordSet, CnameRecordSetResource> {
+public class CnameRecordSetFinder extends AzureFinder<AzureResourceManager, CnameRecordSet, CnameRecordSetResource> {
     private String dnsZoneId;
     private String name;
 

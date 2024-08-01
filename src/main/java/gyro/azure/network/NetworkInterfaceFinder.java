@@ -37,7 +37,7 @@ import gyro.core.Type;
  *    network-interface: $(external-query azure::network-interface {})
  */
 @Type("network-interface")
-public class NetworkInterfaceFinder extends AzureFinder<NetworkInterface, NetworkInterfaceResource> {
+public class NetworkInterfaceFinder extends AzureFinder<AzureResourceManager, NetworkInterface, NetworkInterfaceResource> {
 
     private String id;
 

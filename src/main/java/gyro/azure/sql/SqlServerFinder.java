@@ -37,7 +37,7 @@ import gyro.core.Type;
  *    sql-server: $(external-query azure::sql-server {})
  */
 @Type("sql-server")
-public class SqlServerFinder extends AzureFinder<SqlServer, SqlServerResource> {
+public class SqlServerFinder extends AzureFinder<AzureResourceManager, SqlServer, SqlServerResource> {
 
     private String id;
 

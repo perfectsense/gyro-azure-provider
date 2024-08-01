@@ -70,6 +70,7 @@ dependencies {
 
     implementation enforcedPlatform('com.azure:azure-sdk-bom:1.2.25')
     implementation 'com.azure.resourcemanager:azure-resourcemanager:2.40.0'
+    implementation 'com.azure.resourcemanager:azure-resourcemanager-communication:2.1.0'
     implementation 'com.azure:azure-security-keyvault-certificates'
     implementation 'com.azure:azure-security-keyvault-keys'
     implementation 'com.azure:azure-security-keyvault-secrets'
