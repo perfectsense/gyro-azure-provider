@@ -95,6 +95,6 @@ public class DomainFinder extends
                 .collect(Collectors.toList());
         }
 
-        throw new GyroException("Both `resource-group` and `email-service` are required");
+        throw new GyroException("If the `id` is not provided, both `resource-group` and `email-service` are required");
     }
 }

@@ -33,11 +33,10 @@ import gyro.core.Type;
  *
  * .. code-block:: gyro
  *
- *    service: $(external-query azure::email-service {})
+ *    service: $(external-query azure::email-service {id: "/subscriptions/26c9ce65-e0ea-42e8-9e5e-22d5ccd58343/resourceGroups/resource-group-example-test/providers/Microsoft.Communication/emailServices/example-email-test"})
  */
 @Type("email-service")
-public class EmailServiceFinder
-    extends
+public class EmailServiceFinder extends
     AzureFinder<CommunicationManager, com.azure.resourcemanager.communication.models.EmailServiceResource, EmailServiceResource> {
 
     private String id;

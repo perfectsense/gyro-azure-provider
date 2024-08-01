@@ -33,7 +33,7 @@ import gyro.core.Type;
  *
  * .. code-block:: gyro
  *
- *    service: $(external-query azure::communication-service {})
+ *    service: $(external-query azure::communication-service {id: "/subscriptions/26c9ce65-e0ea-42e8-9e5e-22d5ccd58343/resourceGroups/resource-group-example-test/providers/Microsoft.Communication/communicationServices/service-example-test"})
  */
 @Type("communication-service")
 public class CommunicationServiceFinder extends
@@ -85,7 +85,6 @@ public class CommunicationServiceFinder extends
     @Override
     protected List<com.azure.resourcemanager.communication.models.CommunicationServiceResource> findAzure(
         CommunicationManager client, Map<String, String> filters) {
-
 
         if (filters.containsKey("id")) {
             return Collections.singletonList(client.communicationServices().getById(filters.get("id")));
