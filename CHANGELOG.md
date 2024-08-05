@@ -1,4 +1,4 @@
-## 1.0.0
+## 1.0.0 (August 5th, 2024)
 
 ENHANCEMENTS:
 
