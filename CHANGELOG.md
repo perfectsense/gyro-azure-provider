@@ -1,4 +1,12 @@
-## 0.99.3 (Unreleased)
+## 1.0.0 (August 5th, 2024)
+
+ENHANCEMENTS:
+
+* [144](https://github.com/perfectsense/gyro-azure-provider/pull/144): Add documentation for network resource
+* [145](https://github.com/perfectsense/gyro-azure-provider/pull/145): Allow public access for storage accounts
+* [146](https://github.com/perfectsense/gyro-azure-provider/pull/146): Utilize new java SDK bom
+* [149](https://github.com/perfectsense/gyro-azure-provider/pull/149): Add support for multiple client types
+* [150](https://github.com/perfectsense/gyro-azure-provider/pull/150): Add support for communication and email services
 
 ## 0.99.2 (August 25th, 2020)
 
