@@ -64,6 +64,7 @@ See [Azure authentication for Gyro](https://gyro.dev/providers/azure/index.html#
 * [AccessManagement](https://gyro.dev/providers/azure/accessmanagement/index.html)
 * [CDN](https://gyro.dev/providers/azure/cdn/index.html)
 * [Compute](https://gyro.dev/providers/azure/compute/index.html)
+* [Communication](https://gyro.dev/providers/azure/communication/index.html)
 * [CosmosDb](https://gyro.dev/providers/azure/cosmosdb/index.html)
 * [DNS](https://gyro.dev/providers/azure/dns/index.html)
 * [Identity](https://gyro.dev/providers/azure/identity/index.html)
