@@ -42,7 +42,7 @@ Load the Azure provider in your project by consuming it as a `plugin` directive 
 
 ```shell
 @repository: 'https://artifactory.psdops.com/gyro-releases'
-@plugin: 'gyro:gyro-azure-provider:0.99.2'
+@plugin: 'gyro:gyro-azure-provider:1.0.0'
 ```
 
 #### Authentication ####
