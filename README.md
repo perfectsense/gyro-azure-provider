@@ -1,7 +1,7 @@
 <img src="https://github.com/perfectsense/gyro/blob/master/etc/gyro.png" height="200"/>
 
 [![Gitter](https://img.shields.io/gitter/room/perfectsense/gyro)](https://gitter.im/perfectsense/gyro)
-[![GitHub Actions](https://github.com/perfectsense/gyro-azure-provider/actions/workflows/gyro-azure-provider.yml/badge.svg?branch=master&event=release)](https://github.com/perfectsense/gyro-azure-provider/actions/workflows/gyro-azure-provider.yml)
+[![GitHub Actions](https://github.com/perfectsense/gyro-azure-provider/actions/workflows/gyro-azure-provider.yml/badge.svg?branch=master&event=push)](https://github.com/perfectsense/gyro-azure-provider/actions/workflows/gyro-azure-provider.yml)
 [![Apache License 2.0](https://img.shields.io/github/license/perfectsense/gyro-azure-provider)](https://github.com/perfectsense/gyro-azure-provider/blob/master/LICENSE)
 
 
