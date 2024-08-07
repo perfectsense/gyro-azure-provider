@@ -132,6 +132,7 @@ public class NetworkResource extends AzureResource implements Copyable<Network> 
      *
      * @subresource gyro.azure.network.SubnetResource
      */
+    @Required
     public Set<SubnetResource> getSubnet() {
         if (subnet == null) {
             subnet = new HashSet<>();
@@ -281,8 +282,6 @@ public class NetworkResource extends AzureResource implements Copyable<Network> 
             .create();
 
         copyFrom(network);
-
-        getSubnet().clear();
     }
 
     @Override

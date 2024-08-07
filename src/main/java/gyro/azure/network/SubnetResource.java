@@ -187,6 +187,8 @@ public class SubnetResource extends AzureResource implements Copyable<Subnet> {
 
         Network response = updateWithAttach.attach().apply();
         setId(response.subnets().get(getName()).id());
+
+        parent.refresh();
     }
 
     @Override
