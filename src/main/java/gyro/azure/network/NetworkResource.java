@@ -273,13 +273,16 @@ public class NetworkResource extends AzureResource implements Copyable<Network> 
             withAddressSpace = networkDefWithoutAddress.withAddressSpace(addressSpace);
         }
 
+        withAddressSpace = withAddressSpace.withSubnets(getSubnet().stream()
+            .collect(Collectors.toMap(SubnetResource::getName, SubnetResource::getAddressPrefix)));
+
         Network network = withAddressSpace
             .withTags(getTags())
             .create();
 
-        network = network.update().withoutSubnet("subnet1").apply();
-
         copyFrom(network);
+
+        getSubnet().clear();
     }
 
     @Override

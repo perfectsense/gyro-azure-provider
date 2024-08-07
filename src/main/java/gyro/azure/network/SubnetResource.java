@@ -151,6 +151,7 @@ public class SubnetResource extends AzureResource implements Copyable<Subnet> {
             RouteTableResource.class,
             subnet.routeTableId()) : null);
         setServiceEndpoints(toServiceEndpoints(subnet.servicesWithAccess()));
+        setId(subnet.innerModel().id());
     }
 
     @Override
