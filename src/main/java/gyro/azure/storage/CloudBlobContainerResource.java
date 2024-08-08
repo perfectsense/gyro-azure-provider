@@ -157,10 +157,12 @@ public class CloudBlobContainerResource extends AzureResource implements Copyabl
 
         state.save();
 
-        blobContainer.setAccessPolicy(PublicAccessType.fromString(getPublicAccess()), null);
+        if (getPublicAccess() != null) {
+            blobContainer.setAccessPolicy(PublicAccessType.fromString(getPublicAccess()), null);
 
-        if (!getMetadata().isEmpty()) {
-            blobContainer.setMetadata(getMetadata());
+            if (!getMetadata().isEmpty()) {
+                blobContainer.setMetadata(getMetadata());
+            }
         }
 
         copyFrom(blobContainer);
