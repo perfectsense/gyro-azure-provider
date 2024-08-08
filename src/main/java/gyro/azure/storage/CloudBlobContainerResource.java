@@ -18,18 +18,18 @@ package gyro.azure.storage;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
+import com.azure.storage.blob.models.BlobContainerAccessPolicies;
 import com.azure.storage.blob.models.PublicAccessType;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.core.GyroUI;
 import gyro.core.Type;
-import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
@@ -127,7 +127,8 @@ public class CloudBlobContainerResource extends AzureResource implements Copyabl
 
     @Override
     public void copyFrom(BlobContainerClient container) {
-        setPublicAccess(container.getAccessPolicy().getBlobAccessType().toString());
+        setPublicAccess(Optional.ofNullable(container).map(BlobContainerClient::getAccessPolicy).map(
+            BlobContainerAccessPolicies::getBlobAccessType).map(PublicAccessType::toString).orElse(null));
         setName(container.getBlobContainerName());
         setMetadata(container.getProperties().getMetadata());
         setStorageAccount(findById(StorageAccountResource.class, container.getAccountName()));
@@ -153,6 +154,8 @@ public class CloudBlobContainerResource extends AzureResource implements Copyabl
         blobContainer.create();
 
         blobContainer = blobContainer();
+
+        state.save();
 
         blobContainer.setAccessPolicy(PublicAccessType.fromString(getPublicAccess()), null);
 
