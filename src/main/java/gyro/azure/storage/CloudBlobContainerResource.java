@@ -77,7 +77,6 @@ public class CloudBlobContainerResource extends AzureResource implements Copyabl
     /**
      * The public access of the container.
      */
-    @Required
     @ValidStrings({ "blob", "container" })
     @Updatable
     public String getPublicAccess() {
