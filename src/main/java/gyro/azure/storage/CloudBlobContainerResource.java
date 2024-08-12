@@ -20,16 +20,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
+import com.azure.core.http.rest.Response;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.blob.models.BlobContainerAccessPolicies;
 import com.azure.storage.blob.models.PublicAccessType;
+import com.azure.storage.blob.options.BlobContainerCreateOptions;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.core.GyroUI;
 import gyro.core.Type;
+import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
@@ -150,19 +154,33 @@ public class CloudBlobContainerResource extends AzureResource implements Copyabl
     public void create(GyroUI ui, State state) {
         BlobContainerClient blobContainer = blobContainer();
 
-        blobContainer.create();
-
-        blobContainer = blobContainer();
-
-        state.save();
+        BlobContainerCreateOptions blobContainerCreateOptions = new BlobContainerCreateOptions();
 
         if (getPublicAccess() != null) {
-            blobContainer.setAccessPolicy(PublicAccessType.fromString(getPublicAccess()), null);
-
-            if (!getMetadata().isEmpty()) {
-                blobContainer.setMetadata(getMetadata());
-            }
+            blobContainerCreateOptions.setPublicAccessType(PublicAccessType.fromString(getPublicAccess()));
         }
+
+        if (!getMetadata().isEmpty()) {
+            blobContainerCreateOptions.setMetadata(getMetadata());
+        }
+
+        // We add this wait to create as sometimes there is a delay for the StorageAccount to actually become public.
+        // This results in a 409 error that gets thrown
+        // Unfortunately th api doesn't really provide a good way to determine if the account is actually public.
+        Wait.atMost(2, TimeUnit.MINUTES)
+            .prompt(false)
+            .checkEvery(10, TimeUnit.SECONDS)
+            .until(() -> {
+                Response<Boolean> response =
+                    blobContainer.createIfNotExistsWithResponse(blobContainerCreateOptions, null, null);
+
+                if (response.getStatusCode() == 409) {
+                    return false;
+
+                } else {
+                    return true;
+                }
+            });
 
         copyFrom(blobContainer);
     }
