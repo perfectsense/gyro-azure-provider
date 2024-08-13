@@ -18,15 +18,21 @@ package gyro.azure.storage;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import com.azure.resourcemanager.storage.models.StorageAccount;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
+import com.azure.storage.blob.models.BlobContainerAccessPolicies;
+import com.azure.storage.blob.models.BlobErrorCode;
+import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.models.PublicAccessType;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
+import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.Wait;
@@ -77,7 +83,6 @@ public class CloudBlobContainerResource extends AzureResource implements Copyabl
     /**
      * The public access of the container.
      */
-    @Required
     @ValidStrings({ "blob", "container" })
     @Updatable
     public String getPublicAccess() {
@@ -127,7 +132,8 @@ public class CloudBlobContainerResource extends AzureResource implements Copyabl
 
     @Override
     public void copyFrom(BlobContainerClient container) {
-        setPublicAccess(container.getAccessPolicy().getBlobAccessType().toString());
+        setPublicAccess(Optional.ofNullable(container).map(BlobContainerClient::getAccessPolicy).map(
+            BlobContainerAccessPolicies::getBlobAccessType).map(PublicAccessType::toString).orElse(null));
         setName(container.getBlobContainerName());
         setMetadata(container.getProperties().getMetadata());
         setStorageAccount(findById(StorageAccountResource.class, container.getAccountName()));
@@ -150,14 +156,43 @@ public class CloudBlobContainerResource extends AzureResource implements Copyabl
     public void create(GyroUI ui, State state) {
         BlobContainerClient blobContainer = blobContainer();
 
-        blobContainer.create();
+        try {
+            blobContainer.create();
 
-        blobContainer = blobContainer();
+        } catch (BlobStorageException ex) {
+            throw new GyroException(
+                String.format("Could not create container [%s] as it already exists", getName()), ex);
+        }
 
-        blobContainer.setAccessPolicy(PublicAccessType.fromString(getPublicAccess()), null);
+        state.save();
 
         if (!getMetadata().isEmpty()) {
             blobContainer.setMetadata(getMetadata());
+        }
+
+        state.save();
+
+        if (getPublicAccess() != null) {
+            StorageAccount refreshedStorageAccount = getStorageAccount().getStorageAccount();
+
+            if (refreshedStorageAccount != null && refreshedStorageAccount.isBlobPublicAccessAllowed()) {
+                Wait.atMost(2, TimeUnit.MINUTES)
+                    .prompt(false)
+                    .checkEvery(10, TimeUnit.SECONDS)
+                    .until(() -> {
+                        try {
+                            blobContainer.setAccessPolicy(PublicAccessType.fromString(getPublicAccess()), null);
+                            return true;
+
+                        } catch (BlobStorageException ex) {
+                            if (BlobErrorCode.fromString("PublicAccessNotPermitted").equals(ex.getErrorCode())) {
+                                // Retrying as the storage account has not transitioned to public yet
+                                return false;
+                            }
+                            throw ex;
+                        }
+                    });
+            }
         }
 
         copyFrom(blobContainer);

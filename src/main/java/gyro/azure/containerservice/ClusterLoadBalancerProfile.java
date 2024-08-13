@@ -66,10 +66,6 @@ public class ClusterLoadBalancerProfile extends Diffable implements Copyable<Man
      * If set to ``true`` enables multiple standard load balancer. Defaults to ``false``.
      */
     public Boolean getEnableMultipleStandardLoadBalancers() {
-        if (enableMultipleStandardLoadBalancers == null) {
-            enableMultipleStandardLoadBalancers = false;
-        }
-
         return enableMultipleStandardLoadBalancers;
     }
 
@@ -171,7 +167,9 @@ public class ClusterLoadBalancerProfile extends Diffable implements Copyable<Man
             profile.withAllocatedOutboundPorts(getAllocatedOutboundPorts());
         }
 
-        profile.withEnableMultipleStandardLoadBalancers(getEnableMultipleStandardLoadBalancers());
+        if (getEnableMultipleStandardLoadBalancers() != null) {
+            profile.withEnableMultipleStandardLoadBalancers(getEnableMultipleStandardLoadBalancers());
+        }
 
         if (getIdleTimeoutInMinutes() != null) {
             profile.withIdleTimeoutInMinutes(getIdleTimeoutInMinutes());
