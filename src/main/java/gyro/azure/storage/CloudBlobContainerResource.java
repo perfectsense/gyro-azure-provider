@@ -22,15 +22,17 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import com.azure.core.http.rest.Response;
+import com.azure.resourcemanager.storage.models.StorageAccount;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.blob.models.BlobContainerAccessPolicies;
+import com.azure.storage.blob.models.BlobErrorCode;
+import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.models.PublicAccessType;
-import com.azure.storage.blob.options.BlobContainerCreateOptions;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
+import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.Wait;
@@ -154,33 +156,44 @@ public class CloudBlobContainerResource extends AzureResource implements Copyabl
     public void create(GyroUI ui, State state) {
         BlobContainerClient blobContainer = blobContainer();
 
-        BlobContainerCreateOptions blobContainerCreateOptions = new BlobContainerCreateOptions();
+        try {
+            blobContainer.create();
 
-        if (getPublicAccess() != null) {
-            blobContainerCreateOptions.setPublicAccessType(PublicAccessType.fromString(getPublicAccess()));
+        } catch (BlobStorageException ex) {
+            System.out.println(ex.getErrorCode());
+            System.out.println(ex.getMessage());
+            throw new GyroException(
+                String.format("Could not create container [%s] as it already exists", getName()), ex);
         }
 
         if (!getMetadata().isEmpty()) {
-            blobContainerCreateOptions.setMetadata(getMetadata());
+            blobContainer.setMetadata(getMetadata());
         }
 
-        // We add this wait to create as sometimes there is a delay for the StorageAccount to actually become public.
-        // This results in a 409 error that gets thrown
-        // Unfortunately th api doesn't really provide a good way to determine if the account is actually public.
-        Wait.atMost(2, TimeUnit.MINUTES)
-            .prompt(false)
-            .checkEvery(10, TimeUnit.SECONDS)
-            .until(() -> {
-                Response<Boolean> response =
-                    blobContainer.createIfNotExistsWithResponse(blobContainerCreateOptions, null, null);
+        state.save();
 
-                if (response.getStatusCode() == 409) {
-                    return false;
+        if (getPublicAccess() != null) {
+            StorageAccount refreshedStorageAccount = getStorageAccount().getStorageAccount();
 
-                } else {
-                    return true;
-                }
-            });
+            if (refreshedStorageAccount != null && refreshedStorageAccount.isBlobPublicAccessAllowed()) {
+                Wait.atMost(2, TimeUnit.MINUTES)
+                    .prompt(false)
+                    .checkEvery(10, TimeUnit.SECONDS)
+                    .until(() -> {
+                        try {
+                            blobContainer.setAccessPolicy(PublicAccessType.fromString(getPublicAccess()), null);
+                            return true;
+
+                        } catch (BlobStorageException ex) {
+                            if (BlobErrorCode.fromString("PublicAccessNotPermitted").equals(ex.getErrorCode())) {
+                                // Retrying as the storage account has not transitioned to public yet
+                                return false;
+                            }
+                            throw ex;
+                        }
+                    });
+            }
+        }
 
         copyFrom(blobContainer);
     }
