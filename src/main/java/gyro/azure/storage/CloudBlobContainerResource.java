@@ -160,8 +160,6 @@ public class CloudBlobContainerResource extends AzureResource implements Copyabl
             blobContainer.create();
 
         } catch (BlobStorageException ex) {
-            System.out.println(ex.getErrorCode());
-            System.out.println(ex.getMessage());
             throw new GyroException(
                 String.format("Could not create container [%s] as it already exists", getName()), ex);
         }
