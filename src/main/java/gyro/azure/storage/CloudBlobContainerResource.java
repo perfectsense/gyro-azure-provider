@@ -164,6 +164,8 @@ public class CloudBlobContainerResource extends AzureResource implements Copyabl
                 String.format("Could not create container [%s] as it already exists", getName()), ex);
         }
 
+        state.save();
+
         if (!getMetadata().isEmpty()) {
             blobContainer.setMetadata(getMetadata());
         }
