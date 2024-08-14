@@ -1,3 +1,9 @@
+## 1.0.1 (August 14th, 2024)
+
+ISSUES FIXED:
+
+[155](https://github.com/perfectsense/gyro-azure-provider/pull/155): Fixes subnetwork creation, public container creation, and cluster network profile creation.
+
 ## 1.0.0 (August 5th, 2024)
 
 ENHANCEMENTS:
