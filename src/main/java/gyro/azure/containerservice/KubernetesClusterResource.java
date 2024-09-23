@@ -30,7 +30,12 @@ import com.azure.resourcemanager.containerservice.models.AgentPoolType;
 import com.azure.resourcemanager.containerservice.models.ContainerServiceVMSizeTypes;
 import com.azure.resourcemanager.containerservice.models.KubeletDiskType;
 import com.azure.resourcemanager.containerservice.models.KubernetesCluster;
+import com.azure.resourcemanager.containerservice.models.KubernetesCluster.DefinitionStages.WithAgentPool;
+import com.azure.resourcemanager.containerservice.models.KubernetesCluster.DefinitionStages.WithCreate;
+import com.azure.resourcemanager.containerservice.models.KubernetesCluster.DefinitionStages.WithServicePrincipalClientId;
 import com.azure.resourcemanager.containerservice.models.KubernetesClusterAgentPool;
+import com.azure.resourcemanager.containerservice.models.KubernetesClusterAgentPool.DefinitionStages.Blank;
+import com.azure.resourcemanager.containerservice.models.KubernetesClusterAgentPool.DefinitionStages.WithAttach;
 import com.azure.resourcemanager.containerservice.models.KubernetesClusters;
 import com.azure.resourcemanager.containerservice.models.LoadBalancerSku;
 import com.azure.resourcemanager.containerservice.models.ManagedClusterAddonProfile;
@@ -40,11 +45,6 @@ import com.azure.resourcemanager.containerservice.models.OSDiskType;
 import com.azure.resourcemanager.containerservice.models.OSType;
 import com.azure.resourcemanager.containerservice.models.ScaleSetEvictionPolicy;
 import com.azure.resourcemanager.containerservice.models.ScaleSetPriority;
-import com.azure.resourcemanager.containerservice.models.KubernetesClusterAgentPool.DefinitionStages.WithAttach;
-import com.azure.resourcemanager.containerservice.models.KubernetesClusterAgentPool.DefinitionStages.Blank;
-import com.azure.resourcemanager.containerservice.models.KubernetesCluster.DefinitionStages.WithCreate;
-import com.azure.resourcemanager.containerservice.models.KubernetesCluster.DefinitionStages.WithServicePrincipalClientId;
-import com.azure.resourcemanager.containerservice.models.KubernetesCluster.DefinitionStages.WithAgentPool;
 import gyro.azure.AzureResource;
 import gyro.azure.Copyable;
 import gyro.azure.resources.ResourceGroupResource;
@@ -166,6 +166,7 @@ public class KubernetesClusterResource extends AzureResource implements Copyable
     /**
      * Version of the AKS cluster to use.
      */
+    @Updatable
     public String getVersion() {
         return version;
     }
@@ -683,6 +684,10 @@ public class KubernetesClusterResource extends AzureResource implements Copyable
         }
 
         update = cluster.update();
+
+        if (changedFieldNames.contains("version")) {
+            update = update.withVersion(getVersion());
+        }
 
         if (changedFieldNames.contains("enable-rbac")) {
             if (getEnableRbac()) {
