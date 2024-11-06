@@ -133,7 +133,7 @@ public class AzureCredentials extends Credentials {
     }
 
     public TokenCredential getTokenCredential(String tenant, String client, String key) {
-        if (client == null || key == null) {
+        if (tenant == null || client == null || key == null) {
             return new AzureCliCredentialBuilder().build();
         }
 
