@@ -24,6 +24,7 @@ import com.azure.core.credential.TokenCredential;
 import com.azure.core.http.okhttp.OkHttpAsyncHttpClientBuilder;
 import com.azure.core.management.AzureEnvironment;
 import com.azure.core.management.profile.AzureProfile;
+import com.azure.identity.AzureCliCredentialBuilder;
 import com.azure.identity.ClientSecretCredentialBuilder;
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.communication.CommunicationManager;
@@ -132,6 +133,10 @@ public class AzureCredentials extends Credentials {
     }
 
     public TokenCredential getTokenCredential(String tenant, String client, String key) {
+        if (tenant == null || client == null || key == null) {
+            return new AzureCliCredentialBuilder().build();
+        }
+
         return new ClientSecretCredentialBuilder()
             .clientId(ObjectUtils.to(String.class, client))
             .clientSecret(ObjectUtils.to(String.class, key))
